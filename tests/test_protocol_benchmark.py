@@ -1,4 +1,4 @@
-from ci_failure_orchestrator.benchmark import BenchmarkResult, BenchmarkSuite
+from ci_failure_orchestrator.benchmark_suite import BenchmarkResult, BenchmarkSuite
 from ci_failure_orchestrator.protocol import Decision, EvidenceEnvelope, FailureEnvelope, RepairEnvelope
 
 
