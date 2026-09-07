@@ -7,7 +7,16 @@ import tempfile
 
 from ci_failure_orchestrator.agent_eval import ReplayAgentBackend, run_agent_case, summarize_agent_results
 from ci_failure_orchestrator.repair import SandboxRepairExecutor, pytest_verifier
-from scripts.run_repair_fixture_benchmark import materialize_fixture
+
+
+def materialize_fixture(root: Path, case: dict) -> Path:
+    fixture = root / case["id"]
+    fixture.mkdir(parents=True, exist_ok=True)
+    for relative, content in case.get("initial_files", {}).items():
+        path = fixture / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+    return fixture
 
 
 def main() -> int:
