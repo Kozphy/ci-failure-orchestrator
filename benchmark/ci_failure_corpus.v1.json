@@ -1,0 +1,103 @@
+{
+  "version": "1.0",
+  "description": "Deterministic synthetic CI cascade corpus for root-cause ranking evaluation. Synthetic evidence only; not production incident data.",
+  "stages": [
+    {"id": "lint", "depends_on": [], "criticality": 0.4},
+    {"id": "type_check", "depends_on": ["lint"], "criticality": 0.7},
+    {"id": "unit_test", "depends_on": ["type_check"], "criticality": 0.8},
+    {"id": "integration_test", "depends_on": ["unit_test"], "criticality": 0.9},
+    {"id": "build", "depends_on": ["integration_test"], "criticality": 0.8},
+    {"id": "package", "depends_on": ["build"], "criticality": 0.8},
+    {"id": "deploy", "depends_on": ["package"], "criticality": 1.0}
+  ],
+  "cases": [
+    {
+      "id": "type-error-cascade",
+      "root_cause": "type_check",
+      "failures": [
+        {"stage": "type_check", "error_type": "TYPE_ERROR", "confidence": 0.96, "severity": 0.8},
+        {"stage": "unit_test", "error_type": "TEST_ASSERTION", "confidence": 0.82, "severity": 0.7},
+        {"stage": "build", "error_type": "BUILD_ERROR", "confidence": 0.75, "severity": 0.7},
+        {"stage": "package", "error_type": "PACKAGE_ERROR", "confidence": 0.72, "severity": 0.7}
+      ],
+      "failed_before": ["type_check", "unit_test", "build", "package"],
+      "failed_after_fix": []
+    },
+    {
+      "id": "dependency-build-cascade",
+      "root_cause": "unit_test",
+      "failures": [
+        {"stage": "unit_test", "error_type": "DEPENDENCY_ERROR", "confidence": 0.95, "severity": 0.9},
+        {"stage": "integration_test", "error_type": "TEST_ASSERTION", "confidence": 0.80, "severity": 0.7},
+        {"stage": "build", "error_type": "BUILD_ERROR", "confidence": 0.82, "severity": 0.8},
+        {"stage": "deploy", "error_type": "DEPLOYMENT_ERROR", "confidence": 0.70, "severity": 0.8}
+      ],
+      "failed_before": ["unit_test", "integration_test", "build", "deploy"],
+      "failed_after_fix": []
+    },
+    {
+      "id": "build-package-deploy",
+      "root_cause": "build",
+      "failures": [
+        {"stage": "build", "error_type": "BUILD_ERROR", "confidence": 0.94, "severity": 0.9},
+        {"stage": "package", "error_type": "PACKAGE_ERROR", "confidence": 0.84, "severity": 0.8},
+        {"stage": "deploy", "error_type": "DEPLOYMENT_ERROR", "confidence": 0.78, "severity": 0.8}
+      ],
+      "failed_before": ["build", "package", "deploy"],
+      "failed_after_fix": []
+    },
+    {
+      "id": "test-to-deploy",
+      "root_cause": "integration_test",
+      "failures": [
+        {"stage": "integration_test", "error_type": "TEST_ASSERTION", "confidence": 0.93, "severity": 0.9},
+        {"stage": "package", "error_type": "PACKAGE_ERROR", "confidence": 0.77, "severity": 0.7},
+        {"stage": "deploy", "error_type": "DEPLOYMENT_ERROR", "confidence": 0.74, "severity": 0.8}
+      ],
+      "failed_before": ["integration_test", "package", "deploy"],
+      "failed_after_fix": []
+    },
+    {
+      "id": "package-runtime-boundary",
+      "root_cause": "package",
+      "failures": [
+        {"stage": "package", "error_type": "PACKAGE_ERROR", "confidence": 0.96, "severity": 0.9},
+        {"stage": "deploy", "error_type": "DEPLOYMENT_ERROR", "confidence": 0.76, "severity": 0.8}
+      ],
+      "failed_before": ["package", "deploy"],
+      "failed_after_fix": []
+    },
+    {
+      "id": "single-deploy-failure",
+      "root_cause": "deploy",
+      "failures": [
+        {"stage": "deploy", "error_type": "DEPLOYMENT_ERROR", "confidence": 0.98, "severity": 1.0}
+      ],
+      "failed_before": ["deploy"],
+      "failed_after_fix": []
+    },
+    {
+      "id": "dependency-partial-cascade",
+      "root_cause": "type_check",
+      "failures": [
+        {"stage": "type_check", "error_type": "DEPENDENCY_ERROR", "confidence": 0.91, "severity": 0.8},
+        {"stage": "build", "error_type": "BUILD_ERROR", "confidence": 0.86, "severity": 0.8},
+        {"stage": "package", "error_type": "PACKAGE_ERROR", "confidence": 0.80, "severity": 0.7},
+        {"stage": "deploy", "error_type": "DEPLOYMENT_ERROR", "confidence": 0.75, "severity": 0.8}
+      ],
+      "failed_before": ["type_check", "build", "package", "deploy"],
+      "failed_after_fix": ["deploy"]
+    },
+    {
+      "id": "unit-test-package-cascade",
+      "root_cause": "unit_test",
+      "failures": [
+        {"stage": "unit_test", "error_type": "TEST_ASSERTION", "confidence": 0.92, "severity": 0.8},
+        {"stage": "package", "error_type": "PACKAGE_ERROR", "confidence": 0.80, "severity": 0.7},
+        {"stage": "deploy", "error_type": "DEPLOYMENT_ERROR", "confidence": 0.73, "severity": 0.8}
+      ],
+      "failed_before": ["unit_test", "package", "deploy"],
+      "failed_after_fix": []
+    }
+  ]
+}
