@@ -15,6 +15,8 @@ GitHub Actions jobs + logs
           ↓
  Root-cause ranking
           ↓
+ Repair Planner Agent
+          ↓
 Selective verification plan
           ↓
  Full-pipeline regression check
@@ -31,9 +33,31 @@ A CI run may show `Type Check ❌ → Unit Test ❌ → Integration Test ❌ →
 - Root-cause ranking based on upstream impact, causal rules, depth, severity, and criticality
 - Causal failure graph with evidence and edge confidence
 - GitHub Actions job/log ingestion from normalized API payloads
+- Repair Planner Agent with bounded hypotheses, risk classification, rollback intent, and human-approval gating
 - Selective verification planner: root stage → predicted downstream failures → full pipeline
 - Retry/escalation primitives and hash-chained audit log
 - Benchmark metrics for Top-1/Top-3 RCA accuracy and cascade elimination
+
+## Repair Planner Agent
+
+`DeterministicRepairPlanner` converts a ranked root-cause hypothesis into a constrained `RepairPlan` before any coding agent is allowed to edit source code.
+
+A plan contains:
+
+```text
+root stage
+hypothesis
+candidate target files
+proposed minimal change
+risk level
+human approval requirement
+rollback strategy
+verification sequence
+```
+
+The first implementation is intentionally deterministic and provider-neutral. A future LLM/coding-agent adapter can consume the same `RepairPlan` contract without coupling the core orchestrator to a single model vendor.
+
+High-risk and unknown failure classes fail safe by requiring human approval. Verification reuses the existing causal path planner and always ends with a full-pipeline regression check.
 
 ## Quick start
 
@@ -68,9 +92,9 @@ A causal prediction is stronger when fixing the predicted root cause actually re
 
 **v0.3** — direct GitHub API collector for workflow runs/jobs/logs and workflow-DAG reconstruction.
 
-**v0.4** — patch planner, affected-test selection, risk scoring, rollback, and human approval gates.
+**v0.4** — coding-agent executor, affected-test selection, richer risk scoring, rollback execution, evaluator, and human approval gates.
 
-**v1.0** — reproducible CI-failure benchmark suite, learned ranking calibration, dashboard, and production-grade policy controls.
+**v1.0** — reproducible CI-failure benchmark suite, learned ranking calibration, dashboard, policy controls, retry budgets, stopping conditions, and production evidence.
 
 ## Design principle
 
