@@ -22,18 +22,34 @@ class ConflictBlock:
     theirs: str
 
 
+@dataclass(frozen=True)
+class SemanticResolution:
+    resolved_text: str
+    confidence: float
+    rationale: str = ""
+
+
 class MergeConflictResolver(Protocol):
     def resolve(self, *, path: str, block: ConflictBlock, plan: RepairPlan) -> str | None:
         """Return resolved text for one block, or None to escalate ambiguity."""
         ...
 
 
-class ConservativeMergeResolver:
-    """Deterministic resolver for only unambiguous merge-conflict cases.
+class SemanticResolutionProvider(Protocol):
+    def resolve_conflict(
+        self,
+        *,
+        path: str,
+        ours: str,
+        theirs: str,
+        hypothesis: str,
+        proposed_change: str,
+    ) -> SemanticResolution:
+        ...
 
-    It intentionally refuses semantic conflicts. Those can be delegated to a model
-    backed resolver later, but the same sandbox/evaluator/policy boundaries remain.
-    """
+
+class ConservativeMergeResolver:
+    """Deterministic resolver for only unambiguous merge-conflict cases."""
 
     def resolve(self, *, path: str, block: ConflictBlock, plan: RepairPlan) -> str | None:
         ours = block.ours
@@ -44,12 +60,62 @@ class ConservativeMergeResolver:
             return theirs
         if not theirs.strip():
             return ours
-        # If one side strictly contains the other, preserve the superset. This is
-        # useful for additive documentation/config changes and remains deterministic.
         if ours in theirs:
             return theirs
         if theirs in ours:
             return ours
+        return None
+
+
+class SemanticMergeResolver:
+    """Bounded semantic fallback for ambiguous conflict blocks.
+
+    The provider may use an LLM, but this resolver enforces confidence, size and
+    marker constraints before model output can become a patch candidate.
+    """
+
+    def __init__(
+        self,
+        provider: SemanticResolutionProvider,
+        *,
+        min_confidence: float = 0.80,
+        max_resolved_chars: int = 20_000,
+    ) -> None:
+        self.provider = provider
+        self.min_confidence = min_confidence
+        self.max_resolved_chars = max_resolved_chars
+
+    def resolve(self, *, path: str, block: ConflictBlock, plan: RepairPlan) -> str | None:
+        result = self.provider.resolve_conflict(
+            path=path,
+            ours=block.ours,
+            theirs=block.theirs,
+            hypothesis=plan.hypothesis,
+            proposed_change=plan.proposed_change,
+        )
+        text = result.resolved_text
+        if result.confidence < self.min_confidence:
+            return None
+        if not text.strip():
+            return None
+        if len(text) > self.max_resolved_chars:
+            return None
+        if any(marker in text for marker in ("<<<<<<<", "=======", ">>>>>>>")):
+            return None
+        return text
+
+
+class ChainedMergeResolver:
+    """Prefer deterministic resolution; use semantic resolution only as fallback."""
+
+    def __init__(self, *resolvers: MergeConflictResolver) -> None:
+        self.resolvers = resolvers
+
+    def resolve(self, *, path: str, block: ConflictBlock, plan: RepairPlan) -> str | None:
+        for resolver in self.resolvers:
+            resolution = resolver.resolve(path=path, block=block, plan=plan)
+            if resolution is not None:
+                return resolution
         return None
 
 
@@ -58,8 +124,8 @@ class MergeConflictRepairAgent:
 
     The agent never writes to the repository. It reads only planner-approved files,
     resolves conflict blocks through an injected resolver, and emits a unified diff.
-    Any ambiguous block produces an empty proposal so CodingAgentExecutor fails
-    closed and the orchestrator can escalate to a stronger agent or a human.
+    Any unresolved block produces an empty proposal so CodingAgentExecutor fails
+    closed and the orchestrator can escalate to another agent or a human.
     """
 
     name = "merge-conflict-repair"
@@ -101,6 +167,7 @@ class MergeConflictRepairAgent:
                             "conflict_blocks": str(conflict_blocks),
                             "decision": "escalate",
                             "ambiguous_path": path,
+                            "resolver": self.resolver.__class__.__name__,
                         },
                     )
                 resolved_parts.append(resolution)
@@ -142,7 +209,7 @@ class MergeConflictRepairAgent:
 
         return PatchProposal(
             provider=self.name,
-            summary=f"resolved {conflict_blocks} unambiguous merge-conflict block(s)",
+            summary=f"resolved {conflict_blocks} merge-conflict block(s) for evaluation",
             changed_files=tuple(changed_files),
             patch="\n".join(patches),
             confidence=0.90,
