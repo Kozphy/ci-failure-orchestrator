@@ -1,0 +1,25 @@
+name: repair-execution
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  repair-execution:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[dev]'
+      - name: Provider-to-patch execution contract
+        run: pytest -q tests/test_repair_execution.py
+      - name: Full regression suite
+        run: pytest -q
