@@ -26,6 +26,8 @@ jobs:
         run: python scripts/run_repair_fixture_benchmark.py
       - name: Run repair ablation benchmark
         run: python scripts/run_ablation_benchmark.py
+      - name: Run Level 10 agent evaluation benchmark
+        run: python scripts/run_agent_eval_benchmark.py
       - name: Evaluate production-proof contract
         run: python scripts/check_production_gate.py benchmark/production_metrics.example.json
       - name: Upload production evidence
@@ -36,4 +38,5 @@ jobs:
             artifacts/corpus-benchmark.json
             artifacts/repair-fixture-benchmark.json
             artifacts/repair-ablation.json
+            artifacts/agent-eval-benchmark.json
             artifacts/production-gate.json
