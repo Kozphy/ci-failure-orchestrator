@@ -18,7 +18,7 @@ GitHub Actions run / jobs / logs
  Failure Memory Agent
    ↙ retrieve   ↘ remember outcome
           ↓
- Repair Planner Agent
+ Memory-Aware Repair Planner
           ↓
  Multiple Coding Agents
           ↓
@@ -56,6 +56,8 @@ A CI run may show `Type Check ❌ → Unit Test ❌ → Integration Test ❌ →
 - Root-cause ranking based on upstream impact, causal rules, depth, severity, and criticality
 - Causal failure graph with evidence and edge confidence
 - Failure Memory Agent with structured incident records and similarity retrieval
+- Persistent SQLite incident store with upsert and reopen semantics
+- Memory-aware planner that adds bounded historical repair context without granting memory execution authority
 - Historical successful/failed patch outcomes, retries, cost, latency, affected tests, and regression evidence
 - GitHub Actions failed-job/log collector abstraction
 - Repair Planner Agent with bounded hypotheses, risk classification, rollback intent, and human-approval gating
@@ -82,23 +84,29 @@ A CI run may show `Type Check ❌ → Unit Test ❌ → Integration Test ❌ →
 
 Retrieval uses a deterministic weighted similarity over error-signature tokens, failure class, root stage, and changed-file overlap. Historical regressions remain visible and are never counted as successful repair evidence.
 
+`SQLiteIncidentStore` persists those incidents using Python's standard-library `sqlite3`, so memory survives process restarts without introducing another runtime dependency. The `IncidentStore` protocol remains unchanged, so SQLite can later be swapped for Postgres or a vector-backed implementation.
+
+## Memory-Aware Repair Planner
+
+`MemoryAwareRepairPlanner` decorates the deterministic planner. It retrieves a bounded set of similar incidents and records match count, successful-match count, top similarity, and historical regression count in plan metadata.
+
+Only historical repairs that succeeded **without a recorded regression** are appended as advisory repair evidence. Regression-producing historical fixes remain visible in metadata but are never promoted into the proposed change.
+
 ```text
 new failure
     ↓
 MemoryQuery
     ↓
-retrieve similar incidents
+SQLite / IncidentStore
     ↓
-historical repair evidence
+retrieve top-K similar incidents
     ↓
-planner / investigator context
+separate successful evidence from regression history
     ↓
-repair + evaluation
+Memory-Aware Repair Planner
     ↓
-remember final outcome
+bounded RepairPlan
 ```
-
-The current store is intentionally an in-memory protocol implementation. A persistent SQLite/Postgres/vector backend can replace it without changing the agent contract.
 
 ## v0.7 execution layer
 
@@ -147,6 +155,7 @@ pytest
 - False Root-Cause Rate
 - Cascading Failures Eliminated
 - Memory retrieval precision@K / success lift
+- Historical-regression contamination rate
 - Mean retries before resolution
 - MTTR reduction
 - Verification cost
@@ -171,7 +180,7 @@ pytest
 
 **v0.7** — GitHub Actions collector, isolated worktrees, executable tests, canary and rollback hooks. *(implemented)*
 
-**v0.8** — Failure Memory Agent, persistent incident store, real GitHub Actions adapter, automatic repair PR creation, and cross-provider calibration. *(memory core implemented)*
+**v0.8** — Failure Memory Agent, persistent SQLite incident store, and memory-aware repair planning. *(implemented)* Next: real GitHub Actions adapter, automatic repair PR creation, and cross-provider calibration.
 
 **v1.0** — reproducible CI-failure benchmark suite, learned ranking calibration, dashboard, production policy controls, and independently reproducible production evidence.
 
