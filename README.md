@@ -59,6 +59,7 @@ The core rule is separation of duties: **agents may propose repairs, but they ca
 - deterministic-first + model-backed semantic merge resolution chain
 - OpenAI semantic merge provider with structured JSON-only output
 - confidence, output-size, empty-output, and conflict-marker rejection before patch admission
+- held-out synthetic merge-conflict corpus and reproducible benchmark
 - isolated workspaces/worktrees for mutations
 - conservative affected-test selection and full-regression fallback
 - retry, cost, latency, and risk budgets
@@ -129,6 +130,24 @@ Install the optional provider integration with:
 python -m pip install -e ".[dev,openai]"
 ```
 
+## Merge-conflict benchmark
+
+`benchmark/merge_conflict_corpus.v1.json` is a held-out synthetic corpus that separates deterministic conflicts from semantic conflicts. The default Production Proof run uses only the deterministic resolver so semantic cases must escalate rather than guess.
+
+```bash
+python scripts/run_merge_conflict_benchmark.py
+```
+
+The generated `artifacts/merge-conflict-benchmark.json` records:
+
+- auto-resolution rate
+- exact-match rate for deterministic cases
+- escalation rate
+- semantic-conflict escalation precision
+- unsafe-output rate
+
+The v1 corpus is deliberately small and synthetic. It is evidence that the resolver behaves correctly under controlled cases, **not** evidence of production-scale semantic merge performance. Live-provider evaluation should use a separate held-out corpus, repeated runs, token/latency/cost telemetry, and regression verification.
+
 ## Failure Memory
 
 Historical incidents are advisory evidence, not execution authority. Similar incidents can contribute repair context and affected-test hints, while past regression-producing fixes remain visible only as warnings.
@@ -155,6 +174,7 @@ The repository carries reproducible evidence artifacts for different layers of t
 - `repair-fixture-benchmark.json` — executable deterministic repairs
 - `repair-ablation.json` — system-component ablation comparison
 - `agent-eval-benchmark.json` — provider-neutral agent telemetry contract
+- `merge-conflict-benchmark.json` — held-out deterministic/fail-closed conflict evidence
 - `production-gate.json` — explicit PASS/BLOCK policy decision
 
 Claims are scoped to the evidence source. Synthetic/replay benchmarks are not presented as production incident or live-model performance.
@@ -209,7 +229,7 @@ ci-orchestrator analyze \
 
 ## Version direction
 
-**v0.8.1** adds deterministic-first, provider-backed semantic merge-conflict resolution while preserving proposal-only authority and fail-closed validation. The next evidence milestone is a held-out merge-conflict benchmark with real provider telemetry and automatic repair PR creation behind the existing policy boundary.
+**v0.8.2** adds a held-out merge-conflict benchmark and Production Proof artifact on top of deterministic-first, provider-backed semantic resolution. The next evidence milestone is live semantic-provider evaluation with repeated held-out runs, real token/latency/cost telemetry, and automatic repair-PR creation behind the existing policy boundary.
 
 ## Design principle
 
