@@ -14,6 +14,7 @@ class RepairPlan:
     strategy: str
     target_path: str
     description: str
+    candidate_index: int = 0
 
 
 @dataclass(frozen=True)
@@ -45,7 +46,7 @@ class RepairPlanner:
 
     def plan(self, case: dict) -> list[RepairPlan]:
         plans = []
-        for candidate in case.get("repair_candidates", []):
+        for index, candidate in enumerate(case.get("repair_candidates", [])):
             strategy = candidate.get("strategy", "")
             if strategy not in SAFE_STRATEGIES:
                 continue
@@ -54,6 +55,7 @@ class RepairPlanner:
                     strategy=strategy,
                     target_path=candidate["target_path"],
                     description=candidate.get("description", strategy),
+                    candidate_index=index,
                 )
             )
         return plans
@@ -71,10 +73,12 @@ class SandboxRepairExecutor:
             sandbox = Path(tmp) / "repo"
             shutil.copytree(fixture_dir, sandbox)
             target = sandbox / plan.target_path
-            candidate = next(
-                c for c in case.get("repair_candidates", [])
-                if c.get("strategy") == plan.strategy and c.get("target_path") == plan.target_path
-            )
+            candidates = case.get("repair_candidates", [])
+            if plan.candidate_index >= len(candidates):
+                raise IndexError(f"repair candidate index out of range: {plan.candidate_index}")
+            candidate = candidates[plan.candidate_index]
+            if candidate.get("strategy") != plan.strategy or candidate.get("target_path") != plan.target_path:
+                raise ValueError("repair plan no longer matches its candidate payload")
             self._apply(target, candidate)
             success, regression, stdout, stderr = self.verify(sandbox)
         duration = time.perf_counter() - started
