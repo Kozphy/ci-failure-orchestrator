@@ -15,6 +15,9 @@ GitHub Actions run / jobs / logs
           ↓
  Root-cause ranking
           ↓
+ Failure Memory Agent
+   ↙ retrieve   ↘ remember outcome
+          ↓
  Repair Planner Agent
           ↓
  Multiple Coding Agents
@@ -44,7 +47,7 @@ GitHub Actions run / jobs / logs
  Signed Production Evidence
 ```
 
-A CI run may show `Type Check ❌ → Unit Test ❌ → Integration Test ❌ → Deploy ❌`. The visible deploy failure can be downstream noise. The orchestrator ranks the earliest causal failure, constrains the repair scope, lets multiple agents propose bounded candidates, evaluates them independently, chooses the best admissible candidate, and stops unsafe or unproductive repair loops.
+A CI run may show `Type Check ❌ → Unit Test ❌ → Integration Test ❌ → Deploy ❌`. The visible deploy failure can be downstream noise. The orchestrator ranks the earliest causal failure, retrieves similar historical incidents, constrains the repair scope, lets multiple agents propose bounded candidates, evaluates them independently, chooses the best admissible candidate, and stops unsafe or unproductive repair loops.
 
 ## Features
 
@@ -52,6 +55,8 @@ A CI run may show `Type Check ❌ → Unit Test ❌ → Integration Test ❌ →
 - Error classification and confidence
 - Root-cause ranking based on upstream impact, causal rules, depth, severity, and criticality
 - Causal failure graph with evidence and edge confidence
+- Failure Memory Agent with structured incident records and similarity retrieval
+- Historical successful/failed patch outcomes, retries, cost, latency, affected tests, and regression evidence
 - GitHub Actions failed-job/log collector abstraction
 - Repair Planner Agent with bounded hypotheses, risk classification, rollback intent, and human-approval gating
 - Provider-neutral Coding Agent protocol
@@ -69,47 +74,46 @@ A CI run may show `Type Check ❌ → Unit Test ❌ → Integration Test ❌ →
 - Canary deploy/health/rollback controller boundary
 - Hashable Production Evidence record for the selected candidate and release decision
 - HMAC-SHA256 signed evidence envelopes with tamper verification
-- Selective verification planner: root stage → predicted downstream failures → full pipeline
 - Retry/escalation primitives and hash-chained audit log
-- Benchmark metrics for Top-1/Top-3 RCA accuracy and cascade elimination
+
+## Failure Memory Agent
+
+`FailureMemoryAgent` adds learning across incidents without giving memory any repair or release authority. Each `IncidentMemory` can record an error signature, failure class, root stage, changed files, successful and failed repair summaries, affected tests, retries, cost, latency, regression outcome, and metadata.
+
+Retrieval uses a deterministic weighted similarity over error-signature tokens, failure class, root stage, and changed-file overlap. Historical regressions remain visible and are never counted as successful repair evidence.
+
+```text
+new failure
+    ↓
+MemoryQuery
+    ↓
+retrieve similar incidents
+    ↓
+historical repair evidence
+    ↓
+planner / investigator context
+    ↓
+repair + evaluation
+    ↓
+remember final outcome
+```
+
+The current store is intentionally an in-memory protocol implementation. A persistent SQLite/Postgres/vector backend can replace it without changing the agent contract.
 
 ## v0.7 execution layer
 
-### GitHub Actions collector
-
-`GitHubActionsCollector` accepts injected GitHub API functions for jobs and logs and returns only failed, cancelled, or timed-out jobs as normalized snapshots. Authentication and SDK details stay outside the orchestration core.
-
-### Isolated repair workspace
-
-`IsolatedGitWorkspace` creates one temporary Git worktree and branch per candidate. Agent patches are applied inside that worktree, not directly to the source checkout. Failed evaluation can call `rollback()` and cleanup removes the worktree.
-
-### Targeted test runner
-
-`TargetedTestRunner` executes affected tests first and can then run the full pytest suite. It captures return code, pass/fail, latency, stdout, stderr, and returns timeout as a failed result rather than hanging the repair loop.
-
-### Canary boundary
-
-`CanaryController` separates deployment, health checking, and rollback into injected hooks. A healthy canary may proceed; an unhealthy canary immediately invokes rollback and records whether rollback itself succeeded.
+`GitHubActionsCollector` normalizes failed/cancelled/timed-out jobs and logs. `IsolatedGitWorkspace` creates a temporary worktree per candidate. `TargetedTestRunner` executes selected tests and full regression with timeout handling. `CanaryController` separates deploy, health-check, and rollback hooks.
 
 ## Real coding-agent adapter contract
 
-`CommandCodingAgent` serializes the approved `RepairPlan` to JSON and sends it to the configured command on **stdin**. The command must emit one JSON object on stdout:
-
-```json
-{
-  "summary": "fix Optional handling",
-  "changed_files": ["src/foo.py"],
-  "patch": "diff --git ...",
-  "confidence": 0.91
-}
-```
-
-The adapter invokes an explicit argv sequence with `shell=False`; prompts are not embedded into command-line arguments. This keeps the core compatible with wrapper scripts for Cursor, Codex, Claude, Orca, or other coding-agent CLIs without hard-coding vendor-specific flags.
+`CommandCodingAgent` serializes an approved `RepairPlan` to JSON over stdin and expects one JSON patch proposal on stdout. It uses explicit argv with `shell=False`, keeping wrappers for Cursor, Codex, Claude, Orca, or other coding-agent CLIs provider-neutral.
 
 ## Safety properties
 
 ```text
-Agent proposes patch
+memory suggests evidence (never authority)
+      ↓
+agent proposes patch
       ↓
 approved file scope?
       ↓
@@ -117,9 +121,7 @@ human approval required?
       ↓
 apply only in isolated worktree
       ↓
-targeted tests
-      ↓
-full regression
+targeted tests + full regression
       ↓
 tournament + policy
       ↓
@@ -127,10 +129,10 @@ canary
       ↓
 healthy? ── no ──> rollback
       ↓ yes
-signed evidence
+signed evidence + remember outcome
 ```
 
-The coding agent never gets authority to select arbitrary files, declare itself successful, bypass regression checks, release itself, or retry indefinitely.
+The coding agent cannot select arbitrary files, declare itself successful, bypass regression checks, release itself, or retry indefinitely.
 
 ## Quick start
 
@@ -139,31 +141,22 @@ python -m pip install -e ".[dev]"
 pytest
 ```
 
-```bash
-ci-orchestrator analyze \
-  --jobs examples/github_jobs.json \
-  --logs examples/github_logs.json \
-  --audit audit.jsonl
-```
-
 ## Evaluation targets
 
 - Top-1 / Top-3 Root Cause Accuracy
 - False Root-Cause Rate
 - Cascading Failures Eliminated
+- Memory retrieval precision@K / success lift
 - Mean retries before resolution
 - MTTR reduction
 - Verification cost
 - Auto-fix success rate
 - Regression escape rate
 - Human escalation rate
-- Repair attempts per resolved incident
 - Candidate win rate by agent/provider
 - Cost per resolved incident
 - P50 / P95 repair latency
-- Policy override rate
 - Targeted-test precision / recall
-- Invalid-agent-output rate
 - Evidence signature verification rate
 - Canary success rate
 - Rollback success rate
@@ -172,16 +165,16 @@ ci-orchestrator analyze \
 
 **v0.4** — bounded repair planner/executor/evaluator loop with retry and escalation. *(implemented)*
 
-**v0.5** — multi-agent candidate tournament, utility scoring, policy gate, and production evidence. *(implemented)*
+**v0.5** — multi-agent tournament, utility scoring, policy gate, and production evidence. *(implemented)*
 
-**v0.6** — CLI coding-agent adapter, runtime telemetry, affected-test hooks, and signed evidence envelopes. *(implemented)*
+**v0.6** — CLI coding-agent adapter, telemetry, affected-test hooks, and signed evidence. *(implemented)*
 
-**v0.7** — GitHub Actions failed-job/log collector, isolated git worktree patch application, executable targeted/full test runner, canary boundary, and rollback hooks. *(core execution contracts implemented)*
+**v0.7** — GitHub Actions collector, isolated worktrees, executable tests, canary and rollback hooks. *(implemented)*
 
-**v0.8** — wire the collector directly to GitHub REST/Actions adapters, persist per-candidate telemetry, execute real canary providers, secret-manager signing, and create repair PRs automatically.
+**v0.8** — Failure Memory Agent, persistent incident store, real GitHub Actions adapter, automatic repair PR creation, and cross-provider calibration. *(memory core implemented)*
 
-**v1.0** — reproducible CI-failure benchmark suite, learned ranking calibration, dashboard, production policy controls, cross-provider agent benchmarking, and independently reproducible production evidence.
+**v1.0** — reproducible CI-failure benchmark suite, learned ranking calibration, dashboard, production policy controls, and independently reproducible production evidence.
 
 ## Design principle
 
-> Fix the earliest causal failure, isolate every mutation, verify targeted behavior and full regression, compare alternatives with independent evidence, and rollback when production evidence is insufficient.
+> Fix the earliest causal failure, learn from prior evidence, isolate every mutation, verify targeted behavior and full regression, compare alternatives independently, and rollback when production evidence is insufficient.
