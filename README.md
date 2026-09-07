@@ -2,7 +2,7 @@
 
 Dependency-aware **causal CI/CD/CT failure orchestration**. Instead of fixing the latest red job, it asks which failure most plausibly caused the others and verifies that hypothesis with the smallest useful rerun plan.
 
-## Agentic repair architecture
+## Agentic repair control plane
 
 ```text
 GitHub Actions jobs + logs
@@ -17,18 +17,24 @@ GitHub Actions jobs + logs
           ↓
  Repair Planner Agent
           ↓
- Coding Agent Executor
+ Multiple Coding Agents
+          ↓
+ Bounded Agent Executor
           ↓
  Independent Evaluator
           ↓
- Retry Budget + Stopping Condition
+ Candidate Tournament
+          ↓
+ Cost / Latency / Risk scoring
           ↓
  Policy Gate / Human Escalation
           ↓
- Full-pipeline regression evidence
+ Canary / Rollback boundary
+          ↓
+ Production Evidence
 ```
 
-A CI run may show `Type Check ❌ → Unit Test ❌ → Integration Test ❌ → Deploy ❌`. The visible deploy failure can be downstream noise. The orchestrator ranks the earliest causal failure, constrains the repair scope, evaluates the proposed patch independently, and stops unsafe or unproductive repair loops.
+A CI run may show `Type Check ❌ → Unit Test ❌ → Integration Test ❌ → Deploy ❌`. The visible deploy failure can be downstream noise. The orchestrator ranks the earliest causal failure, constrains the repair scope, lets multiple agents propose bounded candidates, evaluates them independently, chooses the best admissible candidate, and stops unsafe or unproductive repair loops.
 
 ## Features
 
@@ -43,6 +49,10 @@ A CI run may show `Type Check ❌ → Unit Test ❌ → Integration Test ❌ →
 - Independent evaluation contract for targeted checks and full regression
 - Retry budget and explicit stopping conditions
 - Immediate rollback/escalation path when regression is detected
+- Multi-agent Repair Tournament with utility-based candidate selection
+- Cost, latency, confidence, evaluation, and risk-aware candidate scoring
+- Final Policy Gate with automated thresholds and human-approval fallback
+- Hashable Production Evidence record for the selected candidate and release decision
 - Selective verification planner: root stage → predicted downstream failures → full pipeline
 - Retry/escalation primitives and hash-chained audit log
 - Benchmark metrics for Top-1/Top-3 RCA accuracy and cascade elimination
@@ -95,6 +105,34 @@ BUDGET EXHAUSTED → ESCALATE_HUMAN
 
 This prevents infinite token-burning repair loops and makes stopping behavior reproducible and testable.
 
+## Multi-agent Repair Tournament
+
+`RepairTournament` runs multiple provider-neutral coding agents through the same execution boundary and independent evaluator. Candidates are admitted only when targeted checks and regression evaluation pass and risk remains below the automatic threshold.
+
+Candidate utility is based on:
+
+```text
+evaluation score
+- cost penalty
+- latency penalty
+- risk penalty
+```
+
+This means an expensive or slow patch does not automatically beat a cheaper equivalent patch, and a high-scoring patch with regression risk is still rejected.
+
+## Policy Gate and Production Evidence
+
+`RepairPolicyGate` is a separate decision boundary after candidate selection. It can return:
+
+```text
+READY_FOR_CANARY
+HUMAN_APPROVAL_REQUIRED
+BLOCK
+ESCALATE_HUMAN
+```
+
+The gate checks risk, cost, latency, and independent evaluation rather than trusting the winning agent. `build_production_evidence()` then records the root stage, selected agent, evaluation score, risk, cost, latency, candidate count, policy action, and a deterministic SHA-256 evidence hash.
+
 ## Quick start
 
 ```bash
@@ -122,15 +160,21 @@ ci-orchestrator analyze \
 - Regression escape rate
 - Human escalation rate
 - Repair attempts per resolved incident
+- Candidate win rate by agent/provider
+- Cost per resolved incident
+- P50 / P95 repair latency
+- Policy override rate
 
 ## Roadmap
 
 **v0.3** — direct GitHub API collector for workflow runs/jobs/logs and workflow-DAG reconstruction.
 
-**v0.4** — real coding-agent adapters, affected-test selection, richer risk scoring, rollback execution, policy gate, cost/latency telemetry, and human approval workflows.
+**v0.4** — real coding-agent adapters, affected-test selection, rollback execution, canary integration, cost/latency telemetry collection, and human approval workflows.
 
-**v1.0** — reproducible CI-failure benchmark suite, learned ranking calibration, dashboard, production policy controls, multi-agent candidate selection, and production evidence.
+**v0.5** — multi-agent candidate tournament, utility scoring, policy gate, and production evidence. *(core contracts implemented)*
+
+**v1.0** — reproducible CI-failure benchmark suite, learned ranking calibration, dashboard, production policy controls, real canary/rollback execution, cross-provider agent benchmarking, and signed evidence bundles.
 
 ## Design principle
 
-> Fix the earliest causal failure, constrain the repair, verify independently, and stop when evidence is insufficient.
+> Fix the earliest causal failure, constrain every repair, compare alternatives with independent evidence, and escalate when policy confidence is insufficient.
