@@ -2,7 +2,25 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .control_plane import Decision, Evaluation, RunState
 from .tournament import CandidateScore, TournamentResult
+
+
+class DefaultRepairPolicy:
+    """Fail-closed release policy for the bounded autonomous control plane."""
+
+    def __init__(self, *, release_score: float = 0.90, retry_score: float = 0.60) -> None:
+        self.release_score = release_score
+        self.retry_score = retry_score
+
+    def decide(self, evaluation: Evaluation, state: RunState) -> Decision:
+        if not evaluation.regression_free:
+            return Decision.BLOCK
+        if evaluation.passed and evaluation.score >= self.release_score:
+            return Decision.RELEASE
+        if evaluation.score >= self.retry_score:
+            return Decision.RETRY
+        return Decision.ESCALATE
 
 
 @dataclass(frozen=True)
@@ -13,7 +31,7 @@ class PolicyDecision:
 
 
 class RepairPolicyGate:
-    """Final release decision boundary for evaluated repair candidates."""
+    """Final release boundary for tournament-selected, independently evaluated repairs."""
 
     def __init__(
         self,
@@ -21,7 +39,7 @@ class RepairPolicyGate:
         max_risk_score: float = 0.6,
         max_cost_usd: float = 0.50,
         max_latency_ms: int = 60_000,
-    ):
+    ) -> None:
         self.max_risk_score = max_risk_score
         self.max_cost_usd = max_cost_usd
         self.max_latency_ms = max_latency_ms
@@ -29,26 +47,19 @@ class RepairPolicyGate:
     def decide(self, result: TournamentResult) -> PolicyDecision:
         winner = result.winner
         if winner is None:
-            return PolicyDecision(
-                "ESCALATE_HUMAN",
-                result.reason,
-                True,
-            )
-
+            return PolicyDecision("ESCALATE_HUMAN", result.reason, True)
         if not self._within_budget(winner):
             return PolicyDecision(
                 "HUMAN_APPROVAL_REQUIRED",
                 "winning candidate exceeds automated risk, cost, or latency policy",
                 True,
             )
-
         if winner.evaluation is None or not winner.evaluation.success:
             return PolicyDecision(
                 "BLOCK",
                 "winning candidate lacks successful independent evaluation",
                 True,
             )
-
         return PolicyDecision(
             "READY_FOR_CANARY",
             "winning candidate passed evaluation and automated policy limits",

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ci-failure-orchestrator"
 version = "0.8.0"
-description = "Learning multi-agent CI/CD/CT failure orchestration, repair execution, evaluation, policy gating, rollback, and evidence"
+description = "Learning multi-agent CI/CD/CT failure control plane with causal diagnosis, bounded repair, evaluation, policy gating, rollback, and production evidence"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
@@ -15,6 +15,9 @@ dev = ["pytest>=8"]
 
 [project.scripts]
 ci-orchestrator = "ci_failure_orchestrator.cli:main"
+
+[tool.setuptools]
+packages = ["ci_failure_orchestrator"]
 
 [tool.pytest.ini_options]
 addopts = "-q"

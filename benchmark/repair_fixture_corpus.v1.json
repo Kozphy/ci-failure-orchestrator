@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "cases": [
+    {
+      "id": "arithmetic-addition",
+      "initial_files": {
+        "app.py": "def add(a, b):\n    return a - b\n",
+        "test_app.py": "from app import add\n\ndef test_add():\n    assert add(2, 3) == 5\n"
+      },
+      "repair_candidates": [
+        {"strategy": "replace_text", "target_path": "app.py", "old": "return a - b", "new": "return a + b", "description": "repair subtraction bug"}
+      ]
+    },
+    {
+      "id": "boolean-negation",
+      "initial_files": {
+        "app.py": "def is_even(n):\n    return n % 2 != 0\n",
+        "test_app.py": "from app import is_even\n\ndef test_even():\n    assert is_even(4) is True\n    assert is_even(5) is False\n"
+      },
+      "repair_candidates": [
+        {"strategy": "replace_text", "target_path": "app.py", "old": "!= 0", "new": "== 0", "description": "repair parity predicate"}
+      ]
+    },
+    {
+      "id": "retry-then-success",
+      "initial_files": {
+        "app.py": "def greet(name):\n    return 'bye ' + name\n",
+        "test_app.py": "from app import greet\n\ndef test_greet():\n    assert greet('Ada') == 'hello Ada'\n"
+      },
+      "repair_candidates": [
+        {"strategy": "replace_text", "target_path": "app.py", "old": "'bye '", "new": "'hi '", "description": "plausible but incorrect candidate"},
+        {"strategy": "replace_text", "target_path": "app.py", "old": "'bye '", "new": "'hello '", "description": "correct candidate"}
+      ]
+    },
+    {
+      "id": "remove-bad-line",
+      "initial_files": {
+        "app.py": "VALUE = 42\nVALUE = 0\n",
+        "test_app.py": "from app import VALUE\n\ndef test_value():\n    assert VALUE == 42\n"
+      },
+      "repair_candidates": [
+        {"strategy": "remove_line", "target_path": "app.py", "line": "VALUE = 0", "description": "remove overriding bad assignment"}
+      ]
+    }
+  ]
+}
