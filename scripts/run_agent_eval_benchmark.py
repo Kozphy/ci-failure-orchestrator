@@ -24,13 +24,31 @@ def main() -> int:
     parser.add_argument("corpus", nargs="?", default="benchmark/repair_fixture_corpus.v1.json")
     parser.add_argument("--output", default="artifacts/agent-eval-benchmark.json")
     parser.add_argument("--retry-budget", type=int, default=2)
+    parser.add_argument("--backend", choices=("replay", "openai"), default="replay")
+    parser.add_argument("--model", default=None)
     args = parser.parse_args()
 
     corpus = json.loads(Path(args.corpus).read_text(encoding="utf-8"))
-    backend = ReplayAgentBackend()
+    if args.backend == "openai":
+        from ci_failure_orchestrator.openai_backend import OpenAIAgentBackend
+        backend = OpenAIAgentBackend(model=args.model)
+        evidence_type = "live_provider_agent_executable_benchmark"
+        limitations = [
+            "Provider-reported token usage and wall-clock latency are measured.",
+            "Dollar cost is intentionally not inferred from hard-coded prices; join with provider billing/export data before claiming actual cost.",
+            "Results apply only to the versioned fixture corpus, model, prompt, and retry policy recorded by this run.",
+        ]
+    else:
+        backend = ReplayAgentBackend()
+        evidence_type = "replay_agent_executable_benchmark"
+        limitations = [
+            "Replay backend makes no external model call.",
+            "Token counts are estimated from text length, not provider-reported usage.",
+            "Zero cost is a replay property and must not be presented as real model cost.",
+        ]
+
     executor = SandboxRepairExecutor(pytest_verifier())
     results = []
-
     with tempfile.TemporaryDirectory(prefix="ci-agent-fixtures-") as tmp:
         root = Path(tmp)
         for case in corpus.get("cases", []):
@@ -41,13 +59,10 @@ def main() -> int:
     payload = {
         "benchmark": "agent-repair-evaluation",
         "version": corpus.get("version", "unknown"),
-        "evidence_type": "replay_agent_executable_benchmark",
-        "claim_scope": "provider-neutral agent interface, sandbox verification, token/cost telemetry contract",
-        "limitations": [
-            "Replay backend makes no external model call.",
-            "Token counts are estimated from text length, not provider-reported usage.",
-            "Zero cost is a replay property and must not be presented as real model cost.",
-        ],
+        "backend": args.backend,
+        "evidence_type": evidence_type,
+        "claim_scope": "agent proposals, sandbox verification, retry policy, and provider telemetry",
+        "limitations": limitations,
         "metrics": metrics.to_dict(),
         "results": [result.to_dict() for result in results],
     }
