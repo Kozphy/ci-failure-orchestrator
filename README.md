@@ -1,108 +1,77 @@
 # CI Failure Orchestrator
 
-A dependency-aware CI/CD/CT failure triage engine that ranks the **earliest causal failure**, rather than blindly fixing the latest red job.
+Dependency-aware **causal CI/CD/CT failure orchestration**. Instead of fixing the latest red job, it asks which failure most plausibly caused the others and verifies that hypothesis with the smallest useful rerun plan.
 
-## Why
-
-A pipeline can show multiple failures at once:
+## v0.2: causal failure intelligence
 
 ```text
-Type Check ❌ → Unit Test ❌ → Integration Test ❌ → Deploy ❌
+GitHub Actions jobs + logs
+          ↓
+   Error classification
+          ↓
+      Pipeline DAG
+          ↓
+  Causal edge inference
+          ↓
+ Root-cause ranking
+          ↓
+Selective verification plan
+          ↓
+ Full-pipeline regression check
+          ↓
+ Benchmark + audit evidence
 ```
 
-The last visible failure is often downstream noise. This project builds a failure DAG, classifies errors, ranks probable root causes, enforces retry budgets, and records decisions in a hash-chained audit log.
+A CI run may show `Type Check ❌ → Unit Test ❌ → Integration Test ❌ → Deploy ❌`. The visible deploy failure can be downstream noise. The orchestrator ranks the earliest causal failure, records evidence for failure-to-failure edges, and proposes a verification sequence that tests the root-cause hypothesis before rerunning the entire pipeline.
 
-## Architecture
-
-```text
-CI Logs
-  ↓
-Failure Collector / Classifier
-  ↓
-Pipeline Dependency Graph
-  ↓
-Root Cause Ranker
-  ↓
-Fix Planner / Selective Check
-  ↓
-Evaluator
-  ↓
-Retry Budget
-  ↓
-Full Pipeline or Human Escalation
-  ↓
-Audit Trail
-```
-
-## Included in v0.1
+## Features
 
 - Pipeline dependency DAG with cycle validation
-- Error classifier
-- Root-cause ranking based on upstream impact, confidence, causal rules, graph depth, severity, and stage criticality
-- Retry budget + escalation policy
-- Hash-chained JSONL audit log
-- CLI
-- Example CI pipeline + failure set
-- pytest coverage
-- GitHub Actions workflow
+- Error classification and confidence
+- Root-cause ranking based on upstream impact, causal rules, depth, severity, and criticality
+- Causal failure graph with evidence and edge confidence
+- GitHub Actions job/log ingestion from normalized API payloads
+- Selective verification planner: root stage → predicted downstream failures → full pipeline
+- Retry/escalation primitives and hash-chained audit log
+- Benchmark metrics for Top-1/Top-3 RCA accuracy and cascade elimination
 
 ## Quick start
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
-python -m pip install -e '.[dev]'
+python -m pip install -e ".[dev]"
 pytest
 ```
 
-Rank failures:
-
 ```bash
-ci-orchestrator rank \
-  --pipeline examples/pipeline.json \
-  --failures examples/failures.json \
+ci-orchestrator analyze \
+  --jobs examples/github_jobs.json \
+  --logs examples/github_logs.json \
   --audit audit.jsonl
 ```
 
-Classify a raw message:
+The output includes the predicted root cause, ranked hypotheses, causal edges, and the minimal verification plan.
 
-```bash
-ci-orchestrator classify "Argument 1 has incompatible type"
-```
+## Evaluation targets
 
-## Decision rule
+- Top-1 Root Cause Accuracy
+- Top-3 Root Cause Accuracy
+- False Root-Cause Rate
+- Cascading Failures Eliminated
+- Mean retries before resolution
+- MTTR reduction
+- Verification cost
+- Auto-fix success rate
 
-The project follows:
+A causal prediction is stronger when fixing the predicted root cause actually removes the downstream failures it claimed to explain.
 
-> Fix the earliest **causal** failure, not necessarily the earliest timestamp and not the latest visible failure.
+## Roadmap
 
-The current scoring model is intentionally transparent:
+**v0.3** — direct GitHub API collector for workflow runs/jobs/logs and workflow-DAG reconstruction.
 
-```text
-score =
-  30% upstream impact
-+ 25% classifier confidence
-+ 20% causal-rule evidence
-+ 15% upstream position
-+ 10% severity / criticality
-```
+**v0.4** — patch planner, affected-test selection, risk scoring, rollback, and human approval gates.
 
-This is a baseline that can later be benchmarked against historical CI incidents.
+**v1.0** — reproducible CI-failure benchmark suite, learned ranking calibration, dashboard, and production-grade policy controls.
 
-## Next upgrades
+## Design principle
 
-The natural v0.2 path is:
-
-```text
-GitHub API ingestion
-→ log normalization
-→ learned failure classifier
-→ patch generator
-→ selective test runner
-→ sandboxed patch evaluation
-→ rollback
-→ PR comment / approval gate
-→ MTTR + auto-fix success dashboards
-```
-
-For production use, patch application should be sandboxed and high-risk changes should require human approval.
+> Fix the earliest causal failure, not the latest visible failure.

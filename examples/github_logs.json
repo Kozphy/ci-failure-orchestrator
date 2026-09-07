@@ -1,0 +1,6 @@
+{
+  "typecheck": "mypy: incompatible type for argument 1",
+  "unit_test": "AssertionError: tests failed after import",
+  "integration_test": "tests failed: upstream artifact unavailable",
+  "deploy": "deployment failed: artifact not found"
+}

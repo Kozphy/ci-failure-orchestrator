@@ -1,0 +1,8 @@
+{
+  "jobs": [
+    {"id": 101, "name": "typecheck", "conclusion": "failure", "needs": []},
+    {"id": 102, "name": "unit_test", "conclusion": "failure", "needs": ["typecheck"]},
+    {"id": 103, "name": "integration_test", "conclusion": "failure", "needs": ["unit_test"]},
+    {"id": 104, "name": "deploy", "conclusion": "failure", "needs": ["integration_test"]}
+  ]
+}
