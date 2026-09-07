@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import Callable
 
 from .merge_conflict_agent import ChainedMergeResolver, ConservativeMergeResolver, MergeConflictRepairAgent, MergeConflictResolver
 from .repair_planner import RepairPlan
@@ -45,6 +44,14 @@ def _plan(path: str) -> RepairPlan:
     )
 
 
+def _added_lines(patch: str) -> list[str]:
+    return [
+        line[1:]
+        for line in patch.splitlines()
+        if line.startswith("+") and not line.startswith("+++")
+    ]
+
+
 def evaluate_merge_conflict_case(
     case: dict,
     *,
@@ -61,14 +68,17 @@ def evaluate_merge_conflict_case(
     proposal = agent.propose_patch(_plan(case["path"]))
     escalated = proposal.metadata.get("decision") == "escalate"
     resolved = bool(proposal.patch)
-    unsafe_output = resolved and any(marker in proposal.patch for marker in ("<<<<<<<", ">>>>>>>"))
+    added = _added_lines(proposal.patch)
+    unsafe_output = resolved and any(
+        marker in line for line in added for marker in ("<<<<<<<", "=======", ">>>>>>>")
+    )
 
     expected = case.get("expected")
     exact_match = False
     if expected is not None and resolved:
-        # For deterministic cases, the expected resolved text should appear as added/context
-        # content in the unified diff and the proposal must not escalate.
-        exact_match = all(line in proposal.patch for line in expected.splitlines() if line)
+        expected_lines = [line for line in expected.splitlines() if line]
+        patch_lines = proposal.patch.splitlines()
+        exact_match = all(any(line in patch_line for patch_line in patch_lines) for line in expected_lines)
 
     return MergeConflictCaseResult(
         case_id=case["id"],
