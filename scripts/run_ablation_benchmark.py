@@ -2,20 +2,36 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import tempfile
 
 from ci_failure_orchestrator.ablation import evaluate_repair_ablations
 from ci_failure_orchestrator.repair import SandboxRepairExecutor, pytest_verifier
 
 
+def materialize_case(root: Path, case: dict) -> dict:
+    fixture_name = case["id"]
+    fixture = root / fixture_name
+    fixture.mkdir(parents=True, exist_ok=True)
+    for relative, content in case.get("initial_files", {}).items():
+        path = fixture / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+    materialized = dict(case)
+    materialized["fixture"] = fixture_name
+    return materialized
+
+
 def main() -> int:
-    corpus = json.loads(Path("benchmark/repair_fixtures.v1.json").read_text(encoding="utf-8"))
-    cases = corpus["cases"]
-    fixture_root = Path("benchmark/fixtures")
+    corpus = json.loads(Path("benchmark/repair_fixture_corpus.v1.json").read_text(encoding="utf-8"))
 
     def executor_factory(case: dict) -> SandboxRepairExecutor:
         return SandboxRepairExecutor(pytest_verifier())
 
-    results = evaluate_repair_ablations(cases, fixture_root, executor_factory)
+    with tempfile.TemporaryDirectory(prefix="ci-ablation-fixtures-") as tmp:
+        fixture_root = Path(tmp)
+        cases = [materialize_case(fixture_root, case) for case in corpus["cases"]]
+        results = evaluate_repair_ablations(cases, fixture_root, executor_factory)
+
     payload = {
         "benchmark": "repair-ablation",
         "version": corpus.get("version", "unknown"),
