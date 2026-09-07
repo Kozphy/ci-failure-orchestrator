@@ -19,7 +19,7 @@ jobs:
       - name: Tests with coverage
         run: pytest --cov=ci_failure_orchestrator --cov-report=term-missing --cov-report=xml
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: ./coverage.xml
           fail_ci_if_error: false
