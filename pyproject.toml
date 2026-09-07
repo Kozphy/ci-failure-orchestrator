@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ci-failure-orchestrator"
-version = "0.6.0"
-description = "Causal multi-agent CI/CD/CT failure orchestration, repair evaluation, policy gating, and evidence"
+version = "0.7.0"
+description = "Causal multi-agent CI/CD/CT failure orchestration, repair execution, evaluation, policy gating, rollback, and evidence"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
