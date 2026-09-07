@@ -1,97 +1,182 @@
 # CI Failure Orchestrator
 
-Dependency-aware **CI/CD/CT failure control plane** for causal diagnosis, bounded autonomous repair, regression-aware evaluation, policy gating, escalation, telemetry, and tamper-evident production evidence.
-
-## v0.3: autonomous repair control plane
+**v1.0 multi-repository CI repair platform** for dependency-aware diagnosis, bounded autonomous repair, independent evaluation, fleet policy, SLO/error-budget control, canary rollout, benchmarking, dashboard telemetry, human escalation, and tamper-evident production proof.
 
 ```text
+GitHub repositories
+        ↓
+Workflow runs / jobs / logs
+        ↓
 Failure Dependency Graph
         ↓
-Root-cause classification
+Root-cause classification + ranking
         ↓
 Repair planner
         ↓
-Multiple coding agents
+Coding agents / patch executors
         ↓
-Evaluator
+Independent evaluator
         ↓
-Retry budget
-        ↓
-Stopping condition
+Retry / cost / latency budgets
         ↓
 Regression detection
         ↓
-Policy gate
+Repository policy gate
         ↓
-Human escalation
+Canary rollout
         ↓
-Cost / latency telemetry
+Fleet manager
         ↓
-Production evidence
+SLO + error-budget gate
+        ↓
+Dashboard + production proof
 ```
 
-The core design rule is separation of duties: **coding agents may propose repairs, but they do not decide whether their own patch is safe to release.** Release authority belongs to the evaluator + policy gate.
+The primary safety rule is separation of duties: **repair agents may propose changes, but they cannot approve their own release.** Evaluation, regression checks, repository policy, canary health, fleet policy, SLOs, and human approval retain release authority.
 
-## Architecture
+## v1 platform capabilities
 
-### 1. Failure Dependency Graph
-`PipelineGraph` validates the pipeline DAG, calculates depth and descendants, and supports upstream/downstream causal reasoning.
+### Multi-repository fleet management
 
-### 2. Root-cause classification
-The classifier maps logs into typed failures such as dependency, build, test, flaky, security, runtime, network, and deployment failures with confidence scores.
+`FleetManager` registers repository-specific policies and evaluates repository snapshots across a fleet. It can permit repair, queue work, deny automation, or freeze a repository when SLO error-budget burn or canary health makes autonomy unsafe.
 
-### 3. Repair planner
-`RepairControlPlane._plan()` gathers proposals from specialized agents and ranks them by confidence and expected cost.
+Repository policy includes:
 
-### 4. Multiple coding agents
-Included strategies:
+- automation enabled/disabled
+- autonomy level
+- repair concurrency budget
+- human-approval threshold
+- canary group
 
-- `DeterministicRepairAgent` — types, dependencies, builds, packages, infrastructure retry
-- `TestRepairAgent` — assertion/runtime repair and flaky-test quarantine/retry
-- `SecurityRepairAgent` — safe dependency upgrade path
-- `GeneralCodingAgent` — lower-confidence agentic patching for known non-deterministic failures
+### Benchmark suite
 
-Unknown failures fail closed and escalate rather than being blindly patched.
+`BenchmarkSuite` aggregates replayable repair cases into production-facing metrics:
 
-### 5. Evaluator + regression detection
-`RegressionAwareEvaluator` consumes CI verification signals and produces an independent evaluation containing pass/fail, regression status, score, and reasons.
+- Top-1 root-cause accuracy
+- Top-3 root-cause accuracy
+- repair success rate
+- false-repair rate
+- regression rate
+- escalation rate
+- mean retries
+- mean cost
+- P50/P95 repair latency
 
-### 6. Retry budget + stopping conditions
-Autonomy is bounded by three independent budgets:
+### SLO and error budgets
 
-- maximum retries
-- maximum repair cost
-- maximum latency
+`evaluate_slo()` checks observed reliability against explicit targets for:
 
-Exhausting any budget escalates to a human.
+- workflow availability
+- repair success rate
+- false-repair rate
+- P95 repair latency
 
-### 7. Policy gate
-`DefaultRepairPolicy` is fail-closed:
+It also calculates availability error-budget burn. Excess burn can freeze autonomous repair at fleet level.
 
-- verified + high score + regression-free → `release`
-- potentially recoverable → `retry`
-- regression detected → `block`
-- low confidence / unknown / exhausted budget → `escalate`
+### Canary controller
 
-### 8. Human escalation
-Escalation is a first-class terminal decision, not an exception path. Every escalation records a machine-readable reason and history.
+`evaluate_canary()` returns one of:
 
-### 9. Cost / latency telemetry
-Each evaluated proposal records estimated cost, observed evaluation latency, strategy, score, pass status, regression status, and orchestration history. The control plane accumulates cost and latency for stopping decisions.
+- `promote`
+- `hold`
+- `rollback`
 
-### 10. Production evidence
-`HashChainedEvidenceSink` writes append-only JSONL records linked by SHA-256 hashes. This provides tamper-evident evidence for classification, evaluation, policy decisions, and escalation events.
+Promotion requires sufficient sample size, acceptable repair success, bounded regression/false-repair rates, and acceptable latency. Regression or false-repair threshold breaches trigger rollback.
 
-## Existing causal intelligence
+### Fleet dashboard model
 
-The project also includes:
+`build_dashboard_snapshot()` combines fleet decisions, SLO state, and benchmark evidence into a machine-readable snapshot with fleet health, repair/freeze/queue counts, error-budget burn, RCA accuracy, repair quality, and P95 latency.
 
-- causal edge inference
-- root-cause ranking based on upstream impact, causal rules, depth, severity, and criticality
-- GitHub Actions job/log ingestion from normalized API payloads
+The snapshot is deliberately UI-independent so it can feed a terminal report, JSON artifact, Grafana/Prometheus exporter, or web dashboard without coupling control logic to presentation code.
+
+### Production proof
+
+Production readiness is represented by evidence rather than a claim. `build_production_proof()` binds together:
+
+- repository + run ID
+- commit SHA
+- gate decision
+- evaluator score
+- regression status
+- canary decision
+- SLO result
+- evidence artifacts and digests
+- UTC creation timestamp
+- SHA-256 proof hash
+
+The existing hash-chained audit/evidence sink remains the event-level tamper-evident history; the production proof bundle is the release-level summary artifact.
+
+## Platform façade
+
+`CIRepairPlatform` combines fleet policy, benchmark evidence, SLO evaluation, canary evaluation, and dashboard generation into one fleet-level control path.
+
+```python
+from ci_failure_orchestrator.benchmark_suite import BenchmarkResult
+from ci_failure_orchestrator.canary import CanaryMetrics
+from ci_failure_orchestrator.fleet import FleetManager, RepositoryPolicy, RepositorySnapshot
+from ci_failure_orchestrator.platform import CIRepairPlatform
+from ci_failure_orchestrator.slo import SLOObservation
+
+fleet = FleetManager()
+fleet.register(RepositoryPolicy("Kozphy/Windows-Network-Recovery-Toolkit"))
+
+platform = CIRepairPlatform(fleet)
+report = platform.evaluate(
+    repositories=[
+        RepositorySnapshot(
+            "Kozphy/Windows-Network-Recovery-Toolkit",
+            open_failures=1,
+        )
+    ],
+    benchmark_results=[
+        BenchmarkResult(
+            case_id="proxy-drift-001",
+            root_stage_correct=True,
+            repaired=True,
+            regression=False,
+            escalated=False,
+            retries=1,
+            cost=0.05,
+            latency_ms=1200,
+            root_cause_top3=True,
+            false_repair=False,
+        )
+    ],
+    slo_observation=SLOObservation(
+        total_runs=100,
+        successful_runs=100,
+        successful_repairs=95,
+        attempted_repairs=100,
+        false_repairs=1,
+        p95_repair_latency_ms=10_000,
+    ),
+    canary_metrics=CanaryMetrics(
+        sample_size=20,
+        success_rate=0.95,
+        regression_rate=0.0,
+        false_repair_rate=0.0,
+        p95_latency_ms=10_000,
+    ),
+)
+
+print(report.dashboard.to_dict())
+```
+
+## Existing single-run repair control plane
+
+The v1 platform builds on the existing causal and repair primitives:
+
+- `PipelineGraph` for workflow DAG reasoning
+- typed CI failure classification
+- causal-edge inference
+- root-cause ranking
 - selective verification planning
-- full-pipeline regression verification
-- benchmark metrics for Top-1/Top-3 RCA accuracy and cascade elimination
+- deterministic, test, security, and general coding-agent strategies
+- `RegressionAwareEvaluator`
+- bounded retry/cost/latency autonomy
+- fail-closed `DefaultRepairPolicy`
+- first-class human escalation
+- hash-chained JSONL evidence
 
 ## Quick start
 
@@ -100,7 +185,7 @@ python -m pip install -e ".[dev]"
 pytest
 ```
 
-Existing CLI example:
+Analyze normalized GitHub Actions evidence:
 
 ```bash
 ci-orchestrator analyze \
@@ -109,70 +194,74 @@ ci-orchestrator analyze \
   --audit audit.jsonl
 ```
 
-## Control-plane example
+## Production operating model
 
-```python
-from ci_failure_orchestrator.control_plane import RepairControlPlane
-from ci_failure_orchestrator.policy import DefaultRepairPolicy
-from ci_failure_orchestrator.production import HashChainedEvidenceSink, RegressionAwareEvaluator
-from ci_failure_orchestrator.repair_agents import (
-    DeterministicRepairAgent,
-    GeneralCodingAgent,
-    SecurityRepairAgent,
-    TestRepairAgent,
-)
+A production deployment should treat v1 as a control plane, not as permission for unconstrained agents:
 
-control = RepairControlPlane(
-    graph,
-    [
-        DeterministicRepairAgent(),
-        TestRepairAgent(),
-        SecurityRepairAgent(),
-        GeneralCodingAgent(),
-    ],
-    RegressionAwareEvaluator(tests_passed=True, regression_free=True, score=0.97),
-    DefaultRepairPolicy(),
-    HashChainedEvidenceSink("production-evidence.jsonl"),
-    max_retries=2,
-    max_cost=1.0,
-    max_latency_ms=30_000,
-)
-
-decision = control.run(failure)
+```text
+failure detected
+   ↓
+causal RCA
+   ↓
+smallest repair proposal
+   ↓
+isolated patch/worktree
+   ↓
+targeted verification
+   ↓
+full regression verification
+   ↓
+repository policy gate
+   ↓
+canary
+   ↓
+SLO/error-budget check
+   ↓
+PR / human approval when required
+   ↓
+release
+   ↓
+production proof
 ```
 
-## Evaluation targets
+A bad canary, detected regression, unknown failure, exhausted autonomy budget, or excessive error-budget burn must stop or freeze autonomous repair rather than silently widening autonomy.
 
-- Top-1 Root Cause Accuracy
-- Top-3 Root Cause Accuracy
-- False Root-Cause Rate
-- Cascading Failures Eliminated
-- Auto-repair success rate
-- False-repair rate
-- Regression rate
-- Human escalation rate
-- Mean retries before resolution
-- MTTR reduction
-- Cost per successful repair
-- P50/P95 repair latency
+## v1 production-proof checklist
+
+A deployment is not considered proven merely because the code exists. Production proof should include real evidence for:
+
+- multiple repositories under distinct fleet policies
+- replayable failure corpus and benchmark results
+- before/after RCA and MTTR metrics
+- false-repair and regression measurements
+- SLO/error-budget history
+- canary promotion and rollback exercises
+- failure injection
+- rollback/recovery evidence
+- audit-chain verification
+- cost and latency telemetry
+- security-policy enforcement
+- real GitHub Actions runs and PRs
+- reproducible deployment instructions
+- dashboard screenshots or exported snapshots
 
 ## Safety invariants
 
-1. Agents cannot self-approve a release.
-2. A detected regression blocks release.
-3. Unknown failures escalate.
-4. Cost, retry, and latency budgets bound autonomy.
-5. Every material decision produces evidence.
-6. Full regression verification remains the final authority before production release.
+1. Repair agents cannot self-approve release.
+2. Regression detection blocks release.
+3. Unknown failures fail closed and escalate.
+4. Retry, cost, latency, concurrency, and error-budget limits bound autonomy.
+5. Canary regression or false-repair breaches trigger rollback.
+6. Repository policy remains authoritative inside fleet orchestration.
+7. Every material decision should produce machine-readable evidence.
+8. Full regression verification remains the final technical authority before production release.
 
-## Next milestones
+## Version status
 
-**v0.4** — wire the repair proposals to real patch executors/worktrees, affected-test selection, rollback, and GitHub PR approval gates.
+**v1.0.0 platform layer** adds multi-repository fleet management, expanded benchmark metrics, SLO/error-budget evaluation, canary promotion/rollback policy, dashboard aggregation, release-level production proof, and an integrated platform façade.
 
-**v0.5** — OpenTelemetry metrics/traces, persistent run state, calibrated policy thresholds, replayable failure corpus, and provider adapters for multiple coding agents.
-
-**v1.0** — reproducible CI-failure benchmark suite, canary deployment, SLOs, production dashboard, multi-repository fleet management, and externally reproducible evaluation evidence.
+The next production-hardening work is operational rather than architectural: real GitHub run/patch execution adapters, persistent run state, OpenTelemetry exporters, a hosted dashboard, controlled canary deployments, multi-repository soak tests, and externally reproducible benchmark evidence.
 
 ## Design principle
 
-> Find the earliest causal failure, propose the smallest repair, verify independently, and stop before autonomy becomes unsafe.
+> Find the earliest causal failure, propose the smallest repair, verify independently, widen rollout gradually, and freeze autonomy when evidence says the system is unsafe.
