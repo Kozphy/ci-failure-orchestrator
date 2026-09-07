@@ -1,0 +1,8 @@
+{
+  "failures": [
+    {"stage": "typecheck", "error_type": "TYPE_ERROR", "message": "Argument 1 has incompatible type", "severity": 0.6, "confidence": 0.95},
+    {"stage": "unit_test", "error_type": "TEST_ASSERTION", "message": "tests failed during import", "severity": 0.7, "confidence": 0.75},
+    {"stage": "integration_test", "error_type": "TEST_ASSERTION", "message": "integration tests failed", "severity": 0.7, "confidence": 0.60},
+    {"stage": "deploy", "error_type": "DEPLOYMENT_ERROR", "message": "artifact not found; deployment failed", "severity": 0.9, "confidence": 0.35}
+  ]
+}
