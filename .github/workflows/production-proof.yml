@@ -22,6 +22,8 @@ jobs:
         run: pytest
       - name: Run reproducible causal benchmark
         run: python scripts/run_corpus_benchmark.py
+      - name: Run executable repair benchmark
+        run: python scripts/run_repair_fixture_benchmark.py
       - name: Evaluate production-proof contract
         run: python scripts/check_production_gate.py benchmark/production_metrics.example.json
       - name: Upload production evidence
@@ -30,4 +32,5 @@ jobs:
           name: production-proof
           path: |
             artifacts/corpus-benchmark.json
+            artifacts/repair-fixture-benchmark.json
             artifacts/production-gate.json
