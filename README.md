@@ -18,6 +18,10 @@ Memory-Aware Repair Planner
 Multiple Coding Agents
         ├─ general repair agents
         └─ MergeConflictRepairAgent
+             ├─ ConservativeMergeResolver
+             └─ SemanticMergeResolver
+                    ↓
+             OpenAI semantic provider
         ↓
 Bounded Agent Executor
         ↓
@@ -52,6 +56,9 @@ The core rule is separation of duties: **agents may propose repairs, but they ca
 - bounded memory-aware repair planning that never promotes regression-producing history
 - multiple coding-agent execution and candidate tournament scoring
 - `MergeConflictRepairAgent` for bounded, proposal-only Git conflict resolution
+- deterministic-first + model-backed semantic merge resolution chain
+- OpenAI semantic merge provider with structured JSON-only output
+- confidence, output-size, empty-output, and conflict-marker rejection before patch admission
 - isolated workspaces/worktrees for mutations
 - conservative affected-test selection and full-regression fallback
 - retry, cost, latency, and risk budgets
@@ -63,25 +70,64 @@ The core rule is separation of duties: **agents may propose repairs, but they ca
 
 ## MergeConflictRepairAgent
 
-`MergeConflictRepairAgent` reads only files approved by the repair plan, parses Git conflict blocks, and emits a unified-diff proposal. The default `ConservativeMergeResolver` resolves only deterministic cases such as identical sides, one-sided additions, or strict superset edits.
+`MergeConflictRepairAgent` reads only files approved by the repair plan, parses Git conflict blocks, and emits a unified-diff proposal. The default `ConservativeMergeResolver` resolves deterministic cases such as identical sides, one-sided additions, or strict superset edits.
 
-Semantic conflicts fail closed:
+For semantic conflicts, the agent can use a `ChainedMergeResolver`:
+
+```python
+from ci_failure_orchestrator.merge_conflict_agent import (
+    ChainedMergeResolver,
+    ConservativeMergeResolver,
+    MergeConflictRepairAgent,
+    SemanticMergeResolver,
+)
+from ci_failure_orchestrator.openai_merge_resolver import OpenAISemanticMergeProvider
+
+resolver = ChainedMergeResolver(
+    ConservativeMergeResolver(),
+    SemanticMergeResolver(
+        OpenAISemanticMergeProvider(model="gpt-5.6"),
+        min_confidence=0.80,
+    ),
+)
+agent = MergeConflictRepairAgent(resolver=resolver)
+```
+
+The semantic provider returns only a proposed resolved text block plus confidence and rationale. It has no filesystem, shell, git, merge, or approval authority.
 
 ```text
 conflicted PR
    ↓
 approved conflicted files
    ↓
-MergeConflictRepairAgent
-   ↓
-unambiguous? ── yes ──> patch proposal
-      │                     ↓
-      no                sandbox + tests
-      ↓                     ↓
-human / stronger agent   evaluator + policy
+Conservative resolver
+   ├─ resolved → patch candidate
+   └─ ambiguous
+          ↓
+   Semantic resolver
+          ↓
+   confidence >= threshold?
+      ├─ no → escalate
+      └─ yes
+          ↓
+   marker/size validation
+          ↓
+      patch proposal
+          ↓
+   sandbox + tests
+          ↓
+ evaluator + policy
+          ↓
+ release / retry / block / human
 ```
 
-It never edits the live repository, merges a PR, or self-approves a resolution. Ambiguous blocks return an empty proposal so the existing executor rejects the attempt and the orchestrator can escalate.
+The semantic path fails closed when confidence is below threshold, output is empty or oversized, or conflict markers remain. Even an accepted semantic resolution is only a patch candidate; it still requires independent verification.
+
+Install the optional provider integration with:
+
+```bash
+python -m pip install -e ".[dev,openai]"
+```
 
 ## Failure Memory
 
@@ -136,8 +182,9 @@ ci-orchestrator analyze \
 5. Mutations execute in isolated workspaces.
 6. Targeted tests alone cannot replace full regression verification.
 7. Historical memory cannot bypass evaluation or policy.
-8. Merge-conflict resolution is proposal-only; ambiguous conflicts escalate.
-9. Material decisions produce auditable evidence.
+8. Merge-conflict resolution is proposal-only; unresolved/low-confidence semantic conflicts escalate.
+9. Model output cannot directly invoke filesystem, shell, git, merge, or release operations.
+10. Material decisions produce auditable evidence.
 
 ## Evaluation targets
 
@@ -146,7 +193,9 @@ ci-orchestrator analyze \
 - cascade elimination
 - repair success / first-attempt success
 - merge-conflict auto-resolution rate
+- semantic-conflict resolution success
 - semantic-conflict escalation precision
+- unsafe semantic-resolution rejection rate
 - regression and regression-escape rate
 - human escalation rate
 - mean attempts / MTTR
@@ -160,7 +209,7 @@ ci-orchestrator analyze \
 
 ## Version direction
 
-**v0.8** integrates persistent learning/memory with the previously merged autonomous repair and Production Proof control-plane layers, including bounded merge-conflict repair. The next evidence milestone is real provider-backed semantic conflict resolution, automatic repair PR creation, cross-provider calibration, and externally reproducible held-out evaluation.
+**v0.8.1** adds deterministic-first, provider-backed semantic merge-conflict resolution while preserving proposal-only authority and fail-closed validation. The next evidence milestone is a held-out merge-conflict benchmark with real provider telemetry and automatic repair PR creation behind the existing policy boundary.
 
 ## Design principle
 
