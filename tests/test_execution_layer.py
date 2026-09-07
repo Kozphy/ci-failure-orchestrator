@@ -68,7 +68,7 @@ def test_signed_production_evidence_detects_tampering():
     evidence = build_production_evidence(
         root_stage="typecheck",
         tournament=tournament,
-        policy=PolicyDecision("READY_FOR_CANARY", "policy passed"),
+        policy=PolicyDecision("READY_FOR_CANARY", "policy passed", False),
     )
     envelope = sign_evidence(evidence, secret=b"test-secret", key_id="test")
     assert verify_evidence(envelope, secret=b"test-secret")
