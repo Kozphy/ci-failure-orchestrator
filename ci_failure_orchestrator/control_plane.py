@@ -92,6 +92,7 @@ class RepairControlPlane:
         self.max_retries = max_retries
         self.max_cost = max_cost
         self.max_latency_ms = max_latency_ms
+        self.last_state: RunState | None = None
 
     def _stopped(self, state: RunState) -> bool:
         return (
@@ -109,6 +110,7 @@ class RepairControlPlane:
         failure.error_type = error_type
         failure.confidence = confidence
         state = RunState()
+        self.last_state = state
         self.evidence.record("classified", {"stage": failure.stage, "error_type": error_type, "confidence": confidence})
 
         proposals = self._plan(failure)
