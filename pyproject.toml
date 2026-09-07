@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ci-failure-orchestrator"
-version = "0.2.0"
-description = "Dependency-aware causal CI/CD/CT failure orchestration and verification"
+version = "0.3.1"
+description = "Dependency-aware CI/CD/CT failure control plane with bounded autonomous repair"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
@@ -15,6 +15,9 @@ dev = ["pytest>=8"]
 
 [project.scripts]
 ci-orchestrator = "ci_failure_orchestrator.cli:main"
+
+[tool.setuptools]
+packages = ["ci_failure_orchestrator"]
 
 [tool.pytest.ini_options]
 addopts = "-q"
