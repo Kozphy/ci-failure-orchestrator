@@ -16,6 +16,8 @@ Failure Memory Agent + SQLiteIncidentStore
 Memory-Aware Repair Planner
         ↓
 Multiple Coding Agents
+        ├─ general repair agents
+        └─ MergeConflictRepairAgent
         ↓
 Bounded Agent Executor
         ↓
@@ -49,6 +51,7 @@ The core rule is separation of duties: **agents may propose repairs, but they ca
 - persistent `FailureMemoryAgent` backed by SQLite
 - bounded memory-aware repair planning that never promotes regression-producing history
 - multiple coding-agent execution and candidate tournament scoring
+- `MergeConflictRepairAgent` for bounded, proposal-only Git conflict resolution
 - isolated workspaces/worktrees for mutations
 - conservative affected-test selection and full-regression fallback
 - retry, cost, latency, and risk budgets
@@ -57,6 +60,28 @@ The core rule is separation of duties: **agents may propose repairs, but they ca
 - signed/hash-chained production evidence
 - executable repair fixtures and ablation benchmarks
 - Production Proof GitHub Actions gate with machine-readable artifacts
+
+## MergeConflictRepairAgent
+
+`MergeConflictRepairAgent` reads only files approved by the repair plan, parses Git conflict blocks, and emits a unified-diff proposal. The default `ConservativeMergeResolver` resolves only deterministic cases such as identical sides, one-sided additions, or strict superset edits.
+
+Semantic conflicts fail closed:
+
+```text
+conflicted PR
+   ↓
+approved conflicted files
+   ↓
+MergeConflictRepairAgent
+   ↓
+unambiguous? ── yes ──> patch proposal
+      │                     ↓
+      no                sandbox + tests
+      ↓                     ↓
+human / stronger agent   evaluator + policy
+```
+
+It never edits the live repository, merges a PR, or self-approves a resolution. Ambiguous blocks return an empty proposal so the existing executor rejects the attempt and the orchestrator can escalate.
 
 ## Failure Memory
 
@@ -111,7 +136,8 @@ ci-orchestrator analyze \
 5. Mutations execute in isolated workspaces.
 6. Targeted tests alone cannot replace full regression verification.
 7. Historical memory cannot bypass evaluation or policy.
-8. Material decisions produce auditable evidence.
+8. Merge-conflict resolution is proposal-only; ambiguous conflicts escalate.
+9. Material decisions produce auditable evidence.
 
 ## Evaluation targets
 
@@ -119,6 +145,8 @@ ci-orchestrator analyze \
 - false-root-cause rate
 - cascade elimination
 - repair success / first-attempt success
+- merge-conflict auto-resolution rate
+- semantic-conflict escalation precision
 - regression and regression-escape rate
 - human escalation rate
 - mean attempts / MTTR
@@ -132,7 +160,7 @@ ci-orchestrator analyze \
 
 ## Version direction
 
-**v0.8** integrates persistent learning/memory with the previously merged autonomous repair and Production Proof control-plane layers. The next evidence milestone is real provider adapters, automatic repair PR creation, cross-provider calibration, and externally reproducible held-out evaluation.
+**v0.8** integrates persistent learning/memory with the previously merged autonomous repair and Production Proof control-plane layers, including bounded merge-conflict repair. The next evidence milestone is real provider-backed semantic conflict resolution, automatic repair PR creation, cross-provider calibration, and externally reproducible held-out evaluation.
 
 ## Design principle
 
