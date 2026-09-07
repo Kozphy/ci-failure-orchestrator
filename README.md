@@ -2,7 +2,7 @@
 
 Dependency-aware **causal CI/CD/CT failure orchestration**. Instead of fixing the latest red job, it asks which failure most plausibly caused the others and verifies that hypothesis with the smallest useful rerun plan.
 
-## v0.2: causal failure intelligence
+## Agentic repair architecture
 
 ```text
 GitHub Actions jobs + logs
@@ -17,14 +17,18 @@ GitHub Actions jobs + logs
           ↓
  Repair Planner Agent
           ↓
-Selective verification plan
+ Coding Agent Executor
           ↓
- Full-pipeline regression check
+ Independent Evaluator
           ↓
- Benchmark + audit evidence
+ Retry Budget + Stopping Condition
+          ↓
+ Policy Gate / Human Escalation
+          ↓
+ Full-pipeline regression evidence
 ```
 
-A CI run may show `Type Check ❌ → Unit Test ❌ → Integration Test ❌ → Deploy ❌`. The visible deploy failure can be downstream noise. The orchestrator ranks the earliest causal failure, records evidence for failure-to-failure edges, and proposes a verification sequence that tests the root-cause hypothesis before rerunning the entire pipeline.
+A CI run may show `Type Check ❌ → Unit Test ❌ → Integration Test ❌ → Deploy ❌`. The visible deploy failure can be downstream noise. The orchestrator ranks the earliest causal failure, constrains the repair scope, evaluates the proposed patch independently, and stops unsafe or unproductive repair loops.
 
 ## Features
 
@@ -34,6 +38,11 @@ A CI run may show `Type Check ❌ → Unit Test ❌ → Integration Test ❌ →
 - Causal failure graph with evidence and edge confidence
 - GitHub Actions job/log ingestion from normalized API payloads
 - Repair Planner Agent with bounded hypotheses, risk classification, rollback intent, and human-approval gating
+- Provider-neutral Coding Agent protocol for future Cursor / Codex / Claude / Orca adapters
+- Coding Agent Executor that rejects out-of-scope or empty patches
+- Independent evaluation contract for targeted checks and full regression
+- Retry budget and explicit stopping conditions
+- Immediate rollback/escalation path when regression is detected
 - Selective verification planner: root stage → predicted downstream failures → full pipeline
 - Retry/escalation primitives and hash-chained audit log
 - Benchmark metrics for Top-1/Top-3 RCA accuracy and cascade elimination
@@ -55,9 +64,36 @@ rollback strategy
 verification sequence
 ```
 
-The first implementation is intentionally deterministic and provider-neutral. A future LLM/coding-agent adapter can consume the same `RepairPlan` contract without coupling the core orchestrator to a single model vendor.
+High-risk and unknown failure classes fail safe by requiring human approval.
 
-High-risk and unknown failure classes fail safe by requiring human approval. Verification reuses the existing causal path planner and always ends with a full-pipeline regression check.
+## Coding Agent Executor
+
+`CodingAgentExecutor` is the policy boundary between planning and code mutation. An agent receives a `RepairPlan` and returns a `PatchProposal`. The executor rejects a proposal when it edits files outside the approved target scope, returns an empty patch, or attempts to execute a high-risk plan without approval.
+
+The interface is provider-neutral so external coding systems can be added as adapters without coupling orchestration policy to a single model vendor.
+
+## Evaluator-driven repair loop
+
+`AgentRepairLoop` runs bounded repair attempts using an independent evaluator rather than trusting the coding agent to declare success.
+
+```text
+plan
+ ↓
+agent patch proposal
+ ↓
+scope / approval checks
+ ↓
+targeted evaluation
+ ↓
+regression evaluation
+ ↓
+PASS  → READY_FOR_POLICY_GATE
+FAIL  → retry while budget remains
+REGRESSION → ROLLBACK_AND_ESCALATE
+BUDGET EXHAUSTED → ESCALATE_HUMAN
+```
+
+This prevents infinite token-burning repair loops and makes stopping behavior reproducible and testable.
 
 ## Quick start
 
@@ -73,8 +109,6 @@ ci-orchestrator analyze \
   --audit audit.jsonl
 ```
 
-The output includes the predicted root cause, ranked hypotheses, causal edges, and the minimal verification plan.
-
 ## Evaluation targets
 
 - Top-1 Root Cause Accuracy
@@ -85,17 +119,18 @@ The output includes the predicted root cause, ranked hypotheses, causal edges, a
 - MTTR reduction
 - Verification cost
 - Auto-fix success rate
-
-A causal prediction is stronger when fixing the predicted root cause actually removes the downstream failures it claimed to explain.
+- Regression escape rate
+- Human escalation rate
+- Repair attempts per resolved incident
 
 ## Roadmap
 
 **v0.3** — direct GitHub API collector for workflow runs/jobs/logs and workflow-DAG reconstruction.
 
-**v0.4** — coding-agent executor, affected-test selection, richer risk scoring, rollback execution, evaluator, and human approval gates.
+**v0.4** — real coding-agent adapters, affected-test selection, richer risk scoring, rollback execution, policy gate, cost/latency telemetry, and human approval workflows.
 
-**v1.0** — reproducible CI-failure benchmark suite, learned ranking calibration, dashboard, policy controls, retry budgets, stopping conditions, and production evidence.
+**v1.0** — reproducible CI-failure benchmark suite, learned ranking calibration, dashboard, production policy controls, multi-agent candidate selection, and production evidence.
 
 ## Design principle
 
-> Fix the earliest causal failure, not the latest visible failure.
+> Fix the earliest causal failure, constrain the repair, verify independently, and stop when evidence is insufficient.
