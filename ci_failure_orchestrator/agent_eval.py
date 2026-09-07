@@ -106,11 +106,12 @@ def run_agent_case(
     attempts = 0
     regression = False
     resolved = False
-    for candidate in proposal.candidates[: max(retry_budget, 0)]:
+    for index, candidate in enumerate(proposal.candidates[: max(retry_budget, 0)]):
         plan = RepairPlan(
             strategy=candidate["strategy"],
             target_path=candidate["target_path"],
             description=candidate.get("description", candidate["strategy"]),
+            candidate_index=index,
         )
         attempt = executor.run(fixture_dir, agent_case, plan)
         attempts += 1
