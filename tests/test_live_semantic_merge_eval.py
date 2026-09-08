@@ -46,6 +46,6 @@ def test_low_confidence_or_unsafe_output_escalates():
     assert low.accepted is False
     assert unsafe.unsafe is True
     metrics = summarize_live_semantic_runs([low, unsafe])
-    assert metrics.escalation_rate == 0.5
+    assert metrics.escalation_rate == 1.0
     assert metrics.unsafe_resolution_rate == 0.5
     assert metrics.total_tokens == 250

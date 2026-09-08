@@ -46,7 +46,11 @@ class RepairPolicyGate:
 
     def decide(self, result: TournamentResult) -> PolicyDecision:
         winner = result.winner
-        if winner is None:
+        if (
+            winner is None
+            or not winner.accepted
+            or result.action != "READY_FOR_POLICY_GATE"
+        ):
             return PolicyDecision("ESCALATE_HUMAN", result.reason, True)
         if not self._within_budget(winner):
             return PolicyDecision(
@@ -68,7 +72,7 @@ class RepairPolicyGate:
 
     def _within_budget(self, candidate: CandidateScore) -> bool:
         return (
-            candidate.risk_score <= self.max_risk_score
-            and candidate.cost_usd <= self.max_cost_usd
-            and candidate.latency_ms <= self.max_latency_ms
+            0 <= candidate.risk_score <= self.max_risk_score
+            and 0 <= candidate.cost_usd <= self.max_cost_usd
+            and 0 <= candidate.latency_ms <= self.max_latency_ms
         )

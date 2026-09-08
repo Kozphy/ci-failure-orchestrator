@@ -98,3 +98,62 @@ def test_production_evidence_is_stable_and_complete():
     assert evidence.selected_agent == "winner"
     assert evidence.candidate_count == 1
     assert len(evidence.evidence_hash) == 64
+
+
+def test_policy_gate_rejects_unaccepted_winner_or_unexpected_action():
+    plan = _plan()
+    result = RepairTournament().run(
+        [FakeAgent("winner", 0.9)],
+        plan,
+        lambda execution: EvaluationResult(True, True, 0.95, "passed"),
+    )
+    # Tamper with winner.accepted
+    rejected_winner = result.winner.__class__(
+        agent_name=result.winner.agent_name,
+        execution=result.winner.execution,
+        evaluation=result.winner.evaluation,
+        cost_usd=result.winner.cost_usd,
+        latency_ms=result.winner.latency_ms,
+        risk_score=result.winner.risk_score,
+        utility=result.winner.utility,
+        accepted=False,
+        reason="manually rejected",
+    )
+    tampered_result = result.__class__(
+        winner=rejected_winner,
+        candidates=result.candidates,
+        action=result.action,
+        reason=result.reason,
+    )
+    decision = RepairPolicyGate().decide(tampered_result)
+    assert decision.action == "ESCALATE_HUMAN"
+    assert decision.requires_human_approval is True
+
+
+def test_policy_gate_rejects_negative_budget_metrics():
+    plan = _plan()
+    result = RepairTournament().run(
+        [FakeAgent("winner", 0.9)],
+        plan,
+        lambda execution: EvaluationResult(True, True, 0.95, "passed"),
+    )
+    negative_cost_winner = result.winner.__class__(
+        agent_name=result.winner.agent_name,
+        execution=result.winner.execution,
+        evaluation=result.winner.evaluation,
+        cost_usd=-0.05,
+        latency_ms=result.winner.latency_ms,
+        risk_score=result.winner.risk_score,
+        utility=result.winner.utility,
+        accepted=True,
+        reason=result.winner.reason,
+    )
+    tampered_result = result.__class__(
+        winner=negative_cost_winner,
+        candidates=result.candidates,
+        action=result.action,
+        reason=result.reason,
+    )
+    decision = RepairPolicyGate().decide(tampered_result)
+    assert decision.action == "HUMAN_APPROVAL_REQUIRED"
+    assert decision.requires_human_approval is True
