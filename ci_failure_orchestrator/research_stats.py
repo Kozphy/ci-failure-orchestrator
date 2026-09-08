@@ -35,7 +35,11 @@ def wilson_interval(successes: int, total: int, z: float = 1.959963984540054) ->
     denominator = 1.0 + z2 / total
     centre = (p + z2 / (2.0 * total)) / denominator
     margin = z * sqrt((p * (1.0 - p) / total) + z2 / (4.0 * total * total)) / denominator
-    return ProportionEstimate(successes, total, p, max(0.0, centre - margin), min(1.0, centre + margin))
+    # Closed-form Wilson endpoints are exact at 0 and 1 successes-total, but
+    # floating-point arithmetic can leave a ULP inside the bound.
+    low = 0.0 if successes == 0 else max(0.0, centre - margin)
+    high = 1.0 if successes == total else min(1.0, centre + margin)
+    return ProportionEstimate(successes, total, p, low, high)
 
 
 @dataclass(frozen=True)
