@@ -1,5 +1,5 @@
 from ci_failure_orchestrator.api import ControlPlaneAPI
-from ci_failure_orchestrator.control_plane import (
+from ci_failure_orchestrator.control_plane_run import (
     ControlPlaneRun,
     EvaluationResult,
     ProductionEvidence,

@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict
 from typing import Any
 
-from .control_plane import ControlPlaneRun, RunStatus
+from .control_plane_run import ControlPlaneRun, RunStatus
 
 
 class ControlPlaneAPI:

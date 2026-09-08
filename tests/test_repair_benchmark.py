@@ -1,59 +1,46 @@
-from ci_failure_orchestrator.control_plane import ControlPlaneRun, EvaluationResult, RepairPlan, RunStatus
-from ci_failure_orchestrator.models import Failure
+from ci_failure_orchestrator.control_plane import Decision, RepairControlPlane
+from ci_failure_orchestrator.graph import PipelineGraph
+from ci_failure_orchestrator.models import Failure, Stage
+from ci_failure_orchestrator.policy import DefaultRepairPolicy
+from ci_failure_orchestrator.production import InMemoryEvidenceSink, RegressionAwareEvaluator
+from ci_failure_orchestrator.repair_agents import DeterministicRepairAgent, GeneralCodingAgent
 from ci_failure_orchestrator.repair_benchmark import RepairBenchmarkCase, evaluate_repairs
 
 
-def run_factory(failure: Failure) -> ControlPlaneRun:
-    if failure.error_type == "UNKNOWN":
-        run = ControlPlaneRun(
-            incident_id=f"CI-{failure.stage}",
-            root_cause=failure.message,
-            plan=RepairPlan(
-                hypothesis=failure.message,
-                evidence=[failure.error_type],
-                steps=["reproduce", "repair", "test"],
-                risk_score=0.9,
-                confidence=0.5,
-                estimated_cost_usd=0.5,
-            ),
-        )
-        run.evaluation = EvaluationResult(False, 0.2, {"tests": False, "security": False})
-    else:
-        run = ControlPlaneRun(
-            incident_id=f"CI-{failure.stage}",
-            root_cause=failure.message,
-            plan=RepairPlan(
-                hypothesis=failure.message,
-                evidence=[failure.error_type],
-                steps=["reproduce", "repair", "test"],
-                risk_score=0.3,
-                confidence=0.9,
-                estimated_cost_usd=0.1,
-            ),
-        )
-        run.evaluation = EvaluationResult(True, 0.95, {"tests": True, "security": True})
-    run.policy_gate()
-    return run
+def control() -> RepairControlPlane:
+    graph = PipelineGraph([
+        Stage("lint"),
+        Stage("typecheck", depends_on=("lint",)),
+        Stage("unit", depends_on=("typecheck",)),
+        Stage("build", depends_on=("unit",)),
+    ])
+    return RepairControlPlane(
+        graph,
+        [DeterministicRepairAgent(), GeneralCodingAgent()],
+        RegressionAwareEvaluator(tests_passed=True, regression_free=True, score=0.97),
+        DefaultRepairPolicy(),
+        InMemoryEvidenceSink(),
+    )
 
 
 def test_repair_benchmark_reports_success_cost_latency() -> None:
     cases = [
         RepairBenchmarkCase(
             "type-error",
-            Failure("typecheck", "TYPE_ERROR", "mypy incompatible type in assignment"),
-            RunStatus.DEPLOYING,
+            Failure("typecheck", "", "mypy incompatible type in assignment"),
+            Decision.RELEASE,
         ),
         RepairBenchmarkCase(
             "unknown",
-            Failure("build", "UNKNOWN", "something unprecedented happened"),
-            RunStatus.ESCALATED,
+            Failure("build", "", "something unprecedented happened"),
+            Decision.ESCALATE,
         ),
     ]
-    results, summary = evaluate_repairs(cases, run_factory)
+    results, summary = evaluate_repairs(cases, control)
     assert summary.cases == 2
     assert summary.passed == 2
     assert summary.success_rate == 1.0
     assert summary.mean_cost >= 0.0
     assert summary.median_latency_ms >= 0.0
-    assert results[0].status == "deploying"
-    assert results[1].status == "escalated"
+    assert results[0].decision == "release"
+    assert results[1].decision == "escalate"
