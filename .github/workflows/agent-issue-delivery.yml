@@ -1,0 +1,101 @@
+name: agent-issue-delivery
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: agent-issue-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  deliver:
+    if: github.event.label.name == 'agent-ready'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout trusted default branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install project
+        run: python -m pip install -e .
+
+      - name: Create issue branch
+        id: branch
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          branch="agent/issue-${ISSUE_NUMBER}"
+          git switch -c "$branch"
+          echo "name=$branch" >> "$GITHUB_OUTPUT"
+
+      - name: Run coding agent without GitHub write credentials
+        if: vars.CI_REPAIR_AGENT_CMD != ''
+        env:
+          CI_REPAIR_AGENT_CMD: ${{ vars.CI_REPAIR_AGENT_CMD }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          env -u GITHUB_TOKEN -u GH_TOKEN \
+            ISSUE_TITLE="$ISSUE_TITLE" \
+            ISSUE_BODY="$ISSUE_BODY" \
+            ISSUE_NUMBER="$ISSUE_NUMBER" \
+            bash -lc "$CI_REPAIR_AGENT_CMD"
+
+      - name: Fail closed when no agent is configured
+        if: vars.CI_REPAIR_AGENT_CMD == ''
+        run: |
+          echo 'CI_REPAIR_AGENT_CMD repository variable is not configured.' >&2
+          exit 1
+
+      - name: Local evaluation
+        run: |
+          python -m pytest -q
+          python -m compileall -q ci_failure_orchestrator scripts
+
+      - name: Ensure the agent produced a change
+        run: |
+          test -n "$(git status --porcelain)" || {
+            echo 'Agent produced no repository changes.' >&2
+            exit 1
+          }
+
+      - name: Commit and push evaluated change
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.branch.outputs.name }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          git config user.name "ci-failure-orchestrator[bot]"
+          git config user.email "ci-failure-orchestrator[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "agent: implement issue ${ISSUE_NUMBER}"
+          gh auth setup-git
+          git push origin "HEAD:refs/heads/${BRANCH}"
+
+      - name: Open pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.branch.outputs.name }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base "${{ github.event.repository.default_branch }}" \
+            --head "$BRANCH" \
+            --title "Agent delivery for issue #${ISSUE_NUMBER}" \
+            --body "Closes #${ISSUE_NUMBER}. Created by the issue-driven agent workflow after local evaluation. Merge remains controlled by required CI/CT, review, policy, and repository rules."
