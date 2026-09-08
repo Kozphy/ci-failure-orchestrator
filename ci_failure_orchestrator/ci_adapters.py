@@ -5,6 +5,7 @@ Actions, CircleCI, or future CI systems can implement :class:`CIAdapter`
 without changing the factory control plane. Unknown providers and malformed
 registry keys fail closed instead of silently selecting a default backend.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
