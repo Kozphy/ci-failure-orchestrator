@@ -1,4 +1,4 @@
-# Autonomous Software Factory v0.1
+# Autonomous Software Factory v0.5
 
 This repository is evolving from a CI-failure repair orchestrator into a vendor-neutral autonomous engineering control plane.
 
@@ -6,94 +6,101 @@ This repository is evolving from a CI-failure repair orchestrator into a vendor-
 
 ```text
 Human intent
-  -> executable spec
-  -> task graph
-  -> agent runtime
+  -> model-backed structured spec
+  -> deterministic spec validation
+  -> task DAG
+  -> cost/risk-aware model router
+  -> sandboxed agent runtime
   -> independent evaluator
-  -> risk gate
-  -> CI / evidence
-  -> repair loop
+  -> durable evidence
+  -> CI provider adapter
+  -> bounded repair loop
+  -> governance gate
   -> merge / deploy
   -> production feedback
-  -> new task
 ```
 
-## v0.1 primitives
+## Implemented layers
 
-- `FactoryTask`: a goal, acceptance criteria, dependencies, risk and execution state.
-- `AgentRuntime`: adapter boundary for Codex, Claude Code, Cursor, Orca or future runtimes.
-- `Evaluator`: independent proof layer. An agent saying `DONE` never determines correctness.
-- `GovernanceGate`: risk-based autonomy boundary.
-- `AutonomousSoftwareFactory`: persistent execute -> evaluate -> retry loop with bounded attempts.
+### v0.1 — Factory kernel
+- dependency-aware `FactoryTask`
+- `AgentRuntime`, `Evaluator`, `GovernanceGate`
+- bounded autonomous execute/evaluate/retry loop
 
-## Design invariants
+### v0.2 — Spec engine
+- machine-readable `FactorySpec` / `TaskSpec`
+- deterministic `SpecCompiler`
+- duplicate, dependency, risk and cycle validation
 
-1. **Maker != checker.** Agent execution and evaluation are separate interfaces.
-2. **Evidence decides completion.** Tests/evals determine task completion, not model confidence.
-3. **Bound retries.** Autonomous repair must stop after a configured attempt budget.
-4. **Least privilege.** High-risk tasks are blocked by default.
-5. **Vendor neutral.** Agent and CI providers live behind adapters instead of being hard-coded into the control plane.
-6. **Git remains system of record.** Specs, tasks, evidence and policy should remain auditable.
+### v0.3 — Goal runtime + evidence
+- `GoalDrivenFactory`
+- Goal -> Spec -> DAG -> Agent -> Eval -> Repair
+- per-attempt evidence recording
+- runtime routing
+- vendor-neutral CI contract
 
-## Existing CI repair becomes the first vertical slice
+### v0.4 — Provider + CI integration layer
+- model-backed `ModelGoalSpecProvider`
+- sandboxed `ProviderCLIRuntime` for Codex/Cursor/Claude/Gemini-style CLIs
+- append-only `JsonlEvidenceStore`
+- GitHub Actions and CircleCI adapters over a shared CI transport contract
 
-The repository's current CI failure classification, repair, approval, canary, audit, benchmark and agent-loop capabilities remain useful. They become the first production workload of the larger factory:
+### v0.5 — Economics + operational telemetry
+- `CostAwareModelRouter` chooses the cheapest provider that satisfies task risk
+- `BudgetLedger` enforces a hard autonomous spend ceiling
+- `BudgetedRuntimeRouter` combines provider routing, execution, budget enforcement and metrics
+- factory metrics capture task attempts, provider selection, estimated cost and agent latency
+- fail-closed behavior when no provider fits risk/budget or a runtime is missing
+
+## Safety invariants
+
+1. **Maker != checker.** Execution and evaluation are separate interfaces.
+2. **Evidence decides completion.** Agent confidence never determines DONE.
+3. **Bound retries and spend.** Attempts and estimated provider cost are hard-limited.
+4. **Least privilege.** High-risk tasks remain blocked unless governance explicitly permits them.
+5. **Vendor neutral.** Model, agent and CI providers live behind adapters.
+6. **Fail closed.** Missing runtimes, invalid specs, unsupported risk or exhausted budget stop autonomous progress.
+7. **Git remains system of record.** Specs, policies, evidence and changes remain auditable.
+
+## Current control plane
 
 ```text
-CI failure
-  -> classify
-  -> RCA
-  -> repair runtime
-  -> evaluator
-  -> governance
-  -> retry or stop
+Goal
+ -> ModelGoalSpecProvider
+ -> FactorySpec
+ -> SpecCompiler
+ -> Task DAG
+ -> CostAwareModelRouter
+ -> BudgetedRuntimeRouter
+ -> Codex / Cursor / Claude / Gemini runtime adapter
+ -> Evaluator
+ -> JsonlEvidenceStore
+ -> GitHub Actions / CircleCI
+ -> Retry or stop
+ -> Risk governance
 ```
-
-## Next milestones
-
-### v0.2 — Spec engine + task DAG
-
-Natural-language goal -> structured spec -> acceptance criteria -> dependency graph.
-
-### v0.3 — Runtime adapters
-
-- local subprocess / test runtime
-- Codex adapter
-- Cursor adapter
-- Orca worktree adapter
-
-### v0.4 — CI provider adapters
-
-Provide a common interface such as:
-
-```python
-ci.run()
-ci.status()
-ci.logs()
-ci.retry()
-```
-
-with GitHub Actions and CircleCI implementations.
-
-### v0.5 — Evidence and policy
-
-Persist test, security, performance and audit evidence. Introduce policy-as-code and approval escalation.
-
-### v0.6 — Parallel factory
-
-Run independent tasks in isolated worktrees/sandboxes and merge only after dependency/evaluation gates pass.
-
-### v1.0 — Closed-loop engineering
-
-Goal -> spec -> build -> verify -> deploy -> observe -> RCA -> repair -> evolve.
 
 ## Definition of DONE
 
-A task is not complete because an agent says it is complete.
-
 ```text
 DONE = acceptance criteria satisfied
-   AND required tests pass
+   AND required tests/evals pass
    AND policy allows progression
    AND required evidence exists
+   AND task budget was not exceeded
+```
+
+## Next milestone — v0.6 Parallel Factory
+
+- isolated Git worktrees per independent task
+- bounded parallel scheduling from the DAG
+- conflict detection before integration
+- authenticated GitHub/CircleCI transports
+- CI failure -> repair-agent routing
+- factory-level SLO / success-rate / cost-per-task dashboards
+
+## v1.0 target
+
+```text
+Goal -> Spec -> Plan -> Parallel Build -> Verify -> CI -> Deploy -> Observe -> RCA -> Repair -> Improve
 ```
