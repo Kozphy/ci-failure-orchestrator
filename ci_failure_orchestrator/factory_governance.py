@@ -4,6 +4,7 @@ Governance is intentionally separate from agent execution and evaluation. A
 worker may be capable of performing a task and an evaluator may be able to
 verify it, but neither condition grants permission to proceed autonomously.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
