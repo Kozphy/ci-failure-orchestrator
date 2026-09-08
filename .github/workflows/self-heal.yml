@@ -6,9 +6,10 @@ on:
     types: [completed]
 
 permissions:
-  contents: read
+  contents: write
   actions: write
   issues: write
+  pull-requests: write
 
 concurrency:
   group: self-heal-${{ github.event.workflow_run.id }}
@@ -22,10 +23,18 @@ jobs:
       github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout trusted repository code
+      - name: Checkout trusted orchestrator code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: orchestrator
+          persist-credentials: false
+
+      - name: Checkout failed revision without credentials
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
+          path: candidate
           persist-credentials: false
 
       - name: Set up Python
@@ -33,7 +42,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install orchestrator
+      - name: Install trusted orchestrator
+        working-directory: orchestrator
         run: python -m pip install -e .
 
       - name: Collect failed-job logs
@@ -41,12 +51,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
-          mkdir -p .self-heal
-          gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --log-failed > .self-heal/failed.log || true
-          test -s .self-heal/failed.log || printf 'unknown failure: no failed log payload available\n' > .self-heal/failed.log
+          mkdir -p orchestrator/.self-heal
+          gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --log-failed > orchestrator/.self-heal/failed.log || true
+          test -s orchestrator/.self-heal/failed.log || printf 'unknown failure: no failed log payload available\n' > orchestrator/.self-heal/failed.log
 
       - name: Classify bounded recovery action
         id: decision
+        working-directory: orchestrator
         run: |
           python scripts/self_heal_github.py --logs .self-heal/failed.log --output .self-heal/decision.json
           python - <<'PY' >> "$GITHUB_OUTPUT"
@@ -64,8 +75,53 @@ jobs:
           RUN_ID: ${{ github.event.workflow_run.id }}
         run: gh run rerun "$RUN_ID" --failed --repo "$GITHUB_REPOSITORY"
 
-      - name: Escalate deterministic or repeated failure
-        if: steps.decision.outputs.action != 'RERUN_FAILED' || github.event.workflow_run.run_attempt > 1
+      - name: Generate and independently evaluate bounded repair
+        id: repair
+        if: >-
+          (steps.decision.outputs.action != 'RERUN_FAILED' || github.event.workflow_run.run_attempt > 1) &&
+          vars.CI_REPAIR_AGENT_CMD != ''
+        env:
+          CI_REPAIR_AGENT_CMD: ${{ vars.CI_REPAIR_AGENT_CMD }}
+        run: |
+          set +e
+          python orchestrator/scripts/sandbox_repair.py \
+            --repo candidate \
+            --logs orchestrator/.self-heal/failed.log \
+            --agent-cmd "$CI_REPAIR_AGENT_CMD" \
+            --output orchestrator/.self-heal/repair-evidence.json
+          rc=$?
+          echo "accepted=$([ "$rc" -eq 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Commit evaluated repair and open draft PR
+        if: steps.repair.outputs.accepted == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          FAILED_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          ERROR_TYPE: ${{ steps.decision.outputs.error_type }}
+        run: |
+          branch="repair/run-${RUN_ID}"
+          git -C candidate config user.name "ci-failure-orchestrator[bot]"
+          git -C candidate config user.email "ci-failure-orchestrator[bot]@users.noreply.github.com"
+          git -C candidate switch -c "$branch"
+          git -C candidate add -A
+          git -C candidate commit -m "repair: remediate failed CI run ${RUN_ID}"
+          gh auth setup-git
+          git -C candidate push origin "HEAD:refs/heads/${branch}"
+          gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base "${{ github.event.repository.default_branch }}" \
+            --head "$branch" \
+            --draft \
+            --title "Self-heal: repair failed CI run ${RUN_ID}" \
+            --body "Automated bounded repair for ${RUN_URL}. Failure class: ${ERROR_TYPE}. Base failed SHA: ${FAILED_SHA}. The patch passed the independent targeted + regression evaluator and remains draft for policy/human review."
+
+      - name: Escalate when no safe repair is available
+        if: >-
+          (steps.decision.outputs.action != 'RERUN_FAILED' || github.event.workflow_run.run_attempt > 1) &&
+          steps.repair.outputs.accepted != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.event.workflow_run.id }}
@@ -79,14 +135,14 @@ jobs:
             exit 0
           fi
           {
-            echo "A CI/CD/CT workflow failed and was not eligible for another automatic rerun."
+            echo "A CI/CD/CT workflow failed and no evaluated repair was safe to publish."
             echo
             echo "- Workflow: ${WORKFLOW_NAME}"
             echo "- Run: ${RUN_URL}"
             echo "- Failure class: ${ERROR_TYPE}"
             echo "- Confidence: ${CONFIDENCE}"
-            echo "- Recovery policy: bounded rerun only for NETWORK_ERROR/FLAKY_TEST; deterministic or repeated failures require the repair/evaluation path."
+            echo "- Recovery policy: one bounded rerun for transient failures; otherwise scoped agent repair + independent tests + draft PR."
             echo
-            echo "The coding agent must not approve its own repair. Apply the existing planner -> agent -> independent evaluator -> policy gate flow before merging."
-          } > .self-heal/issue.md
-          gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file .self-heal/issue.md
+            echo "The coding agent cannot approve or merge its own repair. Human/policy review is still required."
+          } > orchestrator/.self-heal/issue.md
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file orchestrator/.self-heal/issue.md
