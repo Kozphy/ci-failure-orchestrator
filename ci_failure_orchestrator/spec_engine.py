@@ -1,3 +1,9 @@
+"""Deterministic specification compiler for autonomous engineering runs.
+
+Model output is treated as untrusted planning input. This module validates the
+machine-readable goal, task identifiers, risk values, and dependency graph
+before converting the spec into executable :class:`FactoryTask` objects.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -8,6 +14,8 @@ from .software_factory import AcceptanceCriterion, FactoryTask
 
 @dataclass(frozen=True)
 class TaskSpec:
+    """Declarative task definition produced before autonomous execution."""
+
     id: str
     title: str
     goal: str
@@ -25,20 +33,21 @@ class FactorySpec:
 
 
 class SpecValidationError(ValueError):
-    pass
+    """Raised when a candidate factory specification violates trust rules."""
 
 
 class SpecCompiler:
-    """Compile a validated factory specification into executable tasks.
+    """Validate and compile a factory specification into executable tasks.
 
-    This intentionally does not depend on a model vendor. An LLM adapter can
-    create ``FactorySpec`` later; the compiler remains deterministic and is the
-    trust boundary before autonomous execution starts.
+    The compiler intentionally has no dependency on a model vendor. An LLM may
+    propose :class:`FactorySpec`, but autonomous execution starts only after the
+    deterministic validations in this class succeed.
     """
 
     VALID_RISKS = {"low", "medium", "high", "critical"}
 
     def compile(self, spec: FactorySpec) -> list[FactoryTask]:
+        """Validate ``spec`` and convert it to fresh executable task objects."""
         self.validate(spec)
         return [
             FactoryTask(
@@ -53,6 +62,12 @@ class SpecCompiler:
         ]
 
     def validate(self, spec: FactorySpec) -> None:
+        """Reject malformed goals, tasks, risks, references, and DAG cycles.
+
+        Raises:
+            SpecValidationError: If the specification is unsafe or structurally
+                invalid for deterministic autonomous execution.
+        """
         if not spec.goal.strip():
             raise SpecValidationError("factory goal must not be empty")
         if not spec.tasks:
@@ -84,6 +99,7 @@ class SpecCompiler:
 
     @staticmethod
     def _reject_cycles(tasks: Iterable[TaskSpec]) -> None:
+        """Reject circular task dependencies using depth-first traversal."""
         graph = {task.id: set(task.dependencies) for task in tasks}
         visiting: set[str] = set()
         visited: set[str] = set()
