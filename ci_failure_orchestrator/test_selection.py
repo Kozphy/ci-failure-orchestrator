@@ -8,6 +8,7 @@ from typing import Iterable
 
 @dataclass(frozen=True)
 class TestRule:
+    __test__ = False
     source_glob: str
     tests: tuple[str, ...]
 

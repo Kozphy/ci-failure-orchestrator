@@ -1,6 +1,6 @@
 # CI Failure Orchestrator
 
-**v1.0 multi-repository CI repair platform** for dependency-aware diagnosis, bounded autonomous repair, independent evaluation, fleet policy, SLO/error-budget control, canary rollout, benchmarking, dashboard telemetry, human escalation, and tamper-evident production proof.
+**v1.0 multi-repository CI repair platform** for dependency-aware diagnosis, bounded autonomous repair, persistent failure memory, independent evaluation, fleet policy, SLO/error-budget control, canary rollout, benchmarking, dashboard telemetry, human escalation, and tamper-evident production proof.
 
 ```text
 GitHub repositories
@@ -11,21 +11,39 @@ Failure Dependency Graph
         ↓
 Root-cause classification + ranking
         ↓
-Repair planner
+Failure Memory Agent + SQLiteIncidentStore
         ↓
-Coding agents / patch executors
+Memory-Aware Repair Planner
         ↓
-Independent evaluator
+Multiple Coding Agents
+        ├─ general repair agents
+        └─ MergeConflictRepairAgent
+             ├─ ConservativeMergeResolver
+             └─ SemanticMergeResolver
+                    ↓
+             OpenAI semantic provider
+        ↓
+Bounded Agent Executor
+        ↓
+Isolated Git Worktree / Sandbox
+        ↓
+Affected-test selection
+        ↓
+Targeted tests + full regression
+        ↓
+Independent Evaluator
+        ↓
+Candidate Tournament
         ↓
 Retry / cost / latency budgets
         ↓
 Regression detection
         ↓
-Repository policy gate
+Repository Policy Gate / Human Approval
         ↓
-Canary rollout
+Canary Rollout / Rollback
         ↓
-Fleet manager
+Fleet Manager
         ↓
 SLO + error-budget gate
         ↓
@@ -81,7 +99,7 @@ It also calculates availability error-budget burn. Excess burn can freeze autono
 - `hold`
 - `rollback`
 
-Promotion requires sufficient sample size, acceptable repair success, bounded regression/false-repair rates, and acceptable latency. Regression or false-repair threshold breaches trigger rollback.
+Promotion requires sufficient sample size, acceptable repair success, bounded regression/false-repair rates, and acceptable latency. Regression or false-repair threshold breaches trigger rollback. `CanaryController` provides the execution boundary for canary deployment, health check, and rollback hooks.
 
 ### Fleet dashboard model
 
@@ -162,21 +180,100 @@ report = platform.evaluate(
 print(report.dashboard.to_dict())
 ```
 
-## Existing single-run repair control plane
+## Persistent Failure Memory
 
-The v1 platform builds on the existing causal and repair primitives:
+Historical incidents are advisory evidence, not execution authority. Similar incidents can contribute repair context and affected-test hints, while past regression-producing fixes remain visible only as warnings and are never promoted.
 
-- `PipelineGraph` for workflow DAG reasoning
-- typed CI failure classification
-- causal-edge inference
-- root-cause ranking
-- selective verification planning
-- deterministic, test, security, and general coding-agent strategies
-- `RegressionAwareEvaluator`
-- bounded retry/cost/latency autonomy
-- fail-closed `DefaultRepairPolicy`
-- first-class human escalation
-- hash-chained JSONL evidence
+```text
+new incident
+   ↓
+MemoryQuery
+   ↓
+SQLiteIncidentStore
+   ↓
+retrieve top-K similar incidents
+   ↓
+separate successful history from regression history
+   ↓
+MemoryAwareRepairPlanner
+```
+
+## MergeConflictRepairAgent
+
+`MergeConflictRepairAgent` reads only files approved by the repair plan, parses Git conflict blocks, and emits a unified-diff proposal. The default `ConservativeMergeResolver` resolves deterministic cases such as identical sides, one-sided additions, or strict superset edits.
+
+For semantic conflicts, the agent can use a `ChainedMergeResolver`:
+
+```python
+from ci_failure_orchestrator.merge_conflict_agent import (
+    ChainedMergeResolver,
+    ConservativeMergeResolver,
+    MergeConflictRepairAgent,
+    SemanticMergeResolver,
+)
+from ci_failure_orchestrator.openai_merge_resolver import OpenAISemanticMergeProvider
+
+resolver = ChainedMergeResolver(
+    ConservativeMergeResolver(),
+    SemanticMergeResolver(
+        OpenAISemanticMergeProvider(model="gpt-5.6"),
+        min_confidence=0.80,
+    ),
+)
+agent = MergeConflictRepairAgent(resolver=resolver)
+```
+
+The semantic provider returns only a proposed resolved text block plus confidence and rationale. It has no filesystem, shell, git, merge, or approval authority.
+
+```text
+conflicted PR
+   ↓
+approved conflicted files
+   ↓
+Conservative resolver
+   ├─ resolved → patch candidate
+   └─ ambiguous
+          ↓
+   Semantic resolver
+          ↓
+   confidence >= threshold?
+      ├─ no → escalate
+      └─ yes
+          ↓
+   marker/size validation
+          ↓
+      patch proposal
+          ↓
+   sandbox + tests
+          ↓
+ evaluator + policy
+          ↓
+ release / retry / block / human
+```
+
+The semantic path fails closed when confidence is below threshold, output is empty or oversized, or conflict markers remain. Even an accepted semantic resolution is only a patch candidate; it still requires independent verification.
+
+Install optional provider integrations with:
+
+```bash
+python -m pip install -e ".[dev,openai]"
+```
+
+## Held-out merge-conflict benchmarks
+
+`benchmark/merge_conflict_corpus.v1.json` is a held-out synthetic corpus that separates deterministic conflicts from semantic conflicts. The default Production Proof run uses only the deterministic resolver so semantic cases must escalate rather than guess.
+
+```bash
+python scripts/run_merge_conflict_benchmark.py
+```
+
+The generated `artifacts/merge-conflict-benchmark.json` records:
+
+- auto-resolution rate
+- exact-match rate for deterministic cases
+- escalation rate
+- semantic-conflict escalation precision
+- unsafe-output rate
 
 ## Quick start
 
@@ -226,42 +323,25 @@ production proof
 
 A bad canary, detected regression, unknown failure, exhausted autonomy budget, or excessive error-budget burn must stop or freeze autonomous repair rather than silently widening autonomy.
 
-## v1 production-proof checklist
-
-A deployment is not considered proven merely because the code exists. Production proof should include real evidence for:
-
-- multiple repositories under distinct fleet policies
-- replayable failure corpus and benchmark results
-- before/after RCA and MTTR metrics
-- false-repair and regression measurements
-- SLO/error-budget history
-- canary promotion and rollback exercises
-- failure injection
-- rollback/recovery evidence
-- audit-chain verification
-- cost and latency telemetry
-- security-policy enforcement
-- real GitHub Actions runs and PRs
-- reproducible deployment instructions
-- dashboard screenshots or exported snapshots
-
 ## Safety invariants
 
 1. Repair agents cannot self-approve release.
 2. Regression detection blocks release.
 3. Unknown failures fail closed and escalate.
 4. Retry, cost, latency, concurrency, and error-budget limits bound autonomy.
-5. Canary regression or false-repair breaches trigger rollback.
-6. Repository policy remains authoritative inside fleet orchestration.
-7. Every material decision should produce machine-readable evidence.
-8. Full regression verification remains the final technical authority before production release.
+5. Mutations execute in isolated workspaces/worktrees.
+6. Targeted tests alone cannot replace full regression verification.
+7. Historical memory cannot bypass evaluation or policy.
+8. Merge-conflict resolution is proposal-only; unresolved/low-confidence semantic conflicts escalate.
+9. Model output cannot directly invoke filesystem, shell, git, merge, or release operations.
+10. Canary regression or false-repair breaches trigger rollback.
+11. Repository policy remains authoritative inside fleet orchestration.
+12. Every material decision should produce machine-readable, auditable evidence.
 
 ## Version status
 
-**v1.0.0 platform layer** adds multi-repository fleet management, expanded benchmark metrics, SLO/error-budget evaluation, canary promotion/rollback policy, dashboard aggregation, release-level production proof, and an integrated platform façade.
-
-The next production-hardening work is operational rather than architectural: real GitHub run/patch execution adapters, persistent run state, OpenTelemetry exporters, a hosted dashboard, controlled canary deployments, multi-repository soak tests, and externally reproducible benchmark evidence.
+**v1.0.0 platform layer** integrates multi-repository fleet management, persistent failure memory, memory-aware planning, merge-conflict resolution, expanded benchmark metrics, SLO/error-budget evaluation, canary promotion/rollback policy, dashboard aggregation, release-level production proof, and an integrated platform façade.
 
 ## Design principle
 
-> Find the earliest causal failure, propose the smallest repair, verify independently, widen rollout gradually, and freeze autonomy when evidence says the system is unsafe.
+> Find the earliest causal failure, learn from bounded historical evidence, propose the smallest repair, isolate every mutation, verify independently, widen rollout gradually, and freeze autonomy when evidence says the system is unsafe.

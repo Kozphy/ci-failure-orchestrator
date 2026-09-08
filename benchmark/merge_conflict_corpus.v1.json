@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "description": "Held-out synthetic merge-conflict cases for deterministic and semantic resolver evaluation. Synthetic evidence only.",
+  "cases": [
+    {
+      "id": "identical-sides",
+      "path": "config.txt",
+      "content": "<<<<<<< HEAD\nvalue=true\n=======\nvalue=true\n>>>>>>> feature\n",
+      "expected": "value=true\n",
+      "category": "deterministic"
+    },
+    {
+      "id": "one-sided-addition",
+      "path": "README.md",
+      "content": "before\n<<<<<<< HEAD\n=======\nnew section\n>>>>>>> feature\nafter\n",
+      "expected": "before\nnew section\nafter\n",
+      "category": "deterministic"
+    },
+    {
+      "id": "strict-superset",
+      "path": "settings.ini",
+      "content": "<<<<<<< HEAD\nmode=safe\n=======\nmode=safe\nretry=2\n>>>>>>> feature\n",
+      "expected": "mode=safe\nretry=2\n",
+      "category": "deterministic"
+    },
+    {
+      "id": "semantic-policy",
+      "path": "policy.py",
+      "content": "<<<<<<< HEAD\nif regression:\n    return BLOCK\n=======\nif regression:\n    return ESCALATE\n>>>>>>> feature\n",
+      "expected": null,
+      "category": "semantic",
+      "expected_action": "escalate_without_semantic_provider"
+    },
+    {
+      "id": "semantic-implementation",
+      "path": "service.py",
+      "content": "<<<<<<< HEAD\nreturn cache.get(key)\n=======\nreturn await cache.get(key)\n>>>>>>> feature\n",
+      "expected": null,
+      "category": "semantic",
+      "expected_action": "escalate_without_semantic_provider"
+    }
+  ]
+}
