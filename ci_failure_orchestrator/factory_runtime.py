@@ -5,6 +5,7 @@ execution, independent evaluation, governance, and evidence persistence. It
 keeps model-backed planning behind :class:`GoalSpecProvider` while preserving
 :class:`SpecCompiler` as the trust boundary before autonomous work begins.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
