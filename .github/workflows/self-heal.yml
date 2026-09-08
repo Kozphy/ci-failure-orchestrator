@@ -1,0 +1,92 @@
+name: self-heal
+
+on:
+  workflow_run:
+    workflows: ["ci", "ct", "security", "provider-contract", "repair-benchmark", "Production Proof"]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: write
+  issues: write
+
+concurrency:
+  group: self-heal-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  diagnose-and-recover:
+    if: >-
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event != 'pull_request_target' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout trusted repository code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install orchestrator
+        run: python -m pip install -e .
+
+      - name: Collect failed-job logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          mkdir -p .self-heal
+          gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --log-failed > .self-heal/failed.log || true
+          test -s .self-heal/failed.log || printf 'unknown failure: no failed log payload available\n' > .self-heal/failed.log
+
+      - name: Classify bounded recovery action
+        id: decision
+        run: |
+          python scripts/self_heal_github.py --logs .self-heal/failed.log --output .self-heal/decision.json
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          d = json.load(open('.self-heal/decision.json', encoding='utf-8'))
+          print(f"action={d['action']}")
+          print(f"error_type={d['error_type']}")
+          print(f"confidence={d['confidence']}")
+          PY
+
+      - name: Re-run failed jobs once for transient failures
+        if: steps.decision.outputs.action == 'RERUN_FAILED' && github.event.workflow_run.run_attempt == 1
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: gh run rerun "$RUN_ID" --failed --repo "$GITHUB_REPOSITORY"
+
+      - name: Escalate deterministic or repeated failure
+        if: steps.decision.outputs.action != 'RERUN_FAILED' || github.event.workflow_run.run_attempt > 1
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+          ERROR_TYPE: ${{ steps.decision.outputs.error_type }}
+          CONFIDENCE: ${{ steps.decision.outputs.confidence }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          title="CI repair required: ${WORKFLOW_NAME} run ${RUN_ID}"
+          if gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$title in:title" --json title --jq '.[].title' | grep -Fxq "$title"; then
+            exit 0
+          fi
+          {
+            echo "A CI/CD/CT workflow failed and was not eligible for another automatic rerun."
+            echo
+            echo "- Workflow: ${WORKFLOW_NAME}"
+            echo "- Run: ${RUN_URL}"
+            echo "- Failure class: ${ERROR_TYPE}"
+            echo "- Confidence: ${CONFIDENCE}"
+            echo "- Recovery policy: bounded rerun only for NETWORK_ERROR/FLAKY_TEST; deterministic or repeated failures require the repair/evaluation path."
+            echo
+            echo "The coding agent must not approve its own repair. Apply the existing planner -> agent -> independent evaluator -> policy gate flow before merging."
+          } > .self-heal/issue.md
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file .self-heal/issue.md
