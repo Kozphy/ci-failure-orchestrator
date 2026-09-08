@@ -52,6 +52,26 @@ Human intent
 - factory metrics capture task attempts, provider selection, estimated cost and agent latency
 - fail-closed behavior when no provider fits risk/budget or a runtime is missing
 
+## Documentation contract
+
+Documentation is part of the factory's Definition of DONE, not post-hoc polish.
+The v0.1-v0.5 implementation history has been backfilled with docstrings across
+its public factory modules, protocols, classes, dataclasses, and important
+functions.
+
+Every future factory upgrade must include:
+
+- a module docstring describing responsibility and trust/safety boundaries;
+- public class/protocol docstrings that explain the contract, not only the name;
+- public method/function docstrings that describe behavior and important failure modes;
+- explicit documentation for fail-closed, budget, retry, risk, evidence, or provider boundaries;
+- tests for behavior changes;
+- an architecture/version-note update in this document.
+
+A minimal one-line label such as `"Router."` is not considered sufficient for
+control-plane code. Documentation should be useful to both human maintainers
+and coding agents reading the repository as machine-operable context.
+
 ## Safety invariants
 
 1. **Maker != checker.** Execution and evaluation are separate interfaces.
@@ -61,6 +81,7 @@ Human intent
 5. **Vendor neutral.** Model, agent and CI providers live behind adapters.
 6. **Fail closed.** Missing runtimes, invalid specs, unsupported risk or exhausted budget stop autonomous progress.
 7. **Git remains system of record.** Specs, policies, evidence and changes remain auditable.
+8. **Documentation is a control surface.** Public factory behavior and safety boundaries must remain documented as code evolves.
 
 ## Current control plane
 
@@ -85,6 +106,7 @@ Goal
 ```text
 DONE = acceptance criteria satisfied
    AND required tests/evals pass
+   AND public API / safety behavior documented
    AND policy allows progression
    AND required evidence exists
    AND task budget was not exceeded
@@ -98,6 +120,7 @@ DONE = acceptance criteria satisfied
 - authenticated GitHub/CircleCI transports
 - CI failure -> repair-agent routing
 - factory-level SLO / success-rate / cost-per-task dashboards
+- docstrings and architecture notes shipped in the same change set
 
 ## v1.0 target
 
