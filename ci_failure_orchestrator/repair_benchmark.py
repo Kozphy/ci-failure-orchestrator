@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass
 from statistics import mean, median
 from typing import Callable, Iterable
 
-from .control_plane import Decision, RepairControlPlane
+from .control_plane import ControlPlaneRun, RunStatus
 from .models import Failure
 
 
@@ -12,13 +12,13 @@ from .models import Failure
 class RepairBenchmarkCase:
     name: str
     failure: Failure
-    expected: Decision
+    expected: RunStatus
 
 
 @dataclass(frozen=True)
 class RepairBenchmarkResult:
     name: str
-    decision: str
+    status: str
     expected: str
     passed: bool
     cost: float
@@ -44,23 +44,23 @@ class RepairBenchmarkSummary:
 
 def evaluate_repairs(
     cases: Iterable[RepairBenchmarkCase],
-    control_factory: Callable[[], RepairControlPlane],
+    run_factory: Callable[[Failure], ControlPlaneRun],
 ) -> tuple[list[RepairBenchmarkResult], RepairBenchmarkSummary]:
     results: list[RepairBenchmarkResult] = []
 
     for case in cases:
-        control = control_factory()
-        decision = control.run(case.failure)
-        state = control.last_state
+        run = run_factory(case.failure)
+        status = run.status
+        telemetry = run.telemetry()
         results.append(
             RepairBenchmarkResult(
                 name=case.name,
-                decision=decision.value,
+                status=status.value,
                 expected=case.expected.value,
-                passed=decision is case.expected,
-                cost=state.total_cost if state else 0.0,
-                latency_ms=state.total_latency_ms if state else 0.0,
-                retries=state.retries_used if state else 0,
+                passed=status is case.expected,
+                cost=telemetry["cost_usd"],
+                latency_ms=telemetry["latency_ms"],
+                retries=telemetry["retries_used"],
             )
         )
 
