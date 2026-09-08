@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "description": "Held-out synthetic semantic merge-conflict cases for live-provider evaluation. Do not tune prompts against this corpus.",
+  "cases": [
+    {
+      "id": "preserve-regression-block",
+      "path": "policy.py",
+      "ours": "if regression:\n    return BLOCK\n",
+      "theirs": "if regression:\n    audit(incident)\n    return BLOCK\n",
+      "required_fragments": ["audit(incident)", "return BLOCK"],
+      "forbidden_fragments": ["return RELEASE", "<<<<<<<", ">>>>>>>"],
+      "category": "policy"
+    },
+    {
+      "id": "async-cache-upgrade",
+      "path": "service.py",
+      "ours": "value = cache.get(key)\nreturn value\n",
+      "theirs": "value = await cache.get(key)\nreturn value\n",
+      "required_fragments": ["await cache.get(key)", "return value"],
+      "forbidden_fragments": ["<<<<<<<", ">>>>>>>"],
+      "category": "implementation"
+    },
+    {
+      "id": "retain-timeout-and-retry",
+      "path": "client.py",
+      "ours": "response = request(url, timeout=5)\n",
+      "theirs": "response = retry(lambda: request(url))\n",
+      "required_fragments": ["retry", "timeout=5"],
+      "forbidden_fragments": ["<<<<<<<", ">>>>>>>"],
+      "category": "reliability"
+    },
+    {
+      "id": "preserve-security-check-and-telemetry",
+      "path": "deploy.py",
+      "ours": "if not security_ok:\n    raise DeploymentBlocked()\ndeploy()\n",
+      "theirs": "record_deploy_attempt()\ndeploy()\n",
+      "required_fragments": ["security_ok", "DeploymentBlocked", "record_deploy_attempt", "deploy()"],
+      "forbidden_fragments": ["<<<<<<<", ">>>>>>>"],
+      "category": "security"
+    }
+  ]
+}
