@@ -1,0 +1,101 @@
+name: promotion
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+  merge_group:
+    types: [checks_requested]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      promote_production:
+        description: 'Promote the current main revision to production after canary evidence is green'
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: promotion-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  policy-gate:
+    if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: python -m pip install -e .
+      - name: Required verification
+        run: |
+          python -m pytest -q
+          python -m compileall -q ci_failure_orchestrator scripts
+      - name: Policy boundary
+        run: |
+          echo 'CI/CT verification passed.'
+          echo 'Repository branch protection/ruleset and required review remain authoritative for merge.'
+
+  canary:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: canary
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: python -m pip install -e .
+      - name: Canary verification
+        run: |
+          python -m pytest -q
+          python -m compileall -q ci_failure_orchestrator scripts
+      - name: Publish canary evidence
+        run: |
+          mkdir -p .promotion
+          printf '{"revision":"%s","stage":"canary","status":"PASS"}\n' "$GITHUB_SHA" > .promotion/canary.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: canary-evidence-${{ github.sha }}
+          path: .promotion/canary.json
+          retention-days: 30
+
+  production:
+    if: github.event_name == 'workflow_dispatch' && inputs.promote_production == true
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: python -m pip install -e .
+      - name: Re-verify production candidate
+        run: |
+          python -m pytest -q
+          python -m compileall -q ci_failure_orchestrator scripts
+      - name: Record production promotion evidence
+        run: |
+          mkdir -p .promotion
+          printf '{"revision":"%s","stage":"production","status":"PROMOTED"}\n' "$GITHUB_SHA" > .promotion/production.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: production-evidence-${{ github.sha }}
+          path: .promotion/production.json
+          retention-days: 90
