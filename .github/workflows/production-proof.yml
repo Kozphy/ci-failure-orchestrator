@@ -1,0 +1,45 @@
+name: Production Proof
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Test
+        run: pytest
+      - name: Run reproducible causal benchmark
+        run: python scripts/run_corpus_benchmark.py
+      - name: Run executable repair benchmark
+        run: python scripts/run_repair_fixture_benchmark.py
+      - name: Run repair ablation benchmark
+        run: python scripts/run_ablation_benchmark.py
+      - name: Run Level 10 agent evaluation benchmark
+        run: python scripts/run_agent_eval_benchmark.py
+      - name: Run merge-conflict benchmark
+        run: python scripts/run_merge_conflict_benchmark.py
+      - name: Evaluate production-proof contract
+        run: python scripts/check_production_gate.py benchmark/production_metrics.example.json
+      - name: Upload production evidence
+        uses: actions/upload-artifact@v7
+        with:
+          name: production-proof
+          path: |
+            artifacts/corpus-benchmark.json
+            artifacts/repair-fixture-benchmark.json
+            artifacts/repair-ablation.json
+            artifacts/agent-eval-benchmark.json
+            artifacts/merge-conflict-benchmark.json
+            artifacts/production-gate.json

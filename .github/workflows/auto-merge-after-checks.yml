@@ -1,0 +1,85 @@
+name: Auto merge after checks
+
+on:
+  check_suite:
+    types: [completed]
+  status:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+  statuses: read
+
+jobs:
+  auto-merge-gate:
+    name: Auto merge gate
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'Kozphy'
+    steps:
+      - name: Resolve pull request and merge only when every check is green
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_PATH: ${{ github.event_path }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "check_suite" ]]; then
+            PR=$(jq -r '.check_suite.pull_requests[0].number // empty' "$EVENT_PATH")
+          elif [[ "$EVENT_NAME" == "status" ]]; then
+            SHA=$(jq -r '.sha // empty' "$EVENT_PATH")
+            PR=$(gh api "repos/$REPO/commits/$SHA/pulls" --jq '.[0].number // empty')
+          else
+            PR=$(gh pr list --repo "$REPO" --state open --json number --jq '.[0].number // empty')
+          fi
+
+          if [[ -z "${PR:-}" ]]; then
+            echo "No open pull request associated with this event."
+            exit 0
+          fi
+
+          PR_JSON=$(gh api "repos/$REPO/pulls/$PR")
+          DRAFT=$(jq -r '.draft' <<<"$PR_JSON")
+          STATE=$(jq -r '.state' <<<"$PR_JSON")
+          SHA=$(jq -r '.head.sha' <<<"$PR_JSON")
+
+          if [[ "$STATE" != "open" || "$DRAFT" == "true" ]]; then
+            echo "PR #$PR is not eligible for auto-merge."
+            exit 0
+          fi
+
+          CHECKS=$(gh api -H 'Accept: application/vnd.github+json' "repos/$REPO/commits/$SHA/check-runs?per_page=100")
+          STATUSES=$(gh api "repos/$REPO/commits/$SHA/status")
+
+          echo "$CHECKS" | jq -r '.check_runs[] | [.name, .status, (.conclusion // "")] | @tsv'
+          echo "$STATUSES" | jq -r '.statuses[] | [.context, .state] | @tsv'
+
+          # Ignore this workflow's own gate to avoid self-dependency.
+          BAD_CHECKS=$(jq '[.check_runs[] | select(.name != "Auto merge gate") | select(.status != "completed" or (.conclusion | IN("success", "neutral", "skipped") | not))] | length' <<<"$CHECKS")
+          PENDING_CHECKS=$(jq '[.check_runs[] | select(.name != "Auto merge gate") | select(.status != "completed")] | length' <<<"$CHECKS")
+          BAD_STATUSES=$(jq '[.statuses[] | select(.state != "success")] | length' <<<"$STATUSES")
+          CODERABBIT=$(jq '[.statuses[] | select(.context == "CodeRabbit" and .state == "success")] | length' <<<"$STATUSES")
+
+          if (( PENDING_CHECKS > 0 || BAD_CHECKS > 0 || BAD_STATUSES > 0 )); then
+            echo "Checks are not all green yet; leaving PR #$PR open."
+            exit 0
+          fi
+
+          # Require CodeRabbit when it is registered as a status context for this repository.
+          HAS_CODERABBIT=$(jq '[.statuses[] | select(.context == "CodeRabbit")] | length' <<<"$STATUSES")
+          if (( HAS_CODERABBIT > 0 && CODERABBIT == 0 )); then
+            echo "CodeRabbit has not succeeded yet."
+            exit 0
+          fi
+
+          MERGEABLE=$(jq -r '.mergeable' <<<"$PR_JSON")
+          if [[ "$MERGEABLE" != "true" ]]; then
+            echo "PR #$PR is not currently mergeable."
+            exit 0
+          fi
+
+          gh pr merge "$PR" --repo "$REPO" --squash --delete-branch

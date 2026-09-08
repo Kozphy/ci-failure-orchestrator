@@ -1,0 +1,7 @@
+{
+  "repair_success_rate": 0.95,
+  "regression_rate": 0.01,
+  "p95_latency_seconds": 18.0,
+  "cost_per_success_usd": 0.12,
+  "critical_security_findings": 0
+}
