@@ -1,0 +1,112 @@
+name: DoD Evidence Gate
+
+on:
+  workflow_run:
+    workflows: ["ci", "security"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  collect-and-evaluate:
+    runs-on: ubuntu-latest
+    env:
+      TARGET_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+    steps:
+      - name: Check out evaluated revision
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TARGET_SHA }}
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install orchestrator
+        run: python -m pip install -e '.[dev]'
+
+      - name: Download DoD evidence fragments for this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p fragments
+          gh api --paginate \
+            "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.expired == false) | select(.name | startswith("dod-fragment-")) | [.id, .name, .workflow_run.head_sha] | @tsv' \
+          | while IFS=$'\t' read -r artifact_id artifact_name artifact_sha; do
+              if [ "$artifact_sha" != "$TARGET_SHA" ]; then
+                continue
+              fi
+              mkdir -p "fragments/${artifact_name}-${artifact_id}"
+              gh api \
+                "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" \
+                > "/tmp/${artifact_id}.zip"
+              unzip -q "/tmp/${artifact_id}.zip" -d "fragments/${artifact_name}-${artifact_id}"
+            done
+
+          find fragments -type f -name '*.json' -print | sort
+
+      - name: Merge independent evidence fragments
+        run: |
+          set -euo pipefail
+          mapfile -t fragments < <(find fragments -type f -name '*.json' -print | sort)
+          if [ "${#fragments[@]}" -eq 0 ]; then
+            echo 'No DoD evidence fragments were found for this commit.' >&2
+            exit 2
+          fi
+
+          args=()
+          for fragment in "${fragments[@]}"; do
+            args+=(--fragment "$fragment")
+          done
+
+          python scripts/collect_dod_evidence.py \
+            "${args[@]}" \
+            --output dod-evidence.json \
+            --report dod-collection-report.json
+
+      - name: Evaluate production Definition of Done
+        id: dod
+        continue-on-error: true
+        run: |
+          ci-orchestrator dod \
+            --evidence dod-evidence.json \
+            --audit dod-audit.jsonl \
+            | tee dod-result.json
+
+      - name: Publish advisory result
+        if: always()
+        run: |
+          {
+            echo '## Definition of Done evidence gate'
+            echo
+            echo "Evaluated commit: \`$TARGET_SHA\`"
+            echo
+            if [ -f dod-result.json ]; then
+              echo '```json'
+              cat dod-result.json
+              echo '```'
+            else
+              echo 'Evidence collection did not produce an evaluator result.'
+            fi
+            echo
+            echo '> Current mode: advisory. The evaluator is fail-closed, but this workflow does not yet block merge while repository-owned producers are being wired for every required gate.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload DoD evidence bundle
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: dod-evidence-bundle-${{ env.TARGET_SHA }}
+          path: |
+            dod-evidence.json
+            dod-collection-report.json
+            dod-result.json
+            dod-audit.jsonl
+            fragments/
+          if-no-files-found: warn
