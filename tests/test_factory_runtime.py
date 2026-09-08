@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ci_failure_orchestrator.factory_governance import RiskGovernanceGate
+from ci_failure_orchestrator.factory_governance import RiskBasedGovernance
 from ci_failure_orchestrator.factory_runtime import (
     GoalDrivenFactory,
     GoalRequest,
@@ -53,7 +53,7 @@ def test_goal_driven_factory_compiles_executes_and_records_evidence() -> None:
         spec_provider=StaticSpecProvider(),
         runtime=runtime,
         evaluator=PassingEvaluator(),
-        governance=RiskGovernanceGate(),
+        governance=RiskBasedGovernance(),
         evidence_store=store,
     )
 
@@ -82,7 +82,7 @@ def test_evidence_store_keeps_failed_and_successful_attempts() -> None:
         spec_provider=StaticSpecProvider(),
         runtime=RecordingRuntime(),
         evaluator=RetryEvaluator(),
-        governance=RiskGovernanceGate(),
+        governance=RiskBasedGovernance(),
         evidence_store=store,
         max_attempts=3,
     )
