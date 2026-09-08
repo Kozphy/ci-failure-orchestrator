@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import Mapping
+from datetime import datetime, timezone
+from hashlib import sha256
+import json
+from typing import Iterable, Mapping
 
 
 @dataclass(frozen=True)
@@ -60,4 +63,71 @@ def metrics_from_mapping(data: Mapping[str, object]) -> ProductionMetrics:
         p95_latency_seconds=float(data["p95_latency_seconds"]),
         cost_per_success_usd=float(data["cost_per_success_usd"]),
         critical_security_findings=int(data.get("critical_security_findings", 0)),
+    )
+
+
+@dataclass(frozen=True)
+class ProofArtifact:
+    kind: str
+    uri: str
+    digest: str | None = None
+
+
+@dataclass(frozen=True)
+class ProductionProofBundle:
+    repository: str
+    run_id: str
+    commit_sha: str
+    gate_decision: str
+    evaluator_score: float
+    regression_free: bool
+    canary_decision: str
+    slo_met: bool
+    artifacts: tuple[ProofArtifact, ...]
+    created_at: str
+    proof_hash: str
+
+    def to_dict(self) -> dict[str, object]:
+        return asdict(self)
+
+
+def build_production_proof(
+    *,
+    repository: str,
+    run_id: str,
+    commit_sha: str,
+    gate_decision: str,
+    evaluator_score: float,
+    regression_free: bool,
+    canary_decision: str,
+    slo_met: bool,
+    artifacts: Iterable[ProofArtifact] = (),
+) -> ProductionProofBundle:
+    artifact_tuple = tuple(artifacts)
+    created_at = datetime.now(timezone.utc).isoformat()
+    payload = {
+        "repository": repository,
+        "run_id": run_id,
+        "commit_sha": commit_sha,
+        "gate_decision": gate_decision,
+        "evaluator_score": evaluator_score,
+        "regression_free": regression_free,
+        "canary_decision": canary_decision,
+        "slo_met": slo_met,
+        "artifacts": [asdict(a) for a in artifact_tuple],
+        "created_at": created_at,
+    }
+    proof_hash = sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
+    return ProductionProofBundle(
+        repository=repository,
+        run_id=run_id,
+        commit_sha=commit_sha,
+        gate_decision=gate_decision,
+        evaluator_score=evaluator_score,
+        regression_free=regression_free,
+        canary_decision=canary_decision,
+        slo_met=slo_met,
+        artifacts=artifact_tuple,
+        created_at=created_at,
+        proof_hash=proof_hash,
     )

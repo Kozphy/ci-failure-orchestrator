@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ci-failure-orchestrator"
-version = "0.8.3"
-description = "Learning multi-agent CI/CD/CT failure control plane with causal diagnosis, bounded repair, evaluation, policy gating, rollback, and production evidence"
+version = "1.0.0"
+description = "Multi-repository CI repair platform with bounded autonomy, SLOs, canaries, fleet policy, benchmarks, and production proof"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "pytest-cov>=5"]
 openai = ["openai>=1.0"]
 
 [project.scripts]
@@ -23,3 +23,11 @@ packages = ["ci_failure_orchestrator"]
 [tool.pytest.ini_options]
 addopts = "-q"
 testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["ci_failure_orchestrator"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
