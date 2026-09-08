@@ -5,6 +5,7 @@ is parsed into structured specs, agent CLIs execute through the existing
 sandbox runner, evaluator decisions can be persisted as append-only JSONL, and
 CI vendors are normalized behind one transport-facing adapter surface.
 """
+
 from __future__ import annotations
 
 import json
