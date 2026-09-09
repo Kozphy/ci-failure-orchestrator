@@ -94,12 +94,33 @@ class WorkerResult:
 
 @dataclass(frozen=True)
 class VerificationResult:
-    """Independent verification result after a candidate patch."""
+    """Independent verification result and canonical repair-success contract.
+
+    A repair is successful only when every positive gate passes and neither test
+    weakening nor regression is detected. Agent self-report cannot set success.
+    """
 
     targeted_tests_passed: bool
     full_regression_passed: bool
     policy_gate_passed: bool
     ci_green: bool
+    security_gate_passed: bool = True
+    test_weakening_detected: bool = False
+    regression_detected: bool = False
+
+    @property
+    def successful(self) -> bool:
+        """Return the single canonical definition of verified repair success."""
+
+        return (
+            self.ci_green
+            and self.targeted_tests_passed
+            and self.full_regression_passed
+            and self.security_gate_passed
+            and self.policy_gate_passed
+            and not self.test_weakening_detected
+            and not self.regression_detected
+        )
 
 
 class RepairCoordinator:
@@ -149,18 +170,24 @@ class RepairCoordinator:
         incident.transition(RepairState.VERIFYING, "candidate_patch_ready")
 
     def verify(self, incident: RepairIncident, result: VerificationResult) -> None:
-        """Record independent verification and either finish or prepare a bounded retry."""
+        """Apply canonical independent verification and finish or retry safely."""
 
         if incident.state is not RepairState.VERIFYING:
             raise RuntimeError("verification requires verifying state")
+        if result.test_weakening_detected or result.regression_detected:
+            incident.transition(RepairState.DENIED, "verification_detected_unsafe_repair")
+            return
+        if not result.security_gate_passed:
+            incident.transition(RepairState.DENIED, "security_gate_failed")
+            return
         if not result.targeted_tests_passed or not result.full_regression_passed:
             incident.transition(RepairState.RERUNNING, "tests_failed")
             return
         if not result.policy_gate_passed:
             incident.transition(RepairState.REVIEW_REQUIRED, "policy_gate_requires_review")
             return
-        if result.ci_green:
-            incident.transition(RepairState.GREEN, "all_required_checks_green")
+        if result.successful:
+            incident.transition(RepairState.GREEN, "canonical_success_predicate_satisfied")
             return
         incident.transition(RepairState.RERUNNING, "ci_still_red")
 
