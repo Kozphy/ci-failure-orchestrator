@@ -1,6 +1,6 @@
 # CI Failure Orchestrator
 
-**v1.0 multi-repository CI repair platform** for dependency-aware diagnosis, bounded autonomous repair, persistent failure memory, independent evaluation, fleet policy, SLO/error-budget control, canary rollout, benchmarking, dashboard telemetry, human escalation, and tamper-evident production proof.
+**v1.1 agentic CI reliability control plane** for dependency-aware diagnosis, bounded autonomous repair, multi-provider worker routing, candidate tournaments, persistent failure memory, independent evaluation, fleet policy, SLO/error-budget control, canary rollout, benchmarking, dashboard telemetry, human escalation, and tamper-evident production proof.
 
 ```text
 GitHub repositories
@@ -15,31 +15,36 @@ Failure Memory Agent + SQLiteIncidentStore
         ↓
 Memory-Aware Repair Planner
         ↓
-Multiple Coding Agents
-        ├─ general repair agents
-        └─ MergeConflictRepairAgent
-             ├─ ConservativeMergeResolver
-             └─ SemanticMergeResolver
-                    ↓
-             OpenAI semantic provider
+SupervisorPolicy
+        ↓
+AgentTask contract
+        ↓
+Agent Router
+ ├─ Copilot / coding agent
+ ├─ OpenAI worker
+ └─ local/custom worker
         ↓
 Bounded Agent Executor
         ↓
 Isolated Git Worktree / Sandbox
         ↓
-Affected-test selection
+Candidate patches
         ↓
-Targeted tests + full regression
-        ↓
-Independent Evaluator
+Independent gates
+ ├─ targeted tests
+ ├─ full regression
+ ├─ security
+ └─ policy
         ↓
 Candidate Tournament
         ↓
+Best safe candidate
+        ↓
+Repair State Machine
+        ↓
 Retry / cost / latency budgets
         ↓
-Regression detection
-        ↓
-Repository Policy Gate / Human Approval
+GREEN / REVIEW / ESCALATE / DENY
         ↓
 Canary Rollout / Rollback
         ↓
@@ -50,9 +55,86 @@ SLO + error-budget gate
 Dashboard + production proof
 ```
 
-The primary safety rule is separation of duties: **repair agents may propose changes, but they cannot approve their own release.** Evaluation, regression checks, repository policy, canary health, fleet policy, SLOs, and human approval retain release authority.
+The primary safety rule is separation of duties: **repair workers may propose changes, but they cannot approve their own release.** Evaluation, regression checks, repository policy, canary health, fleet policy, SLOs, and human approval retain release authority.
 
-## v1 platform capabilities
+## v1.1 control-plane capabilities
+
+### Policy-driven agent supervisor
+
+`SupervisorPolicy` classifies candidate repairs as low, medium, high, or critical risk and grants only the maximum safe authority:
+
+- low risk → autonomous patch with required verification
+- medium risk → patch allowed, human review required
+- high risk → RCA only
+- critical risk → mutation denied
+
+Autonomy is bounded by retry count, changed files, changed lines, cost, and elapsed time. Test weakening, regressions, security findings, protected paths, and critical surfaces fail closed.
+
+### GitHub Actions repair adapter
+
+`FailedCheck -> SupervisorDecision -> AgentTask` converts GitHub Actions evidence into a provider-neutral worker contract containing:
+
+- objective
+- failure class
+- authority
+- allowed paths
+- required gates
+- forbidden actions
+- evidence
+
+Workers never receive merge, approval, or release authority.
+
+### Bounded autonomous repair state machine
+
+`RepairIncident` and `RepairCoordinator` implement an auditable lifecycle:
+
+```text
+DETECTED
+  ↓
+PLANNED
+  ↓
+DISPATCHED
+  ↓
+VERIFYING
+  ├─ GREEN
+  ├─ REVIEW_REQUIRED
+  ├─ RERUNNING → DETECTED
+  ├─ DENIED
+  └─ ESCALATED
+```
+
+Every transition receives a SHA-256 digest so repair lifecycle evidence can be validated independently.
+
+### Multi-provider agent routing
+
+`route_workers()` filters coding agents by authority, failure-class capability, and remaining incident cost budget. The control plane is provider-neutral; Copilot, OpenAI, or custom workers can implement the same contract.
+
+### Candidate tournament
+
+`select_candidate()` applies hard safety gates before ranking candidates. Unsafe patches can never win regardless of confidence, speed, or price.
+
+Among safe candidates, the deterministic baseline prefers:
+
+1. lower cost
+2. lower latency
+3. smaller patch
+4. higher confidence
+5. stable worker-name tie break
+
+### Repair effectiveness telemetry
+
+`RepairObservation` and `RepairMetrics` measure whether autonomous repair actually works:
+
+- repair success rate
+- false-repair rate
+- mean repair cost
+- cost per successful repair
+- mean latency
+- P95 repair latency
+- mean attempts
+- provider-level comparisons
+
+A patch proposal is not counted as success. Success is recorded only after independent verification.
 
 ### Multi-repository fleet management
 
@@ -225,40 +307,6 @@ agent = MergeConflictRepairAgent(resolver=resolver)
 
 The semantic provider returns only a proposed resolved text block plus confidence and rationale. It has no filesystem, shell, git, merge, or approval authority.
 
-```text
-conflicted PR
-   ↓
-approved conflicted files
-   ↓
-Conservative resolver
-   ├─ resolved → patch candidate
-   └─ ambiguous
-          ↓
-   Semantic resolver
-          ↓
-   confidence >= threshold?
-      ├─ no → escalate
-      └─ yes
-          ↓
-   marker/size validation
-          ↓
-      patch proposal
-          ↓
-   sandbox + tests
-          ↓
- evaluator + policy
-          ↓
- release / retry / block / human
-```
-
-The semantic path fails closed when confidence is below threshold, output is empty or oversized, or conflict markers remain. Even an accepted semantic resolution is only a patch candidate; it still requires independent verification.
-
-Install optional provider integrations with:
-
-```bash
-python -m pip install -e ".[dev,openai]"
-```
-
 ## Held-out merge-conflict benchmarks
 
 `benchmark/merge_conflict_corpus.v1.json` is a held-out synthetic corpus that separates deterministic conflicts from semantic conflicts. The default Production Proof run uses only the deterministic resolver so semantic cases must escalate rather than guess.
@@ -266,14 +314,6 @@ python -m pip install -e ".[dev,openai]"
 ```bash
 python scripts/run_merge_conflict_benchmark.py
 ```
-
-The generated `artifacts/merge-conflict-benchmark.json` records:
-
-- auto-resolution rate
-- exact-match rate for deterministic cases
-- escalation rate
-- semantic-conflict escalation precision
-- unsafe-output rate
 
 ## Quick start
 
@@ -293,18 +333,22 @@ ci-orchestrator analyze \
 
 ## Production operating model
 
-A production deployment should treat v1 as a control plane, not as permission for unconstrained agents:
+A production deployment should treat the project as a control plane, not as permission for unconstrained agents:
 
 ```text
 failure detected
    ↓
 causal RCA
    ↓
-smallest repair proposal
+supervisor policy
    ↓
-isolated patch/worktree
+provider routing
    ↓
-targeted verification
+candidate repair proposals
+   ↓
+independent gates
+   ↓
+candidate tournament
    ↓
 full regression verification
    ↓
@@ -321,7 +365,7 @@ release
 production proof
 ```
 
-A bad canary, detected regression, unknown failure, exhausted autonomy budget, or excessive error-budget burn must stop or freeze autonomous repair rather than silently widening autonomy.
+A bad canary, detected regression, unknown failure, exhausted autonomy budget, no safe candidate, or excessive error-budget burn must stop or freeze autonomous repair rather than silently widening autonomy.
 
 ## Safety invariants
 
@@ -337,11 +381,13 @@ A bad canary, detected regression, unknown failure, exhausted autonomy budget, o
 10. Canary regression or false-repair breaches trigger rollback.
 11. Repository policy remains authoritative inside fleet orchestration.
 12. Every material decision should produce machine-readable, auditable evidence.
+13. Unsafe candidate patches can never win a provider tournament.
+14. Repair effectiveness is measured from verified outcomes, not agent self-report.
 
 ## Version status
 
-**v1.0.0 platform layer** integrates multi-repository fleet management, persistent failure memory, memory-aware planning, merge-conflict resolution, expanded benchmark metrics, SLO/error-budget evaluation, canary promotion/rollback policy, dashboard aggregation, release-level production proof, and an integrated platform façade.
+**v1.1 control-plane layer** integrates policy-driven supervision, GitHub Actions evidence normalization, bounded repair lifecycle state, multi-provider worker routing, safe candidate tournaments, repair-effectiveness telemetry, fleet management, persistent failure memory, merge-conflict resolution, benchmark metrics, SLO/error-budget evaluation, canary promotion/rollback policy, dashboard aggregation, and release-level production proof.
 
 ## Design principle
 
-> Find the earliest causal failure, learn from bounded historical evidence, propose the smallest repair, isolate every mutation, verify independently, widen rollout gradually, and freeze autonomy when evidence says the system is unsafe.
+> Find the earliest causal failure, route only to eligible bounded workers, reject unsafe candidates before ranking, verify independently, widen rollout gradually, and freeze autonomy when evidence says the system is unsafe.
