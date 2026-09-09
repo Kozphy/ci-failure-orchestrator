@@ -1,3 +1,5 @@
+import pytest
+
 from ci_failure_orchestrator.repair_telemetry import (
     RepairObservation,
     aggregate_metrics,
@@ -16,9 +18,9 @@ def test_aggregate_metrics_tracks_quality_cost_and_latency() -> None:
     assert metrics.total == 3
     assert metrics.successes == 2
     assert metrics.false_repairs == 1
-    assert metrics.success_rate == 2 / 3
-    assert metrics.false_repair_rate == 1 / 3
-    assert metrics.cost_per_success_usd == 0.6
+    assert metrics.success_rate == pytest.approx(2 / 3)
+    assert metrics.false_repair_rate == pytest.approx(1 / 3)
+    assert metrics.cost_per_success_usd == pytest.approx(0.6)
     assert metrics.p95_latency_ms == 3000
 
 
