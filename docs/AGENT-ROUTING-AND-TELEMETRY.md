@@ -51,6 +51,8 @@ Among safe candidates the current deterministic ordering is:
 
 An unsafe candidate can never win even if it is cheaper, faster, or reports higher confidence.
 
+This is intentionally a conservative baseline. Production deployments may replace the deterministic ordering with a calibrated utility function, but hard safety gates remain non-negotiable.
+
 ## Repair effectiveness metrics
 
 `RepairObservation` and `RepairMetrics` provide measurable evidence for autonomous repair performance:
@@ -64,7 +66,11 @@ An unsafe candidate can never win even if it is cheaper, faster, or reports high
 - mean attempts per incident
 - provider-level comparisons
 
-These metrics should be reported from executed repair attempts, not invented as production claims.
+These metrics must be computed from executed repair attempts. They are evidence for effectiveness, not synthetic production claims.
+
+## Measurement boundary
+
+A repair counts as successful only after independent verification. A provider returning a patch is not itself a success event. False-repair rate should include candidates that appear plausible but fail regression, policy, or downstream validation.
 
 ## Decision principle
 
