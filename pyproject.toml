@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ci-failure-orchestrator"
-version = "1.0.0"
-description = "Multi-repository CI repair platform with bounded autonomy, SLOs, canaries, fleet policy, benchmarks, and production proof"
+version = "1.1.0"
+description = "Agentic CI reliability control plane with bounded autonomy, multi-provider routing, safe candidate tournaments, SLOs, canaries, fleet policy, benchmarks, and production proof"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
