@@ -117,11 +117,24 @@ class SupervisorPolicy:
     )
 
 
+def _normalize_repo_path(path: str) -> str:
+    """Normalize separators without stripping meaningful leading dots.
+
+    Only explicit ``./`` prefixes are removed. ``lstrip('./')`` is unsafe here
+    because it would turn ``.github/workflows/...`` into ``github/workflows/...``
+    and bypass protected-path policy.
+    """
+
+    normalized = path.replace("\\", "/")
+    while normalized.startswith("./"):
+        normalized = normalized[2:]
+    return normalized
+
+
 def _matches(path: str, patterns: Iterable[str]) -> bool:
     """Return True when a repository path matches any policy glob."""
 
-    normalized = path.replace("\\", "/").lstrip("./")
-    p = PurePosixPath(normalized)
+    p = PurePosixPath(_normalize_repo_path(path))
     return any(p.match(pattern) for pattern in patterns)
 
 
