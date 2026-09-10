@@ -18,4 +18,4 @@ jobs:
           cache: pip
       - run: python -m pip install -e '.[dev]'
       - name: Provider adapter contract tests
-        run: pytest -q tests/test_provider_adapters.py
+        run: python -m pytest -q tests/test_provider_adapters.py
