@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+import base64
 import json
 import os
 from dataclasses import dataclass
 from urllib.error import HTTPError, URLError
+from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 
 class GitHubAPIError(RuntimeError):
-    """Raised when GitHub Actions evidence cannot be collected safely."""
+    """Raised when GitHub evidence cannot be collected safely."""
 
 
 @dataclass(frozen=True)
@@ -19,12 +21,18 @@ class WorkflowRunEvidence:
     logs: dict[str, str]
 
 
-class GitHubActionsClient:
-    """Minimal GitHub REST client for workflow-run evidence collection.
+@dataclass(frozen=True)
+class RepositoryEvidence:
+    """Bounded repository-wide evidence used for deterministic health analysis."""
 
-    Authentication uses a bearer token supplied explicitly or via GITHUB_TOKEN.
-    The client intentionally performs read-only requests.
-    """
+    metadata: dict
+    tree: list[dict]
+    files: dict[str, str]
+    truncated: bool = False
+
+
+class GitHubActionsClient:
+    """Minimal read-only GitHub REST client for CI and repository evidence."""
 
     def __init__(self, token: str | None = None, api_url: str = "https://api.github.com", timeout: float = 30.0):
         self.token = token or os.getenv("GITHUB_TOKEN")
@@ -55,10 +63,14 @@ class GitHubActionsClient:
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
             raise GitHubAPIError("GitHub API returned invalid JSON") from exc
 
+    @staticmethod
+    def _validate_repository(repository: str) -> None:
+        if repository.count("/") != 1 or any(not part for part in repository.split("/")):
+            raise ValueError("repository must use owner/name format")
+
     def collect_run(self, repository: str, run_id: int, *, include_logs: bool = True) -> WorkflowRunEvidence:
         """Collect normalized job metadata and failed-job logs for a workflow run."""
-        if repository.count("/") != 1:
-            raise ValueError("repository must use owner/name format")
+        self._validate_repository(repository)
         if run_id <= 0:
             raise ValueError("run_id must be a positive integer")
 
@@ -80,3 +92,75 @@ class GitHubActionsClient:
                 logs[str(job.get("name", job["id"]))] = raw.decode("utf-8", errors="replace")
 
         return WorkflowRunEvidence(jobs=jobs, logs=logs)
+
+    def collect_repository(self, repository: str, *, ref: str | None = None) -> RepositoryEvidence:
+        """Collect bounded repository evidence without cloning the repository.
+
+        The recursive Git tree provides the repository inventory. Only high-signal
+        CI/build/governance files are fetched for content inspection so analysis
+        remains deterministic and bounded on large repositories.
+        """
+        self._validate_repository(repository)
+        metadata = self._get_json(f"/repos/{repository}")
+        resolved_ref = ref or metadata.get("default_branch") or "main"
+        tree_payload = self._get_json(
+            f"/repos/{repository}/git/trees/{quote(str(resolved_ref), safe='')}?recursive=1"
+        )
+        tree = tree_payload.get("tree", [])
+        if not isinstance(tree, list):
+            raise GitHubAPIError("GitHub tree response did not contain a tree list")
+
+        paths = [item.get("path", "") for item in tree if item.get("type") == "blob"]
+        selected = [path for path in paths if self._is_repository_evidence_file(path)]
+        files: dict[str, str] = {}
+        for path in selected[:100]:
+            payload = self._get_json(
+                f"/repos/{repository}/contents/{quote(path, safe='/')}?ref={quote(str(resolved_ref), safe='')}"
+            )
+            content = payload.get("content")
+            encoding = payload.get("encoding")
+            if encoding == "base64" and isinstance(content, str):
+                try:
+                    files[path] = base64.b64decode(content, validate=False).decode("utf-8", errors="replace")
+                except (ValueError, TypeError):
+                    continue
+
+        return RepositoryEvidence(
+            metadata=metadata,
+            tree=tree,
+            files=files,
+            truncated=bool(tree_payload.get("truncated")),
+        )
+
+    @staticmethod
+    def _is_repository_evidence_file(path: str) -> bool:
+        lower = path.lower()
+        name = lower.rsplit("/", 1)[-1]
+        exact = {
+            "readme.md",
+            "pyproject.toml",
+            "requirements.txt",
+            "package.json",
+            "package-lock.json",
+            "pnpm-lock.yaml",
+            "yarn.lock",
+            "poetry.lock",
+            "pipfile",
+            "dockerfile",
+            "docker-compose.yml",
+            "docker-compose.yaml",
+            "security.md",
+            "codeowners",
+            "dependabot.yml",
+            "dependabot.yaml",
+            ".pre-commit-config.yaml",
+            ".pre-commit-config.yml",
+        }
+        return (
+            name in exact
+            or lower.startswith(".github/workflows/") and lower.endswith((".yml", ".yaml"))
+            or lower.endswith("/security.md")
+            or lower.endswith("/codeowners")
+            or lower.endswith("/dependabot.yml")
+            or lower.endswith("/dependabot.yaml")
+        )
