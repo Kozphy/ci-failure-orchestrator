@@ -94,9 +94,10 @@ def build_architecture_graph(evidence: RepositoryEvidence) -> dict:
 
 def _workflow_trigger(content: str, trigger: str) -> bool:
     lower = content.lower()
-    return bool(re.search(rf"(?m)^\s*{re.escape(trigger)}\s*:", content)) or bool(
-        re.search(rf"(?m)^\s*on\s*:\s*{re.escape(trigger)}\s*$", lower)
-    )
+    nested = bool(re.search(rf"(?m)^\s*{re.escape(trigger)}\s*:", lower))
+    compact = bool(re.search(rf"(?m)^\s*on\s*:\s*{re.escape(trigger)}\s*$", lower))
+    bracketed = bool(re.search(rf"(?m)^\s*on\s*:\s*\[[^\]]*\b{re.escape(trigger)}\b[^\]]*\]\s*$", lower))
+    return nested or compact or bracketed
 
 
 def analyze_workflow_semantics(evidence: RepositoryEvidence) -> dict:
@@ -112,7 +113,7 @@ def analyze_workflow_semantics(evidence: RepositoryEvidence) -> dict:
         signals = {
             "pull_request_trigger": _workflow_trigger(content, "pull_request"),
             "push_trigger": _workflow_trigger(content, "push"),
-            "scheduled": bool(re.search(r"(?m)^\s*schedule\s*:", content)),
+            "scheduled": bool(re.search(r"(?m)^\s*schedule\s*:", lower)),
             "tests": any(token in lower for token in ("pytest", "npm test", "pnpm test", "go test", "cargo test", "dotnet test", "mvn test", "gradle test")),
             "static_analysis": any(token in lower for token in ("ruff", "flake8", "mypy", "eslint", "sonarqube", "sonarcloud", "golangci-lint", "clippy")),
             "security": any(token in lower for token in ("codeql", "bandit", "semgrep", "trivy", "snyk", "pip-audit", "npm audit", "dependabot")),
