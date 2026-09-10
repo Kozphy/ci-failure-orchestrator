@@ -2,6 +2,174 @@
 
 **v1.2 agentic CI reliability control plane** for dependency-aware diagnosis, bounded autonomous repair, multi-provider worker routing, candidate tournaments, persistent failure memory, independent evaluation, fleet policy, SLO/error-budget control, canary rollout, benchmarking, dashboard telemetry, human escalation, and tamper-evident production proof.
 
+## How to use
+
+### 1. Clone and install
+
+Requirements: **Python 3.10+**.
+
+```bash
+git clone https://github.com/Kozphy/ci-failure-orchestrator.git
+cd ci-failure-orchestrator
+python -m venv .venv
+```
+
+Activate the virtual environment:
+
+```bash
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+
+# macOS / Linux
+source .venv/bin/activate
+```
+
+Install the project and development dependencies:
+
+```bash
+python -m pip install --upgrade pip
+pip install -e ".[dev]"
+```
+
+Optional integrations can be installed when needed:
+
+```bash
+pip install -e ".[openai]"
+pip install -e ".[observability]"
+```
+
+After installation, the CLI is available as:
+
+```bash
+ci-orchestrator --help
+```
+
+### 2. Run the included demo
+
+The repository includes sample pipeline, failure, GitHub Actions job, and log data under `examples/`.
+
+```bash
+bash demo.sh
+```
+
+On Windows, you can run the equivalent CLI commands shown below directly from PowerShell.
+
+### 3. Classify a CI error
+
+Use `classify` when you have a raw error message and want a normalized failure type plus confidence score.
+
+```bash
+ci-orchestrator classify "ModuleNotFoundError: No module named 'requests'"
+```
+
+Example output:
+
+```json
+{
+  "error_type": "dependency_error",
+  "confidence": 0.9
+}
+```
+
+This is useful as the first step before deciding which repair worker or verification path should handle a failure.
+
+### 4. Rank probable root causes
+
+Use `rank` when you already have a normalized pipeline graph and a set of failures.
+
+```bash
+ci-orchestrator rank \
+  --pipeline examples/pipeline.json \
+  --failures examples/failures.json
+```
+
+To also create a tamper-evident audit trail:
+
+```bash
+ci-orchestrator rank \
+  --pipeline examples/pipeline.json \
+  --failures examples/failures.json \
+  --audit artifacts/audit.jsonl
+```
+
+The command ranks failures by probable root cause instead of assuming that the last red job is the real cause.
+
+### 5. Analyze normalized GitHub Actions jobs and logs
+
+Use `analyze` for an end-to-end diagnosis over normalized GitHub Actions job metadata and optional logs.
+
+```bash
+ci-orchestrator analyze \
+  --jobs examples/github_jobs.json \
+  --logs examples/github_logs.json
+```
+
+With audit logging enabled:
+
+```bash
+ci-orchestrator analyze \
+  --jobs examples/github_jobs.json \
+  --logs examples/github_logs.json \
+  --audit artifacts/audit.jsonl
+```
+
+The analysis returns:
+
+- the most likely `root_cause` stage;
+- a ranked list of candidate causes;
+- inferred causal edges between failed stages;
+- a verification plan describing what should be re-run or checked next.
+
+### 6. Run the test suite before making changes
+
+```bash
+pytest
+```
+
+For coverage:
+
+```bash
+pytest --cov=ci_failure_orchestrator --cov-report=term-missing
+```
+
+A local green test run is useful, but it is **not** equivalent to this project's `REPAIR_SUCCESS`, `RELEASE_READY`, or `PRODUCTION_SUCCESS` gates. Those require the independent checks defined below.
+
+### 7. Typical workflow
+
+```text
+CI fails
+   ↓
+Collect / normalize failed jobs and logs
+   ↓
+ci-orchestrator analyze
+   ↓
+Rank probable root cause
+   ↓
+Generate or select a bounded repair candidate
+   ↓
+Run targeted tests
+   ↓
+Run full regression + security + policy gates
+   ↓
+REPAIR_SUCCESS
+   ↓
+Release-readiness gates
+   ↓
+RELEASE_READY
+   ↓
+Canary + SLO + observability checks
+   ↓
+PRODUCTION_SUCCESS
+```
+
+For a quick local diagnosis, start with:
+
+```bash
+ci-orchestrator analyze --jobs examples/github_jobs.json --logs examples/github_logs.json
+```
+
+For production-oriented use, feed the orchestrator normalized evidence from your actual CI environment and keep repair generation separate from independent verification and release approval.
+
 ## Canonical success gates
 
 The control plane uses three layered fail-closed predicates. A later stage can never report success unless every required condition in the previous stage is already satisfied.
