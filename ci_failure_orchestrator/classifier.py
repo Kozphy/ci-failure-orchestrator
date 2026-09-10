@@ -1,5 +1,33 @@
 from __future__ import annotations
 
+"""Error classification for CI failure messages.
+
+This module provides regex-based classification of error messages
+into standardized error types. It enables consistent categorization
+and routing of failures throughout the repair workflow.
+
+Module responsibility:
+    - Define error type patterns for classification
+    - Classify error messages into standardized types
+    - Return confidence scores for each classification
+
+Key invariants:
+    - Classification is case-insensitive
+    - Pattern matching is regex-based
+    - First matching pattern wins
+    - UNKNOWN is returned for unmatched messages
+
+Safety boundaries:
+    - Pattern list is fixed and ordered by specificity
+    - No external dependencies or mutations
+    - Classification is deterministic for the same input
+
+Audit Notes:
+    - Pattern order matters: more specific patterns should come first
+    - Confidence scores are hardcoded (0.9 for matched, 0.35 for UNKNOWN)
+    - Classification affects ranking, policy, and escalation behavior
+"""
+
 import re
 
 
@@ -18,6 +46,29 @@ PATTERNS: list[tuple[str, tuple[str, ...]]] = [
 
 
 def classify_error(message: str) -> tuple[str, float]:
+    """Classify an error message into a standard error type.
+
+    Matches the message against a list of regex patterns. Returns the
+    first matching error type with a confidence score of 0.9. If no
+    pattern matches, returns ("UNKNOWN", 0.35).
+
+    Args:
+        message: The error message string to classify
+
+    Returns:
+        Tuple of (error_type, confidence) where:
+        - error_type: One of the defined error types or "UNKNOWN"
+        - confidence: 0.9 for matched patterns, 0.35 for UNKNOWN
+
+    Side effects:
+        None.
+
+    Audit Notes:
+        - First matching pattern determines the error type
+        - Case-insensitive matching (message is lowercased)
+        - UNKNOWN classification has lower confidence (0.35)
+    """
+
     normalized = message.lower()
     for error_type, patterns in PATTERNS:
         for pattern in patterns:
