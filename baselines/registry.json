@@ -1,17 +1,17 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "research_question": "RQ1",
   "baselines": [
     {
       "id": "B0",
-      "name": "rule_keyword",
-      "description": "Deterministic rule and keyword classifier with no LLM and no dependency graph.",
+      "name": "latest_visible_failure",
+      "description": "Deterministic heuristic that predicts the deepest/latest visible failed stage. No LLM and no memory.",
       "uses_llm": false,
       "uses_repo_context": false,
       "uses_dependency_graph": false,
       "uses_memory": false,
       "uses_independent_verification": false,
-      "status": "contract_defined"
+      "status": "implemented_executable"
     },
     {
       "id": "B1",
@@ -22,7 +22,7 @@
       "uses_dependency_graph": false,
       "uses_memory": false,
       "uses_independent_verification": false,
-      "status": "contract_defined"
+      "status": "contract_defined_not_implemented"
     },
     {
       "id": "B2",
@@ -33,7 +33,7 @@
       "uses_dependency_graph": false,
       "uses_memory": false,
       "uses_independent_verification": false,
-      "status": "contract_defined"
+      "status": "contract_defined_not_implemented"
     },
     {
       "id": "B3",
@@ -44,7 +44,7 @@
       "uses_dependency_graph": true,
       "uses_memory": false,
       "uses_independent_verification": false,
-      "status": "contract_defined"
+      "status": "implemented_executable"
     },
     {
       "id": "B4",
@@ -55,7 +55,7 @@
       "uses_dependency_graph": true,
       "uses_memory": false,
       "uses_independent_verification": false,
-      "status": "contract_defined"
+      "status": "contract_defined_not_implemented"
     },
     {
       "id": "P",
@@ -80,5 +80,5 @@
     "tool_permissions",
     "random_seed"
   ],
-  "rule": "No baseline may be silently improved after test-set evaluation. Material changes require a new baseline version."
+  "rule": "No baseline may be silently improved after test-set evaluation. Material changes require a new baseline version. Unimplemented baselines fail closed."
 }
