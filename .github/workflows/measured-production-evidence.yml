@@ -1,0 +1,50 @@
+name: Measured Production Evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      evidence_path:
+        description: Path to measured production evidence JSON produced by the deployment/telemetry pipeline
+        required: true
+        default: artifacts/input/production-evidence.json
+        type: string
+  workflow_call:
+    inputs:
+      evidence_path:
+        description: Path to measured production evidence JSON produced by the caller
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify-measured-production-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Refuse missing evidence
+        env:
+          EVIDENCE_PATH: ${{ inputs.evidence_path }}
+        run: |
+          test -f "$EVIDENCE_PATH" || {
+            echo "Measured evidence file not found: $EVIDENCE_PATH"
+            echo "This workflow intentionally does not fall back to benchmark/production_metrics.example.json."
+            exit 2
+          }
+      - name: Verify measured production evidence
+        env:
+          EVIDENCE_PATH: ${{ inputs.evidence_path }}
+        run: python scripts/verify_deployment_evidence.py "$EVIDENCE_PATH"
+      - name: Upload tamper-evident production proof
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: measured-production-evidence-${{ github.run_id }}
+          if-no-files-found: warn
+          path: artifacts/deployment-evidence.json

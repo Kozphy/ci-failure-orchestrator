@@ -1,6 +1,6 @@
 # CI Failure Orchestrator
 
-**v1.1 agentic CI reliability control plane** for dependency-aware diagnosis, bounded autonomous repair, multi-provider worker routing, candidate tournaments, persistent failure memory, independent evaluation, fleet policy, SLO/error-budget control, canary rollout, benchmarking, dashboard telemetry, human escalation, and tamper-evident production proof.
+**v1.2 agentic CI reliability control plane** for dependency-aware diagnosis, bounded autonomous repair, multi-provider worker routing, candidate tournaments, persistent failure memory, independent evaluation, fleet policy, SLO/error-budget control, canary rollout, benchmarking, dashboard telemetry, human escalation, and tamper-evident production proof.
 
 ## Canonical success gates
 
@@ -89,6 +89,51 @@ PRODUCTION_SUCCESS
         ↓
 Production proof
 ```
+
+## Operational evidence maturity
+
+The repository distinguishes implementation from proof:
+
+```text
+DESIGNED_CAPABILITY
+      ↓
+SIMULATED_VALIDATION
+      ↓
+MEASURED_STAGING_EVIDENCE
+      ↓
+MEASURED_PRODUCTION_EVIDENCE
+      ↓
+CONTROLLED_FAILURE_AND_RECOVERY_PROOF
+```
+
+Example, fixture, synthetic, simulated, or mock metrics must never be promoted as measured production proof. The measured-production evidence gate requires provenance-bearing runtime evidence including a deployment ID, commit SHA, immutable artifact digest, telemetry source, canary health, observability health, rollback readiness, and regression status.
+
+DORA-style operational metrics are computed from deployment history rather than declared manually:
+
+```text
+DELIVERY_HEALTH =
+DEPLOYMENT_FREQUENCY_MEASURED
+AND LEAD_TIME_MEASURED
+AND CHANGE_FAIL_RATE_MEASURED
+AND RECOVERY_TIME_MEASURED_WHEN_FAILURES_EXIST
+AND ROLLBACK_RATE_MEASURED
+```
+
+A repository-level production claim is intentionally stricter:
+
+```text
+LEVEL6_OPERATIONAL_PROOF =
+MEASURED_PRODUCTION_EVIDENCE
+AND IMMUTABLE_ARTIFACT_PROVENANCE
+AND CANARY_RESULT_RECORDED
+AND SLO_EVALUATED_FROM_RUNTIME_TELEMETRY
+AND ROLLBACK_READY
+AND FAILURE_RECOVERY_EXERCISED
+AND RECOVERY_TIME_RECORDED
+AND EVIDENCE_TAMPER_EVIDENT
+```
+
+Until those conditions are backed by real runtime measurements, the project describes the controls as implemented or validated rather than production-proven at scale. See `docs/operational-evidence.md`.
 
 ## Safety principle
 
