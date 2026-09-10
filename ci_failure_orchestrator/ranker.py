@@ -1,3 +1,10 @@
+"""Root cause ranking for CI failure analysis.
+
+This module provides root cause ranking for CI failures using dependency graph
+analysis, causal rule matching, and multi-factor scoring to prioritize failures
+most likely to be the root cause of downstream issues.
+"""
+
 from __future__ import annotations
 
 from .graph import PipelineGraph
@@ -15,10 +22,63 @@ CAUSE_RULES: dict[str, set[str]] = {
 
 
 class RootCauseRanker:
+    """Ranks CI failures by their likelihood of being the root cause.
+
+    This ranker uses dependency graph analysis, causal rule matching, and
+    multi-factor scoring to prioritize failures that are most likely to be
+    the root cause of downstream issues. Scoring considers upstream impact,
+    classifier confidence, causal signal, upstream bonus, and severity.
+
+    Attributes:
+        graph: Pipeline dependency graph for failure analysis.
+
+    Audit Notes:
+        - Incorrect ranking may lead to repairing the wrong failure.
+        - Causal rule matching is heuristic and may miss edge cases.
+        - Recovery: Review ranking results and adjust scoring weights if ranking quality is poor.
+        - Evidence: All rankings include score breakdown and reasoning for audit.
+
+    Engineering Notes:
+        - Trade-off: Heuristic scoring is fast but may miss complex causal relationships.
+        - Design: Multi-factor scoring balances multiple signals for robust ranking.
+        - Performance: Scoring is O(n) where n is the number of failures.
+    """
+
     def __init__(self, graph: PipelineGraph):
+        """Initialize the root cause ranker.
+
+        Args:
+            graph: Pipeline dependency graph for failure analysis.
+        """
         self.graph = graph
 
     def rank(self, failures: list[Failure]) -> list[RankedFailure]:
+        """Rank failures by their likelihood of being the root cause.
+
+        This method scores each failure based on upstream impact, classifier
+        confidence, causal signal, upstream bonus, and severity, then returns
+        failures sorted by score in descending order.
+
+        Args:
+            failures: List of failures to rank.
+
+        Returns:
+            List of RankedFailure objects sorted by score in descending order.
+
+        Scoring Factors:
+            - Upstream impact (30%): Proportion of downstream stages affected.
+            - Classifier confidence (25%): Confidence in error classification.
+            - Causal signal (20%): Match to causal rules for downstream failures.
+            - Upstream bonus (15%): Depth in pipeline (earlier stages get bonus).
+            - Severity/criticality (10%): Failure severity and stage criticality.
+
+        Side Effects:
+            - None (pure ranking logic).
+
+        Safety Invariants:
+            - Ranking is heuristic and should inform but not dictate repair decisions.
+            - Downstream failures are considered in scoring to identify root causes.
+        """
         failed_by_stage = {f.stage: f for f in failures}
         max_downstream = max((len(self.graph.descendants(f.stage)) for f in failures), default=1) or 1
         max_depth = max((self.graph.depth(f.stage) for f in failures), default=1) or 1

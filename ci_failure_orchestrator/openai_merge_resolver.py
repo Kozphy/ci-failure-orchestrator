@@ -1,3 +1,12 @@
+"""OpenAI integration for semantic merge-conflict resolution.
+
+This module provides an OpenAI-backed semantic merge provider that uses LLM
+reasoning to resolve ambiguous Git merge conflicts. The provider returns only
+text with confidence scores and has no filesystem, git, shell, merge, or approval
+authority. All repository mutation and release decisions remain in the existing
+executor/evaluator/policy layers.
+"""
+
 from __future__ import annotations
 
 import json
@@ -9,12 +18,46 @@ from .merge_conflict_agent import SemanticResolution
 class OpenAISemanticMergeProvider:
     """OpenAI-backed semantic merge provider with structured JSON output.
 
-    The provider returns text only. It has no filesystem, git, shell, merge, or
-    approval authority; all repository mutation and release decisions stay in the
-    existing executor/evaluator/policy layers.
+    This provider uses OpenAI's language models to perform semantic reasoning
+    on Git merge conflicts, providing resolved text with confidence scores and
+    rationales. It has no filesystem, git, shell, merge, or approval authority;
+    all repository mutation and release decisions stay in the existing
+    executor/evaluator/policy layers.
+
+    Attributes:
+        client: OpenAI client instance (defaults to OpenAI() if not provided).
+        model: OpenAI model identifier (default: "gpt-5.6").
+        last_latency_seconds: Latency of the last API call in seconds.
+        last_input_tokens: Number of input tokens in the last API call.
+        last_output_tokens: Number of output tokens in the last API call.
+
+    Raises:
+        RuntimeError: If OpenAI dependency is not installed.
+        ImportError: If openai package cannot be imported.
+
+    Audit Notes:
+        - LLM output can introduce subtle logic errors or security vulnerabilities.
+        - Provider has no filesystem, git, shell, merge, or approval authority.
+        - All resolutions go through confidence thresholds in SemanticMergeResolver.
+        - Recovery: Review resolution quality and adjust confidence thresholds if needed.
+        - Evidence: All resolutions include confidence scores, rationales, and token usage for audit.
+
+    Engineering Notes:
+        - Trade-off: LLM semantic understanding is powerful but adds cost and latency.
+        - Design: Structured JSON output ensures parseable responses with confidence scoring.
+        - Performance: API latency and token costs are tracked for monitoring and cost control.
     """
 
     def __init__(self, *, model: str = "gpt-5.6", client=None) -> None:
+        """Initialize the OpenAI semantic merge provider.
+
+        Args:
+            model: OpenAI model identifier (default: "gpt-5.6").
+            client: Optional OpenAI client instance. Defaults to OpenAI() if not provided.
+
+        Raises:
+            RuntimeError: If OpenAI dependency is not installed.
+        """
         if client is None:
             try:
                 from openai import OpenAI
@@ -38,6 +81,31 @@ class OpenAISemanticMergeProvider:
         hypothesis: str,
         proposed_change: str,
     ) -> SemanticResolution:
+        """Resolve a merge conflict block using OpenAI semantic reasoning.
+
+        This method sends the conflict block to the OpenAI API with a structured
+        JSON schema, requesting resolved text, confidence score, and rationale.
+        The provider has no authority to modify files or approve changes.
+
+        Args:
+            path: File path containing the conflict.
+            ours: Local side of the conflict.
+            theirs: Incoming side of the conflict.
+            hypothesis: Repair hypothesis from the planner.
+            proposed_change: Proposed change context.
+
+        Returns:
+            SemanticResolution with resolved text, confidence score, and rationale.
+
+        Side Effects:
+            - Makes external API call to OpenAI (network dependency).
+            - Updates last_latency_seconds, last_input_tokens, last_output_tokens.
+
+        API Configuration:
+            - Uses structured JSON output with strict schema validation.
+            - Model parameter defaults to "gpt-5.6" but can be overridden.
+            - Response includes token usage for cost tracking.
+        """
         schema = {
             "type": "object",
             "properties": {

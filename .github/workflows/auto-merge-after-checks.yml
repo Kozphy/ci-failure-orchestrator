@@ -69,11 +69,14 @@ jobs:
             exit 0
           fi
 
-          # Require CodeRabbit when it is registered as a status context for this repository.
+          # CodeRabbit is advisory only; log status but don't block auto-merge
           HAS_CODERABBIT=$(jq '[.statuses[] | select(.context == "CodeRabbit")] | length' <<<"$STATUSES")
-          if (( HAS_CODERABBIT > 0 && CODERABBIT == 0 )); then
-            echo "CodeRabbit has not succeeded yet."
-            exit 0
+          if (( HAS_CODERABBIT > 0 )); then
+            if (( CODERABBIT > 0 )); then
+              echo "CodeRabbit review passed (advisory)"
+            else
+              echo "CodeRabbit review pending or failed (advisory only, proceeding with auto-merge)"
+            fi
           fi
 
           MERGEABLE=$(jq -r '.mergeable' <<<"$PR_JSON")

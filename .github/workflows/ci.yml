@@ -24,7 +24,7 @@ jobs:
           files: ./coverage.xml
           fail_ci_if_error: false
       - name: Orchestrator smoke test
-        run: ci-orchestrator rank --pipeline examples/pipeline.json --failures examples/failures.json --audit audit.jsonl
+        run: python -m ci_failure_orchestrator.cli rank --pipeline examples/pipeline.json --failures examples/failures.json --audit audit.jsonl
       - name: Upload audit evidence
         if: always()
         uses: actions/upload-artifact@v7
