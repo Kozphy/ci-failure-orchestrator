@@ -30,7 +30,7 @@ REPO_HEALTHY / NEEDS_ACTION
 
 `engineering_intelligence` includes structural component and language counts, convention-based test-to-source mappings, GitHub Actions quality/security signals, dependency inventory, and a transparent 0-100 repository risk score with explicit penalty records.
 
-Structural test mapping is not runtime code coverage, dependency inventory is not vulnerability scanning, and repository health is not production proof. See `docs/analyze-repo.md` for the evidence model and limitations.
+Structural test mapping is not runtime code coverage, dependency inventory is not vulnerability scanning, and repository health is not production proof. The risk score is evidence-backed and inspectable, but it is a governance signal rather than a substitute for scanner output, historical CI reliability, or runtime telemetry. See `docs/analyze-repo.md` for the evidence model and limitations.
 
 ## 5-minute quick start
 
