@@ -65,9 +65,8 @@ def build_architecture_graph(evidence: RepositoryEvidence) -> dict:
         entry = components.setdefault(comp, {"source_files": 0, "test_files": 0, "languages": Counter()})
         entry["test_files"] += 1
         stem = PurePosixPath(path).stem.lower()
-        for prefix in ("test_",):
-            if stem.startswith(prefix):
-                stem = stem[len(prefix):]
+        if stem.startswith("test_"):
+            stem = stem[len("test_"):]
         for suffix in ("_test", ".test", ".spec"):
             if stem.endswith(suffix):
                 stem = stem[: -len(suffix)]
@@ -93,6 +92,13 @@ def build_architecture_graph(evidence: RepositoryEvidence) -> dict:
     }
 
 
+def _workflow_trigger(content: str, trigger: str) -> bool:
+    lower = content.lower()
+    return bool(re.search(rf"(?m)^\s*{re.escape(trigger)}\s*:", content)) or bool(
+        re.search(rf"(?m)^\s*on\s*:\s*{re.escape(trigger)}\s*$", lower)
+    )
+
+
 def analyze_workflow_semantics(evidence: RepositoryEvidence) -> dict:
     workflows = {
         path: content
@@ -104,8 +110,8 @@ def analyze_workflow_semantics(evidence: RepositoryEvidence) -> dict:
     for path, content in sorted(workflows.items()):
         lower = content.lower()
         signals = {
-            "pull_request_trigger": bool(re.search(r"(?m)^\s*pull_request\s*:", content)),
-            "push_trigger": bool(re.search(r"(?m)^\s*push\s*:", content)),
+            "pull_request_trigger": _workflow_trigger(content, "pull_request"),
+            "push_trigger": _workflow_trigger(content, "push"),
             "scheduled": bool(re.search(r"(?m)^\s*schedule\s*:", content)),
             "tests": any(token in lower for token in ("pytest", "npm test", "pnpm test", "go test", "cargo test", "dotnet test", "mvn test", "gradle test")),
             "static_analysis": any(token in lower for token in ("ruff", "flake8", "mypy", "eslint", "sonarqube", "sonarcloud", "golangci-lint", "clippy")),
