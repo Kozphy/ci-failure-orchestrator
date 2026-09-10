@@ -25,7 +25,7 @@ def test_repository_with_core_controls_is_healthy():
         "docs/architecture.md",
     ]
     files = {
-        ".github/workflows/ci.yml": "on: pull_request\njobs:\n  test:\n    steps:\n      - run: pytest --cov=ci_failure_orchestrator\n      - run: ruff check .\n      - run: pip-audit\n",
+        ".github/workflows/ci.yml": "on: [push, pull_request]\njobs:\n  test:\n    steps:\n      - run: pytest --cov=ci_failure_orchestrator\n      - run: ruff check .\n      - run: pip-audit\n",
         "pyproject.toml": '[project]\nname="demo"\ndependencies=["requests>=2", "pydantic>=2"]\n',
     }
     result = analyze_repository(make_evidence(paths, files=files))
@@ -41,6 +41,8 @@ def test_repository_with_core_controls_is_healthy():
     intelligence = result["engineering_intelligence"]
     assert intelligence["architecture"]["source_files"] == 1
     assert intelligence["architecture"]["structurally_test_mapped_sources"] == 1
+    assert intelligence["workflow_semantics"]["signals"]["pull_request_trigger"] == 1
+    assert intelligence["workflow_semantics"]["signals"]["push_trigger"] == 1
     assert intelligence["workflow_semantics"]["signals"]["tests"] == 1
     assert intelligence["workflow_semantics"]["signals"]["static_analysis"] == 1
     assert intelligence["workflow_semantics"]["signals"]["security"] == 1
