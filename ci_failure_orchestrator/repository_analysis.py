@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from pathlib import PurePosixPath
 
+from .engineering_intelligence import build_engineering_intelligence
 from .github_client import RepositoryEvidence
 
 
@@ -26,9 +27,8 @@ def _paths(evidence: RepositoryEvidence) -> list[str]:
 
 
 def analyze_repository(evidence: RepositoryEvidence) -> dict:
-    """Produce deterministic repository health signals from bounded GitHub evidence."""
+    """Produce deterministic repository health and engineering-intelligence signals."""
     paths = _paths(evidence)
-    lower_paths = {path.lower() for path in paths}
     workflow_paths = sorted(
         path for path in paths if path.lower().startswith(".github/workflows/") and path.lower().endswith((".yml", ".yaml"))
     )
@@ -58,6 +58,17 @@ def analyze_repository(evidence: RepositoryEvidence) -> dict:
     has_codeowners = any(PurePosixPath(path).name.lower() == "codeowners" for path in paths)
     has_dependabot = any(PurePosixPath(path).name.lower() in {"dependabot.yml", "dependabot.yaml"} for path in paths)
     has_precommit = any(PurePosixPath(path).name.lower() in {".pre-commit-config.yml", ".pre-commit-config.yaml"} for path in paths)
+
+    controls = {
+        "readme": has_readme,
+        "security_policy": has_security,
+        "codeowners": has_codeowners,
+        "dependabot": has_dependabot,
+        "pre_commit": has_precommit,
+        "ci_workflow": bool(workflow_paths),
+        "tests": bool(test_paths),
+        "build_manifest": bool(manifest_paths),
+    }
 
     findings: list[RepositoryFinding] = []
     if evidence.truncated:
@@ -142,9 +153,11 @@ def analyze_repository(evidence: RepositoryEvidence) -> dict:
             )
         )
 
+    engineering = build_engineering_intelligence(evidence, controls)
+    risk = engineering["risk"]
     high = sum(f.severity == "high" for f in findings)
     medium = sum(f.severity == "medium" for f in findings)
-    status = "REPO_HEALTHY" if high == 0 and medium == 0 else "NEEDS_ACTION"
+    status = "REPO_HEALTHY" if high == 0 and medium == 0 and risk["score"] <= 20 else "NEEDS_ACTION"
 
     return {
         "repository": evidence.metadata.get("full_name"),
@@ -158,21 +171,15 @@ def analyze_repository(evidence: RepositoryEvidence) -> dict:
             "manifests": manifest_paths,
             "evidence_files_fetched": sorted(evidence.files),
         },
-        "controls": {
-            "readme": has_readme,
-            "security_policy": has_security,
-            "codeowners": has_codeowners,
-            "dependabot": has_dependabot,
-            "pre_commit": has_precommit,
-            "ci_workflow": bool(workflow_paths),
-            "tests": bool(test_paths),
-            "build_manifest": bool(manifest_paths),
-        },
+        "controls": controls,
+        "engineering_intelligence": engineering,
         "findings": [finding.to_dict() for finding in findings],
         "summary": {
             "high": high,
             "medium": medium,
             "low": sum(f.severity == "low" for f in findings),
+            "risk_score": risk["score"],
+            "risk_band": risk["band"],
         },
         "repo_status": status,
     }
