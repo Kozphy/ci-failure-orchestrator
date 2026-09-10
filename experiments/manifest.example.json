@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "rq1-benchmark-v1-b0-seed42",
+  "research_question": "RQ1",
+  "hypothesis_id": "H1",
+  "benchmark": {
+    "name": "ci_failure_corpus",
+    "version": "1.0",
+    "split": "test",
+    "case_schema": "benchmark/research_case.schema.json",
+    "content_digest": "REPLACE_WITH_SHA256"
+  },
+  "code": {
+    "repository": "Kozphy/ci-failure-orchestrator",
+    "commit_sha": "REPLACE_WITH_COMMIT_SHA",
+    "orchestrator_version": "1.2.0"
+  },
+  "method": {
+    "id": "B0",
+    "registry": "baselines/registry.json",
+    "configuration_digest": "REPLACE_WITH_SHA256"
+  },
+  "model": {
+    "provider": null,
+    "name": null,
+    "version": null,
+    "prompt_version": null,
+    "temperature": null
+  },
+  "execution": {
+    "random_seed": 42,
+    "retry_budget": 0,
+    "runtime_environment": {
+      "python": "3.10+",
+      "os": "REPLACE_WITH_OS",
+      "container_digest": null
+    },
+    "started_at": "REPLACE_WITH_ISO8601",
+    "finished_at": "REPLACE_WITH_ISO8601"
+  },
+  "artifacts": {
+    "raw_results": "artifacts/research/raw/rq1-benchmark-v1-b0-seed42.jsonl",
+    "raw_result_digest": "REPLACE_WITH_SHA256",
+    "metrics": "artifacts/research/processed/rq1-benchmark-v1-b0-seed42.metrics.json",
+    "logs": "artifacts/research/raw/rq1-benchmark-v1-b0-seed42.log"
+  },
+  "metrics_expected": [
+    "root_cause_top1_accuracy",
+    "root_cause_topk_accuracy",
+    "macro_f1",
+    "latency_ms",
+    "cost_usd"
+  ],
+  "validity": {
+    "missing_cases": 0,
+    "failed_runs": 0,
+    "protocol_deviations": []
+  },
+  "claim_boundary": "This manifest records an experiment configuration. It is not evidence of a completed or statistically validated result until artifacts and digests are populated and independently checkable."
+}
