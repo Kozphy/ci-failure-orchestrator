@@ -28,15 +28,18 @@ class Timer:
     """Context manager that records elapsed milliseconds into a registry."""
 
     def __init__(self, registry: MetricsRegistry, metric: str):
+        """Bind *registry* and *metric* name for elapsed-time recording."""
         self.registry = registry
         self.metric = metric
         self.started = 0.0
 
     def __enter__(self) -> "Timer":
+        """Start the timer and return self for use in a with-statement."""
         self.started = perf_counter()
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
+        """Record elapsed milliseconds into the bound registry."""
         self.registry.observe(self.metric, (perf_counter() - self.started) * 1000)
 
 
@@ -83,10 +86,12 @@ class ProductionGateReport:
 
 
 def _rate(count: int, total: int) -> float:
+    """Return count/total, or 0.0 when total is zero."""
     return count / total if total else 0.0
 
 
 def _p95(values: list[float]) -> float:
+    """Return the 95th percentile of *values*, or 0.0 when empty."""
     if not values:
         return 0.0
     ordered = sorted(values)
@@ -142,6 +147,11 @@ class OpenTelemetryRecorder:
     """Emit repair traces and metrics when the observability extra is installed."""
 
     def __init__(self, service_name: str = "ci-failure-orchestrator") -> None:
+        """Initialise the OpenTelemetry providers, tracer, and metric instruments.
+
+        Raises RuntimeError when the optional ``observability`` dependencies are
+        not installed.
+        """
         try:
             from opentelemetry import metrics, trace
             from opentelemetry.sdk.metrics import MeterProvider
