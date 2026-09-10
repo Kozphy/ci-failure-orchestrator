@@ -1,0 +1,62 @@
+# Machine-readable production Definition of Done.
+#
+# This file is intentionally declarative. CI/policy tooling should translate
+# repository evidence into these states; autonomous agents must not be able to
+# mark their own work DONE without satisfying the independent gates below.
+
+definition_of_done:
+  requirements:
+    acceptance_criteria: pass
+
+  code:
+    complete: true
+    lint: pass
+    typecheck: pass
+    static_analysis: pass
+
+  tests:
+    unit: pass
+    integration: pass
+    regression: pass
+    failure_paths: pass
+    e2e: not_applicable_or_pass
+
+  docs:
+    public_api: updated_or_not_applicable
+    docstrings: updated
+    architecture: updated_or_not_applicable
+    safety: updated_or_not_applicable
+    runbook: updated_or_not_applicable
+    limitations: documented_or_none
+
+  security:
+    secrets_scan: pass
+    dependency_scan: pass
+    vulnerability_scan: pass
+    safety_invariants: pass
+
+  operations:
+    observability: verified
+    rollback: verified_or_documented
+    deployment: verified_or_not_applicable
+    canary: verified_or_not_applicable
+
+  reproducibility:
+    dependencies_locked: true
+    build_reproducible: true
+    test_environment_reproducible: true
+    artifact_provenance: recorded
+
+  governance:
+    issue_linked: true
+    pr_linked: true
+    review_satisfied: true
+    audit_evidence: generated
+    high_risk_findings: 0
+
+  ci:
+    required_checks: pass
+    policy_gate: pass
+
+  final_gate:
+    status: DONE

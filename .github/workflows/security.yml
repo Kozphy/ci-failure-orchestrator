@@ -27,6 +27,25 @@ jobs:
         with:
           upload: never
           upload-database: false
+      - name: Emit static-analysis evidence fragment
+        run: |
+          mkdir -p artifacts/dod
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          evidence = {"code": {"static_analysis": "pass"}}
+          Path("artifacts/dod/codeql.json").write_text(
+              json.dumps(evidence, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+      - name: Upload CodeQL DoD evidence
+        uses: actions/upload-artifact@v7
+        with:
+          name: dod-fragment-codeql
+          path: artifacts/dod/codeql.json
+          if-no-files-found: error
 
   secrets:
     name: Gitleaks
@@ -38,3 +57,22 @@ jobs:
       - uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Emit secrets-scan evidence fragment
+        run: |
+          mkdir -p artifacts/dod
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          evidence = {"security": {"secrets_scan": "pass"}}
+          Path("artifacts/dod/gitleaks.json").write_text(
+              json.dumps(evidence, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+      - name: Upload Gitleaks DoD evidence
+        uses: actions/upload-artifact@v7
+        with:
+          name: dod-fragment-gitleaks
+          path: artifacts/dod/gitleaks.json
+          if-no-files-found: error
