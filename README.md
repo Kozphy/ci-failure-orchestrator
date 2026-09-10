@@ -90,6 +90,34 @@ PRODUCTION_SUCCESS
 Production proof
 ```
 
+## Measured production evidence
+
+Benchmark and simulated metrics are useful for reproducible evaluation, but they are not accepted as proof of a real production deployment.
+
+The measured-production evidence path requires provenance for the deployment, environment, commit, immutable artifact digest, measurement timestamp, telemetry source, canary health, observability health, rollback readiness, and production-regression status. Sources identified as `example`, `fixture`, `synthetic`, `simulated`, or `mock` fail closed.
+
+```text
+Commit SHA
+    ↓
+Immutable artifact + SHA-256
+    ↓
+Production deployment
+    ↓
+Canary + runtime telemetry
+    ↓
+Measured SLO / reliability metrics
+    ↓
+Measured evidence JSON
+    ↓
+Independent verifier
+    ↓
+PASS / BLOCK + proof hash
+```
+
+See [`docs/production-evidence.md`](docs/production-evidence.md) and `.github/workflows/measured-production-evidence.yml`.
+
+> A production evidence workflow cannot create real telemetry by itself. A genuine production claim requires a real deployment target and measured runtime data. The verifier intentionally does not fall back to `benchmark/production_metrics.example.json`.
+
 ## Safety principle
 
 Repair workers may propose changes, but they cannot approve their own release. Evaluation, regression checks, repository policy, release-readiness gates, production-health gates, canary health, fleet policy, SLOs, and human approval retain release authority.
