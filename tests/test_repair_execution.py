@@ -17,6 +17,7 @@ def _init_repo(path: Path) -> None:
     subprocess.run(["git", "init"], cwd=path, check=True, capture_output=True, text=True)
     subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=path, check=True)
     subprocess.run(["git", "config", "user.name", "Test"], cwd=path, check=True)
+    subprocess.run(["git", "checkout", "-b", "main"], cwd=path, check=True, capture_output=True)
     (path / "hello.txt").write_text("hello\n", encoding="utf-8")
     subprocess.run(["git", "add", "."], cwd=path, check=True)
     subprocess.run(["git", "commit", "-m", "init"], cwd=path, check=True, capture_output=True, text=True)
@@ -45,14 +46,26 @@ def test_pipeline_verifies_patch_and_preserves_source(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
     repo.mkdir()
     _init_repo(repo)
-    patch = """diff --git a/hello.txt b/hello.txt
-index ce01362..cc628cc 100644
---- a/hello.txt
-+++ b/hello.txt
-@@ -1 +1 @@
--hello
-+world
-"""
+    
+    # Create a proper patch by making changes in a temp branch
+    subprocess.run(["git", "checkout", "-b", "temp"], cwd=repo, check=True, capture_output=True)
+    (repo / "hello.txt").write_text("world\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, check=True)
+    subprocess.run(["git", "commit", "-m", "change"], cwd=repo, check=True, capture_output=True)
+    patch_result = subprocess.run(["git", "format-patch", "--stdout", "HEAD~1"], cwd=repo, check=True, capture_output=True, text=True)
+    subprocess.run(["git", "checkout", "-"], cwd=repo, check=True, capture_output=True)
+    subprocess.run(["git", "branch", "-D", "temp"], cwd=repo, check=True, capture_output=True)
+    
+    # Extract just the diff part from the format-patch output
+    patch_lines = []
+    in_diff = False
+    for line in patch_result.stdout.splitlines():
+        if line.startswith("diff --git"):
+            in_diff = True
+        if in_diff:
+            patch_lines.append(line)
+    
+    patch = "\n".join(patch_lines)
     verifier = WorktreePatchVerifier(commands=(("content-check", ("python", "-c", "from pathlib import Path; assert Path('hello.txt').read_text() == 'world\\n'")),))
     evaluation, evidence = RepairExecutionPipeline(verifier).run(_provider(patch), repo_path=repo)
     assert evaluation.passed is True

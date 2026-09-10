@@ -12,7 +12,7 @@ from .provider_adapters import ProviderRun
 
 
 _DIFF_RE = re.compile(
-    r"(?ms)^diff --git a/.+? b/.+?(?=^diff --git a/|\Z)"
+    r"(?ms)^diff --git a/.+? b/.+?(?=^diff --git a/|^```|\Z)"
 )
 
 
