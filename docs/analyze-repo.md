@@ -1,63 +1,108 @@
 # Repository-wide analysis
 
-`analyze-repo` inspects a GitHub repository directly without cloning it.
+`analyze-repo` inspects a GitHub repository directly without requiring a workflow run ID.
 
 ```bash
-ci-orchestrator analyze-repo --repo Kozphy/ci-failure-orchestrator
+ci-orchestrator analyze-repo --repo owner/repo
 ```
 
-For a private repository, set `GITHUB_TOKEN` or pass `--token`. To inspect a non-default branch or ref:
+For private repositories, provide a token explicitly or through `GITHUB_TOKEN`.
 
 ```bash
-ci-orchestrator analyze-repo \
-  --repo owner/repository \
-  --ref feature/my-branch \
-  --audit artifacts/repository-audit.jsonl
+export GITHUB_TOKEN=...
+ci-orchestrator analyze-repo --repo owner/repo
 ```
 
-## Evidence model
+The command remains read-only. It uses the GitHub REST API to retrieve repository metadata, a recursive Git tree, and a bounded set of high-signal files such as CI workflows, build manifests, dependency manifests, README, SECURITY.md, CODEOWNERS, Dependabot, and pre-commit configuration.
 
-The command deliberately uses bounded evidence collection:
+## Engineering-intelligence output
+
+The result now contains four deterministic analysis layers:
 
 ```text
-GitHub repository
-       ↓
-repository metadata
-       ↓
-recursive Git tree inventory
-       ↓
-high-signal evidence files
- ├─ GitHub Actions workflows
- ├─ dependency/build manifests
- ├─ README / SECURITY
- ├─ CODEOWNERS
- ├─ Dependabot
- └─ pre-commit configuration
-       ↓
-deterministic repository policy
-       ↓
-findings + recommendations
-       ↓
+Repository
+   ↓
+Inventory + controls
+   ↓
+Architecture / component graph
+   ↓
+Workflow semantic signals
+   ↓
+Dependency evidence
+   ↓
+Transparent risk scoring
+   ↓
 REPO_HEALTHY / NEEDS_ACTION
 ```
 
-The recursive tree is used for file inventory; source files are not bulk-downloaded. This keeps the scan bounded and auditable. If GitHub reports the tree as truncated, the analyzer fails closed with `TREE_TRUNCATED` instead of claiming the repository was fully inspected.
+### Architecture graph
 
-## Current controls
+The analyzer classifies source and test files from the repository tree, groups them into structural components, records detected implementation languages, and creates convention-based links between tests and likely source counterparts.
 
-The first repository policy checks for:
+This is a structural graph, not an LLM-generated architecture claim. A `test_service.py` file may be associated with a `service.py` source candidate, but this does not claim runtime coverage or semantic correctness.
 
-- at least one CI workflow;
-- conventional automated tests;
-- a recognized build/dependency manifest;
-- README documentation;
-- `SECURITY.md`;
-- `CODEOWNERS`;
-- Dependabot configuration;
-- pre-commit configuration.
+### Workflow semantics
 
-High and medium findings produce `NEEDS_ACTION`. The CLI exits with status `2` for `NEEDS_ACTION`, making the command usable as a future CI policy gate. A clean result exits with status `0` and reports `REPO_HEALTHY`.
+Fetched GitHub Actions workflows are inspected for deterministic signals including:
 
-## Scope and limitations
+- pull-request and push triggers
+- scheduled execution
+- recognized test commands
+- recognized static-analysis commands
+- recognized security scanners
+- coverage tooling
+- artifact upload steps
 
-This is repository **control-health analysis**, not yet semantic review of every source file. The next layers should add PR-aware changed-code analysis, workflow semantic checks, dependency vulnerability evidence, static-analysis provider aggregation, and historical CI reliability metrics. These should remain separate evidence providers feeding the same policy engine rather than weakening the bounded repository collector.
+Absence means the signal was not detected in the bounded evidence; it does not prove that an equivalent control exists nowhere outside GitHub Actions.
+
+### Dependency evidence
+
+The analyzer extracts dependency names from supported fetched manifests such as `pyproject.toml`, `requirements.txt`, and `package.json`. This is dependency inventory evidence, not a vulnerability scan. Vulnerability status should come from a dedicated advisory or scanner integration.
+
+### Repository risk score
+
+The `engineering_intelligence.risk` section exposes a transparent 0-100 score. Every point is backed by an explicit penalty record with a code and reason.
+
+```text
+0-20   LOW
+21-45  MODERATE
+46-70  HIGH
+71-100 CRITICAL
+```
+
+Examples of weighted penalties include missing CI, missing tests, incomplete/truncated evidence, CI workflows without detected tests, security or static-analysis signals, and weak convention-based test mapping.
+
+The score is deliberately inspectable rather than model-generated. It is suitable for policy evaluation but should not be treated as a substitute for runtime SLOs, security scanning, code coverage, or production evidence.
+
+## Exit codes
+
+```text
+0  REPO_HEALTHY
+2  NEEDS_ACTION
+```
+
+`REPO_HEALTHY` currently requires no high/medium repository-control findings and a risk score of 20 or below. This makes the command usable as a fail-closed policy gate.
+
+## Evidence completeness
+
+GitHub's recursive tree response can be truncated for very large repositories. When that occurs, the analyzer emits `TREE_TRUNCATED`, applies an incomplete-evidence risk penalty, and refuses to report the repository as healthy.
+
+GitHub documents that recursive tree responses can be truncated and recommends subtree retrieval for complete traversal of very large repositories. This implementation therefore treats truncation as incomplete evidence rather than silently assuming completeness.
+
+The next maturity layers are intentionally separate:
+
+```text
+Repository structural intelligence
+        ↓
+PR semantic analysis
+        ↓
+static-analysis aggregation
+        ↓
+dependency vulnerability evidence
+        ↓
+historical CI reliability metrics
+        ↓
+runtime / production evidence
+```
+
+This separation prevents structural repository heuristics from being misrepresented as production proof.
