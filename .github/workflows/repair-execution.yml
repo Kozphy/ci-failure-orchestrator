@@ -20,6 +20,6 @@ jobs:
           cache: pip
       - run: python -m pip install -e '.[dev]'
       - name: Provider-to-patch execution contract
-        run: pytest -q tests/test_repair_execution.py
+        run: python -m pytest -q tests/test_repair_execution.py
       - name: Full regression suite
-        run: pytest -q
+        run: python -m pytest -q
