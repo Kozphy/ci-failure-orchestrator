@@ -2,6 +2,108 @@
 
 **v1.2 agentic CI reliability control plane** for dependency-aware diagnosis, bounded autonomous repair, multi-provider worker routing, candidate tournaments, persistent failure memory, independent evaluation, fleet policy, SLO/error-budget control, canary rollout, benchmarking, dashboard telemetry, human escalation, and tamper-evident production proof.
 
+## 5-minute quick start
+
+This is the shortest path from a fresh clone to a useful CI diagnosis.
+
+```bash
+git clone https://github.com/Kozphy/ci-failure-orchestrator.git
+cd ci-failure-orchestrator
+python -m venv .venv
+```
+
+Activate the environment and install the project:
+
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -e ".[dev]"
+```
+
+```bash
+# macOS / Linux
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -e '.[dev]'
+```
+
+Verify the installation:
+
+```bash
+ci-orchestrator --help
+pytest
+```
+
+Now analyze the included GitHub Actions example:
+
+```bash
+ci-orchestrator analyze \
+  --jobs examples/github_jobs.json \
+  --logs examples/github_logs.json \
+  --audit audit.jsonl
+```
+
+On PowerShell, run the same command on one line:
+
+```powershell
+ci-orchestrator analyze --jobs examples/github_jobs.json --logs examples/github_logs.json --audit audit.jsonl
+```
+
+The result gives you four actionable outputs:
+
+```text
+failed CI evidence
+       ↓
+probable root cause
+       ↓
+ranked candidate causes
+       ↓
+causal dependency edges
+       ↓
+verification plan
+```
+
+Use the verification plan to decide which checks to run next. A diagnosis is not permission to merge: repair candidates must still pass the independent gates required by `REPAIR_SUCCESS`.
+
+### What success looks like
+
+For a real pull request, the intended operating model is:
+
+```text
+PR / commit
+    ↓
+GitHub Actions failure
+    ↓
+collect jobs + logs
+    ↓
+ci-orchestrator analyze
+    ↓
+root-cause hypothesis
+    ↓
+bounded repair candidate
+    ↓
+targeted tests
+    ↓
+full regression
+    ↓
+security + policy gates
+    ↓
+independent verification
+    ↓
+REPAIR_SUCCESS
+    ↓
+release gates
+    ↓
+RELEASE_READY
+    ↓
+canary + runtime evidence
+    ↓
+PRODUCTION_SUCCESS
+```
+
+The orchestrator therefore acts as a **CI reliability control plane**, not merely an AI code fixer. Diagnosis and repair generation are separated from verification and release authority.
+
 ## How to use
 
 ### 1. Clone and install
@@ -62,15 +164,6 @@ Use `classify` when you have a raw error message and want a normalized failure t
 ci-orchestrator classify "ModuleNotFoundError: No module named 'requests'"
 ```
 
-Example output:
-
-```json
-{
-  "error_type": "dependency_error",
-  "confidence": 0.9
-}
-```
-
 This is useful as the first step before deciding which repair worker or verification path should handle a failure.
 
 ### 4. Rank probable root causes
@@ -113,12 +206,7 @@ ci-orchestrator analyze \
   --audit artifacts/audit.jsonl
 ```
 
-The analysis returns:
-
-- the most likely `root_cause` stage;
-- a ranked list of candidate causes;
-- inferred causal edges between failed stages;
-- a verification plan describing what should be re-run or checked next.
+The analysis returns the most likely `root_cause`, ranked candidate causes, inferred causal edges, and a verification plan describing what should be checked next.
 
 ### 6. Run the test suite before making changes
 
