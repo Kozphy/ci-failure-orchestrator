@@ -90,33 +90,50 @@ PRODUCTION_SUCCESS
 Production proof
 ```
 
-## Measured production evidence
+## Operational evidence maturity
 
-Benchmark and simulated metrics are useful for reproducible evaluation, but they are not accepted as proof of a real production deployment.
-
-The measured-production evidence path requires provenance for the deployment, environment, commit, immutable artifact digest, measurement timestamp, telemetry source, canary health, observability health, rollback readiness, and production-regression status. Sources identified as `example`, `fixture`, `synthetic`, `simulated`, or `mock` fail closed.
+The repository distinguishes implementation from proof:
 
 ```text
-Commit SHA
-    ↓
-Immutable artifact + SHA-256
-    ↓
-Production deployment
-    ↓
-Canary + runtime telemetry
-    ↓
-Measured SLO / reliability metrics
-    ↓
-Measured evidence JSON
-    ↓
-Independent verifier
-    ↓
-PASS / BLOCK + proof hash
+DESIGNED_CAPABILITY
+      ↓
+SIMULATED_VALIDATION
+      ↓
+MEASURED_STAGING_EVIDENCE
+      ↓
+MEASURED_PRODUCTION_EVIDENCE
+      ↓
+CONTROLLED_FAILURE_AND_RECOVERY_PROOF
 ```
 
-See [`docs/production-evidence.md`](docs/production-evidence.md) and `.github/workflows/measured-production-evidence.yml`.
+Example, fixture, synthetic, simulated, or mock metrics must never be promoted as measured production proof. The measured-production evidence gate requires provenance-bearing runtime evidence including a deployment ID, commit SHA, immutable artifact digest, telemetry source, canary health, observability health, rollback readiness, and regression status.
 
-> A production evidence workflow cannot create real telemetry by itself. A genuine production claim requires a real deployment target and measured runtime data. The verifier intentionally does not fall back to `benchmark/production_metrics.example.json`.
+DORA-style operational metrics are computed from deployment history rather than declared manually:
+
+```text
+DELIVERY_HEALTH =
+DEPLOYMENT_FREQUENCY_MEASURED
+AND LEAD_TIME_MEASURED
+AND CHANGE_FAIL_RATE_MEASURED
+AND RECOVERY_TIME_MEASURED_WHEN_FAILURES_EXIST
+AND ROLLBACK_RATE_MEASURED
+```
+
+A repository-level production claim is intentionally stricter:
+
+```text
+LEVEL6_OPERATIONAL_PROOF =
+MEASURED_PRODUCTION_EVIDENCE
+AND IMMUTABLE_ARTIFACT_PROVENANCE
+AND CANARY_RESULT_RECORDED
+AND SLO_EVALUATED_FROM_RUNTIME_TELEMETRY
+AND ROLLBACK_READY
+AND FAILURE_RECOVERY_EXERCISED
+AND RECOVERY_TIME_RECORDED
+AND EVIDENCE_TAMPER_EVIDENT
+```
+
+Until those conditions are backed by real runtime measurements, the project describes the controls as implemented or validated rather than production-proven at scale. See `docs/operational-evidence.md`.
 
 ## Safety principle
 
