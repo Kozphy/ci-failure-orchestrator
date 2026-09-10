@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0",
+  "research_question": "RQ1",
+  "baselines": [
+    {
+      "id": "B0",
+      "name": "rule_keyword",
+      "description": "Deterministic rule and keyword classifier with no LLM and no dependency graph.",
+      "uses_llm": false,
+      "uses_repo_context": false,
+      "uses_dependency_graph": false,
+      "uses_memory": false,
+      "uses_independent_verification": false,
+      "status": "contract_defined"
+    },
+    {
+      "id": "B1",
+      "name": "llm_log_only",
+      "description": "LLM receives bounded failure-log evidence only.",
+      "uses_llm": true,
+      "uses_repo_context": false,
+      "uses_dependency_graph": false,
+      "uses_memory": false,
+      "uses_independent_verification": false,
+      "status": "contract_defined"
+    },
+    {
+      "id": "B2",
+      "name": "llm_repo_context",
+      "description": "LLM receives failure logs plus bounded repository context.",
+      "uses_llm": true,
+      "uses_repo_context": true,
+      "uses_dependency_graph": false,
+      "uses_memory": false,
+      "uses_independent_verification": false,
+      "status": "contract_defined"
+    },
+    {
+      "id": "B3",
+      "name": "dependency_graph_only",
+      "description": "Dependency-aware root-cause ranking without memory or LLM reasoning.",
+      "uses_llm": false,
+      "uses_repo_context": true,
+      "uses_dependency_graph": true,
+      "uses_memory": false,
+      "uses_independent_verification": false,
+      "status": "contract_defined"
+    },
+    {
+      "id": "B4",
+      "name": "dependency_graph_llm",
+      "description": "Dependency-aware diagnosis combined with LLM reasoning, without persistent failure memory.",
+      "uses_llm": true,
+      "uses_repo_context": true,
+      "uses_dependency_graph": true,
+      "uses_memory": false,
+      "uses_independent_verification": false,
+      "status": "contract_defined"
+    },
+    {
+      "id": "P",
+      "name": "proposed_full_system",
+      "description": "Dependency graph, failure memory, bounded repair agent, candidate policy, and independent verification.",
+      "uses_llm": true,
+      "uses_repo_context": true,
+      "uses_dependency_graph": true,
+      "uses_memory": true,
+      "uses_independent_verification": true,
+      "status": "implemented_components_require_research_validation"
+    }
+  ],
+  "required_run_metadata": [
+    "model_provider",
+    "model_name",
+    "model_version",
+    "prompt_version",
+    "temperature",
+    "retry_budget",
+    "context_policy",
+    "tool_permissions",
+    "random_seed"
+  ],
+  "rule": "No baseline may be silently improved after test-set evaluation. Material changes require a new baseline version."
+}
