@@ -11,7 +11,8 @@ from .langgraph_runtime import AgentWorkflowState, StateHook, StateUpdate
 from .patch_sandbox import WorktreePatchVerifier
 from .provider_adapters import ProviderRun, ProviderSpec, SandboxRunner
 from .repair_execution import VerificationResultEvaluator, extract_unified_diff
-from .telemetry import MetricsRegistry, Timer
+from .repair_planner import RepairPlan
+from .telemetry import MetricsRegistry, OpenTelemetryRecorder, Timer
 
 
 RETRYABLE_FAILURE_CLASSES = frozenset(
@@ -25,8 +26,6 @@ RETRYABLE_FAILURE_CLASSES = frozenset(
 
 
 def classifier_diagnose_hook(state: AgentWorkflowState) -> StateUpdate:
-    """Adapt the repository's existing deterministic classifier to LangGraph state."""
-
     message = state.get("failure_message", "")
     failure_class, confidence = classify_error(message)
     return {
@@ -37,9 +36,40 @@ def classifier_diagnose_hook(state: AgentWorkflowState) -> StateUpdate:
     }
 
 
-def default_repair_prompt(state: AgentWorkflowState) -> str:
-    """Build a bounded provider prompt from serializable workflow state."""
+def repair_plan_to_state(plan: RepairPlan) -> StateUpdate:
+    """Serialize the deterministic repair plan into bounded workflow state."""
 
+    return {
+        "repair_plan": plan.to_dict(),
+        "repair_risk": plan.risk,
+        "repair_requires_human_approval": plan.requires_human_approval,
+    }
+
+
+def repair_plan_prompt(plan: RepairPlan, state: AgentWorkflowState) -> str:
+    """Build the provider prompt from the deterministic RepairPlan contract."""
+
+    targets = ", ".join(plan.target_files) if plan.target_files else "not specified"
+    verification = ", ".join(step.name for step in plan.verification) or "repository verification suite"
+    return (
+        "Produce exactly one minimal reversible git unified diff for this repair plan.\n"
+        "Do not weaken tests, security policy, or verification commands.\n"
+        "Do not include credentials, secrets, unrelated refactors, or prose outside the diff.\n"
+        f"Root stage: {plan.root_stage}\n"
+        f"Hypothesis: {plan.hypothesis}\n"
+        f"Proposed change: {plan.proposed_change}\n"
+        f"Target files: {targets}\n"
+        f"Risk: {plan.risk}\n"
+        f"Required verification: {verification}\n"
+        f"Failure message: {state.get('failure_message', '')}\n"
+    )
+
+
+def repair_plan_prompt_builder(plan: RepairPlan) -> Callable[[AgentWorkflowState], str]:
+    return lambda state: repair_plan_prompt(plan, state)
+
+
+def default_repair_prompt(state: AgentWorkflowState) -> str:
     return (
         "Produce the smallest reversible git unified diff that addresses this CI failure.\n"
         "Do not include secrets, credentials, or unrelated refactors.\n"
@@ -55,8 +85,6 @@ def provider_patch_hook(
     *,
     prompt_builder: Callable[[AgentWorkflowState], str] = default_repair_prompt,
 ) -> StateHook:
-    """Run a configured coding provider and persist only serializable evidence in state."""
-
     def hook(state: AgentWorkflowState) -> StateUpdate:
         run = runner.run(
             spec,
@@ -82,8 +110,6 @@ def worktree_sandbox_hook(
     *,
     base_ref: str = "HEAD",
 ) -> StateHook:
-    """Apply and test the candidate patch inside the existing disposable git worktree."""
-
     evaluator = VerificationResultEvaluator()
 
     def hook(state: AgentWorkflowState) -> StateUpdate:
@@ -129,8 +155,6 @@ def worktree_sandbox_hook(
 
 
 def verification_passthrough_hook(state: AgentWorkflowState) -> StateUpdate:
-    """Expose deterministic sandbox evaluation to the graph's independent verify node."""
-
     return {
         "verification_score": float(state.get("verification_score", 0.0)),
         "regression_free": bool(state.get("regression_free", False)),
@@ -142,8 +166,6 @@ def draft_pr_gate_hook(
     *,
     minimum_score: float = 0.90,
 ) -> StateUpdate:
-    """Fail-closed delivery gate. This authorizes a Draft PR; it never creates one."""
-
     reasons: list[str] = []
     if not bool(state.get("sandbox_passed", False)):
         reasons.append("sandbox_not_passed")
@@ -153,6 +175,10 @@ def draft_pr_gate_hook(
         reasons.append("verification_score_below_threshold")
     if bool(state.get("dead_lettered", False)):
         reasons.append("dead_lettered")
+    if bool(state.get("repair_requires_human_approval", False)) and not bool(
+        state.get("human_approved", False)
+    ):
+        reasons.append("repair_plan_requires_human_approval")
 
     allowed = not reasons
     return {
@@ -166,8 +192,6 @@ def instrument_hook(
     hook: StateHook,
     registry: MetricsRegistry,
 ) -> StateHook:
-    """Wrap a graph hook with the repository's dependency-free telemetry registry."""
-
     metric = f"langgraph.node.{name}.latency_ms"
 
     def wrapped(state: AgentWorkflowState) -> StateUpdate:
@@ -184,10 +208,27 @@ def instrument_hook(
     return wrapped
 
 
+def otel_instrument_hook(
+    name: str,
+    hook: StateHook,
+    recorder: OpenTelemetryRecorder,
+) -> StateHook:
+    """Wrap one node in an OpenTelemetry span without exporting raw state payloads."""
+
+    def wrapped(state: AgentWorkflowState) -> StateUpdate:
+        with recorder.node_span(
+            name,
+            run_id=str(state.get("run_id", "")),
+            repository=str(state.get("repository", "")),
+            failure_class=str(state.get("failure_class", "")),
+        ):
+            return hook(state)
+
+    return wrapped
+
+
 @dataclass
 class InMemoryDeadLetterSink:
-    """Test/local dead-letter sink; production callers can inject a durable sink hook."""
-
     records: list[dict[str, Any]] = field(default_factory=list)
 
     def hook(self, state: AgentWorkflowState) -> StateUpdate:
@@ -197,8 +238,6 @@ class InMemoryDeadLetterSink:
 
 
 def _dead_letter_record(state: AgentWorkflowState) -> dict[str, Any]:
-    """Return the intentionally small, non-secret DLQ payload."""
-
     return {
         "run_id": state.get("run_id"),
         "repository": state.get("repository"),
@@ -212,13 +251,6 @@ def _dead_letter_record(state: AgentWorkflowState) -> dict[str, Any]:
 
 @dataclass(frozen=True)
 class JsonlDeadLetterSink:
-    """Append-only local durable DLQ suitable for a single-host runner.
-
-    It deliberately stores only bounded metadata, not raw logs, prompts, patches, or
-    credentials. Multi-host production deployments should replace this with a real
-    durable queue or database implementation.
-    """
-
     path: str | Path
 
     def hook(self, state: AgentWorkflowState) -> StateUpdate:
@@ -238,12 +270,6 @@ def budgeted_ai_hook(
     estimated_cost_usd: float,
     calls: int = 1,
 ) -> StateHook:
-    """Annotate an AI-backed hook with usage deltas consumed by the graph runtime.
-
-    The wrapper intentionally does not enforce the budget itself. Enforcement lives in
-    the orchestration layer so all AI providers share one durable budget ledger.
-    """
-
     if calls < 0 or estimated_cost_usd < 0:
         raise ValueError("AI usage estimates must be non-negative")
 
@@ -257,8 +283,6 @@ def budgeted_ai_hook(
 
 
 def compose_hooks(*hooks: Callable[[AgentWorkflowState], StateUpdate]) -> StateHook:
-    """Compose small state hooks without hiding later updates behind framework magic."""
-
     def composed(state: AgentWorkflowState) -> StateUpdate:
         current: dict[str, Any] = dict(state)
         merged: StateUpdate = {}
