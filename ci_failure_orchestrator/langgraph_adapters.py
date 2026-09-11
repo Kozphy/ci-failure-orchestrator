@@ -50,7 +50,9 @@ def repair_plan_prompt(plan: RepairPlan, state: AgentWorkflowState) -> str:
     """Build the provider prompt from the deterministic RepairPlan contract."""
 
     targets = ", ".join(plan.target_files) if plan.target_files else "not specified"
-    verification = ", ".join(step.name for step in plan.verification) or "repository verification suite"
+    verification = ", ".join(
+        f"{step.stage}:{step.scope}" for step in plan.verification
+    ) or "repository verification suite"
     return (
         "Produce exactly one minimal reversible git unified diff for this repair plan.\n"
         "Do not weaken tests, security policy, or verification commands.\n"
