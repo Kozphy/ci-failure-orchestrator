@@ -10,6 +10,8 @@ class AgentWorkflowState(TypedDict, total=False):
     """Serializable state shared by the optional LangGraph control-plane adapter."""
 
     run_id: str
+    repository: str
+    failure_message: str
     failure_class: str
     confidence: float
     retryable: bool
@@ -28,6 +30,13 @@ class AgentWorkflowState(TypedDict, total=False):
     action: str
     reason: str
     audit_events: list[str]
+    ai_calls: int
+    ai_cost_usd: float
+    max_ai_calls: int
+    max_ai_cost_usd: float
+    budget_exhausted: bool
+    dead_lettered: bool
+    dead_letter_reason: str
 
 
 StateUpdate = dict[str, Any]
@@ -41,6 +50,11 @@ class LangGraphHooks:
     The existing deterministic components remain the source of truth. LangGraph only
     coordinates them, which keeps the repository usable without the optional
     ``langgraph`` dependency and avoids framework lock-in.
+
+    Hooks that invoke an AI provider may report ``ai_calls_delta`` and
+    ``ai_cost_usd_delta`` in their returned update. The runtime folds those deltas
+    into durable state and applies the configured fail-closed budget before another
+    autonomous repair attempt is allowed.
     """
 
     diagnose: StateHook
@@ -50,10 +64,35 @@ class LangGraphHooks:
     rollback: StateHook
     audit: StateHook
     approve: StateHook | None = None
+    dead_letter: StateHook | None = None
 
 
 def _append_event(state: AgentWorkflowState, event: str) -> list[str]:
     return [*state.get("audit_events", []), event]
+
+
+def _budget_exhausted(state: AgentWorkflowState) -> bool:
+    calls = int(state.get("ai_calls", 0))
+    cost = float(state.get("ai_cost_usd", 0.0))
+    max_calls = int(state.get("max_ai_calls", 8))
+    max_cost = float(state.get("max_ai_cost_usd", 1.0))
+    return calls >= max_calls or cost >= max_cost
+
+
+def _apply_usage(state: AgentWorkflowState, update: StateUpdate) -> StateUpdate:
+    """Fold hook-reported AI usage deltas into durable workflow state."""
+
+    result = dict(update)
+    calls_delta = int(result.pop("ai_calls_delta", 0))
+    cost_delta = float(result.pop("ai_cost_usd_delta", 0.0))
+    calls = int(state.get("ai_calls", 0)) + calls_delta
+    cost = float(state.get("ai_cost_usd", 0.0)) + cost_delta
+    max_calls = int(state.get("max_ai_calls", 8))
+    max_cost = float(state.get("max_ai_cost_usd", 1.0))
+    result["ai_calls"] = calls
+    result["ai_cost_usd"] = cost
+    result["budget_exhausted"] = calls >= max_calls or cost >= max_cost
+    return result
 
 
 def _policy_node(state: AgentWorkflowState) -> StateUpdate:
@@ -78,6 +117,8 @@ def _policy_node(state: AgentWorkflowState) -> StateUpdate:
 
 
 def _route_policy(state: AgentWorkflowState) -> str:
+    if bool(state.get("budget_exhausted")) or _budget_exhausted(state):
+        return "dead_letter"
     action = state.get("action", Action.ESCALATE.value)
     if action == Action.RETRY.value:
         return "generate_patch"
@@ -96,13 +137,20 @@ def _route_verification(state: AgentWorkflowState) -> str:
     if not bool(state.get("regression_free", True)):
         return "rollback"
 
+    if bool(state.get("budget_exhausted")) or _budget_exhausted(state):
+        return "dead_letter"
+
     if int(state.get("retry_count", 0)) < int(state.get("retry_budget", 2)):
         return "retry"
     return "approval"
 
 
 def _route_approval(state: AgentWorkflowState) -> str:
-    return "generate_patch" if bool(state.get("human_approved")) else "audit"
+    if not bool(state.get("human_approved")):
+        return "audit"
+    if bool(state.get("budget_exhausted")) or _budget_exhausted(state):
+        return "dead_letter"
+    return "generate_patch"
 
 
 def build_control_plane_graph(
@@ -123,25 +171,22 @@ def build_control_plane_graph(
             "LangGraph support is optional. Install with: pip install -e '.[langgraph]'"
         ) from exc
 
-    def diagnose(state: AgentWorkflowState) -> StateUpdate:
-        update = hooks.diagnose(state)
-        update["audit_events"] = _append_event(state, "diagnose")
+    def run_hook(name: str, hook: StateHook, state: AgentWorkflowState) -> StateUpdate:
+        update = _apply_usage(state, hook(state))
+        update["audit_events"] = _append_event(state, name)
         return update
+
+    def diagnose(state: AgentWorkflowState) -> StateUpdate:
+        return run_hook("diagnose", hooks.diagnose, state)
 
     def generate_patch(state: AgentWorkflowState) -> StateUpdate:
-        update = hooks.generate_patch(state)
-        update["audit_events"] = _append_event(state, "generate_patch")
-        return update
+        return run_hook("generate_patch", hooks.generate_patch, state)
 
     def sandbox(state: AgentWorkflowState) -> StateUpdate:
-        update = hooks.sandbox(state)
-        update["audit_events"] = _append_event(state, "sandbox")
-        return update
+        return run_hook("sandbox", hooks.sandbox, state)
 
     def verify(state: AgentWorkflowState) -> StateUpdate:
-        update = hooks.verify(state)
-        update["audit_events"] = _append_event(state, "verify")
-        return update
+        return run_hook("verify", hooks.verify, state)
 
     def retry(state: AgentWorkflowState) -> StateUpdate:
         return {
@@ -150,14 +195,13 @@ def build_control_plane_graph(
         }
 
     def rollback(state: AgentWorkflowState) -> StateUpdate:
-        update = hooks.rollback(state)
+        update = run_hook("rollback", hooks.rollback, state)
         update["action"] = Action.ROLLBACK.value
-        update["audit_events"] = _append_event(state, "rollback")
         return update
 
     def approval(state: AgentWorkflowState) -> StateUpdate:
         if hooks.approve is not None:
-            update = hooks.approve(state)
+            update = _apply_usage(state, hooks.approve(state))
         else:
             try:
                 from langgraph.types import interrupt
@@ -169,6 +213,8 @@ def build_control_plane_graph(
                         "kind": "human_approval",
                         "run_id": state.get("run_id"),
                         "reason": state.get("reason", "policy escalation"),
+                        "ai_calls": int(state.get("ai_calls", 0)),
+                        "ai_cost_usd": float(state.get("ai_cost_usd", 0.0)),
                     }
                 )
             )
@@ -176,10 +222,25 @@ def build_control_plane_graph(
         update["audit_events"] = _append_event(state, "approval")
         return update
 
-    def audit(state: AgentWorkflowState) -> StateUpdate:
-        update = hooks.audit(state)
-        update["audit_events"] = _append_event(state, "audit")
+    def dead_letter(state: AgentWorkflowState) -> StateUpdate:
+        reason = state.get("dead_letter_reason") or "AI invocation budget exhausted"
+        if hooks.dead_letter is not None:
+            update = _apply_usage(state, hooks.dead_letter(state))
+        else:
+            update = {}
+        update.update(
+            {
+                "action": Action.ESCALATE.value,
+                "dead_lettered": True,
+                "dead_letter_reason": reason,
+                "reason": reason,
+                "audit_events": _append_event(state, "dead_letter"),
+            }
+        )
         return update
+
+    def audit(state: AgentWorkflowState) -> StateUpdate:
+        return run_hook("audit", hooks.audit, state)
 
     graph = StateGraph(AgentWorkflowState)
     graph.add_node("diagnose", diagnose)
@@ -190,6 +251,7 @@ def build_control_plane_graph(
     graph.add_node("retry", retry)
     graph.add_node("rollback", rollback)
     graph.add_node("approval", approval)
+    graph.add_node("dead_letter", dead_letter)
     graph.add_node("audit", audit)
 
     graph.add_edge(START, "diagnose")
@@ -201,6 +263,7 @@ def build_control_plane_graph(
             "generate_patch": "generate_patch",
             "rollback": "rollback",
             "approval": "approval",
+            "dead_letter": "dead_letter",
             "audit": "audit",
         },
     )
@@ -214,15 +277,21 @@ def build_control_plane_graph(
             "rollback": "rollback",
             "retry": "retry",
             "approval": "approval",
+            "dead_letter": "dead_letter",
         },
     )
     graph.add_edge("retry", "diagnose")
     graph.add_conditional_edges(
         "approval",
         _route_approval,
-        {"generate_patch": "generate_patch", "audit": "audit"},
+        {
+            "generate_patch": "generate_patch",
+            "dead_letter": "dead_letter",
+            "audit": "audit",
+        },
     )
     graph.add_edge("rollback", "audit")
+    graph.add_edge("dead_letter", "audit")
     graph.add_edge("audit", END)
 
     return graph.compile(checkpointer=checkpointer)
