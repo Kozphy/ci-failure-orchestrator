@@ -16,37 +16,28 @@ class MetricsRegistry:
     observations: dict[str, list[float]] = field(default_factory=lambda: defaultdict(list))
 
     def inc(self, name: str, value: float = 1.0) -> None:
-        """Increment a named counter."""
         self.counters[name] += value
 
     def observe(self, name: str, value: float) -> None:
-        """Record a numeric observation."""
         self.observations[name].append(value)
 
 
 class Timer:
-    """Context manager that records elapsed milliseconds into a registry."""
-
     def __init__(self, registry: MetricsRegistry, metric: str):
-        """Bind *registry* and *metric* name for elapsed-time recording."""
         self.registry = registry
         self.metric = metric
         self.started = 0.0
 
     def __enter__(self) -> "Timer":
-        """Start the timer and return self for use in a with-statement."""
         self.started = perf_counter()
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
-        """Record elapsed milliseconds into the bound registry."""
         self.registry.observe(self.metric, (perf_counter() - self.started) * 1000)
 
 
 @dataclass(frozen=True)
 class RepairRunObservation:
-    """Provider-neutral evidence emitted for one bounded repair attempt."""
-
     repository: str
     failure_class: str
     action: str
@@ -62,8 +53,6 @@ class RepairRunObservation:
 
 @dataclass(frozen=True)
 class ProductionGateTarget:
-    """Quality and safety thresholds required before autonomous rollout."""
-
     minimum_success_rate: float = 0.85
     maximum_false_repair_rate: float = 0.02
     maximum_regression_rate: float = 0.01
@@ -73,8 +62,6 @@ class ProductionGateTarget:
 
 @dataclass(frozen=True)
 class ProductionGateReport:
-    """Aggregated production-readiness result for a benchmark/replay window."""
-
     passed: bool
     observations: int
     success_rate: float
@@ -86,12 +73,10 @@ class ProductionGateReport:
 
 
 def _rate(count: int, total: int) -> float:
-    """Return count/total, or 0.0 when total is zero."""
     return count / total if total else 0.0
 
 
 def _p95(values: list[float]) -> float:
-    """Return the 95th percentile of *values*, or 0.0 when empty."""
     if not values:
         return 0.0
     ordered = sorted(values)
@@ -104,8 +89,6 @@ def evaluate_production_gate(
     *,
     target: ProductionGateTarget | None = None,
 ) -> ProductionGateReport:
-    """Evaluate observed repair behavior against explicit rollout thresholds."""
-
     target = target or ProductionGateTarget()
     total = len(observations)
     success_rate = _rate(sum(item.success for item in observations), total)
@@ -144,20 +127,15 @@ def evaluate_production_gate(
 
 
 class OpenTelemetryRecorder:
-    """Emit repair traces and metrics when the observability extra is installed."""
+    """Emit repair and graph-node traces when the observability extra is installed."""
 
     def __init__(self, service_name: str = "ci-failure-orchestrator") -> None:
-        """Initialise the OpenTelemetry providers, tracer, and metric instruments.
-
-        Raises RuntimeError when the optional ``observability`` dependencies are
-        not installed.
-        """
         try:
             from opentelemetry import metrics, trace
             from opentelemetry.sdk.metrics import MeterProvider
             from opentelemetry.sdk.resources import Resource
             from opentelemetry.sdk.trace import TracerProvider
-        except ImportError as exc:  # pragma: no cover - depends on optional package
+        except ImportError as exc:  # pragma: no cover
             raise RuntimeError(
                 "OpenTelemetry support requires the 'observability' optional dependency"
             ) from exc
@@ -174,10 +152,11 @@ class OpenTelemetryRecorder:
         self._latency = meter.create_histogram("ci_repair_latency_seconds")
         self._escalations = meter.create_counter("ci_repair_human_escalations")
         self._regressions = meter.create_counter("ci_repair_regressions")
+        self._node_runs = meter.create_counter("ci_agent_node_runs")
+        self._node_latency = meter.create_histogram("ci_agent_node_latency_ms")
+        self._node_errors = meter.create_counter("ci_agent_node_errors")
 
     def record(self, observation: RepairRunObservation) -> None:
-        """Emit metrics for one completed repair observation."""
-
         attrs = {
             "repository": observation.repository,
             "failure_class": observation.failure_class,
@@ -194,8 +173,6 @@ class OpenTelemetryRecorder:
 
     @contextmanager
     def repair_span(self, repository: str, failure_class: str) -> Iterator[None]:
-        """Trace a repair attempt without coupling the core to an exporter."""
-
         started = perf_counter()
         with self._tracer.start_as_current_span("ci.repair") as span:
             span.set_attribute("ci.repository", repository)
@@ -204,3 +181,37 @@ class OpenTelemetryRecorder:
                 yield
             finally:
                 span.set_attribute("ci.duration_seconds", perf_counter() - started)
+
+    @contextmanager
+    def node_span(
+        self,
+        node: str,
+        *,
+        run_id: str = "",
+        repository: str = "",
+        failure_class: str = "",
+    ) -> Iterator[None]:
+        """Trace one LangGraph/control-plane node without recording raw payloads."""
+
+        started = perf_counter()
+        attrs = {
+            "ci.agent.node": node,
+            "ci.run_id": run_id,
+            "ci.repository": repository,
+            "ci.failure_class": failure_class,
+        }
+        self._node_runs.add(1, attrs)
+        with self._tracer.start_as_current_span(f"ci.agent.{node}") as span:
+            for key, value in attrs.items():
+                if value:
+                    span.set_attribute(key, value)
+            try:
+                yield
+            except Exception as exc:
+                self._node_errors.add(1, attrs)
+                span.set_attribute("ci.error.type", type(exc).__name__)
+                raise
+            finally:
+                elapsed_ms = (perf_counter() - started) * 1000.0
+                self._node_latency.record(elapsed_ms, attrs)
+                span.set_attribute("ci.duration_ms", elapsed_ms)
