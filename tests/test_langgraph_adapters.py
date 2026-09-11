@@ -4,9 +4,14 @@ from ci_failure_orchestrator.langgraph_adapters import (
     InMemoryDeadLetterSink,
     budgeted_ai_hook,
     classifier_diagnose_hook,
+    draft_pr_gate_hook,
     instrument_hook,
+    repair_plan_prompt,
+    repair_plan_to_state,
 )
+from ci_failure_orchestrator.repair_planner import RepairPlan
 from ci_failure_orchestrator.telemetry import MetricsRegistry
+from ci_failure_orchestrator.verification import VerificationStep
 
 
 def test_classifier_adapter_uses_existing_classifier() -> None:
@@ -67,3 +72,66 @@ def test_dead_letter_sink_captures_governance_context() -> None:
             "reason": "budget exhausted",
         }
     ]
+
+
+def _sample_plan(*, approval: bool = False) -> RepairPlan:
+    return RepairPlan(
+        root_stage="test",
+        hypothesis="TEST_ASSERTION at test is the leading root-cause hypothesis",
+        target_files=("src/example.py",),
+        proposed_change="repair the smallest failing assertion path",
+        verification=(
+            VerificationStep("test", "targeted", "verify root fix"),
+            VerificationStep("*", "full-pipeline", "guard regressions"),
+        ),
+        risk="high" if approval else "medium",
+        requires_human_approval=approval,
+    )
+
+
+def test_repair_plan_prompt_uses_formal_plan_contract() -> None:
+    plan = _sample_plan()
+    prompt = repair_plan_prompt(plan, {"failure_message": "expected 2 got 3"})
+
+    assert "Root stage: test" in prompt
+    assert "Target files: src/example.py" in prompt
+    assert "Required verification: test:targeted, *:full-pipeline" in prompt
+    assert "Failure message: expected 2 got 3" in prompt
+    assert "Do not weaken tests" in prompt
+
+
+def test_repair_plan_state_preserves_approval_boundary() -> None:
+    update = repair_plan_to_state(_sample_plan(approval=True))
+
+    assert update["repair_risk"] == "high"
+    assert update["repair_requires_human_approval"] is True
+
+
+def test_draft_pr_gate_blocks_unapproved_high_risk_plan() -> None:
+    state = {
+        "sandbox_passed": True,
+        "regression_free": True,
+        "verification_score": 1.0,
+        "repair_requires_human_approval": True,
+        "human_approved": False,
+    }
+
+    result = draft_pr_gate_hook(state)
+
+    assert result["draft_pr_allowed"] is False
+    assert "repair_plan_requires_human_approval" in result["delivery_gate_reasons"]
+
+
+def test_draft_pr_gate_allows_approved_high_risk_plan() -> None:
+    state = {
+        "sandbox_passed": True,
+        "regression_free": True,
+        "verification_score": 1.0,
+        "repair_requires_human_approval": True,
+        "human_approved": True,
+    }
+
+    result = draft_pr_gate_hook(state)
+
+    assert result["draft_pr_allowed"] is True
+    assert result["delivery_gate_reasons"] == []
