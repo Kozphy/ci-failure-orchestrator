@@ -1,0 +1,49 @@
+name: Multi Review Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review-policy-gate:
+    name: review-policy-gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install project
+        run: python -m pip install -e .
+
+      - name: Require externally collected review evidence
+        shell: bash
+        run: |
+          mkdir -p .review-evidence
+          # Provider integrations must replace/populate these artifacts before
+          # enforcement is enabled. We intentionally fail closed rather than
+          # manufacturing a green review result.
+          test -f .review-evidence/coderabbit.json
+          test -f .review-evidence/copilot.json
+          test -f .review-evidence/sonarqube.json
+          test -f .review-evidence/independent_verification.json
+
+      - name: Evaluate review policy
+        run: |
+          python -m ci_failure_orchestrator.review_check \
+            --evidence-dir .review-evidence \
+            --output review-policy-decision.json
+
+      - name: Upload decision evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-policy-decision
+          path: review-policy-decision.json
+          if-no-files-found: warn
