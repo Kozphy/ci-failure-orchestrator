@@ -11,6 +11,8 @@ from .causal import infer_causal_edges
 from .verification import plan_verification
 from .github_ingest import stages_from_jobs, failures_from_jobs
 from .github_client import GitHubActionsClient
+from .repository_analysis import analyze_repository
+from .pr_analysis import analyze_pull_request
 
 
 def _dump(value):
@@ -66,6 +68,32 @@ def cmd_analyze_run(args):
     return _analyze_jobs(evidence.jobs, evidence.logs, args.audit, event="github_workflow_run_analyzed")
 
 
+def cmd_analyze_repo(args):
+    client = GitHubActionsClient(token=args.token, api_url=args.api_url, timeout=args.timeout)
+    evidence = client.collect_repository(args.repo, ref=args.ref)
+    result = analyze_repository(evidence)
+    _dump(result)
+    if args.audit:
+        HashChainedAuditLog(args.audit).append("github_repository_analyzed", result)
+    return 0 if result["repo_status"] == "REPO_HEALTHY" else 2
+
+
+def cmd_analyze_pr(args):
+    client = GitHubActionsClient(token=args.token, api_url=args.api_url, timeout=args.timeout)
+    evidence = client.collect_pull_request(args.repo, args.pr)
+    result = analyze_pull_request(evidence)
+    _dump(result)
+    if args.audit:
+        HashChainedAuditLog(args.audit).append("github_pull_request_analyzed", result)
+    return 0 if result["pr_decision"] == "PR_READY" else 2
+
+
+def _add_github_connection_args(parser):
+    parser.add_argument("--token", help="GitHub token; defaults to GITHUB_TOKEN")
+    parser.add_argument("--api-url", default="https://api.github.com", help="GitHub API base URL")
+    parser.add_argument("--timeout", type=float, default=30.0, help="HTTP timeout in seconds")
+
+
 def build_parser():
     parser = argparse.ArgumentParser(prog="ci-orchestrator")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -89,12 +117,24 @@ def build_parser():
     analyze_run = sub.add_parser("analyze-run", help="Fetch and analyze a GitHub Actions workflow run")
     analyze_run.add_argument("--repo", required=True, help="Repository in owner/name format")
     analyze_run.add_argument("--run-id", required=True, type=int, help="GitHub Actions workflow run ID")
-    analyze_run.add_argument("--token", help="GitHub token; defaults to GITHUB_TOKEN")
-    analyze_run.add_argument("--api-url", default="https://api.github.com", help="GitHub API base URL")
-    analyze_run.add_argument("--timeout", type=float, default=30.0, help="HTTP timeout in seconds")
+    _add_github_connection_args(analyze_run)
     analyze_run.add_argument("--no-logs", action="store_true", help="Skip failed-job log downloads")
     analyze_run.add_argument("--audit")
     analyze_run.set_defaults(func=cmd_analyze_run)
+
+    analyze_repo = sub.add_parser("analyze-repo", help="Analyze repository-wide CI, test, build, and governance evidence")
+    analyze_repo.add_argument("--repo", required=True, help="Repository in owner/name format")
+    analyze_repo.add_argument("--ref", help="Branch or ref to inspect; defaults to repository default branch")
+    _add_github_connection_args(analyze_repo)
+    analyze_repo.add_argument("--audit")
+    analyze_repo.set_defaults(func=cmd_analyze_repo)
+
+    analyze_pr = sub.add_parser("analyze-pr", help="Evaluate pull-request change risk, reviews, and exact-head CI evidence")
+    analyze_pr.add_argument("--repo", required=True, help="Repository in owner/name format")
+    analyze_pr.add_argument("--pr", required=True, type=int, help="Pull request number")
+    _add_github_connection_args(analyze_pr)
+    analyze_pr.add_argument("--audit")
+    analyze_pr.set_defaults(func=cmd_analyze_pr)
     return parser
 
 
