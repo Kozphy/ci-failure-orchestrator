@@ -1,0 +1,15 @@
+{
+  "settings": {"restricted_external_decision": "REQUIRE_APPROVAL"},
+  "rules": [
+    {"id": "UNKNOWN_PROVIDER_DESTRUCTIVE", "when": {"provider_known": false, "destructive": true}, "decision": "DENY", "severity": "critical", "reason": "Provider trust metadata is unavailable for a destructive operation."},
+    {"id": "DESTRUCTIVE_ACTION", "when": {"destructive": true}, "decision": "REQUIRE_APPROVAL", "severity": "high", "reason": "Destructive operations require explicit human approval."},
+    {"id": "UNKNOWN_CLASSIFICATION_SENSITIVE", "when": {"classification": "UNKNOWN", "operation_in": ["write", "delete", "execute"]}, "decision": "REQUIRE_APPROVAL", "severity": "high", "reason": "Sensitive operation has no established data classification."},
+    {"id": "UNKNOWN_PROVIDER", "when": {"provider_known": false}, "decision": "REQUIRE_APPROVAL", "severity": "medium", "reason": "Provider trust metadata is unavailable."},
+    {"id": "RESTRICTED_EXTERNAL_PROVIDER", "when": {"classification": "RESTRICTED", "external_provider": true, "data_leaves_host": true}, "decision_from_setting": "restricted_external_decision", "severity": "high", "reason": "Restricted data would leave the current host trust boundary."},
+    {"id": "DATA_RESIDENCY_MISMATCH", "when": {"classification_in": ["CONFIDENTIAL", "RESTRICTED"], "external_provider": true, "residency_aligned": false}, "decision": "REQUIRE_APPROVAL", "severity": "high", "reason": "Destination jurisdiction does not match the requested data residency."},
+    {"id": "EXTERNAL_NETWORK_UNVERIFIED", "when": {"external_provider": true, "network_ready": false}, "decision": "REQUIRE_APPROVAL", "severity": "medium", "reason": "Required external network capability is not verified."},
+    {"id": "CONFIDENTIAL_LOCAL", "when": {"classification": "CONFIDENTIAL", "external_provider": false, "data_leaves_host": false}, "decision": "ALLOW", "severity": "low", "reason": "Confidential data remains on the local host."},
+    {"id": "PUBLIC_KNOWN_PROVIDER", "when": {"classification": "PUBLIC", "provider_known": true}, "decision": "ALLOW", "severity": "low", "reason": "Public data uses a configured provider."},
+    {"id": "DEFAULT_REVIEW", "when": {}, "decision": "REQUIRE_APPROVAL", "severity": "medium", "reason": "No explicit automated-allow policy matched."}
+  ]
+}

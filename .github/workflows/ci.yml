@@ -16,6 +16,30 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: python -m pip install -e '.[dev]'
+      - name: Trust control-plane lint
+        run: >-
+          python -m ruff check
+          ci_failure_orchestrator/audit.py
+          ci_failure_orchestrator/cli.py
+          ci_failure_orchestrator/network_discovery.py
+          ci_failure_orchestrator/provenance.py
+          ci_failure_orchestrator/trust.py
+          ci_failure_orchestrator/trust_gateway.py
+          ci_failure_orchestrator/trust_policy.py
+          tests/test_network_discovery.py
+          tests/test_trust_gateway.py
+          tests/test_trust_policy.py
+      - name: Trust control-plane type check
+        run: >-
+          python -m mypy --follow-imports=skip
+          ci_failure_orchestrator/audit.py
+          ci_failure_orchestrator/network_discovery.py
+          ci_failure_orchestrator/provenance.py
+          ci_failure_orchestrator/trust.py
+          ci_failure_orchestrator/trust_gateway.py
+          ci_failure_orchestrator/trust_policy.py
+      - name: Trust control-plane integration tests
+        run: python -m pytest tests/test_trust_gateway.py tests/test_trust_policy.py tests/test_network_discovery.py
       - name: Tests with coverage
         run: python -m pytest --cov=ci_failure_orchestrator --cov-report=term-missing --cov-report=xml
       - name: Emit test evidence fragment

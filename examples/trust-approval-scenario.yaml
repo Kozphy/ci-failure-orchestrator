@@ -1,0 +1,29 @@
+prompt: Propose a destructive external write.
+workspace: .
+max_attempts: 1
+proposals:
+  - proposal_id: approval-1
+    problem: Fixture should not be mutated without approval.
+    tool: file.repair
+    operation: delete
+    arguments:
+      path: examples/trust-target.txt
+      strategy: replace_text
+      old: BROKEN
+      new: FIXED
+    expected_effect: Would mutate the sandbox copy only after approval.
+    risk_level: high
+    rollback: Discard the temporary workspace.
+    verification:
+      - name: marker_repaired
+        type: file_contains
+        path: examples/trust-target.txt
+        value: FIXED
+    provider: openai
+    data_classification: PUBLIC
+    destination_host: api.openai.com
+    destructive: true
+    package_name: ci-failure-orchestrator
+    estimated_cost: 0
+    reason_for_retry: null
+    changed_assumption: null

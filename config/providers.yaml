@@ -1,0 +1,11 @@
+{
+  "providers": {
+    "openai": {"company": "OpenAI", "service_type": "llm", "jurisdictions": ["US"], "data_residency_configurable": true, "external_provider": true, "data_leaves_host": true, "known_endpoints": ["api.openai.com"]},
+    "azure_openai": {"company": "Microsoft", "service_type": "managed_llm", "jurisdictions": [], "data_residency_configurable": true, "external_provider": true, "data_leaves_host": true, "known_endpoints": []},
+    "deepseek": {"company": "DeepSeek", "service_type": "llm", "jurisdictions": ["CN"], "data_residency_configurable": false, "external_provider": true, "data_leaves_host": true, "known_endpoints": ["api.deepseek.com"]},
+    "local_ollama": {"company": "Local operator", "service_type": "local_llm", "jurisdictions": [], "data_residency_configurable": true, "external_provider": false, "data_leaves_host": false, "known_endpoints": ["localhost"]},
+    "github": {"company": "GitHub", "service_type": "source_control", "jurisdictions": ["US"], "data_residency_configurable": false, "external_provider": true, "data_leaves_host": true, "known_endpoints": ["api.github.com"]},
+    "azure": {"company": "Microsoft", "service_type": "cloud", "jurisdictions": [], "data_residency_configurable": true, "external_provider": true, "data_leaves_host": true, "known_endpoints": []},
+    "aws": {"company": "Amazon Web Services", "service_type": "cloud", "jurisdictions": [], "data_residency_configurable": true, "external_provider": true, "data_leaves_host": true, "known_endpoints": []}
+  }
+}
