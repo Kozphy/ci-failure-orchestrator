@@ -1,0 +1,67 @@
+.github/workflows/ci.yml
+  s_99a7eafd4dfff2::t_95e3a7a1cffd97 19-42
+.gitignore
+  s_99a7eafd4dfff2::t_38dcce4e03e474 4-5,9
+ci_failure_orchestrator/audit.py
+  s_99a7eafd4dfff2::t_c7bd2ce36f7aec 5-6,11-30,43-50,52-55,57-58
+ci_failure_orchestrator/network_discovery.py
+  s_99a7eafd4dfff2::t_65ba51fa9427d6 1-80
+ci_failure_orchestrator/provenance.py
+  s_99a7eafd4dfff2::t_e05e17619febda 1-66
+ci_failure_orchestrator/trust.py
+  s_99a7eafd4dfff2::t_e97f1346ef322c 1-168
+ci_failure_orchestrator/trust_gateway.py
+  s_99a7eafd4dfff2::t_02a2d2ce80ce3d 1-533
+ci_failure_orchestrator/trust_policy.py
+  s_99a7eafd4dfff2::t_6c39fe0d3c86ce 1-99
+config/policies.yaml
+  s_99a7eafd4dfff2::t_625091dd176b7a 1-15
+config/providers.yaml
+  s_99a7eafd4dfff2::t_795c525ce8a3b1 1-11
+docs/trust-control-plane-design.md
+  s_99a7eafd4dfff2::t_4dca10501c5fa3 1-54
+evidence/.gitkeep
+  s_99a7eafd4dfff2::t_5ab819c9f0c03d 1
+examples/trust-scenario.yaml
+  s_99a7eafd4dfff2::t_dd9c9cf113d855 1-29
+examples/trust-target.txt
+  s_99a7eafd4dfff2::t_6b39d797b77f6e 1
+pyproject.toml
+  s_99a7eafd4dfff2::t_e0c2a0e7bc895e 11,14,28-35
+tests/test_network_discovery.py
+  s_99a7eafd4dfff2::t_ab3c0eef4a4471 1-76
+tests/test_trust_gateway.py
+  s_99a7eafd4dfff2::t_8e8c2de91fed8a 1-185
+tests/test_trust_policy.py
+  s_99a7eafd4dfff2::t_bd2f3e842e90cb 1-103
+README.md
+  s_a14a678ee2a2c0::t_accc74dbb2f0a4 211-228
+ci_failure_orchestrator/cli.py
+  s_a14a678ee2a2c0::t_1e9aefe1c1d761 2,5,7-9,11,14-15,17-18,20-30,87-149,179-187
+examples/trust-approval-scenario.yaml
+  s_a14a678ee2a2c0::t_970bd80bc3e085 1-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "275c5c9b8ff0b663fc07701867fb352114c4e429",
+  "prompts": {},
+  "sessions": {
+    "s_99a7eafd4dfff2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09b36-14cf-7f42-9498-279252d010c1",
+        "model": "unknown"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_a14a678ee2a2c0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ba1c70df-c5eb-4e2e-83d8-761be607c5b1",
+        "model": "unknown"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
