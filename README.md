@@ -1,4 +1,67 @@
-# CI Failure Orchestrator
+# Agent Reliability Harness
+
+The toolkit uses AI only as a bounded diagnosis and repair-proposal layer.
+Deterministic policy, remediation, verification, rollback, human approval, and
+audit controls retain execution authority.
+
+Evidence
+  ↓
+LLM Diagnosis
+  ↓
+Repair Proposal
+  ↓
+Policy
+  ↓
+Preview / Sandbox
+  ↓
+Verification
+  ↓
+Retry / Escalate
+  ↓
+Audit
+
+Stage to source mapping (existing paths only):
+
+- Evidence / deterministic diagnosis
+  - `ci_failure_orchestrator/classifier.py`
+  - `ci_failure_orchestrator/graph.py`
+  - `ci_failure_orchestrator/ranker.py`
+  - `ci_failure_orchestrator/causal.py`
+- LLM diagnosis / repair proposal (bounded, provider-neutral)
+  - `ci_failure_orchestrator/model_client.py`
+  - `ci_failure_orchestrator/repair_proposal.py`
+- Policy gate
+  - `ci_failure_orchestrator/proposal_policy.py`
+  - `ci_failure_orchestrator/policy.py`
+  - `ci_failure_orchestrator/supervisor.py`
+- Preview / sandbox / safe execution
+  - `ci_failure_orchestrator/repair.py`
+  - `ci_failure_orchestrator/patch_sandbox.py`
+  - `ci_failure_orchestrator/repair_execution.py`
+- Verification
+  - `ci_failure_orchestrator/verification.py`
+  - `ci_failure_orchestrator/repair_plan_evaluator.py`
+- Retry / escalation
+  - `ci_failure_orchestrator/escalation.py`
+  - `ci_failure_orchestrator/agent_loop.py`
+  - `ci_failure_orchestrator/repair_state_machine.py`
+- Audit
+  - `ci_failure_orchestrator/audit.py`
+  - `ci_failure_orchestrator/evidence_signing.py`
+  - `ci_failure_orchestrator/production_evidence.py`
+
+The LLM proposes. The deterministic system verifies. The policy gate decides.
+The human retains authority. The audit trail proves what happened.
+
+## Demo
+
+```bash
+python -m ci_failure_orchestrator.agent_demo
+python -m ci_failure_orchestrator.agent_demo --audit /tmp/agent_demo.audit.jsonl
+```
+
+The demo is non-destructive. It exercises the bounded harness with a deterministic
+fixture model and emits an optional append-only, hash-chained audit record.
 
 **v1.1 agentic CI reliability control plane** for dependency-aware diagnosis, bounded autonomous repair, multi-provider worker routing, candidate tournaments, persistent failure memory, independent evaluation, fleet policy, SLO/error-budget control, canary rollout, benchmarking, dashboard telemetry, human escalation, and tamper-evident production proof.
 
