@@ -69,7 +69,7 @@ jobs:
         run: |
           mkdir -p .promotion
           printf '{"revision":"%s","stage":"canary","status":"PASS"}\n' "${{ steps.rev.outputs.REV }}" > .promotion/canary.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: canary-evidence-${{ steps.rev.outputs.REV }}
           path: .promotion/canary.json
@@ -100,7 +100,7 @@ jobs:
         run: |
           mkdir -p .promotion
           printf '{"revision":"%s","stage":"production","status":"PROMOTED"}\n' "${{ steps.rev.outputs.REV }}" > .promotion/production.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: production-evidence-${{ steps.rev.outputs.REV }}
           path: .promotion/production.json
