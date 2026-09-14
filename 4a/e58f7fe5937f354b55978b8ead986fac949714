@@ -1,0 +1,46 @@
+ci_failure_orchestrator/task_idempotency.py
+  s_a14a678ee2a2c0::t_3e9ed21fe8ebe3 1-351
+docs/AUTONOMOUS-REPAIR-LOOP.md
+  s_a14a678ee2a2c0::t_c20005b8670ad7 12-14
+  s_a14a678ee2a2c0::t_301c0ec6e12aa4 55-74
+docs/AGENT-ROUTING-AND-TELEMETRY.md
+  s_a14a678ee2a2c0::t_2ee63dc6232674 12-13,36-39
+tests/test_task_idempotency.py
+  s_a14a678ee2a2c0::t_c3027a4e9d0e46 1-79,83-88,93,96,100,113-117,127-203
+  s_a14a678ee2a2c0::t_e154b9ccc606c4 80-82,89-92,94-95,97-99,101-112,118-126
+ci_failure_orchestrator/github_repair_adapter.py
+  s_a14a678ee2a2c0::t_b23a926c7178d5 20,37
+  s_a14a678ee2a2c0::t_283ec2688d35fd 127-136,145
+  s_a14a678ee2a2c0::t_b5982689ad3add 36,38-41,50
+README.md
+  s_a14a678ee2a2c0::t_9619cc4b2d0f80 313-314
+docs/ai-first-development-loop.md
+  s_a14a678ee2a2c0::t_dc98c5f846515c 64,78-79
+tests/test_agent_router.py
+  s_a14a678ee2a2c0::t_8eb52df4e0ebab 20
+docs/AUTONOMOUS-RUNTIME.md
+  s_a14a678ee2a2c0::t_96cc48814fab88 46-49
+docs/L45-RELIABILITY-RUNTIME.md
+  s_a14a678ee2a2c0::t_86acc89e46af70 40
+ci_failure_orchestrator/repair_state_machine.py
+  s_a14a678ee2a2c0::t_d3883922ef82a7 252-269
+  s_a14a678ee2a2c0::t_af469ac11232d7 183-190
+  s_a14a678ee2a2c0::t_1929a5f9c2d188 10,14,18,198
+  s_a14a678ee2a2c0::t_1311619c6c0168 157-158,161-182,191-197
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4ae58f7fe5937f354b55978b8ead986fac949714",
+  "prompts": {},
+  "sessions": {
+    "s_a14a678ee2a2c0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ba1c70df-c5eb-4e2e-83d8-761be607c5b1",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
