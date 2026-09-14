@@ -1,0 +1,29 @@
+prompt: Repair the broken fixture token.
+workspace: .
+max_attempts: 2
+proposals:
+  - proposal_id: demo-1
+    problem: Fixture contains a broken token.
+    tool: file.repair
+    operation: write
+    arguments:
+      path: examples/trust-target.txt
+      strategy: replace_text
+      old: BROKEN
+      new: FIXED
+    expected_effect: Replace the broken marker in the sandbox copy.
+    risk_level: low
+    rollback: Discard the temporary workspace.
+    verification:
+      - name: marker_repaired
+        type: file_contains
+        path: examples/trust-target.txt
+        value: FIXED
+    provider: local_ollama
+    data_classification: CONFIDENTIAL
+    destination_host: null
+    destructive: false
+    package_name: ci-failure-orchestrator
+    estimated_cost: 0
+    reason_for_retry: null
+    changed_assumption: null

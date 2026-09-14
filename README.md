@@ -208,7 +208,24 @@ ci-orchestrator analyze \
 
 The analysis returns the most likely `root_cause`, ranked candidate causes, inferred causal edges, and a verification plan describing what should be checked next.
 
-### 6. Run the test suite before making changes
+### 6. Run a policy-gated trust scenario
+
+Use `trust-run` for the policy-driven tool gateway: an LLM/tool proposal builds trust context, evaluates configuration-driven policy, sandboxes allowed actions, retries within budget, and writes hash-chained evidence.
+
+```bash
+ci-orchestrator trust-run --scenario examples/trust-scenario.yaml --audit evidence/audit.jsonl
+```
+
+Destructive or restricted external proposals pause until approval is explicit:
+
+```bash
+ci-orchestrator trust-run --scenario examples/trust-approval-scenario.yaml
+ci-orchestrator trust-run --scenario examples/trust-approval-scenario.yaml --approved
+```
+
+Design notes: `docs/trust-control-plane-design.md`. Provider and policy config live in `config/providers.yaml` and `config/policies.yaml`.
+
+### 7. Run the test suite before making changes
 
 ```bash
 pytest
