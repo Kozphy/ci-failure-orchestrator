@@ -37,6 +37,7 @@ Telemetry + SLO Evidence
 - Provider-neutral telemetry metrics.
 - SLO snapshot for success rate, p95 latency, and DLQ rate.
 - SQLite remains the dependency-free local durable store.
+- `AgentTask.idempotency_key` plus `SQLiteCompletionLedger` / `IdempotentTaskDeliverer` so accepted side effects run at most once under duplicate or crash redelivery.
 
 ## Production adapters still required
 

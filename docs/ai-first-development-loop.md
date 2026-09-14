@@ -61,6 +61,7 @@ Every autonomous task should be normalized before execution:
 ```text
 AgentTask =
 TASK_ID
++ IDEMPOTENCY_KEY
 + GOAL
 + ACCEPTANCE_CRITERIA
 + ALLOWED_PATHS
@@ -73,6 +74,8 @@ TASK_ID
 + REQUIRED_GATES
 + ESCALATION_POLICY
 ```
+
+`IDEMPOTENCY_KEY` is mandatory. Delivery must go through the durable completion ledger so at-least-once redelivery cannot apply the accepted side effect twice.
 
 An ambiguous task fails closed or escalates instead of granting the worker unlimited repository scope.
 

@@ -43,6 +43,10 @@ resume       human/RCA
 
 `approval_required()` makes production, destructive and high-risk changes explicit approval boundaries.
 
+## Idempotent task execution
+
+Every `AgentTask` includes a required `idempotency_key`. Durable completion records live in `SQLiteCompletionLedger` (`task_completions` table). `IdempotentTaskDeliverer.deliver()` claims a key with a lease, executes the accepted side effect at most once, then stores the result. Duplicate delivery replays the stored result. Concurrent claimants lose with `DeliveryConflictError` while a lease is active. A worker crash before completion expires the lease so redelivery can reclaim safely; a crash after completion causes pure replay.
+
 ## Production migration path
 
 SQLite is the local and portfolio reference implementation, not the final distributed backend. For multi-repository/fleet deployment, preserve the runtime API and replace the storage/queue layer with:

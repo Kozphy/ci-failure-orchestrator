@@ -310,6 +310,8 @@ SupervisorPolicy
         ↓
 AgentTask contract
         ↓
+Idempotent Task Delivery (completion ledger)
+        ↓
 Agent Router
  ├─ Copilot / coding agent
  ├─ OpenAI worker

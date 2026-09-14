@@ -9,7 +9,9 @@ FailedCheck normalization
         ↓
 SupervisorPolicy
         ↓
-AgentTask
+AgentTask (+ idempotency_key)
+        ↓
+Idempotent delivery / completion ledger
         ↓
 RepairIncident state machine
         ↓
@@ -50,6 +52,26 @@ Critical or exhausted budget → DENIED
 5. A red rerun may retry only while the supervisor budget remains available.
 6. Green CI is not sufficient if the policy gate requires human review.
 7. Every lifecycle transition is recorded with a SHA-256 digest.
+8. Every `AgentTask` carries an `idempotency_key`; accepted worker side effects run at most once per key via the durable completion ledger.
+
+## Idempotent task delivery
+
+At-least-once queues may deliver the same logical task more than once. The control plane treats that as expected:
+
+```text
+AgentTask(idempotency_key)
+        ↓
+SQLiteCompletionLedger.claim_or_replay
+   ├─ completed → replay stored WorkerResult (no side effect)
+   ├─ active foreign lease → DeliveryConflictError
+   └─ claim / reclaim after crash
+            ↓
+     accepted side effect once
+            ↓
+     ledger.complete(result)
+```
+
+`RepairCoordinator.deliver_idempotent()` is the integration point: it routes the worker callback through `IdempotentTaskDeliverer` and only advances incident state from `PLANNED` using the first or replayed result. Concurrent duplicate delivery and worker crash + redelivery are covered by unit tests against the ledger.
 
 ## Provider adapters
 

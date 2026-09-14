@@ -9,6 +9,8 @@ SupervisorDecision
         ↓
 AgentTask
         ↓
+Idempotent delivery (completion ledger)
+        ↓
 Agent Router
  ├─ provider A / worker 1
  ├─ provider B / worker 2
@@ -30,6 +32,10 @@ Verification / rerun
         ↓
 GREEN / REVIEW / ESCALATE
 ```
+
+## Idempotency
+
+Each `AgentTask` has an `idempotency_key`. The durable completion ledger records claim → complete transitions so duplicate or concurrent delivery cannot execute the accepted worker side effect twice. Crash before completion releases the lease for reclaim; crash after completion yields replay-only delivery.
 
 ## Routing policy
 

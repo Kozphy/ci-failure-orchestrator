@@ -7,14 +7,15 @@ success, denial, review requirements, or exhausted budgets.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 from hashlib import sha256
 from json import dumps
-from typing import Iterable
+from typing import Callable, Iterable
 
 from .github_repair_adapter import AgentTask, FailedCheck, GitHubRepairPlan, build_repair_plan
 from .supervisor import RepairAuthority, SupervisorPolicy
+from .task_idempotency import DeliveryOutcome, IdempotentTaskDeliverer
 
 
 class RepairState(str, Enum):
@@ -153,7 +154,47 @@ class RepairCoordinator:
 
         if incident.state is not RepairState.PLANNED:
             raise RuntimeError("incident must be planned before dispatch")
+        if not task.idempotency_key:
+            raise ValueError("AgentTask.idempotency_key is required before dispatch")
         incident.transition(RepairState.DISPATCHED, task.authority.value)
+
+    def deliver_idempotent(
+        self,
+        incident: RepairIncident,
+        task: AgentTask,
+        side_effect: Callable[[AgentTask], WorkerResult],
+        deliverer: IdempotentTaskDeliverer,
+    ) -> DeliveryOutcome[WorkerResult]:
+        """Dispatch a worker through the durable completion ledger.
+
+        The accepted side effect (``side_effect``) runs at most once per
+        ``task.idempotency_key``. Duplicate or post-crash redelivery replays the
+        stored ``WorkerResult`` without invoking the side effect again.
+        """
+
+        if not task.idempotency_key:
+            raise ValueError("AgentTask.idempotency_key is required")
+
+        def _accepted_side_effect(bound_task: AgentTask) -> dict:
+            result = side_effect(bound_task)
+            return asdict(result)
+
+        outcome = deliverer.deliver(task, _accepted_side_effect)
+        worker_result = _worker_result_from_payload(outcome.result)
+
+        # Advance incident only when still awaiting dispatch (first success or
+        # crash after ledger completion but before local state transition).
+        if incident.state is RepairState.PLANNED:
+            self.dispatch(incident, task)
+            self.accept_worker_result(incident, worker_result)
+
+        return DeliveryOutcome(
+            idempotency_key=outcome.idempotency_key,
+            executed=outcome.executed,
+            replayed=outcome.replayed,
+            result=worker_result,
+            status=outcome.status,
+        )
 
     def accept_worker_result(self, incident: RepairIncident, result: WorkerResult) -> None:
         """Apply worker accounting and move to independent verification."""
@@ -208,3 +249,21 @@ def verify_transition_chain(transitions: Iterable[Transition]) -> bool:
             return False
         previous = transition.sequence
     return True
+
+
+def _worker_result_from_payload(payload: object) -> WorkerResult:
+    """Rehydrate a ``WorkerResult`` from ledger JSON (lists → tuples)."""
+
+    if isinstance(payload, WorkerResult):
+        return payload
+    if not isinstance(payload, dict):
+        raise TypeError(f"expected WorkerResult payload dict, got {type(payload)!r}")
+    return WorkerResult(
+        patch_proposed=bool(payload["patch_proposed"]),
+        changed_paths=tuple(payload.get("changed_paths") or ()),
+        changed_lines=int(payload.get("changed_lines") or 0),
+        cost_usd=float(payload.get("cost_usd") or 0.0),
+        regression_detected=bool(payload.get("regression_detected") or False),
+        test_weakening_detected=bool(payload.get("test_weakening_detected") or False),
+        security_finding=bool(payload.get("security_finding") or False),
+    )

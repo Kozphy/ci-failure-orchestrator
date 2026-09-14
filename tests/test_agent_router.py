@@ -17,6 +17,7 @@ def _task() -> AgentTask:
         required_gates=("targeted_tests",),
         forbidden_actions=("disable_required_checks",),
         evidence=("job=test",),
+        idempotency_key="test-idempotency-key-lint-1",
     )
 
 

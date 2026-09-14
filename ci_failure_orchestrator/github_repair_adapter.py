@@ -17,6 +17,7 @@ from .supervisor import (
     SupervisorPolicy,
     evaluate_repair,
 )
+from .task_idempotency import derive_idempotency_key
 
 
 @dataclass(frozen=True)
@@ -32,7 +33,12 @@ class FailedCheck:
 
 @dataclass(frozen=True)
 class AgentTask:
-    """Bounded task contract passed to a repair worker."""
+    """Bounded task contract passed to a repair worker.
+
+    ``idempotency_key`` uniquely identifies the logical delivery unit. At-least-
+    once workers must route side effects through ``IdempotentTaskDeliverer`` so
+    duplicate delivery cannot apply the accepted side effect twice.
+    """
 
     objective: str
     failure_class: str
@@ -41,6 +47,7 @@ class AgentTask:
     required_gates: tuple[str, ...]
     forbidden_actions: tuple[str, ...]
     evidence: tuple[str, ...]
+    idempotency_key: str
 
 
 @dataclass(frozen=True)
@@ -117,6 +124,16 @@ def build_repair_plan(
         "Determine the root cause and propose the smallest safe repair. "
         "Do not weaken tests, checks, security controls, or policy to obtain green CI."
     )
+    idempotency_key = derive_idempotency_key(
+        check.workflow,
+        check.job,
+        check.failed_step,
+        failure_class,
+        decision.authority.value,
+        attempt,
+        check.changed_paths,
+        evidence,
+    )
     task = AgentTask(
         objective=objective,
         failure_class=failure_class,
@@ -125,6 +142,7 @@ def build_repair_plan(
         required_gates=decision.required_gates,
         forbidden_actions=decision.forbidden_actions,
         evidence=evidence,
+        idempotency_key=idempotency_key,
     )
     return GitHubRepairPlan(
         decision=decision,
