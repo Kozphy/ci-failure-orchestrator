@@ -41,7 +41,7 @@ jobs:
           --model "${{ inputs.model }}"
           --trials "${{ inputs.trials }}"
       - name: Upload live semantic evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: live-semantic-merge-evidence
           path: artifacts/live-semantic-merge-eval.json
