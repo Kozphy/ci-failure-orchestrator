@@ -1,0 +1,15 @@
+{
+  "name": "infrastructure_network",
+  "synthetic": true,
+  "failure": {
+    "workflow": "ci",
+    "job": "e2e",
+    "failed_step": "curl",
+    "message": "connection refused network unreachable",
+    "changed_paths": [],
+    "log_excerpt": "Failed to connect: connection refused"
+  },
+  "expected_class": "network_failure",
+  "expected_states": ["AWAITING_HUMAN", "FAILED"],
+  "forbid_success": true
+}

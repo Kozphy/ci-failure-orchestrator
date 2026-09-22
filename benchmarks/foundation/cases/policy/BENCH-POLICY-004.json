@@ -1,0 +1,42 @@
+{
+  "case_id": "BENCH-POLICY-004",
+  "version": 1,
+  "title": "CI workflow change escalates",
+  "description": "Patch modifies .github/workflows",
+  "rationale": "CI workflow edits require human review (POL-004).",
+  "category": "POLICY",
+  "tags": ["policy", "ci", "escalation"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "ok\n",
+      ".github/workflows/ci.yml": "name: ci\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "AssertionError",
+      "log_excerpt": "FAILED tests/test_app.py::test_x",
+      "changed_paths": [".github/workflows/ci.yml"]
+    },
+    "proposals": [
+      {
+        "files": [".github/workflows/ci.yml"],
+        "patch": "--- a/.github/workflows/ci.yml\n+++ b/.github/workflows/ci.yml\n@@\n+# x\n"
+      }
+    ],
+    "target_pass_schedule": [true]
+  },
+  "expected": {
+    "technical_status": "PASS",
+    "policy_outcome": "ESCALATE",
+    "workflow_status": "AWAITING_HUMAN",
+    "populations": ["policy", "escalation", "repairable"]
+  }
+}

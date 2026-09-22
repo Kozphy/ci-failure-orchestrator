@@ -1,0 +1,51 @@
+{
+  "case_id": "BENCH-RETRY-005",
+  "version": 1,
+  "title": "Sandbox timeout injection (optional)",
+  "description": "Benchmark-only sandbox timeout on first attempt then pass",
+  "rationale": "Failure injection must be benchmark_mode gated.",
+  "category": "RETRY",
+  "tags": ["retry", "injection"],
+  "required": false,
+  "tier": "tier2",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "x = 1\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "AssertionError",
+      "log_excerpt": "FAILED tests/test_app.py::test_x",
+      "changed_paths": ["src/app.py"]
+    },
+    "proposals": [
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# a\n"
+      },
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# b\n"
+      }
+    ],
+    "target_pass_schedule": [true, true],
+    "max_attempts": 3,
+    "injection": {
+      "target": "sandbox",
+      "failure": "timeout",
+      "occurrence": 1
+    }
+  },
+  "expected": {
+    "attempts": 2,
+    "technical_status": "PASS",
+    "policy_outcome": "APPROVE",
+    "populations": ["retry", "repairable"]
+  }
+}

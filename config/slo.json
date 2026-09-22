@@ -1,0 +1,51 @@
+{
+  "schema_version": "foundation.observability.v1",
+  "note": "EXAMPLE_TARGET values only — not measured production SLOs",
+  "slos": [
+    {
+      "id": "SLO-001",
+      "sli": "SLI-005",
+      "target": 1.0,
+      "comparison": ">=",
+      "minimum_samples": 1,
+      "provisional": true,
+      "rationale": "EXAMPLE: bounded retry compliance"
+    },
+    {
+      "id": "SLO-002",
+      "sli": "SLI-008",
+      "target": 0.99,
+      "comparison": ">=",
+      "minimum_samples": 5,
+      "provisional": true,
+      "rationale": "EXAMPLE: audit completeness"
+    },
+    {
+      "id": "SLO-003",
+      "sli": "SLI-006",
+      "target": 1.0,
+      "comparison": ">=",
+      "minimum_samples": 1,
+      "provisional": true,
+      "rationale": "EXAMPLE: policy execution coverage"
+    },
+    {
+      "id": "SLO-004",
+      "sli": "SLI-007",
+      "target": 1.0,
+      "comparison": ">=",
+      "minimum_samples": 1,
+      "provisional": true,
+      "rationale": "EXAMPLE: security block enforcement after detection"
+    },
+    {
+      "id": "SLO-005",
+      "sli": "SLI-009",
+      "target": 0.99,
+      "comparison": ">=",
+      "minimum_samples": 5,
+      "provisional": true,
+      "rationale": "EXAMPLE: critical persistence success"
+    }
+  ]
+}

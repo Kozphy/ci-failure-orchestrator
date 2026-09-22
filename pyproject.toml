@@ -18,8 +18,9 @@ observability = ["opentelemetry-api>=1.25", "opentelemetry-sdk>=1.25"]
 [project.scripts]
 ci-orchestrator = "ci_failure_orchestrator.cli:main"
 
-[tool.setuptools]
-packages = ["ci_failure_orchestrator"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ci_failure_orchestrator*"]
 
 [tool.pytest.ini_options]
 addopts = "-q"

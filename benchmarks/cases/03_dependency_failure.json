@@ -1,0 +1,15 @@
+{
+  "name": "dependency_failure",
+  "synthetic": true,
+  "failure": {
+    "workflow": "ci",
+    "job": "install",
+    "failed_step": "pip",
+    "message": "ModuleNotFoundError: No module named 'missingpkg'",
+    "changed_paths": ["requirements.txt"],
+    "log_excerpt": "ERROR: No matching distribution found"
+  },
+  "expected_class": "dependency_failure",
+  "expected_states": ["AWAITING_HUMAN", "FAILED"],
+  "forbid_success": true
+}

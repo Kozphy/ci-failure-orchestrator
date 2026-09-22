@@ -1,0 +1,50 @@
+{
+  "case_id": "BENCH-RETRY-001",
+  "version": 1,
+  "title": "Repair succeeds on second attempt",
+  "description": "Attempt 1 fails, attempt 2 different repair passes",
+  "rationale": "Bounded retry with progress must continue then stop on SUCCESS.",
+  "category": "RETRY",
+  "tags": ["retry", "repair"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "def login():\n    return False\n",
+      "tests/test_app.py": "def test_login():\n    assert False\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "AssertionError: expected True",
+      "log_excerpt": "FAILED tests/test_app.py::test_login",
+      "changed_paths": ["src/app.py"]
+    },
+    "proposals": [
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# try1\n"
+      },
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# try2\n"
+      }
+    ],
+    "target_pass_schedule": [false, true],
+    "max_attempts": 3
+  },
+  "expected": {
+    "technical_status": "PASS",
+    "attempts": 2,
+    "retries": 1,
+    "progress_detected": true,
+    "policy_outcome": "APPROVE",
+    "stop_reason": "SUCCESS",
+    "populations": ["repairable", "retry", "policy"]
+  }
+}

@@ -2,6 +2,42 @@
 
 **v1.2 agentic CI reliability control plane** for dependency-aware diagnosis, bounded autonomous repair, multi-provider worker routing, candidate tournaments, persistent failure memory, independent evaluation, fleet policy, SLO/error-budget control, canary rollout, benchmarking, dashboard telemetry, human escalation, and tamper-evident production proof.
 
+## Governed agent pipeline (production-oriented)
+
+The `ci_failure_orchestrator.governed` package wires existing primitives into an explicit control flow:
+
+```text
+CI Failure → Context → Classify → Plan → Tools → Proposal
+  → Sandbox → Evaluate → Retry Budget → Policy Gate
+  → Approve / Escalate → Verify → Audit → Metrics
+```
+
+**Phases 2–6 foundation** (stable execution core; stops at evaluation):
+
+```bash
+ci-orchestrator foundation-run --fixture benchmarks/cases/01_unit_test_failure.json
+```
+
+See [agent-execution-foundation.md](docs/architecture/agent-execution-foundation.md).
+
+```bash
+ci-orchestrator run --fixture benchmarks/cases/01_unit_test_failure.json
+ci-orchestrator benchmark --cases benchmarks/cases
+ci-orchestrator explain <run_id>
+```
+
+Architecture docs:
+
+- [Current state](docs/architecture/current-state.md)
+- [Target architecture](docs/architecture/target-architecture.md)
+- [MCP readiness](docs/architecture/mcp-readiness.md)
+- [Threat model](docs/security/threat-model.md)
+- [Example SLOs](docs/operations/slo.md)
+- [EvalForge boundary](docs/integrations/evalforge.md)
+- [ADRs](docs/adr/)
+
+Synthetic benchmarks demonstrate governance behavior; they are not measured production SLOs.
+
 ## 5-minute quick start
 
 This is the shortest path from a fresh clone to a useful CI diagnosis.

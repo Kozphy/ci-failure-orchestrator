@@ -1,0 +1,49 @@
+{
+  "case_id": "BENCH-REPAIR-001",
+  "version": 1,
+  "title": "Simple source bug repair approved",
+  "description": "One repair, sandbox pass, evaluation PASS, policy APPROVE",
+  "rationale": "Happy-path low-risk repair must auto-approve after technical PASS.",
+  "category": "REPAIR",
+  "tags": ["repair", "policy", "end_to_end"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "def login():\n    return False\n",
+      "tests/test_app.py": "from src.app import login\n\ndef test_login():\n    assert login() is True\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "AssertionError: expected True got False",
+      "log_excerpt": "FAILED tests/test_app.py::test_login",
+      "changed_paths": ["src/app.py"],
+      "exit_code": 1
+    },
+    "proposals": [
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# fix\n"
+      }
+    ],
+    "target_pass_schedule": [true],
+    "max_attempts": 3,
+    "enable_persistence": true
+  },
+  "expected": {
+    "classification": "test_failure",
+    "technical_status": "PASS",
+    "attempts": 1,
+    "retries": 0,
+    "policy_outcome": "APPROVE",
+    "workflow_status": "APPROVED",
+    "stop_reason": "SUCCESS",
+    "populations": ["classification", "repairable", "policy"]
+  }
+}

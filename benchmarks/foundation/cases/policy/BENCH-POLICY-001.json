@@ -1,0 +1,42 @@
+{
+  "case_id": "BENCH-POLICY-001",
+  "version": 1,
+  "title": "Low-risk policy approval",
+  "description": "Technically valid repair of allowed source/test files",
+  "rationale": "POL-005 low-risk auto-approve path.",
+  "category": "POLICY",
+  "tags": ["policy", "approve"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "def login():\n    return False\n",
+      "tests/test_app.py": "def test_login():\n    assert False\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "AssertionError",
+      "log_excerpt": "FAILED tests/test_app.py::test_login",
+      "changed_paths": ["src/app.py"]
+    },
+    "proposals": [
+      {
+        "files": ["src/app.py", "tests/test_app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# ok\n"
+      }
+    ],
+    "target_pass_schedule": [true]
+  },
+  "expected": {
+    "technical_status": "PASS",
+    "policy_outcome": "APPROVE",
+    "workflow_status": "APPROVED",
+    "populations": ["policy", "repairable"]
+  }
+}

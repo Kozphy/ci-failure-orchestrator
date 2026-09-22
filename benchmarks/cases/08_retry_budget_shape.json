@@ -1,0 +1,15 @@
+{
+  "name": "sandbox_timeout_shape",
+  "synthetic": true,
+  "max_attempts": 2,
+  "failure": {
+    "workflow": "ci",
+    "job": "test",
+    "failed_step": "pytest",
+    "message": "AssertionError: value mismatch",
+    "changed_paths": ["src/slow.py"],
+    "log_excerpt": "FAILED tests/test_slow.py"
+  },
+  "expected_class": "test_failure",
+  "expected_states": ["SUCCEEDED", "AWAITING_HUMAN", "FAILED"]
+}

@@ -1,0 +1,54 @@
+{
+  "case_id": "BENCH-RETRY-002",
+  "version": 1,
+  "title": "Duplicate proposal terminates",
+  "description": "Planner emits identical patches repeatedly",
+  "rationale": "Identical proposal loops must stop before max attempts.",
+  "category": "RETRY",
+  "tags": ["retry", "duplicate"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "x = 1\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "AssertionError",
+      "log_excerpt": "FAILED tests/test_app.py::test_x",
+      "changed_paths": ["src/app.py"]
+    },
+    "proposals": [
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# same\n"
+      },
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# same\n"
+      },
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# same\n"
+      }
+    ],
+    "force_target_fail": true,
+    "max_attempts": 5,
+    "max_identical_proposals": 1,
+    "max_identical_failures": 99,
+    "max_no_progress_attempts": 99
+  },
+  "expected": {
+    "stop_reason": "IDENTICAL_PROPOSAL_REPEATED",
+    "duplicate_proposal": true,
+    "attempts": 2,
+    "technical_status": "FAIL",
+    "populations": ["retry"]
+  }
+}

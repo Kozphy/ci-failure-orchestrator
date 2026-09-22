@@ -1,0 +1,14 @@
+{
+  "name": "lint_failure",
+  "synthetic": true,
+  "failure": {
+    "workflow": "ci",
+    "job": "lint",
+    "failed_step": "ruff",
+    "message": "ruff check failed: unused import",
+    "changed_paths": ["src/util.py"],
+    "log_excerpt": "ruff: F401 unused import"
+  },
+  "expected_class": "lint_failure",
+  "expected_states": ["SUCCEEDED", "AWAITING_HUMAN"]
+}

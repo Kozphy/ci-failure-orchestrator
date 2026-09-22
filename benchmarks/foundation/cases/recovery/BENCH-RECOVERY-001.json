@@ -1,0 +1,21 @@
+{
+  "case_id": "BENCH-RECOVERY-001",
+  "version": 1,
+  "title": "Resumable checkpoint",
+  "description": "CLASSIFIED state is RESUMABLE",
+  "rationale": "Safe checkpoints may resume without replaying side effects automatically.",
+  "category": "RECOVERY",
+  "tags": ["recovery"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "recovery",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "seed_workflow_status": "CLASSIFIED"
+  },
+  "expected": {
+    "recovery_status": "RESUMABLE",
+    "populations": ["audit"]
+  }
+}

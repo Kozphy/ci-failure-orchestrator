@@ -1,0 +1,30 @@
+{
+  "case_id": "BENCH-CLASS-006",
+  "version": 1,
+  "title": "Unknown failure",
+  "description": "Synthetic classification fixture for unknown",
+  "rationale": "Opaque failures without patterns must remain unknown.",
+  "category": "CLASSIFICATION",
+  "tags": ["classification", "unknown"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "classify",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "mystery",
+      "failed_step": "mystery",
+      "message": "Something unexplained occurred in the pipeline",
+      "log_excerpt": "weird opaque failure without patterns",
+      "changed_paths": [],
+      "exit_code": 1
+    }
+  },
+  "expected": {
+    "classification": "unknown",
+    "populations": ["classification"]
+  }
+}

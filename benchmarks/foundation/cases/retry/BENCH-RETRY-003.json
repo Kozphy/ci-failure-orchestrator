@@ -1,0 +1,54 @@
+{
+  "case_id": "BENCH-RETRY-003",
+  "version": 1,
+  "title": "No-progress stop",
+  "description": "Different proposals, identical failure fingerprint",
+  "rationale": "NO_PROGRESS must bound retries when outcomes do not improve.",
+  "category": "RETRY",
+  "tags": ["retry", "no_progress"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "x = 1\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "AssertionError",
+      "log_excerpt": "FAILED tests/test_app.py::test_x",
+      "changed_paths": ["src/app.py"]
+    },
+    "proposals": [
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# a\n"
+      },
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# b\n"
+      },
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# c\n"
+      }
+    ],
+    "force_target_fail": true,
+    "max_attempts": 5,
+    "max_identical_failures": 99,
+    "max_identical_proposals": 99,
+    "max_no_progress_attempts": 2
+  },
+  "expected": {
+    "stop_reason": "NO_PROGRESS",
+    "progress_detected": false,
+    "attempts": 2,
+    "technical_status": "FAIL",
+    "populations": ["retry"]
+  }
+}

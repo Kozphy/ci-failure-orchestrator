@@ -1,0 +1,14 @@
+{
+  "name": "simple_unit_test_failure",
+  "synthetic": true,
+  "failure": {
+    "workflow": "ci",
+    "job": "test",
+    "failed_step": "pytest",
+    "message": "AssertionError: expected True got False",
+    "changed_paths": ["src/app.py"],
+    "log_excerpt": "FAILED tests/test_app.py::test_login"
+  },
+  "expected_class": "test_failure",
+  "expected_states": ["SUCCEEDED", "AWAITING_HUMAN"]
+}

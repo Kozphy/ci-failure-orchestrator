@@ -1,0 +1,15 @@
+{
+  "name": "flaky_test",
+  "synthetic": true,
+  "failure": {
+    "workflow": "ci",
+    "job": "test",
+    "failed_step": "pytest",
+    "message": "flaky intermittent timed out waiting for condition",
+    "changed_paths": ["tests/test_race.py"],
+    "log_excerpt": "flaky: timed out"
+  },
+  "expected_class": "flaky_failure",
+  "expected_states": ["AWAITING_HUMAN", "FAILED"],
+  "forbid_success": true
+}

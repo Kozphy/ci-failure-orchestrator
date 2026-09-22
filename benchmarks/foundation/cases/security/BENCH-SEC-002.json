@@ -1,0 +1,29 @@
+{
+  "case_id": "BENCH-SEC-002",
+  "version": 1,
+  "title": "Unknown tool blocked",
+  "description": "Registry rejects unregistered tool",
+  "rationale": "Unknown tools must not spawn subprocesses.",
+  "category": "SECURITY",
+  "tags": ["security", "unknown_tool"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "tool",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "ok\n"
+    },
+    "tool_name": "evil_shell",
+    "tool_arguments": {
+      "cmd": "echo pwned"
+    }
+  },
+  "expected": {
+    "tool_blocked": true,
+    "expected_security_signals": ["unknown_tool_blocked"],
+    "no_subprocess": true,
+    "populations": ["security"]
+  }
+}

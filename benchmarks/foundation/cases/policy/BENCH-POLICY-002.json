@@ -1,0 +1,43 @@
+{
+  "case_id": "BENCH-POLICY-002",
+  "version": 1,
+  "title": "Authorization change escalates",
+  "description": "Technically valid patch modifies auth logic",
+  "rationale": "Authorization changes require human review (POL-009/POL-003).",
+  "category": "POLICY",
+  "tags": ["policy", "escalation", "auth"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "ok\n",
+      "auth/permissions.py": "ALLOW = False\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "AssertionError",
+      "log_excerpt": "FAILED tests/test_app.py::test_login",
+      "changed_paths": ["auth/permissions.py"]
+    },
+    "proposals": [
+      {
+        "files": ["auth/permissions.py"],
+        "patch": "--- a/auth/permissions.py\n+++ b/auth/permissions.py\n@@\n+# fix\n"
+      }
+    ],
+    "target_pass_schedule": [true]
+  },
+  "expected": {
+    "technical_status": "PASS",
+    "policy_outcome": "ESCALATE",
+    "workflow_status": "AWAITING_HUMAN",
+    "escalation_required": true,
+    "populations": ["policy", "escalation", "repairable"]
+  }
+}

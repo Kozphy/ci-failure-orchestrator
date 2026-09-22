@@ -1,0 +1,35 @@
+{
+  "case_id": "BENCH-POLICY-003",
+  "version": 1,
+  "title": "Forbidden path rejected or blocked",
+  "description": "Patch targets secrets/ forbidden location via force_forbidden_path",
+  "rationale": "Forbidden paths must not APPROVE; sandbox/evaluator contain secrets paths.",
+  "category": "POLICY",
+  "tags": ["policy", "security", "forbidden"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "ok\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "AssertionError",
+      "log_excerpt": "FAILED tests/test_app.py::test_x",
+      "changed_paths": ["src/app.py"]
+    },
+    "force_forbidden_path": true,
+    "max_attempts": 2
+  },
+  "expected": {
+    "technical_status": "FAIL",
+    "expected_security_signals": ["forbidden_path_blocked"],
+    "populations": ["security"]
+  }
+}

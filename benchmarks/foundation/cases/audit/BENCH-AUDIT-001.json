@@ -1,0 +1,41 @@
+{
+  "case_id": "BENCH-AUDIT-001",
+  "version": 1,
+  "title": "Durable audit completeness",
+  "description": "Successful run writes state.json and events.jsonl",
+  "rationale": "Control-plane runs must leave inspectable audit evidence.",
+  "category": "AUDIT",
+  "tags": ["audit"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "ok\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "AssertionError",
+      "log_excerpt": "FAILED tests/test_app.py::test_x",
+      "changed_paths": ["src/app.py"]
+    },
+    "proposals": [
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# fix\n"
+      }
+    ],
+    "target_pass_schedule": [true],
+    "enable_persistence": true
+  },
+  "expected": {
+    "audit_completeness": true,
+    "artifacts_exist": ["state.json", "events.jsonl"],
+    "populations": ["audit", "repairable"]
+  }
+}

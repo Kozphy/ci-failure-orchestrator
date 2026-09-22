@@ -1,0 +1,30 @@
+{
+  "case_id": "BENCH-CLASS-003",
+  "version": 1,
+  "title": "Dependency failure",
+  "description": "Synthetic classification fixture for dependency_failure",
+  "rationale": "Missing package install failures must map to dependency_failure.",
+  "category": "CLASSIFICATION",
+  "tags": ["classification", "dependency"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "classify",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "deps",
+      "failed_step": "pip-install",
+      "message": "ModuleNotFoundError: No module named 'missingpkg'",
+      "log_excerpt": "ERROR: dependency package missingpkg not found",
+      "changed_paths": ["requirements.txt"],
+      "exit_code": 1
+    }
+  },
+  "expected": {
+    "classification": "dependency_failure",
+    "populations": ["classification"]
+  }
+}

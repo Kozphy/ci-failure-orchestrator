@@ -1,0 +1,40 @@
+name: foundation-benchmark
+on:
+  push:
+    paths:
+      - "ci_failure_orchestrator/foundation/**"
+      - "benchmarks/foundation/**"
+      - "tests/test_foundation_phase_12_benchmark.py"
+      - ".github/workflows/foundation-benchmark.yml"
+  pull_request:
+    paths:
+      - "ci_failure_orchestrator/foundation/**"
+      - "benchmarks/foundation/**"
+      - "tests/test_foundation_phase_12_benchmark.py"
+      - ".github/workflows/foundation-benchmark.yml"
+
+jobs:
+  foundation-benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Harness unit tests
+        run: python -m pytest -q tests/test_foundation_phase_12_benchmark.py
+      - name: Run required golden suite
+        run: >
+          python -m ci_failure_orchestrator.cli foundation-benchmark
+          --required-only
+          --compare-baseline
+          --artifacts artifacts/benchmarks
+      - name: Upload benchmark report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: foundation-benchmark-report
+          path: artifacts/benchmarks
+          if-no-files-found: ignore

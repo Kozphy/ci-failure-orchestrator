@@ -1,0 +1,22 @@
+{
+  "case_id": "BENCH-RECOVERY-003",
+  "version": 1,
+  "title": "AWAITING_HUMAN is terminal for auto-resume",
+  "description": "Persisted AWAITING_HUMAN does not continue execution",
+  "rationale": "Human wait states are terminal for automated resume.",
+  "category": "RECOVERY",
+  "tags": ["recovery", "escalation"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "recovery",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "seed_workflow_status": "AWAITING_HUMAN",
+    "seed_with_escalation": true
+  },
+  "expected": {
+    "recovery_status": "TERMINAL",
+    "populations": ["escalation", "audit"]
+  }
+}

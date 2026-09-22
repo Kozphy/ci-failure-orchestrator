@@ -1,0 +1,54 @@
+{
+  "case_id": "BENCH-ESC-001",
+  "version": 1,
+  "title": "Human escalation package completeness",
+  "description": "ESCALATE produces meaningful review package fields",
+  "rationale": "Escalation artifacts must be reviewable, not empty shells.",
+  "category": "ESCALATION",
+  "tags": ["escalation", "policy"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "ok\n",
+      "auth/permissions.py": "ALLOW=False\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "AssertionError",
+      "log_excerpt": "FAILED tests/test_app.py::test_x",
+      "changed_paths": ["auth/permissions.py"]
+    },
+    "proposals": [
+      {
+        "files": ["auth/permissions.py"],
+        "patch": "--- a/auth/permissions.py\n+++ b/auth/permissions.py\n@@\n+# x\n"
+      }
+    ],
+    "target_pass_schedule": [true],
+    "enable_persistence": true
+  },
+  "expected": {
+    "policy_outcome": "ESCALATE",
+    "escalation_required": true,
+    "workflow_status": "AWAITING_HUMAN",
+    "escalation_fields": [
+      "reason",
+      "affected_files",
+      "evaluation_summary",
+      "policy_summary",
+      "retry_summary",
+      "unresolved_questions",
+      "review_checklist",
+      "evidence_references"
+    ],
+    "artifacts_exist": ["summary.md"],
+    "populations": ["escalation", "policy"]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "unknown_failure_escalates",
+  "synthetic": true,
+  "failure": {
+    "workflow": "ci",
+    "job": "mystery",
+    "failed_step": "unknown",
+    "message": "unexpected infrastructure event xyzzy",
+    "changed_paths": ["src/x.py"],
+    "log_excerpt": "baffling failure"
+  },
+  "expected_class": "unknown",
+  "expected_states": ["AWAITING_HUMAN"],
+  "forbid_success": true
+}

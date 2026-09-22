@@ -1,0 +1,21 @@
+{
+  "case_id": "BENCH-RECOVERY-002",
+  "version": 1,
+  "title": "Unsafe interruption requires review",
+  "description": "SANDBOX_RUNNING is REQUIRES_REVIEW",
+  "rationale": "Ambiguous side-effecting states must not auto-continue.",
+  "category": "RECOVERY",
+  "tags": ["recovery", "safety"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "recovery",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "seed_workflow_status": "SANDBOX_RUNNING"
+  },
+  "expected": {
+    "recovery_status": "REQUIRES_REVIEW",
+    "populations": ["security", "audit"]
+  }
+}

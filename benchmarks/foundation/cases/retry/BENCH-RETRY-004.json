@@ -1,0 +1,54 @@
+{
+  "case_id": "BENCH-RETRY-004",
+  "version": 1,
+  "title": "Max attempts exhausted",
+  "description": "Unique failing repairs hit max_attempts",
+  "rationale": "Hard attempt ceiling must stop the loop.",
+  "category": "RETRY",
+  "tags": ["retry", "max_attempts"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "x = 1\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "AssertionError",
+      "log_excerpt": "FAILED tests/test_app.py::test_x",
+      "changed_paths": ["src/app.py"]
+    },
+    "proposals": [
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+#1\n"
+      },
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+#2\n"
+      },
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+#3\n"
+      }
+    ],
+    "force_target_fail": true,
+    "max_attempts": 3,
+    "max_identical_failures": 99,
+    "max_identical_proposals": 99,
+    "max_no_progress_attempts": 99
+  },
+  "expected": {
+    "stop_reason": "MAX_ATTEMPTS_EXHAUSTED",
+    "attempts": 3,
+    "retries": 2,
+    "technical_status": "FAIL",
+    "populations": ["retry"]
+  }
+}

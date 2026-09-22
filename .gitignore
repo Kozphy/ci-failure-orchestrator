@@ -1,9 +1,70 @@
+# Virtual environments
 .venv/
+venv/
+
+# Local env files (keep example templates)
+.env
+.env.*
+!.env.example
+
+# Python bytecode / packaging
 __pycache__/
-.pytest_cache/
-.coverage
-coverage.xml
-*.pyc
+*.py[cod]
+*$py.class
 *.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.whl
+
+# Test / type / lint caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.tox/
+.nox/
+.hypothesis/
+.cache/
+
+# Local secrets and credentials (never commit)
+*.pem
+*.key
+id_rsa
+id_rsa.*
+.env.local
+.env.secrets
+credentials.json
+secrets.json
+
+# Local audit / evidence streams
 audit.jsonl
 evidence/*.jsonl
+
+# Runtime / benchmark / observability artifacts
+artifacts/
+tmp/
+temp/
+*.log
+
+# Ephemeral SQLite DBs from governed benchmark runs
+benchmarks/cases/*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini

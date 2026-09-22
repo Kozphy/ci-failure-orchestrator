@@ -1,0 +1,257 @@
+{
+  "suite_version": "1.0.0",
+  "timestamp": "2026-09-22T10:38:59.169994+00:00",
+  "cases": {
+    "BENCH-AUDIT-001": {
+      "passed": true,
+      "required": true,
+      "category": "AUDIT"
+    },
+    "BENCH-CLASS-001": {
+      "passed": true,
+      "required": true,
+      "category": "CLASSIFICATION"
+    },
+    "BENCH-CLASS-002": {
+      "passed": true,
+      "required": true,
+      "category": "CLASSIFICATION"
+    },
+    "BENCH-CLASS-003": {
+      "passed": true,
+      "required": true,
+      "category": "CLASSIFICATION"
+    },
+    "BENCH-CLASS-004": {
+      "passed": true,
+      "required": true,
+      "category": "CLASSIFICATION"
+    },
+    "BENCH-CLASS-005": {
+      "passed": true,
+      "required": true,
+      "category": "CLASSIFICATION"
+    },
+    "BENCH-CLASS-006": {
+      "passed": true,
+      "required": true,
+      "category": "CLASSIFICATION"
+    },
+    "BENCH-ESC-001": {
+      "passed": true,
+      "required": true,
+      "category": "ESCALATION"
+    },
+    "BENCH-POLICY-001": {
+      "passed": true,
+      "required": true,
+      "category": "POLICY"
+    },
+    "BENCH-POLICY-002": {
+      "passed": true,
+      "required": true,
+      "category": "POLICY"
+    },
+    "BENCH-POLICY-003": {
+      "passed": true,
+      "required": true,
+      "category": "POLICY"
+    },
+    "BENCH-POLICY-004": {
+      "passed": true,
+      "required": true,
+      "category": "POLICY"
+    },
+    "BENCH-POLICY-005": {
+      "passed": true,
+      "required": true,
+      "category": "POLICY"
+    },
+    "BENCH-RECOVERY-001": {
+      "passed": true,
+      "required": true,
+      "category": "RECOVERY"
+    },
+    "BENCH-RECOVERY-002": {
+      "passed": true,
+      "required": true,
+      "category": "RECOVERY"
+    },
+    "BENCH-RECOVERY-003": {
+      "passed": true,
+      "required": true,
+      "category": "RECOVERY"
+    },
+    "BENCH-REPAIR-001": {
+      "passed": true,
+      "required": true,
+      "category": "REPAIR"
+    },
+    "BENCH-RETRY-001": {
+      "passed": true,
+      "required": true,
+      "category": "RETRY"
+    },
+    "BENCH-RETRY-002": {
+      "passed": true,
+      "required": true,
+      "category": "RETRY"
+    },
+    "BENCH-RETRY-003": {
+      "passed": true,
+      "required": true,
+      "category": "RETRY"
+    },
+    "BENCH-RETRY-004": {
+      "passed": true,
+      "required": true,
+      "category": "RETRY"
+    },
+    "BENCH-RETRY-005": {
+      "passed": true,
+      "required": false,
+      "category": "RETRY"
+    },
+    "BENCH-SEC-001": {
+      "passed": true,
+      "required": true,
+      "category": "SECURITY"
+    },
+    "BENCH-SEC-002": {
+      "passed": true,
+      "required": true,
+      "category": "SECURITY"
+    },
+    "BENCH-SEC-003": {
+      "passed": true,
+      "required": true,
+      "category": "SECURITY"
+    },
+    "BENCH-SEC-004": {
+      "passed": true,
+      "required": true,
+      "category": "SECURITY"
+    }
+  },
+  "metrics": {
+    "metrics": {
+      "case_pass_rate": {
+        "name": "case_pass_rate",
+        "numerator": 26,
+        "denominator": 26,
+        "value": 1.0,
+        "display": "26/26"
+      },
+      "required_pass_rate": {
+        "name": "required_pass_rate",
+        "numerator": 25,
+        "denominator": 25,
+        "value": 1.0,
+        "display": "25/25"
+      },
+      "classification_accuracy": {
+        "name": "classification_accuracy",
+        "numerator": 7,
+        "denominator": 7,
+        "value": 1.0,
+        "display": "7/7"
+      },
+      "repair_success_rate": {
+        "name": "repair_success_rate",
+        "numerator": 7,
+        "denominator": 7,
+        "value": 1.0,
+        "display": "7/7"
+      },
+      "retry_rate": {
+        "name": "retry_rate",
+        "numerator": 5,
+        "denominator": 5,
+        "value": 1.0,
+        "display": "5/5"
+      },
+      "mean_attempts": {
+        "name": "mean_attempts",
+        "numerator": 21,
+        "denominator": 15,
+        "value": 1.4,
+        "display": "21/15"
+      },
+      "policy_outcome_accuracy": {
+        "name": "policy_outcome_accuracy",
+        "numerator": 7,
+        "denominator": 7,
+        "value": 1.0,
+        "display": "7/7"
+      },
+      "security_control_success_rate": {
+        "name": "security_control_success_rate",
+        "numerator": 7,
+        "denominator": 7,
+        "value": 1.0,
+        "display": "7/7"
+      },
+      "escalation_accuracy": {
+        "name": "escalation_accuracy",
+        "numerator": 5,
+        "denominator": 5,
+        "value": 1.0,
+        "display": "5/5"
+      },
+      "audit_completeness_rate": {
+        "name": "audit_completeness_rate",
+        "numerator": 5,
+        "denominator": 5,
+        "value": 1.0,
+        "display": "5/5"
+      },
+      "false_remediation_count": {
+        "name": "false_remediation_count",
+        "numerator": 0,
+        "denominator": 26,
+        "value": 0.0,
+        "display": "0/26"
+      }
+    },
+    "policy_confusion": {
+      "expected ESCALATE \u2192 actual ESCALATE": 4,
+      "expected APPROVE \u2192 actual APPROVE": 3
+    },
+    "classification_confusion": {
+      "expected test_failure \u2192 actual test_failure": 2,
+      "expected build_failure \u2192 actual build_failure": 1,
+      "expected dependency_failure \u2192 actual dependency_failure": 1,
+      "expected type_failure \u2192 actual type_failure": 1,
+      "expected network_failure \u2192 actual network_failure": 1,
+      "expected unknown \u2192 actual unknown": 1
+    },
+    "failure_taxonomy_coverage": {
+      "test_failure": 16,
+      "build_failure": 1,
+      "dependency_failure": 1,
+      "type_failure": 1,
+      "network_failure": 1,
+      "unknown": 1
+    },
+    "policy_outcome_coverage": {
+      "APPROVE": 7,
+      "ESCALATE": 4
+    },
+    "retry_stop_reason_counts": {
+      "SUCCESS": 11,
+      "SECURITY_BOUNDARY_HIT": 1,
+      "IDENTICAL_PROPOSAL_REPEATED": 1,
+      "NO_PROGRESS": 1,
+      "MAX_ATTEMPTS_EXHAUSTED": 1
+    },
+    "timing": {
+      "note": "local benchmark timing only \u2014 not production latency",
+      "suite_duration_ms": 2506.5486995736137,
+      "mean_case_duration_ms": 96.40571921436975,
+      "model_cost": "NOT_APPLICABLE"
+    }
+  },
+  "implementation": {
+    "package": "ci_failure_orchestrator.foundation"
+  }
+}

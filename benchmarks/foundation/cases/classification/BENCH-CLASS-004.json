@@ -1,0 +1,30 @@
+{
+  "case_id": "BENCH-CLASS-004",
+  "version": 1,
+  "title": "Type checker failure",
+  "description": "Synthetic classification fixture for type_failure",
+  "rationale": "Type checker failures must map to type_failure.",
+  "category": "CLASSIFICATION",
+  "tags": ["classification", "type"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "classify",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "typecheck",
+      "failed_step": "mypy",
+      "message": "error: Argument of type \"None\" cannot be assigned",
+      "log_excerpt": "mypy: error: Incompatible types in assignment",
+      "changed_paths": ["src/app.py"],
+      "exit_code": 1
+    }
+  },
+  "expected": {
+    "classification": "type_failure",
+    "populations": ["classification"]
+  }
+}

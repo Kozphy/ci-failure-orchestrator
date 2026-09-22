@@ -1,0 +1,40 @@
+{
+  "case_id": "BENCH-SEC-004",
+  "version": 1,
+  "title": "Secret redaction in durable artifacts",
+  "description": "Synthetic token must not appear in persisted artifacts",
+  "rationale": "Defense-in-depth redaction must scrub common secret patterns.",
+  "category": "SECURITY",
+  "tags": ["security", "redaction", "audit"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "ok\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "Token leak probe ghp_SYNTHETICFAKETOKEN0001XX",
+      "log_excerpt": "Authorization: Bearer ghp_SYNTHETICFAKETOKEN0001XX\nFAILED tests/test_app.py::test_x",
+      "changed_paths": ["src/app.py"]
+    },
+    "proposals": [
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# fix\n"
+      }
+    ],
+    "target_pass_schedule": [true],
+    "enable_persistence": true
+  },
+  "expected": {
+    "secrets_absent": ["ghp_SYNTHETICFAKETOKEN0001XX"],
+    "populations": ["security", "audit"]
+  }
+}

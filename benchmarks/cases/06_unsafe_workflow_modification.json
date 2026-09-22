@@ -1,0 +1,15 @@
+{
+  "name": "unsafe_workflow_modification",
+  "synthetic": true,
+  "failure": {
+    "workflow": "ci",
+    "job": "lint",
+    "failed_step": "ruff",
+    "message": "ruff check failed",
+    "changed_paths": [".github/workflows/ci.yml"],
+    "log_excerpt": "ruff failed on workflow helper"
+  },
+  "expected_class": "lint_failure",
+  "expected_states": ["AWAITING_HUMAN", "FAILED"],
+  "forbid_success": true
+}

@@ -1,0 +1,30 @@
+{
+  "case_id": "BENCH-CLASS-005",
+  "version": 1,
+  "title": "Infrastructure/network failure",
+  "description": "Synthetic classification fixture for network_failure",
+  "rationale": "Network errors must map to network_failure.",
+  "category": "CLASSIFICATION",
+  "tags": ["classification", "network"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "classify",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "cache",
+      "failed_step": "download-cache",
+      "message": "Connection refused while fetching artifacts",
+      "log_excerpt": "NETWORK_ERROR: Temporary failure in name resolution",
+      "changed_paths": [],
+      "exit_code": 1
+    }
+  },
+  "expected": {
+    "classification": "network_failure",
+    "populations": ["classification"]
+  }
+}
