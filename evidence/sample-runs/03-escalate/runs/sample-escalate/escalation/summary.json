@@ -1,0 +1,73 @@
+{
+  "affected_files": [
+    "auth/permissions.py"
+  ],
+  "attempt_summary": "Attempts:\n1\n\nAttempt 1:\n- result: PASS\n- proposal_fp: 299cf695ccff\n- progress: no\n- disposition: RECOVERABLE",
+  "change_scope": "SMALL",
+  "created_at": "2026-09-22T14:38:45.473537+00:00",
+  "escalation_id": "esc-40f2220acbfe",
+  "evaluation_summary": "Evaluation:\nPASS\n\nChecks:\n- PATCH_APPLIED: PASSED\n- TARGET_TEST_PASSED: PASSED\n- RELEVANT_TESTS_PASSED: UNAVAILABLE\n- NO_FORBIDDEN_FILES_CHANGED: PASSED\n- NO_NEW_LINT_ERRORS: SKIPPED\n- NO_NEW_TYPE_ERRORS: SKIPPED",
+  "evidence_completeness": {
+    "missing": [],
+    "status": "COMPLETE"
+  },
+  "evidence_refs": [
+    {
+      "kind": "proposal",
+      "ref": "prop-5307477f73b6"
+    },
+    {
+      "kind": "evaluation",
+      "ref": "eval:sample-escalate"
+    },
+    {
+      "kind": "policy",
+      "ref": "policy:2026-09-22T14:38:45.460209+00:00"
+    },
+    {
+      "kind": "attempt",
+      "ref": "attempt-1"
+    }
+  ],
+  "failure_summary": "Original failure:\nFailing target:\nFAILED tests/test_app.py::test_login - AssertionError\nci/test step=pytest\nClassification:\ntest_failure\nObserved error:\nAssertionError",
+  "file_categories": [
+    "AUTH"
+  ],
+  "matched_policy_rules": [
+    "POL-009-AUTH-CHANGE"
+  ],
+  "patch_stats": {
+    "added": 1,
+    "files_touched_estimate": 1,
+    "removed": 0
+  },
+  "policy_outcome": "ESCALATE",
+  "policy_summary": "Policy outcome:\nESCALATE\n\nMatched rules:\n- POL-009-AUTH-CHANGE\n\nRisk:\nHIGH\n\nReason:\n- auth_code_modified",
+  "proposed_change_summary": "Proposed change:\nauth change\n\nFiles changed:\n1\nChange categories:\nAUTH\nScope:\nSMALL\nPatch stats:\n+1 / -0 lines",
+  "reason_codes": [
+    "AUTHORIZATION_CHANGE"
+  ],
+  "reviewer_actions": [
+    "APPROVE",
+    "REJECT",
+    "REQUEST_CHANGES",
+    "DEFER"
+  ],
+  "reviewer_checklist": [
+    "Confirm intended privilege boundaries",
+    "Review deny paths",
+    "Review authentication assumptions",
+    "Review authorization checks",
+    "Confirm negative tests exist",
+    "Confirm no privilege broadening outside intended scope"
+  ],
+  "risk_level": "HIGH",
+  "run_id": "sample-escalate",
+  "schema_version": "foundation.escalation.v1",
+  "summary": "Escalation reason:\nAuthorization-related code was modified.\n\nTechnical status:\nAll configured verification checks passed.\n\nAffected files:\n- auth/permissions.py\n\nAttempts:\n1\n\nPolicy result:\nESCALATE\n\nWhy review is required:\nAuthorization-related code was modified.\n\nRemaining uncertainty:\nAutomated evaluation confirms configured checks but does not prove broader safety properties.",
+  "unresolved_questions": [
+    "Does this authorization change preserve all existing role boundaries?",
+    "Are negative authorization cases sufficiently covered?",
+    "Should check 'RELEVANT_TESTS_PASSED' (UNAVAILABLE) be executed before approval?"
+  ]
+}

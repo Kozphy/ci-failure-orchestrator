@@ -1,0 +1,19 @@
+{
+  "assumptions": [
+    "Evidence is sufficient for a scoped proposal",
+    "Classification confidence is heuristic",
+    "classified_as=test_failure"
+  ],
+  "goal": "Produce a minimal repair proposal for: ci/test failed at pytest: AssertionError",
+  "required_tools": [
+    "log_reader",
+    "file_reader",
+    "test_runner"
+  ],
+  "risk_level": "medium",
+  "run_id": "sample-approve",
+  "verification_steps": [
+    "target_verification",
+    "scope_check"
+  ]
+}

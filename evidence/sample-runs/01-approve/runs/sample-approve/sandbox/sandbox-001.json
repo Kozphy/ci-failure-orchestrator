@@ -1,0 +1,12 @@
+{
+  "changed_files": [
+    "src/app.py",
+    "tests/test_app.py"
+  ],
+  "error": null,
+  "patch_applied": true,
+  "proposal_id": "prop-3e2038ebdbd1",
+  "run_id": "sample-approve",
+  "success": true,
+  "timeout": false
+}

@@ -1,0 +1,30 @@
+{
+  "artifacts": {
+    "evaluation_summary": "C:/Users/dbdf0/Kozphy/ci-failure-orchestrator/evidence/sample-runs/03-escalate/runs/sample-escalate/escalation/evaluation-summary.json",
+    "proposed_patch": "C:/Users/dbdf0/Kozphy/ci-failure-orchestrator/evidence/sample-runs/03-escalate/runs/sample-escalate/escalation/proposed.patch",
+    "summary_json": "C:/Users/dbdf0/Kozphy/ci-failure-orchestrator/evidence/sample-runs/03-escalate/runs/sample-escalate/escalation/summary.json",
+    "summary_md": "C:/Users/dbdf0/Kozphy/ci-failure-orchestrator/evidence/sample-runs/03-escalate/runs/sample-escalate/escalation/summary.md"
+  },
+  "escalation_id": "esc-40f2220acbfe",
+  "evidence_completeness": "COMPLETE",
+  "refs": [
+    {
+      "kind": "proposal",
+      "ref": "prop-5307477f73b6"
+    },
+    {
+      "kind": "evaluation",
+      "ref": "eval:sample-escalate"
+    },
+    {
+      "kind": "policy",
+      "ref": "policy:2026-09-22T14:38:45.460209+00:00"
+    },
+    {
+      "kind": "attempt",
+      "ref": "attempt-1"
+    }
+  ],
+  "run_id": "sample-escalate",
+  "schema_version": "foundation.escalation.v1"
+}

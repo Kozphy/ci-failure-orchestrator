@@ -1,231 +1,89 @@
 # CI Failure Orchestrator
 
-**v1.2 agentic CI reliability control plane** for dependency-aware diagnosis, bounded autonomous repair, multi-provider worker routing, candidate tournaments, persistent failure memory, independent evaluation, fleet policy, SLO/error-budget control, canary rollout, benchmarking, dashboard telemetry, human escalation, and tamper-evident production proof.
+**Deterministic, policy-gated CI failure control plane** — classify → plan → sandbox → evaluate → retry budget → policy → escalate → durable audit → synthetic evaluation.
 
-## Governed agent pipeline (production-oriented)
+Maturity: **M3 (Evaluated System)**. See [docs/repository-audit.md](docs/repository-audit.md).
 
-The `ci_failure_orchestrator.governed` package wires existing primitives into an explicit control flow:
+## Why this exists
 
-```text
-CI Failure → Context → Classify → Plan → Tools → Proposal
-  → Sandbox → Evaluate → Retry Budget → Policy Gate
-  → Approve / Escalate → Verify → Audit → Metrics
-```
-
-**Phases 2–6 foundation** (stable execution core; stops at evaluation):
-
-```bash
-ci-orchestrator foundation-run --fixture benchmarks/cases/01_unit_test_failure.json
-```
-
-See [agent-execution-foundation.md](docs/architecture/agent-execution-foundation.md).
-
-```bash
-ci-orchestrator run --fixture benchmarks/cases/01_unit_test_failure.json
-ci-orchestrator benchmark --cases benchmarks/cases
-ci-orchestrator explain <run_id>
-```
-
-Architecture docs:
-
-- [Current state](docs/architecture/current-state.md)
-- [Target architecture](docs/architecture/target-architecture.md)
-- [MCP readiness](docs/architecture/mcp-readiness.md)
-- [Threat model](docs/security/threat-model.md)
-- [Example SLOs](docs/operations/slo.md)
-- [EvalForge boundary](docs/integrations/evalforge.md)
-- [ADRs](docs/adr/)
-
-Synthetic benchmarks demonstrate governance behavior; they are not measured production SLOs.
-
-## 5-minute quick start
-
-This is the shortest path from a fresh clone to a useful CI diagnosis.
-
-```bash
-git clone https://github.com/Kozphy/ci-failure-orchestrator.git
-cd ci-failure-orchestrator
-python -m venv .venv
-```
-
-Activate the environment and install the project:
-
-```powershell
-# Windows PowerShell
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -e ".[dev]"
-```
-
-```bash
-# macOS / Linux
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -e '.[dev]'
-```
-
-Verify the installation:
-
-```bash
-ci-orchestrator --help
-pytest
-```
-
-Now analyze the included GitHub Actions example:
-
-```bash
-ci-orchestrator analyze \
-  --jobs examples/github_jobs.json \
-  --logs examples/github_logs.json \
-  --audit audit.jsonl
-```
-
-On PowerShell, run the same command on one line:
-
-```powershell
-ci-orchestrator analyze --jobs examples/github_jobs.json --logs examples/github_logs.json --audit audit.jsonl
-```
-
-The result gives you four actionable outputs:
+CI auto-repair is unsafe if technical “green” silently becomes permission to change code, workflows, or auth. This repository investigates whether an **explicit control plane** can separate:
 
 ```text
-failed CI evidence
-       ↓
-probable root cause
-       ↓
-ranked candidate causes
-       ↓
-causal dependency edges
-       ↓
-verification plan
+technical evaluation  ≠  policy approval  ≠  primary workspace mutation
 ```
 
-Use the verification plan to decide which checks to run next. A diagnosis is not permission to merge: repair candidates must still pass the independent gates required by `REPAIR_SUCCESS`.
+Default foundation paths use **scripted/heuristic proposals** and **local sandbox simulation**. They are not a production multi-provider coding agent.
 
-### What success looks like
+## What this is / is not
 
-For a real pull request, the intended operating model is:
+| Is | Is not |
+| --- | --- |
+| Tested foundation orchestrator (Phases 2–13) | Live LLM auto-repair in production |
+| Fail-closed policy + finite retry + escalation packages | Proof that APPROVE applies patches to your main tree |
+| Golden synthetic benchmarks + baseline CI gate | Measured fleet SLOs / E5 production evidence |
+| Local durable run artifacts + sample evidence | Cryptographic tamper-proof foundation audit |
+| Adjacent diagnosis / trust / release-predicate libraries | One unified ingest→PRODUCTION_SUCCESS product CLI |
+
+## System model (canonical: foundation)
 
 ```text
-PR / commit
-    ↓
-GitHub Actions failure
-    ↓
-collect jobs + logs
-    ↓
-ci-orchestrator analyze
-    ↓
-root-cause hypothesis
-    ↓
-bounded repair candidate
-    ↓
-targeted tests
-    ↓
-full regression
-    ↓
-security + policy gates
-    ↓
-independent verification
-    ↓
-REPAIR_SUCCESS
-    ↓
-release gates
-    ↓
-RELEASE_READY
-    ↓
-canary + runtime evidence
-    ↓
-PRODUCTION_SUCCESS
+FailureEvent
+  → context (sanitized)
+  → classify → plan → tools → proposal
+  → sandbox (temp copy; stub/schedule verification allowed)
+  → evaluate (fail-closed without target verification)
+  → retry budget (finite; fingerprint / no-progress stops)
+  → policy gate (APPROVE | REJECT | ESCALATE; default ≠ APPROVE)
+  → escalate package (local artifacts; no auto-decide)
+  → durable state + append-oriented audit (when artifacts_root set)
+  → metrics / SLI / SLO rebuild (observability never authorizes)
 ```
 
-The orchestrator therefore acts as a **CI reliability control plane**, not merely an AI code fixer. Diagnosis and repair generation are separated from verification and release authority.
+**Policy APPROVE does not apply the patch to the primary workspace.**
 
-## How to use
+Parallel stacks (governed, trust gateway, diagnosis, release predicates) exist as **adjacent libraries**. Portfolio claims should center on `ci_failure_orchestrator/foundation/`.
 
-### 1. Clone and install
+## Evidence
+
+Committed sample runs (synthetic, E4-simulated — **not E5**):
+
+| Sample | Outcome | Verify |
+| --- | --- | --- |
+| `evidence/sample-runs/01-approve` | APPROVE | `ci-orchestrator foundation-verify sample-approve --artifacts evidence/sample-runs/01-approve` |
+| `evidence/sample-runs/02-reject` | REJECT | `ci-orchestrator foundation-verify sample-reject --artifacts evidence/sample-runs/02-reject` |
+| `evidence/sample-runs/03-escalate` | ESCALATE → AWAITING_HUMAN | `ci-orchestrator foundation-verify sample-escalate --artifacts evidence/sample-runs/03-escalate` |
+
+Manifest: [evidence/manifest.json](evidence/manifest.json) · How-to: [evidence/README.md](evidence/README.md)
+
+Regenerate:
+
+```bash
+python scripts/generate_sample_evidence.py
+```
+
+## Quick start
 
 Requirements: **Python 3.10+**.
 
 ```bash
-git clone https://github.com/Kozphy/ci-failure-orchestrator.git
-cd ci-failure-orchestrator
 python -m venv .venv
-```
-
-Activate the virtual environment:
-
-```bash
-# Windows PowerShell
-.\.venv\Scripts\Activate.ps1
-
-# macOS / Linux
-source .venv/bin/activate
-```
-
-Install the project and development dependencies:
-
-```bash
-python -m pip install --upgrade pip
+# Windows: .\.venv\Scripts\Activate.ps1
+# macOS/Linux: source .venv/bin/activate
 pip install -e ".[dev]"
-```
-
-Optional integrations can be installed when needed:
-
-```bash
-pip install -e ".[openai]"
-pip install -e ".[observability]"
-```
-
-After installation, the CLI is available as:
-
-```bash
 ci-orchestrator --help
 ```
 
-### 2. Run the included demo
-
-The repository includes sample pipeline, failure, GitHub Actions job, and log data under `examples/`.
+### Foundation (recommended demo)
 
 ```bash
-bash demo.sh
+ci-orchestrator foundation-run \
+  --fixture benchmarks/cases/01_unit_test_failure.json \
+  --artifacts artifacts
+
+ci-orchestrator foundation-benchmark --required-only --compare-baseline
 ```
 
-On Windows, you can run the equivalent CLI commands shown below directly from PowerShell.
-
-### 3. Classify a CI error
-
-Use `classify` when you have a raw error message and want a normalized failure type plus confidence score.
-
-```bash
-ci-orchestrator classify "ModuleNotFoundError: No module named 'requests'"
-```
-
-This is useful as the first step before deciding which repair worker or verification path should handle a failure.
-
-### 4. Rank probable root causes
-
-Use `rank` when you already have a normalized pipeline graph and a set of failures.
-
-```bash
-ci-orchestrator rank \
-  --pipeline examples/pipeline.json \
-  --failures examples/failures.json
-```
-
-To also create a tamper-evident audit trail:
-
-```bash
-ci-orchestrator rank \
-  --pipeline examples/pipeline.json \
-  --failures examples/failures.json \
-  --audit artifacts/audit.jsonl
-```
-
-The command ranks failures by probable root cause instead of assuming that the last red job is the real cause.
-
-### 5. Analyze normalized GitHub Actions jobs and logs
-
-Use `analyze` for an end-to-end diagnosis over normalized GitHub Actions job metadata and optional logs.
+### Diagnosis (example fixtures)
 
 ```bash
 ci-orchestrator analyze \
@@ -233,221 +91,69 @@ ci-orchestrator analyze \
   --logs examples/github_logs.json
 ```
 
-With audit logging enabled:
+### Governed simulation (dry-run character)
 
 ```bash
-ci-orchestrator analyze \
-  --jobs examples/github_jobs.json \
-  --logs examples/github_logs.json \
-  --audit artifacts/audit.jsonl
+ci-orchestrator run --fixture benchmarks/cases/01_unit_test_failure.json
+ci-orchestrator benchmark --cases benchmarks/cases
 ```
 
-The analysis returns the most likely `root_cause`, ranked candidate causes, inferred causal edges, and a verification plan describing what should be checked next.
-
-### 6. Run a policy-gated trust scenario
-
-Use `trust-run` for the policy-driven tool gateway: an LLM/tool proposal builds trust context, evaluates configuration-driven policy, sandboxes allowed actions, retries within budget, and writes hash-chained evidence.
+## Reproduce evaluation
 
 ```bash
-ci-orchestrator trust-run --scenario examples/trust-scenario.yaml --audit evidence/audit.jsonl
+pytest tests/test_foundation_phases_2_6.py \
+  tests/test_foundation_phase_7_retry.py \
+  tests/test_foundation_phase_8_policy.py \
+  tests/test_foundation_phase_9_escalation.py \
+  tests/test_foundation_phase_10_persistence.py \
+  tests/test_foundation_phase_12_benchmark.py \
+  tests/test_foundation_phase_13_observability.py -q
+
+ci-orchestrator foundation-benchmark --required-only --compare-baseline
 ```
 
-Destructive or restricted external proposals pause until approval is explicit:
+Synthetic benchmarks demonstrate governance behavior. Targets in `config/slo.json` are **EXAMPLE_TARGET / provisional**, not production SLOs.
 
-```bash
-ci-orchestrator trust-run --scenario examples/trust-approval-scenario.yaml
-ci-orchestrator trust-run --scenario examples/trust-approval-scenario.yaml --approved
-```
+## Engineering invariants (foundation)
 
-Design notes: `docs/trust-control-plane-design.md`. Provider and policy config live in `config/providers.yaml` and `config/policies.yaml`.
+1. Illegal state transitions raise.
+2. Retry budget is finite; identical proposal / no-progress / security boundary stop retries.
+3. Policy default cannot be APPROVE; engine errors → ESCALATE.
+4. Evaluation PASS is technical only; policy is a separate decision.
+5. Observability metrics never authorize orchestration decisions.
+6. Escalation builds a review package and stops; it does not auto-approve.
 
-### 7. Run the test suite before making changes
+## Reliability & governance (honest scope)
 
-```bash
-pytest
-```
+- **Reliability model:** finite retries + fail-closed evaluation + local audit reconstruction.
+- **Governance controls:** path/category policy rules, forbidden-path reject, auth/CI escalation, human package for ESCALATE.
+- **Residual risk:** stubbed sandbox verification, scripted proposals, no reviewer decision loop, no E5 production proof.
 
-For coverage:
+## Documentation map
 
-```bash
-pytest --cov=ci_failure_orchestrator --cov-report=term-missing
-```
+| Doc | Purpose |
+| --- | --- |
+| [docs/repository-audit.md](docs/repository-audit.md) | Implementation truth, maturity, credibility gaps |
+| [docs/architecture/current-state.md](docs/architecture/current-state.md) | What exists today |
+| [docs/architecture/agent-execution-foundation.md](docs/architecture/agent-execution-foundation.md) | Foundation design |
+| [docs/adr/](docs/adr/) | ADRs 0001–0007 |
+| [docs/operations/sli-slo.md](docs/operations/sli-slo.md) | Provisional SLI/SLO |
+| [docs/security/threat-model.md](docs/security/threat-model.md) | Threat model |
 
-A local green test run is useful, but it is **not** equivalent to this project's `REPAIR_SUCCESS`, `RELEASE_READY`, or `PRODUCTION_SUCCESS` gates. Those require the independent checks defined below.
+Adjacent / aspirational modules (tournaments, fleet, canary, REPAIR/RELEASE/PRODUCTION predicates, hash-chained `audit.py`) are documented under deeper `docs/` paths. Treat them as **library capabilities**, not the default executable product path, unless you compose them yourself.
 
-### 7. Typical workflow
+## Limitations
 
-```text
-CI fails
-   ↓
-Collect / normalize failed jobs and logs
-   ↓
-ci-orchestrator analyze
-   ↓
-Rank probable root cause
-   ↓
-Generate or select a bounded repair candidate
-   ↓
-Run targeted tests
-   ↓
-Run full regression + security + policy gates
-   ↓
-REPAIR_SUCCESS
-   ↓
-Release-readiness gates
-   ↓
-RELEASE_READY
-   ↓
-Canary + SLO + observability checks
-   ↓
-PRODUCTION_SUCCESS
-```
+- Default proposals are heuristic or scripted — not live multi-provider repair.
+- Sandbox may use scheduled/stub target verification in benches.
+- Human escalation is a **local artifact package**, not a notification/approval workflow.
+- Foundation durable audit is **append-oriented**, not cryptographically tamper-proof.
+- No production deployment evidence in this repository.
 
-For a quick local diagnosis, start with:
+## Research question (working)
 
-```bash
-ci-orchestrator analyze --jobs examples/github_jobs.json --logs examples/github_logs.json
-```
+Does policy-gated orchestration with a finite retry budget reduce unsafe auto-approvals relative to an ungated / unlimited-retry baseline on the golden synthetic failure suite?
 
-For production-oriented use, feed the orchestrator normalized evidence from your actual CI environment and keep repair generation separate from independent verification and release approval.
+## License / package
 
-## Canonical success gates
-
-The control plane uses three layered fail-closed predicates. A later stage can never report success unless every required condition in the previous stage is already satisfied.
-
-```text
-REPAIR_SUCCESS =
-CI_GREEN
-AND TARGETED_TESTS_PASS
-AND FULL_REGRESSION_PASS
-AND SECURITY_GATE_PASS
-AND POLICY_GATE_PASS
-AND NO_TEST_WEAKENING
-AND NO_REGRESSION
-
-RELEASE_READY =
-REPAIR_SUCCESS
-AND ARTIFACT_INTEGRITY_PASS
-AND DEPENDENCY_GATE_PASS
-AND DEPLOYMENT_VALIDATION_PASS
-AND REQUIRED_APPROVALS_PASS
-AND ROLLBACK_READY
-
-PRODUCTION_SUCCESS =
-RELEASE_READY
-AND CANARY_HEALTHY
-AND SLO_PASS
-AND ERROR_BUDGET_OK
-AND OBSERVABILITY_HEALTHY
-AND NO_PRODUCTION_REGRESSION
-```
-
-These definitions are implemented as canonical code predicates. Agent self-report is never sufficient for success. Telemetry, benchmarks, release promotion, and production proof should consume these verified outcomes rather than inventing separate success definitions.
-
-## Control-plane flow
-
-```text
-GitHub repositories
-        ↓
-Workflow runs / jobs / logs
-        ↓
-Failure Dependency Graph
-        ↓
-Root-cause classification + ranking
-        ↓
-Failure Memory Agent + SQLiteIncidentStore
-        ↓
-Memory-Aware Repair Planner
-        ↓
-SupervisorPolicy
-        ↓
-AgentTask contract
-        ↓
-Idempotent Task Delivery (completion ledger)
-        ↓
-Agent Router
- ├─ Copilot / coding agent
- ├─ OpenAI worker
- └─ local/custom worker
-        ↓
-Bounded Agent Executor
-        ↓
-Isolated Git Worktree / Sandbox
-        ↓
-Candidate patches
-        ↓
-Independent gates
- ├─ targeted tests
- ├─ full regression
- ├─ security
- └─ policy
-        ↓
-Candidate Tournament
-        ↓
-Best safe candidate
-        ↓
-Repair State Machine
-        ↓
-REPAIR_SUCCESS
-        ↓
-Artifact / dependency / deployment / approval / rollback gates
-        ↓
-RELEASE_READY
-        ↓
-Canary / SLO / error budget / observability / production regression gates
-        ↓
-PRODUCTION_SUCCESS
-        ↓
-Production proof
-```
-
-## Operational evidence maturity
-
-The repository distinguishes implementation from proof:
-
-```text
-DESIGNED_CAPABILITY
-      ↓
-SIMULATED_VALIDATION
-      ↓
-MEASURED_STAGING_EVIDENCE
-      ↓
-MEASURED_PRODUCTION_EVIDENCE
-      ↓
-CONTROLLED_FAILURE_AND_RECOVERY_PROOF
-```
-
-Example, fixture, synthetic, simulated, or mock metrics must never be promoted as measured production proof. The measured-production evidence gate requires provenance-bearing runtime evidence including a deployment ID, commit SHA, immutable artifact digest, telemetry source, canary health, observability health, rollback readiness, and regression status.
-
-DORA-style operational metrics are computed from deployment history rather than declared manually:
-
-```text
-DELIVERY_HEALTH =
-DEPLOYMENT_FREQUENCY_MEASURED
-AND LEAD_TIME_MEASURED
-AND CHANGE_FAIL_RATE_MEASURED
-AND RECOVERY_TIME_MEASURED_WHEN_FAILURES_EXIST
-AND ROLLBACK_RATE_MEASURED
-```
-
-A repository-level production claim is intentionally stricter:
-
-```text
-LEVEL6_OPERATIONAL_PROOF =
-MEASURED_PRODUCTION_EVIDENCE
-AND IMMUTABLE_ARTIFACT_PROVENANCE
-AND CANARY_RESULT_RECORDED
-AND SLO_EVALUATED_FROM_RUNTIME_TELEMETRY
-AND ROLLBACK_READY
-AND FAILURE_RECOVERY_EXERCISED
-AND RECOVERY_TIME_RECORDED
-AND EVIDENCE_TAMPER_EVIDENT
-```
-
-Until those conditions are backed by real runtime measurements, the project describes the controls as implemented or validated rather than production-proven at scale. See `docs/operational-evidence.md`.
-
-## Safety principle
-
-Repair workers may propose changes, but they cannot approve their own release. Evaluation, regression checks, repository policy, release-readiness gates, production-health gates, canary health, fleet policy, SLOs, and human approval retain release authority.
-
-Unsafe candidates can never win a provider tournament, and a green CI signal alone can never be promoted directly to release or production success.
+Python package `ci-failure-orchestrator` · CLI entrypoint `ci-orchestrator` · version in `pyproject.toml`.

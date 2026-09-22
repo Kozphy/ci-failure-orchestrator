@@ -1,0 +1,31 @@
+{
+  "evidence": [
+    "evaluation_passed=True",
+    "files=1",
+    "scope=SMALL",
+    "risk=MEDIUM",
+    "categories=UNKNOWN",
+    "tools=log_reader,file_reader,test_runner",
+    "attempts=1",
+    "file:.git/config",
+    "forbidden:.git/config"
+  ],
+  "matched_rules": [
+    "POL-002-FORBIDDEN-PATH"
+  ],
+  "outcome": "REJECT",
+  "reasons": [
+    "forbidden_path"
+  ],
+  "risk_level": "CRITICAL",
+  "violations": [
+    {
+      "evidence": [
+        ".git/config"
+      ],
+      "message": "Proposal modifies forbidden path",
+      "rule_id": "POL-002-FORBIDDEN-PATH",
+      "severity": "HIGH"
+    }
+  ]
+}

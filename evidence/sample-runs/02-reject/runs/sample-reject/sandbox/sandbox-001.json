@@ -1,0 +1,11 @@
+{
+  "changed_files": [
+    ".git/config"
+  ],
+  "error": null,
+  "patch_applied": true,
+  "proposal_id": "prop-94b58a9288de",
+  "run_id": "sample-reject",
+  "success": true,
+  "timeout": false
+}

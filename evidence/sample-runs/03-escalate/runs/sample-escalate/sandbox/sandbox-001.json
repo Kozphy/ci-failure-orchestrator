@@ -1,0 +1,11 @@
+{
+  "changed_files": [
+    "auth/permissions.py"
+  ],
+  "error": null,
+  "patch_applied": true,
+  "proposal_id": "prop-5307477f73b6",
+  "run_id": "sample-escalate",
+  "success": true,
+  "timeout": false
+}

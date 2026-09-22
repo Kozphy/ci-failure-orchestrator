@@ -1,0 +1,13 @@
+{
+  "label": "03-escalate",
+  "purpose": "Auth change \u2192 policy ESCALATE / AWAITING_HUMAN (BENCH-ESC-001 analogue)",
+  "run_id": "sample-escalate",
+  "workflow_status": "AWAITING_HUMAN",
+  "technical_status": "PASS",
+  "policy_outcome": "ESCALATE",
+  "consistency_valid": true,
+  "evidence_root": "evidence/sample-runs/03-escalate/runs/sample-escalate",
+  "synthetic": true,
+  "git_commit": "3c6d36f484869f8c064598950ccb8ba063d41dfe",
+  "note": "Local deterministic simulation with scripted proposals. Policy APPROVE does not mutate a primary product workspace."
+}

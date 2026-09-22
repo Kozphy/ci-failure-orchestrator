@@ -1,0 +1,9 @@
+{
+  "expected_effect": "tests pass",
+  "files_changed": [
+    "src/app.py",
+    "tests/test_app.py"
+  ],
+  "proposal_id": "prop-3e2038ebdbd1",
+  "rationale": "low-risk source/test fix"
+}

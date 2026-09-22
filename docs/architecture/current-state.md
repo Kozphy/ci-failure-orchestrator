@@ -1,195 +1,134 @@
 # Current-state architecture
 
-Staff audit of `ci-failure-orchestrator` (package version 1.2.x) before the governed-agent upgrade.
+**As of 2026-09-22** · package `ci-failure-orchestrator` 1.2.x  
+Source of truth: code + tests + golden suite. See also [repository-audit.md](../repository-audit.md).
 
-This document describes **what exists today**. It does not claim production SLOs or measured fleet reliability.
+This document describes **what exists today**. It does **not** claim production SLOs or E5 production proof.
 
 ---
 
-## 1. Current architecture
+## 1. Architecture overview
 
-The repository is a **Python library + CLI** (`ci-orchestrator`) that implements a policy-first CI reliability control plane. It is organized as loosely coupled modules rather than a single process pipeline.
+The repository is a **Python library + CLI** (`ci-orchestrator`) with **three parallel stacks**. The portfolio-canonical stack is **foundation (Phases 2–13)**.
 
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│ CLI (classify / rank / analyze / analyze-run / trust-run)   │
-└───────────────┬─────────────────────────────┬───────────────┘
-                │                             │
-     Diagnosis stack                Trust / repair stacks
-                │                             │
-  GitHub ingest → classify →        Supervisor + AgentTask
-  graph/rank/causal → verify plan   RepairCoordinator + ledger
-                │                   Agent loop / tournament
-                │                   TrustToolGateway
-                ▼                             ▼
-         HashChainedAuditLog          SQLite stores + evidence
+┌────────────────────────────────────────────────────────────────┐
+│ CLI: foundation-* | run/explain/replay/benchmark | analyze |   │
+│      trust-run | classify | rank                               │
+└────────────┬───────────────────┬───────────────────┬───────────┘
+             │                   │                   │
+      foundation/          governed/           legacy / adjacent
+   Phases 2–13            Deterministic        diagnosis, trust,
+   (auditable core)       AgentModel +         supervisor, release
+                          dry-run sandbox      predicates, fleet…
 ```
 
-**Approximate inventory:** ~87 package modules, ~53 test modules, 15 GitHub Actions workflows, narrative docs under `docs/` (no numbered ADRs).
-
-**Parallel “eras” of APIs (important):**
-
-| Stack | Role | Entry |
+| Stack | Entry | Character |
 | --- | --- | --- |
-| Diagnosis / RCA | Normalize jobs/logs, classify, rank root causes | CLI `analyze`, `analyze-run` |
-| Supervisor repair | Bounded authority + `RepairIncident` state machine | Library (`repair_state_machine`, `supervisor`) |
-| Planner / agent loop | `RepairPlan` → execute → evaluate → escalate | Library (`repair_planner`, `agent_loop`) |
-| Trust gateway | Structured tool proposals + policy + sandbox | CLI `trust-run` |
-| Distributed runtime | Queue + eval gate + DLQ + SLO snapshot | Library (`distributed_runtime`) |
+| **Foundation** | `foundation-run`, `foundation-benchmark`, inspect/verify/resume | Deterministic control plane; scripted/heuristic proposals; local sandbox |
+| **Governed** | `run`, `benchmark`, `explain`, `replay` | Parallel composition; dry-run; SQLite store |
+| **Diagnosis** | `analyze`, `analyze-run`, `classify`, `rank` | RCA over jobs/logs |
+| **Trust** | `trust-run` | Policy YAML + MockLLM gateway (separate from foundation) |
+| **Release predicates** | library (`release_gates.py`) | Boolean dataclasses; not foundation terminals |
 
-There is **no single CLI command** that runs ingest → classify → plan → tool → sandbox → evaluate → policy → escalate end-to-end.
+Foundation does **not** import governed or trust. CLI wires stacks side-by-side.
+
+**Inventory (approx.):** package modules under `ci_failure_orchestrator/`, ~61 test modules, 16 GitHub Actions workflows, numbered ADRs under `docs/adr/0001`–`0007`.
 
 ---
 
-## 2. Current execution flow
-
-### 2.1 Diagnosis (CLI-backed)
+## 2. Foundation execution flow
 
 ```text
-GitHub jobs + logs
-  → github_ingest / FailedCheck normalization
-  → classifier.classify_error  (regex taxonomy)
-  → PipelineGraph + RootCauseRanker + causal edges
-  → verification.plan_verification
-  → optional HashChainedAuditLog append
+FailureEvent
+  → RECEIVED → CONTEXT_READY → CLASSIFIED
+  → loop (retry budget):
+       PLANNED → EXECUTING → PROPOSAL_READY
+       → SANDBOX_RUNNING → EVALUATING → EVALUATED
+       if PASS → POLICY_REVIEW
+            APPROVE → APPROVED   (no primary-tree apply)
+            REJECT  → REJECTED
+            ESCALATE → … → AWAITING_HUMAN
+       else → RETRY_DECISION → RETRYING | FAILED
+  → optional durable artifacts under artifacts/runs/<run_id>/
+  → non-authorizing metrics emission
 ```
 
-### 2.2 Bounded autonomous repair (library)
-
-```text
-FailedCheck
-  → classify_failed_check + supervisor.evaluate_repair
-  → AgentTask (+ idempotency_key)
-  → RepairCoordinator.plan / deliver_idempotent
-  → WorkerResult
-  → VerificationResult (independent gates)
-  → GREEN | REVIEW_REQUIRED | RERUNNING | DENIED | ESCALATED
-```
-
-### 2.3 Trust control plane (CLI `trust-run`)
-
-```text
-Structured RepairProposal
-  → TrustPolicyEngine (config/policies.yaml)
-  → approval / IsolatedWorkspace sandbox
-  → evaluate / verify
-  → audit events
-```
+**Invariants enforced in code:** finite retries; policy default ≠ APPROVE; evaluation fail-closed without target verification; metrics never authorize; escalation does not auto-decide.
 
 ---
 
-## 3. Existing strengths
+## 3. Evaluation & evidence
 
-- **Policy-first design:** supervisor authorities, forbidden actions, trust allow/deny/require-approval.
-- **Independent verification:** repair success is not agent self-report (`VerificationResult.successful`).
-- **Idempotent delivery:** `SQLiteCompletionLedger` + `IdempotentTaskDeliverer` with concurrent/crash tests.
-- **Tamper-evident audit:** hash-chained JSONL with secret redaction.
-- **Durable local state:** SQLite run store, incident memory, completion ledger.
-- **Sandbox primitives:** worktree / isolated workspace / patch sandbox.
-- **Benchmarks & research fixtures:** corpora under `benchmark/`, scripts under `scripts/`.
-- **Retry / AI budgets:** multiple retry budget shapes; `InvocationBudget` on durable runs.
-- **Provider-neutral routing:** agent router + tournament selection (safety as hard gate).
-
----
-
-## 4. Missing capabilities (vs target governed pipeline)
-
-| Capability | Status |
-| --- | --- |
-| Unified event → … → metrics pipeline | **MISSING** (composition left to callers) |
-| Dedicated context-engineering layer (budget, prioritization, sanitization as one subsystem) | **PARTIAL** (`memory_context`, trust context; no token budget builder) |
-| Single canonical domain model set | **PARTIAL** (many overlapping dataclasses) |
-| Typed tool registry with schemas + risk levels | **PARTIAL** (trust proposals; no registry abstraction) |
-| MCP-ready tool boundary / docs | **MISSING** |
-| EvalForge client adapter + integration doc | **PARTIAL** (`EvaluationGate` protocol only) |
-| Explicit full-lifecycle state machine (RECEIVED…SUCCEEDED) | **PARTIAL** (`RepairState`, gateway states; not unified) |
-| Human escalation as structured actionable artifact | **PARTIAL** (gates exist; evidence packaging uneven) |
-| Declarative policy engine for repair proposals (files/tools/eval) | **PARTIAL** (supervisor + trust YAML; not one engine) |
-| Threat model / SLO / runbook docs as specified | **MISSING** or narrative-only |
-| Numbered ADRs | **MISSING** |
-| Portfolio-facing explain/replay CLI | **PARTIAL** (`analyze`; no `explain`/`replay` run UX) |
-
----
-
-## 5. Risky coupling
-
-1. CLI, supervisor loop, agent loop, trust gateway, and platform APIs are **loosely coupled libraries** with divergent success predicates naming.
-2. GitHub Actions workflows and scripts assume compositions that are not enforced by one orchestrator type.
-3. Optional extras (`openai`, `observability`) sit beside stdlib-first paths — easy to document as “always on.”
-
----
-
-## 6. Duplicated logic
-
-| Concept | Duplicates |
-| --- | --- |
-| `RepairPlan` | `repair_planner.py`, `repair.py`, `control_plane_run.py` |
-| `EvaluationResult` | `agent_loop.py`, `control_plane_run.py`, `trust_gateway.py` |
-| `RetryBudget` | `evaluator.py`, `supervisor.py`, `trust_gateway.py` |
-| Failure taxonomy | `classifier.py` vs `github_repair_adapter.classify_failed_check` |
-| Tournament / selection | `agent_router.py` vs `tournament.py` |
-| Provider registry | `trust.ProviderRegistry` vs `provider_adapters.ProviderRegistry` |
-| Isolation | `execution.IsolatedWorkspace`, `worktree.GitWorktreeWorkspace`, patch sandbox |
-
----
-
-## 7. Persistence / state model
-
-| Store | Module | Purpose |
+| Mechanism | Path | Notes |
 | --- | --- | --- |
-| `SQLiteIncidentStore` | `sqlite_memory.py` | Failure memory incidents |
-| `SQLiteRunStore` | `autonomous_runtime.py` | Durable run + leases + DLQ |
-| `SQLiteCompletionLedger` | `task_idempotency.py` | Task idempotency claim/complete |
-
-Default local paths under `.ci-orchestrator/`. Designed as replaceable by Postgres + durable queue later (`docs/AUTONOMOUS-RUNTIME.md`).
-
----
-
-## 8. Audit model
-
-`HashChainedAuditLog` (`audit.py`):
-
-- Append-only JSONL
-- Fields: `ts`, `event_id`, `correlation_id`, `event` / `event_type`, redacted `payload`, `prev_hash`, `hash`
-- Redacts sensitive keys and bearer/token patterns
-
-Additional chains:
-
-- `RepairIncident` transition digests (SHA-256 over transition payload)
-- HMAC-signed evidence helpers (`evidence_signing.py`)
+| Phase tests | `tests/test_foundation_phase_*.py` | E2 |
+| Golden suite | `benchmarks/foundation/cases/**` (26) | Synthetic, deterministic E3 |
+| Baseline gate | `benchmarks/foundation/baselines/current.json` + CI | E3 |
+| Sample evidence | `evidence/sample-runs/{01-approve,02-reject,03-escalate}` | E4-simulated; see `evidence/manifest.json` |
+| Provisional SLOs | `config/slo.json` / `foundation/observability` | EXAMPLE_TARGET only |
 
 ---
 
-## 9. Testing strategy
+## 4. Strengths (today)
 
-- Pytest under `tests/` (~53 modules)
-- Strong coverage on: repair state machine, idempotency, supervisor, trust gateway, memory/planner, sandbox/worktree, graph/ranker, runtime, benchmarks
-- Style: unit + `tmp_path` SQLite; fixtures in `examples/` and `benchmark/`
-- Live GitHub generally mocked / optional
-
-Gap: few tests that assert the **entire** target pipeline as one integration path.
+- Explicit state machine with illegal-transition failures.
+- Fail-closed deterministic policy gate with category/path rules.
+- Finite retry budget with fingerprint / no-progress / security stops.
+- Local durable state + append-oriented audit + inspect/verify/resume.
+- Human escalation package writer (local files).
+- Golden synthetic regression harness with baseline compare in CI.
+- Observability rebuild that cannot break or authorize the orchestrator.
 
 ---
 
-## 10. Migration risks
+## 5. Explicit non-goals / gaps (today)
 
-| Risk | Mitigation |
+| Gap | Status |
 | --- | --- |
-| Canonicalizing types breaks imports | Add new adapters; keep old types; deprecate gradually |
-| New orchestrator duplicates trust gateway | Compose gateway/supervisor rather than rewrite |
-| Subpackages omitted from setuptools | Update package discovery when adding packages |
-| Over-claiming “production proven” | Docs must separate capability vs measured evidence |
-| Expanding MCP/EvalForge without need | Interfaces + docs first; optional adapters only |
-| Breaking CLI semantics | Preserve existing commands; add new ones (`run`, `explain`, `replay`) |
+| Live LLM proposal factory in foundation default path | Not wired |
+| Policy APPROVE → mutate primary workspace | Deliberately not done |
+| Human reviewer decision → resume-to-approve loop | Package only |
+| Cryptographic integrity of foundation durable audit | Append-oriented only (`audit.py` hash-chain is a separate stack) |
+| Single CLI from GitHub ingest → PRODUCTION_SUCCESS | Not unified |
+| E5 production evidence | Absent |
+| MCP / EvalForge live adapters | Docs / ADR boundary only |
+
+---
+
+## 6. Persistence & audit models
+
+| Store | Module | Notes |
+| --- | --- | --- |
+| Foundation file artifacts | `foundation/persistence.py` | `state.json`, `events.jsonl`, evidence blobs |
+| Hash-chained JSONL | `audit.py` | Used by diagnosis/trust paths; not foundation integrity model |
+| Governed SQLite | `governed/store.py` | Parallel stack |
+| Incident / ledger SQLite | `sqlite_memory.py`, `task_idempotency.py` | Adjacent repair runtime |
+
+---
+
+## 7. Testing strategy
+
+- Strong phase coverage for foundation 2–10, 12–13 and governed pipeline.
+- Trust / diagnosis / repair modules have dedicated tests of varying depth.
+- Live GitHub generally mocked or optional.
+- CI: `.github/workflows/ci.yml` (pytest), `foundation-benchmark.yml` (golden suite), `security.yml` (CodeQL/Gitleaks).
+
+---
+
+## 8. Risky coupling
+
+1. Multiple policy engines (foundation static rules vs trust YAML vs supervisor authorities).
+2. Overlapping success vocabulary (`APPROVED` vs `REPAIR_SUCCESS` / `RELEASE_READY` / `PRODUCTION_SUCCESS`).
+3. README historically over-claimed unification — corrected toward M3 honesty; keep docs aligned with this file.
 
 ---
 
 ## Source-of-truth pointers
 
-- Package: `ci_failure_orchestrator/`
+- Foundation: `ci_failure_orchestrator/foundation/`
 - CLI: `ci_failure_orchestrator/cli.py`
-- Policy/trust: `supervisor.py`, `trust_gateway.py`, `config/policies.yaml`
-- Idempotency: `task_idempotency.py`
-- Audit: `audit.py`
-- Runtime: `autonomous_runtime.py`, `distributed_runtime.py`
-- Docs: `docs/AUTONOMOUS-REPAIR-LOOP.md`, `docs/L45-RELIABILITY-RUNTIME.md`, `docs/trust-control-plane-design.md`
+- Golden cases: `benchmarks/foundation/`
+- Sample evidence: `evidence/`
+- ADRs: `docs/adr/`
+- Audit: `docs/repository-audit.md`

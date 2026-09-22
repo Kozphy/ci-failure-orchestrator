@@ -1,0 +1,9 @@
+{
+  "attempt_number": 1,
+  "disposition": "RECOVERABLE",
+  "evaluation_passed": true,
+  "failure_fingerprint": "b21c0f212f4d684652b2348099b282b638e0ea1857c86ea9c11b3cc269135994",
+  "proposal_fingerprint": "299cf695ccff9d3c6d20a9001425dfc210b6e30fb69ae02e41483e87508059ae",
+  "proposal_id": "prop-5307477f73b6",
+  "summary": "attempt=1 passed=True failed_checks=0 disposition=RECOVERABLE"
+}

@@ -42,8 +42,10 @@ credentials.json
 secrets.json
 
 # Local audit / evidence streams
+# (committed sample runs under evidence/sample-runs/ are intentional)
 audit.jsonl
 evidence/*.jsonl
+!evidence/sample-runs/**/events.jsonl
 
 # Runtime / benchmark / observability artifacts
 artifacts/

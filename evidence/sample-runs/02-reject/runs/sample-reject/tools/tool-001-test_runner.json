@@ -1,0 +1,7 @@
+{
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "target=targeted result=PASS",
+  "success": true,
+  "tool": "test_runner"
+}

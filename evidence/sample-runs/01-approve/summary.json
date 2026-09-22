@@ -1,0 +1,13 @@
+{
+  "label": "01-approve",
+  "purpose": "Low-risk source/test repair \u2192 policy APPROVE (BENCH-POLICY-001 analogue)",
+  "run_id": "sample-approve",
+  "workflow_status": "APPROVED",
+  "technical_status": "PASS",
+  "policy_outcome": "APPROVE",
+  "consistency_valid": true,
+  "evidence_root": "evidence/sample-runs/01-approve/runs/sample-approve",
+  "synthetic": true,
+  "git_commit": "3c6d36f484869f8c064598950ccb8ba063d41dfe",
+  "note": "Local deterministic simulation with scripted proposals. Policy APPROVE does not mutate a primary product workspace."
+}

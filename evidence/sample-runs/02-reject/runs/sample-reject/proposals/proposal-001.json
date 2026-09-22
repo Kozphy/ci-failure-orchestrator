@@ -1,0 +1,8 @@
+{
+  "expected_effect": "should reject",
+  "files_changed": [
+    ".git/config"
+  ],
+  "proposal_id": "prop-94b58a9288de",
+  "rationale": "forbidden path"
+}

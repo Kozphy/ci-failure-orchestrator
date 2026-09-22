@@ -1,0 +1,19 @@
+{
+  "checks": [
+    {
+      "detail": "",
+      "name": "PATCH_APPLIED",
+      "status": "PASSED"
+    },
+    {
+      "detail": "",
+      "name": "TARGET_TEST_PASSED",
+      "status": "PASSED"
+    }
+  ],
+  "forbidden_changes_detected": false,
+  "passed": true,
+  "patch_applied": true,
+  "run_id": "sample-reject",
+  "target_verification_passed": true
+}

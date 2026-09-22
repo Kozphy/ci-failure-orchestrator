@@ -1,0 +1,13 @@
+{
+  "label": "02-reject",
+  "purpose": "Technical PASS + forbidden .git/ path \u2192 policy REJECT (phase-8 analogue)",
+  "run_id": "sample-reject",
+  "workflow_status": "REJECTED",
+  "technical_status": "PASS",
+  "policy_outcome": "REJECT",
+  "consistency_valid": true,
+  "evidence_root": "evidence/sample-runs/02-reject/runs/sample-reject",
+  "synthetic": true,
+  "git_commit": "3c6d36f484869f8c064598950ccb8ba063d41dfe",
+  "note": "Local deterministic simulation with scripted proposals. Policy APPROVE does not mutate a primary product workspace."
+}

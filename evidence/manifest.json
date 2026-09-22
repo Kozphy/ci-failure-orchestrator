@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-22T14:38:45.497225+00:00",
+  "git_commit": "3c6d36f484869f8c064598950ccb8ba063d41dfe",
+  "maturity": "M3",
+  "evidence_level": "E4-simulated",
+  "disclaimer": "Sample runs are deterministic local simulations with scripted proposals. They are not production workload evidence (not E5).",
+  "artifacts": [
+    {
+      "artifact": "evidence/sample-runs/01-approve/",
+      "summary": "evidence/sample-runs/01-approve/summary.json",
+      "source": "ci_failure_orchestrator.foundation.AgentExecutionFoundation",
+      "generated_by": "scripts/generate_sample_evidence.py",
+      "git_commit": "3c6d36f484869f8c064598950ccb8ba063d41dfe",
+      "purpose": "Low-risk source/test repair \u2192 policy APPROVE (BENCH-POLICY-001 analogue)",
+      "run_id": "sample-approve",
+      "workflow_status": "APPROVED",
+      "policy_outcome": "APPROVE",
+      "synthetic": true,
+      "reproduce": "python scripts/generate_sample_evidence.py",
+      "verify": "ci-orchestrator foundation-verify sample-approve --artifacts evidence/sample-runs/01-approve"
+    },
+    {
+      "artifact": "evidence/sample-runs/02-reject/",
+      "summary": "evidence/sample-runs/02-reject/summary.json",
+      "source": "ci_failure_orchestrator.foundation.AgentExecutionFoundation",
+      "generated_by": "scripts/generate_sample_evidence.py",
+      "git_commit": "3c6d36f484869f8c064598950ccb8ba063d41dfe",
+      "purpose": "Technical PASS + forbidden .git/ path \u2192 policy REJECT (phase-8 analogue)",
+      "run_id": "sample-reject",
+      "workflow_status": "REJECTED",
+      "policy_outcome": "REJECT",
+      "synthetic": true,
+      "reproduce": "python scripts/generate_sample_evidence.py",
+      "verify": "ci-orchestrator foundation-verify sample-reject --artifacts evidence/sample-runs/02-reject"
+    },
+    {
+      "artifact": "evidence/sample-runs/03-escalate/",
+      "summary": "evidence/sample-runs/03-escalate/summary.json",
+      "source": "ci_failure_orchestrator.foundation.AgentExecutionFoundation",
+      "generated_by": "scripts/generate_sample_evidence.py",
+      "git_commit": "3c6d36f484869f8c064598950ccb8ba063d41dfe",
+      "purpose": "Auth change \u2192 policy ESCALATE / AWAITING_HUMAN (BENCH-ESC-001 analogue)",
+      "run_id": "sample-escalate",
+      "workflow_status": "AWAITING_HUMAN",
+      "policy_outcome": "ESCALATE",
+      "synthetic": true,
+      "reproduce": "python scripts/generate_sample_evidence.py",
+      "verify": "ci-orchestrator foundation-verify sample-escalate --artifacts evidence/sample-runs/03-escalate"
+    }
+  ]
+}

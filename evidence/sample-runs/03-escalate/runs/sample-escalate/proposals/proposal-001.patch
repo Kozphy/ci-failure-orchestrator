@@ -1,0 +1,4 @@
+--- a/auth/permissions.py
++++ b/auth/permissions.py
+@@
++# x

@@ -1,0 +1,10 @@
+{
+  "category": "test_failure",
+  "confidence": 0.9,
+  "evidence": [
+    "actions=unit_test_failure",
+    "message=TEST_ASSERTION"
+  ],
+  "run_id": "sample-approve",
+  "uncertainty": "heuristic_regex_only"
+}

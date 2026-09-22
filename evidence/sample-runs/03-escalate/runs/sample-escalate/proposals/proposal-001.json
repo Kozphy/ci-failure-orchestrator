@@ -1,0 +1,8 @@
+{
+  "expected_effect": "needs human",
+  "files_changed": [
+    "auth/permissions.py"
+  ],
+  "proposal_id": "prop-5307477f73b6",
+  "rationale": "auth change"
+}

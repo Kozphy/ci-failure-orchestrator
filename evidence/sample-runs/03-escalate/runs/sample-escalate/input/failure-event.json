@@ -1,0 +1,20 @@
+{
+  "branch": "",
+  "changed_paths": [
+    "auth/permissions.py"
+  ],
+  "commit_sha": "",
+  "event_id": "evt-8dabad5b8e6c",
+  "exit_code": 1,
+  "failed_step": "pytest",
+  "job": "test",
+  "log_excerpt": "FAILED tests/test_app.py::test_login - AssertionError",
+  "message": "AssertionError",
+  "raw_log_ref": "",
+  "repository": "",
+  "run_id": "sample-escalate",
+  "schema_version": "foundation.v1",
+  "source": "synthetic",
+  "timestamp": "2026-09-22T14:38:45.331473+00:00",
+  "workflow": "ci"
+}

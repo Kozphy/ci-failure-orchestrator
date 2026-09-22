@@ -1,0 +1,22 @@
+{
+  "evidence": [
+    "evaluation_passed=True",
+    "files=2",
+    "scope=SMALL",
+    "risk=LOW",
+    "categories=SOURCE,TEST",
+    "tools=log_reader,file_reader,test_runner",
+    "attempts=1",
+    "file:src/app.py",
+    "file:tests/test_app.py"
+  ],
+  "matched_rules": [
+    "POL-005-LOW-RISK-AUTO-APPROVE"
+  ],
+  "outcome": "APPROVE",
+  "reasons": [
+    "low_risk_auto_approve"
+  ],
+  "risk_level": "LOW",
+  "violations": []
+}
