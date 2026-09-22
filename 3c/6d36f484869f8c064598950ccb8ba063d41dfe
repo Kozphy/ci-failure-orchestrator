@@ -1,0 +1,19 @@
+ci_failure_orchestrator/cli.py
+  s_a14a678ee2a2c0::t_0208c53f466088 14-15,18-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3c6d36f484869f8c064598950ccb8ba063d41dfe",
+  "prompts": {},
+  "sessions": {
+    "s_a14a678ee2a2c0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ba1c70df-c5eb-4e2e-83d8-761be607c5b1",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
