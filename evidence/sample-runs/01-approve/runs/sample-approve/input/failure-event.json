@@ -4,7 +4,7 @@
     "src/app.py"
   ],
   "commit_sha": "",
-  "event_id": "evt-8420e3c14c3c",
+  "event_id": "evt-79ab2b3a665e",
   "exit_code": 1,
   "failed_step": "pytest",
   "job": "test",
@@ -15,6 +15,6 @@
   "run_id": "sample-approve",
   "schema_version": "foundation.v1",
   "source": "synthetic",
-  "timestamp": "2026-09-22T14:38:45.005385+00:00",
+  "timestamp": "2026-09-22T16:51:22.526609+00:00",
   "workflow": "ci"
 }

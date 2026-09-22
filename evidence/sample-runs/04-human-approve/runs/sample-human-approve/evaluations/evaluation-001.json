@@ -1,0 +1,39 @@
+{
+  "checks": [
+    {
+      "detail": "applied",
+      "name": "PATCH_APPLIED",
+      "status": "PASSED"
+    },
+    {
+      "detail": "target_verification=PASS",
+      "name": "TARGET_TEST_PASSED",
+      "status": "PASSED"
+    },
+    {
+      "detail": "not_configured",
+      "name": "RELEVANT_TESTS_PASSED",
+      "status": "UNAVAILABLE"
+    },
+    {
+      "detail": "ok",
+      "name": "NO_FORBIDDEN_FILES_CHANGED",
+      "status": "PASSED"
+    },
+    {
+      "detail": "not_run",
+      "name": "NO_NEW_LINT_ERRORS",
+      "status": "SKIPPED"
+    },
+    {
+      "detail": "not_run",
+      "name": "NO_NEW_TYPE_ERRORS",
+      "status": "SKIPPED"
+    }
+  ],
+  "forbidden_changes_detected": false,
+  "passed": true,
+  "patch_applied": true,
+  "run_id": "sample-human-approve",
+  "target_verification_passed": true
+}

@@ -14,9 +14,12 @@ from .escalation import (
     HumanEscalation,
     HumanEscalationBuilder,
     ReviewerAction,
+    ReviewerDecision,
 )
 from .models import FailureEvent, RunStatus
 from .persistence import (
+    HumanDecisionResult,
+    apply_reviewer_decision,
     inspect_run,
     replay_events,
     resume_run,
@@ -32,6 +35,7 @@ __all__ = [
     "FailureEvent",
     "FoundationResult",
     "FoundationStateMachine",
+    "HumanDecisionResult",
     "HumanEscalation",
     "HumanEscalationBuilder",
     "InvalidStateTransition",
@@ -39,9 +43,11 @@ __all__ = [
     "PolicyDecision",
     "PolicyOutcome",
     "ReviewerAction",
+    "ReviewerDecision",
     "RunStatus",
     "ScriptedProposalFactory",
     "StaticPolicyEngine",
+    "apply_reviewer_decision",
     "inspect_run",
     "replay_events",
     "resume_run",

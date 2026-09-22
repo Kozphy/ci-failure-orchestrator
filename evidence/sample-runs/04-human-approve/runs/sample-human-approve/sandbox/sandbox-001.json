@@ -1,0 +1,11 @@
+{
+  "changed_files": [
+    "auth/permissions.py"
+  ],
+  "error": null,
+  "patch_applied": true,
+  "proposal_id": "prop-384f8420759a",
+  "run_id": "sample-human-approve",
+  "success": true,
+  "timeout": false
+}

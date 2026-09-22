@@ -20,6 +20,7 @@ from pathlib import Path
 from ci_failure_orchestrator.foundation import (
     AgentExecutionFoundation,
     ScriptedProposalFactory,
+    apply_reviewer_decision,
 )
 from ci_failure_orchestrator.foundation.models import (
     CheckStatus,
@@ -216,34 +217,108 @@ def main() -> int:
         )
     )
 
+    # --- 04 HUMAN APPROVE (M4 slice: AWAITING_HUMAN → human decide → APPROVED) ---
+    art4 = _reset_label("04-human-approve")
+    ws4 = art4 / "workspace"
+    (ws4 / "auth").mkdir(parents=True)
+    (ws4 / "src").mkdir(parents=True)
+    (ws4 / "auth" / "permissions.py").write_text("ALLOW=False\n", encoding="utf-8")
+    (ws4 / "src" / "app.py").write_text("ok\n", encoding="utf-8")
+    primary_before = (ws4 / "auth" / "permissions.py").read_text(encoding="utf-8")
+    r4 = AgentExecutionFoundation(
+        workspace_root=ws4,
+        artifacts_root=art4,
+        enable_persistence=True,
+        target_pass_schedule=[True],
+        proposal_factory=ScriptedProposalFactory(
+            [
+                RepairProposal(
+                    proposal_id="p-human",
+                    run_id="sample-human-approve",
+                    files_changed=("auth/permissions.py",),
+                    patch="--- a/auth/permissions.py\n+++ b/auth/permissions.py\n@@\n+# x\n",
+                    rationale="auth change needing human",
+                    expected_effect="human approve without primary apply",
+                    verification_plan=("target_verification",),
+                )
+            ]
+        ),
+    ).run(_event("sample-human-approve", changed_paths=("auth/permissions.py",)))
+    if r4.policy_outcome is not PolicyOutcome.ESCALATE:
+        raise SystemExit(f"expected ESCALATE before human decide, got {r4.policy_outcome}")
+    decided = apply_reviewer_decision(
+        art4,
+        "sample-human-approve",
+        action="APPROVE",
+        reviewer_id="sample-reviewer",
+        comment="Synthetic M4 human decision; primary tree must not change.",
+    )
+    if decided.workflow_status_after != "APPROVED":
+        raise SystemExit(f"expected human APPROVED, got {decided}")
+    if decided.primary_workspace_mutated:
+        raise SystemExit("primary_workspace_mutated must be False")
+    primary_after = (ws4 / "auth" / "permissions.py").read_text(encoding="utf-8")
+    if primary_after != primary_before:
+        raise SystemExit("human APPROVE mutated primary workspace — invariant broken")
+    entries.append(
+        (
+            "04-human-approve",
+            r4,
+            art4,
+            "Auth ESCALATE → foundation-decide APPROVE (no primary apply) — M4 human-loop slice",
+            {
+                "workflow_status": "APPROVED",
+                "policy_outcome": "ESCALATE",
+                "human_action": "APPROVE",
+                "primary_workspace_mutated": False,
+            },
+        )
+    )
+
     manifest_artifacts: list[dict] = []
-    for label, result, art, purpose in entries:
+    for item in entries:
+        if len(item) == 5:
+            label, result, art, purpose, overrides = item
+        else:
+            label, result, art, purpose = item
+            overrides = {}
         run_id = result.run.run_id
         report = verify_run_consistency(artifacts_root=art, run_id=run_id)
         if not report.valid:
             raise SystemExit(f"consistency failed for {label}: {report}")
-        inspect_run(art, run_id)
+        info = inspect_run(art, run_id)
         ws = art / "workspace"
         if ws.exists():
             shutil.rmtree(ws)
+        workflow_status = overrides.get("workflow_status", result.status.value)
+        if info.workflow_status != workflow_status and "workflow_status" in overrides:
+            # Prefer durable state after human decide
+            workflow_status = info.workflow_status
+        policy_outcome = overrides.get(
+            "policy_outcome",
+            None if result.policy_outcome is None else result.policy_outcome.value,
+        )
         summary = {
             "label": label,
             "purpose": purpose,
             "run_id": run_id,
-            "workflow_status": result.status.value,
+            "workflow_status": workflow_status,
             "technical_status": result.technical_status,
-            "policy_outcome": None
-            if result.policy_outcome is None
-            else result.policy_outcome.value,
+            "policy_outcome": policy_outcome,
             "consistency_valid": report.valid,
             "evidence_root": f"evidence/sample-runs/{label}/runs/{run_id}",
             "synthetic": True,
             "git_commit": commit,
             "note": (
                 "Local deterministic simulation with scripted proposals. "
-                "Policy APPROVE does not mutate a primary product workspace."
+                "Policy/human APPROVE does not mutate a primary product workspace."
             ),
         }
+        if "human_action" in overrides:
+            summary["human_action"] = overrides["human_action"]
+            summary["primary_workspace_mutated"] = overrides.get(
+                "primary_workspace_mutated", False
+            )
         (art / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
         manifest_artifacts.append(
             {
@@ -254,7 +329,7 @@ def main() -> int:
                 "git_commit": commit,
                 "purpose": purpose,
                 "run_id": run_id,
-                "workflow_status": result.status.value,
+                "workflow_status": summary["workflow_status"],
                 "policy_outcome": summary["policy_outcome"],
                 "synthetic": True,
                 "reproduce": "python scripts/generate_sample_evidence.py",
@@ -270,11 +345,12 @@ def main() -> int:
         "schema_version": 1,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "git_commit": commit,
-        "maturity": "M3",
+        "maturity": "M3+M4-slice",
         "evidence_level": "E4-simulated",
         "disclaimer": (
             "Sample runs are deterministic local simulations with scripted proposals. "
-            "They are not production workload evidence (not E5)."
+            "They are not production workload evidence (not E5). "
+            "04-human-approve demonstrates the human decision loop only."
         ),
         "artifacts": manifest_artifacts,
     }

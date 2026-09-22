@@ -1,0 +1,21 @@
+{
+  "evidence": [
+    "evaluation_passed=True",
+    "files=1",
+    "scope=SMALL",
+    "risk=HIGH",
+    "categories=AUTH",
+    "tools=log_reader,file_reader,test_runner",
+    "attempts=1",
+    "file:auth/permissions.py"
+  ],
+  "matched_rules": [
+    "POL-009-AUTH-CHANGE"
+  ],
+  "outcome": "ESCALATE",
+  "reasons": [
+    "auth_code_modified"
+  ],
+  "risk_level": "HIGH",
+  "violations": []
+}

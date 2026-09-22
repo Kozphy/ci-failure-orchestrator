@@ -9,7 +9,7 @@
   "attempts": 1,
   "retries": 0,
   "stop_reason": "SUCCESS",
-  "duration_seconds": 0.14650299993809313,
+  "duration_seconds": 0.3001143999863416,
   "tool_calls": 3,
   "tool_failures": 0,
   "sandbox_runs": 1,

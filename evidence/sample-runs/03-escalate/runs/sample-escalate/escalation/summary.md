@@ -4,7 +4,7 @@
 
 `sample-escalate`
 
-Escalation ID: `esc-40f2220acbfe`
+Escalation ID: `esc-06d1991e6685`
 
 Evidence status: `COMPLETE`
 
@@ -127,9 +127,9 @@ HIGH
 
 ## Evidence References
 
-- proposal: `prop-5307477f73b6`
+- proposal: `prop-2c88252a73e8`
 - evaluation: `eval:sample-escalate`
-- policy: `policy:2026-09-22T14:38:45.460209+00:00`
+- policy: `policy:2026-09-22T16:51:23.421617+00:00`
 - attempt: `attempt-1`
 
 ## Available Reviewer Actions

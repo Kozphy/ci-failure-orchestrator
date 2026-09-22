@@ -1,0 +1,7 @@
+{
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "log_excerpt: FAILED tests/test_app.py::test_login - AssertionError",
+  "success": true,
+  "tool": "log_reader"
+}

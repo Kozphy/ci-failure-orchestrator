@@ -68,10 +68,13 @@ def test_state_machine_valid_and_invalid() -> None:
 def test_terminal_states_have_no_exits() -> None:
     assert ALLOWED_TRANSITIONS[RunStatus.APPROVED] == frozenset()
     assert ALLOWED_TRANSITIONS[RunStatus.REJECTED] == frozenset()
-    assert ALLOWED_TRANSITIONS[RunStatus.AWAITING_HUMAN] == frozenset()
     assert ALLOWED_TRANSITIONS[RunStatus.ESCALATION_ERROR] == frozenset()
     assert ALLOWED_TRANSITIONS[RunStatus.FAILED] == frozenset()
     assert ALLOWED_TRANSITIONS[RunStatus.SUCCEEDED] == frozenset()
+    # AWAITING_HUMAN is automation-terminal but allows explicit human decisions
+    assert ALLOWED_TRANSITIONS[RunStatus.AWAITING_HUMAN] == frozenset(
+        {RunStatus.APPROVED, RunStatus.REJECTED, RunStatus.FAILED}
+    )
 
 
 def test_sanitizer_redacts_secrets_preserves_code() -> None:

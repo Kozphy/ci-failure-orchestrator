@@ -1,0 +1,30 @@
+{
+  "artifacts": {
+    "evaluation_summary": "C:/Users/dbdf0/Kozphy/ci-failure-orchestrator/evidence/sample-runs/04-human-approve/runs/sample-human-approve/escalation/evaluation-summary.json",
+    "proposed_patch": "C:/Users/dbdf0/Kozphy/ci-failure-orchestrator/evidence/sample-runs/04-human-approve/runs/sample-human-approve/escalation/proposed.patch",
+    "summary_json": "C:/Users/dbdf0/Kozphy/ci-failure-orchestrator/evidence/sample-runs/04-human-approve/runs/sample-human-approve/escalation/summary.json",
+    "summary_md": "C:/Users/dbdf0/Kozphy/ci-failure-orchestrator/evidence/sample-runs/04-human-approve/runs/sample-human-approve/escalation/summary.md"
+  },
+  "escalation_id": "esc-751aa665373f",
+  "evidence_completeness": "COMPLETE",
+  "refs": [
+    {
+      "kind": "proposal",
+      "ref": "prop-384f8420759a"
+    },
+    {
+      "kind": "evaluation",
+      "ref": "eval:sample-human-approve"
+    },
+    {
+      "kind": "policy",
+      "ref": "policy:2026-09-22T16:51:23.721125+00:00"
+    },
+    {
+      "kind": "attempt",
+      "ref": "attempt-1"
+    }
+  ],
+  "run_id": "sample-human-approve",
+  "schema_version": "foundation.escalation.v1"
+}

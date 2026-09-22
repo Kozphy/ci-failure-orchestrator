@@ -49,6 +49,10 @@ FailureEvent
             APPROVE → APPROVED   (no primary-tree apply)
             REJECT  → REJECTED
             ESCALATE → … → AWAITING_HUMAN
+                 optional foundation-decide:
+                   APPROVE → APPROVED (still no primary apply)
+                   REJECT  → REJECTED
+                   DEFER / REQUEST_CHANGES → remain AWAITING_HUMAN
        else → RETRY_DECISION → RETRYING | FAILED
   → optional durable artifacts under artifacts/runs/<run_id>/
   → non-authorizing metrics emission
@@ -65,7 +69,7 @@ FailureEvent
 | Phase tests | `tests/test_foundation_phase_*.py` | E2 |
 | Golden suite | `benchmarks/foundation/cases/**` (26) | Synthetic, deterministic E3 |
 | Baseline gate | `benchmarks/foundation/baselines/current.json` + CI | E3 |
-| Sample evidence | `evidence/sample-runs/{01-approve,02-reject,03-escalate}` | E4-simulated; see `evidence/manifest.json` |
+| Sample evidence | `evidence/sample-runs/{01-approve,02-reject,03-escalate,04-human-approve}` | E4-simulated; see `evidence/manifest.json` |
 | Provisional SLOs | `config/slo.json` / `foundation/observability` | EXAMPLE_TARGET only |
 
 ---
@@ -77,6 +81,7 @@ FailureEvent
 - Finite retry budget with fingerprint / no-progress / security stops.
 - Local durable state + append-oriented audit + inspect/verify/resume.
 - Human escalation package writer (local files).
+- Explicit human decision resume (`foundation-decide`) from `AWAITING_HUMAN` → `APPROVED`/`REJECTED` without primary-tree apply.
 - Golden synthetic regression harness with baseline compare in CI.
 - Observability rebuild that cannot break or authorize the orchestrator.
 
@@ -88,7 +93,7 @@ FailureEvent
 | --- | --- |
 | Live LLM proposal factory in foundation default path | Not wired |
 | Policy APPROVE → mutate primary workspace | Deliberately not done |
-| Human reviewer decision → resume-to-approve loop | Package only |
+| Human reviewer decision → resume-to-approve loop | **Partial (M4 slice)** — `apply_reviewer_decision` / `foundation-decide`; still no notification channel |
 | Cryptographic integrity of foundation durable audit | Append-oriented only (`audit.py` hash-chain is a separate stack) |
 | Single CLI from GitHub ingest → PRODUCTION_SUCCESS | Not unified |
 | E5 production evidence | Absent |
@@ -122,6 +127,8 @@ FailureEvent
 2. Overlapping success vocabulary (`APPROVED` vs `REPAIR_SUCCESS` / `RELEASE_READY` / `PRODUCTION_SUCCESS`).
 3. README historically over-claimed unification — corrected toward M3 honesty; keep docs aligned with this file.
 
+**Resolution:** treat [control-authority-map.md](../control-authority-map.md) as the single map of which stack owns each concern. Foundation wins for portfolio claims.
+
 ---
 
 ## Source-of-truth pointers
@@ -132,3 +139,4 @@ FailureEvent
 - Sample evidence: `evidence/`
 - ADRs: `docs/adr/`
 - Audit: `docs/repository-audit.md`
+- Control authority: `docs/control-authority-map.md`

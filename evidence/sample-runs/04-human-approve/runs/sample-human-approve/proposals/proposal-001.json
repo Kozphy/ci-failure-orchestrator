@@ -1,0 +1,8 @@
+{
+  "expected_effect": "human approve without primary apply",
+  "files_changed": [
+    "auth/permissions.py"
+  ],
+  "proposal_id": "prop-384f8420759a",
+  "rationale": "auth change needing human"
+}

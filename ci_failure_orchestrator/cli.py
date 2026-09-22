@@ -385,6 +385,36 @@ def cmd_foundation_resume(args):
     return 0 if decision.status.value != "INCONSISTENT" else 2
 
 
+def cmd_foundation_decide(args):
+    from ci_failure_orchestrator.foundation import apply_reviewer_decision
+
+    result = apply_reviewer_decision(
+        Path(args.artifacts),
+        args.run_id,
+        action=args.action,
+        reviewer_id=args.reviewer or "",
+        comment=args.comment or "",
+        escalation_id=args.escalation_id,
+    )
+    _dump(
+        {
+            "status": result.status.value,
+            "run_id": result.run_id,
+            "workflow_status_before": result.workflow_status_before,
+            "workflow_status_after": result.workflow_status_after,
+            "action": result.action,
+            "message": result.message,
+            "last_sequence": result.last_sequence,
+            "primary_workspace_mutated": result.primary_workspace_mutated,
+        }
+    )
+    if result.status.value == "INCONSISTENT":
+        return 2
+    if result.status.value == "BLOCKED":
+        return 1
+    return 0
+
+
 def cmd_foundation_verify(args):
     from ci_failure_orchestrator.foundation import verify_run_consistency
 
@@ -552,6 +582,29 @@ def build_parser():
     fr.add_argument("run_id")
     fr.add_argument("--artifacts", default="artifacts")
     fr.set_defaults(func=cmd_foundation_resume)
+
+    fd = sub.add_parser(
+        "foundation-decide",
+        help=(
+            "Record human reviewer decision for AWAITING_HUMAN "
+            "(APPROVE does not mutate primary workspace)"
+        ),
+    )
+    fd.add_argument("run_id")
+    fd.add_argument(
+        "--action",
+        required=True,
+        choices=["APPROVE", "REJECT", "REQUEST_CHANGES", "DEFER"],
+    )
+    fd.add_argument("--reviewer", default="", help="Reviewer identifier")
+    fd.add_argument("--comment", default="", help="Optional reviewer comment")
+    fd.add_argument(
+        "--escalation-id",
+        default=None,
+        help="Must match escalation package when provided",
+    )
+    fd.add_argument("--artifacts", default="artifacts")
+    fd.set_defaults(func=cmd_foundation_decide)
 
     fv = sub.add_parser("foundation-verify", help="Verify foundation run state/audit consistency")
     fv.add_argument("run_id")

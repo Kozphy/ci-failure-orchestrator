@@ -87,13 +87,27 @@ class EvidenceCompleteness:
 
 @dataclass(frozen=True)
 class ReviewerDecision:
-    """Future-facing reviewer decision model — not wired into Phase 9 orchestration."""
+    """Human reviewer decision recorded after policy ESCALATE / AWAITING_HUMAN.
+
+    Applied via ``persistence.apply_reviewer_decision``. Does not mutate the
+    primary workspace even when action is APPROVE.
+    """
 
     escalation_id: str
     action: ReviewerAction
     reviewer_id: str = ""
     comment: str = ""
     timestamp: str = field(default_factory=utc_now)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "escalation_id": self.escalation_id,
+            "action": self.action.value,
+            "reviewer_id": self.reviewer_id,
+            "comment": self.comment,
+            "timestamp": self.timestamp,
+            "primary_workspace_mutated": False,
+        }
 
 
 @dataclass(frozen=True)

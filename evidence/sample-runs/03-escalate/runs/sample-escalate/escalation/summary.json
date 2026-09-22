@@ -4,8 +4,8 @@
   ],
   "attempt_summary": "Attempts:\n1\n\nAttempt 1:\n- result: PASS\n- proposal_fp: 299cf695ccff\n- progress: no\n- disposition: RECOVERABLE",
   "change_scope": "SMALL",
-  "created_at": "2026-09-22T14:38:45.473537+00:00",
-  "escalation_id": "esc-40f2220acbfe",
+  "created_at": "2026-09-22T16:51:23.445108+00:00",
+  "escalation_id": "esc-06d1991e6685",
   "evaluation_summary": "Evaluation:\nPASS\n\nChecks:\n- PATCH_APPLIED: PASSED\n- TARGET_TEST_PASSED: PASSED\n- RELEVANT_TESTS_PASSED: UNAVAILABLE\n- NO_FORBIDDEN_FILES_CHANGED: PASSED\n- NO_NEW_LINT_ERRORS: SKIPPED\n- NO_NEW_TYPE_ERRORS: SKIPPED",
   "evidence_completeness": {
     "missing": [],
@@ -14,7 +14,7 @@
   "evidence_refs": [
     {
       "kind": "proposal",
-      "ref": "prop-5307477f73b6"
+      "ref": "prop-2c88252a73e8"
     },
     {
       "kind": "evaluation",
@@ -22,7 +22,7 @@
     },
     {
       "kind": "policy",
-      "ref": "policy:2026-09-22T14:38:45.460209+00:00"
+      "ref": "policy:2026-09-22T16:51:23.421617+00:00"
     },
     {
       "kind": "attempt",

@@ -34,7 +34,10 @@ ALLOWED_TRANSITIONS: dict[RunStatus, frozenset[RunStatus]] = {
     ),
     RunStatus.APPROVED: frozenset(),
     RunStatus.REJECTED: frozenset(),
-    RunStatus.AWAITING_HUMAN: frozenset(),
+    # Human decision loop (M4 slice): explicit reviewer action only — never auto.
+    RunStatus.AWAITING_HUMAN: frozenset(
+        {RunStatus.APPROVED, RunStatus.REJECTED, RunStatus.FAILED}
+    ),
     RunStatus.ESCALATION_ERROR: frozenset(),
     RunStatus.SUCCEEDED: frozenset(),
     RunStatus.FAILED: frozenset(),
@@ -62,6 +65,12 @@ class FoundationStateMachine:
 
     @property
     def terminal(self) -> bool:
+        """True when the automated orchestration path must stop.
+
+        ``AWAITING_HUMAN`` is terminal for automation; a separate
+        ``apply_reviewer_decision`` entry point may still transition out.
+        """
+
         return self.status in {
             RunStatus.APPROVED,
             RunStatus.REJECTED,

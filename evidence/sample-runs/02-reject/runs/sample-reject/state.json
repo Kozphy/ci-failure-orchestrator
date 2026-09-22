@@ -1,6 +1,6 @@
 {
   "classification_ref": "classification/classification.json",
-  "created_at": "2026-09-22T14:38:45.177755+00:00",
+  "created_at": "2026-09-22T16:51:22.864345+00:00",
   "current_attempt": 1,
   "current_plan_ref": "plans/plan-001.json",
   "current_proposal_ref": "proposals/proposal-001.json",
@@ -19,10 +19,11 @@
   "latest_policy_decision_ref": "policy/policy-decision.json",
   "latest_retry_decision_ref": null,
   "policy_outcome": "REJECT",
+  "reviewer_decision_ref": null,
   "run_id": "sample-reject",
   "schema_version": "foundation.durable.v1",
   "stop_reason": null,
   "technical_status": "PASS",
-  "updated_at": "2026-09-22T14:38:45.322014+00:00",
+  "updated_at": "2026-09-22T16:51:23.159657+00:00",
   "workflow_status": "REJECTED"
 }

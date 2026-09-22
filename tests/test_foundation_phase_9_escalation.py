@@ -147,6 +147,7 @@ def test_reason_code_mapping() -> None:
 def test_reviewer_decision_future_facing() -> None:
     d = ReviewerDecision(escalation_id="esc-1", action=ReviewerAction.APPROVE, reviewer_id="alice")
     assert d.action is ReviewerAction.APPROVE
+    assert d.to_dict()["primary_workspace_mutated"] is False
 
 
 def test_missing_evidence_incomplete() -> None:
@@ -242,6 +243,12 @@ def test_escalation_state_transitions() -> None:
     assert sm.terminal
     with pytest.raises(InvalidStateTransition):
         FoundationStateMachine(RunStatus.AWAITING_HUMAN).transition(RunStatus.RETRYING, "no")
+    sm2 = FoundationStateMachine(RunStatus.AWAITING_HUMAN)
+    sm2.transition(RunStatus.APPROVED, "human:APPROVE")
+    assert sm2.status is RunStatus.APPROVED
+    sm3 = FoundationStateMachine(RunStatus.AWAITING_HUMAN)
+    sm3.transition(RunStatus.REJECTED, "human:REJECT")
+    assert sm3.status is RunStatus.REJECTED
     assert RunStatus.AWAITING_HUMAN in ALLOWED_TRANSITIONS[RunStatus.ESCALATION_BUILDING]
 
 

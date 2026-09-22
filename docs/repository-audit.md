@@ -6,7 +6,8 @@
 **Scope:** Implementation + tests + CI + benchmarks + docs claims (no portfolio polish)  
 **Method:** Code/tests as source of truth; documentation claims demoted when they conflict.
 
-> **P0 status:** Closed 2026-09-22 (honest public narrative + sample evidence package). Portfolio Steps 9–12 still require user approval.
+> **P0 status:** Closed 2026-09-22 (honest public narrative + sample evidence package).  
+> **P1 status:** Closed 2026-09-22 (`docs/control-authority-map.md`). Portfolio Steps 9–12 still require user approval.
 
 ---
 
@@ -48,7 +49,7 @@ Values: **Yes** / **Partial** / **No** / **Unknown**.
 | Independent evaluation gate | Yes | Yes | Yes | Partial | No | `foundation/evaluator.py`; fail-closed without target verification |
 | Finite retry budget + stop conditions | Yes | Yes | Yes | Yes (bench) | No | `foundation/retry.py`; `test_foundation_phase_7_retry.py`; BENCH-RETRY-* |
 | Deterministic policy gate (APPROVE/REJECT/ESCALATE) | Yes | Yes | Yes | Yes (bench) | No | `foundation/policy.py`; phase 8 tests; BENCH-POLICY-*; fail-closed default ≠ APPROVE |
-| Human escalation package | Yes | Yes | Yes | Partial | No | `foundation/escalation.py`; phase 9 tests; writes local artifacts; no reviewer channel/decision loop |
+| Human escalation package | Yes | Yes | Yes | Partial | No | `foundation/escalation.py`; phase 9 tests; local artifacts; `foundation-decide` resumes from AWAITING_HUMAN (no reviewer channel) |
 | Durable run state + audit events | Yes | Yes | Yes | Partial | No | `foundation/persistence.py` (append-oriented); phase 10 tests; BENCH-AUDIT-001 |
 | Hash-chained tamper-evident audit | Partial (adjacent stack) | Partial | Yes | No | No | Older `audit.py` HashChainedAuditLog; **not** foundation durable log integrity model |
 | Observability metrics / SLI / SLO | Yes | Yes | Yes | Yes (local rebuild) | No | `foundation/observability/*`; `config/slo.json`; EXAMPLE_TARGET; metrics never authorize |
@@ -126,6 +127,8 @@ Escalation:      escalation.py → local package → AWAITING_HUMAN
 
 Foundation does **not** import governed or trust. CLI wires stacks side-by-side.
 
+Authority by concern: [control-authority-map.md](control-authority-map.md).
+
 ---
 
 ## 1.4 Doc ↔ implementation discrepancies
@@ -150,21 +153,22 @@ Foundation does **not** import governed or trust. CLI wires stacks side-by-side.
 | M4 Operationally Demonstrated | Realistic workloads + observability + controlled failure evidence retained |
 | M5 Production Proven | Real production evidence |
 
-### Current level: **M3 — Evaluated System** (foundation core)
+### Current level: **M3 — Evaluated System** (foundation core) + **M4 human-decision slice**
 
 **Supporting evidence:**
 
 - Phases 2–10, 12–13 covered by dedicated automated tests.
 - Deterministic synthetic golden suite (26 cases) with baseline compare; CI `foundation-benchmark.yml`.
-- Committed sample evidence (approve / reject / escalate) with `foundation-verify` valid.
+- Committed sample evidence (approve / reject / escalate / human-approve) with `foundation-verify` valid.
 - Explicit separation of technical evaluation, policy, escalation, and non-authorizing metrics.
-- Public narrative aligned to M3.
+- Explicit human decision resume (`apply_reviewer_decision` / `foundation-decide`) from `AWAITING_HUMAN` without primary-tree mutation.
+- Public narrative aligned to M3 + documented M4 slice (not full M4).
 
-**Missing for M4:**
+**Missing for full M4:**
 
-- Broader retained workload evidence beyond three sample outcomes.
+- Broader retained workload evidence beyond four sample outcomes.
 - Realistic (non-stub) sandbox verification as first-class experiment.
-- Human escalation loop beyond local markdown package.
+- Human escalation **channel** / notification loop (decision recording exists; delivery does not).
 
 **Missing for M5:**
 
@@ -178,7 +182,7 @@ Foundation does **not** import governed or trust. CLI wires stacks side-by-side.
 | --- | --- | --- | --- |
 | **P0** | Public narrative overclaims unified production control plane | **CLOSED 2026-09-22** | README + `current-state.md` rewritten to M3 / foundation-centric honesty |
 | **P0** | Empty `evidence/` directory | **CLOSED 2026-09-22** | Sample approve/reject/escalate + `manifest.json`; all three `foundation-verify` valid |
-| **P1** | Parallel stacks without a single authority map | Open | Smallest upgrade: `docs/control-authority-map.md` |
+| **P1** | Parallel stacks without a single authority map | **CLOSED 2026-09-22** | `docs/control-authority-map.md`; linked from README + `current-state.md` |
 
 ### Gap work type
 
@@ -186,9 +190,9 @@ Foundation does **not** import governed or trust. CLI wires stacks side-by-side.
 | --- | --- | --- | --- | --- | --- |
 | P0 narrative | No | No | No | Yes | **Done** |
 | P0 evidence package | `scripts/generate_sample_evidence.py` | CLI verify | Generated samples | `evidence/README.md` | **Done** |
-| P1 authority map | No | No | No | Yes | Open |
+| P1 authority map | No | No | No | Yes | **Done** |
 
-**Deferred (still valuable):** cryptographic integrity for foundation audit; live LLM ablation vs scripted baseline; wiring APPROVED → REPAIR_SUCCESS predicates; human decision resume loop; MCP/EvalForge.
+**Deferred (still valuable):** cryptographic integrity for foundation audit; live LLM ablation vs scripted baseline; wiring APPROVED → REPAIR_SUCCESS predicates; non-stub sandbox verification experiment; reviewer notification channel; MCP/EvalForge.
 
 ---
 
@@ -202,8 +206,8 @@ Foundation does **not** import governed or trust. CLI wires stacks side-by-side.
 
 ## 1.8 Audit conclusion (gate for Steps 6+)
 
-This repository is a **credible M3 deterministic AI-governance control-plane simulation for CI failure remediation**, with strong tests and synthetic evaluation on the foundation stack. It is **not** yet an M4/M5 production reliability product.
+This repository is a **credible M3 deterministic AI-governance control-plane simulation for CI failure remediation**, with a **thin M4 human-decision slice** (`foundation-decide`). It is **not** yet a full M4/M5 production reliability product.
 
-**P0 credibility gaps are closed.** Remaining top gap: **P1** control-authority map across parallel stacks.
+**P0 and P1 credibility gaps are closed.** Authority across parallel stacks is documented in [control-authority-map.md](control-authority-map.md).
 
-**Next (optional, after user approval):** claim–evidence register; Staff/Governance/Research portfolio docs (Steps 9–12) grounded only in verified claims; close P1.
+**Next (optional, after user approval):** claim–evidence register; Staff/Governance/Research portfolio docs (Steps 9–12); or further M4 (non-stub sandbox verify / broader workload evidence).

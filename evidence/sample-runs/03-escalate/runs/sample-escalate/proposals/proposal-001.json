@@ -3,6 +3,6 @@
   "files_changed": [
     "auth/permissions.py"
   ],
-  "proposal_id": "prop-5307477f73b6",
+  "proposal_id": "prop-2c88252a73e8",
   "rationale": "auth change"
 }

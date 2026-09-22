@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-22T14:38:45.497225+00:00",
-  "git_commit": "3c6d36f484869f8c064598950ccb8ba063d41dfe",
-  "maturity": "M3",
+  "generated_at": "2026-09-22T16:51:23.815507+00:00",
+  "git_commit": "1f6afb2ec6a00d41e31ae3e64b2fd4de221cac1b",
+  "maturity": "M3+M4-slice",
   "evidence_level": "E4-simulated",
-  "disclaimer": "Sample runs are deterministic local simulations with scripted proposals. They are not production workload evidence (not E5).",
+  "disclaimer": "Sample runs are deterministic local simulations with scripted proposals. They are not production workload evidence (not E5). 04-human-approve demonstrates the human decision loop only.",
   "artifacts": [
     {
       "artifact": "evidence/sample-runs/01-approve/",
       "summary": "evidence/sample-runs/01-approve/summary.json",
       "source": "ci_failure_orchestrator.foundation.AgentExecutionFoundation",
       "generated_by": "scripts/generate_sample_evidence.py",
-      "git_commit": "3c6d36f484869f8c064598950ccb8ba063d41dfe",
+      "git_commit": "1f6afb2ec6a00d41e31ae3e64b2fd4de221cac1b",
       "purpose": "Low-risk source/test repair \u2192 policy APPROVE (BENCH-POLICY-001 analogue)",
       "run_id": "sample-approve",
       "workflow_status": "APPROVED",
@@ -25,7 +25,7 @@
       "summary": "evidence/sample-runs/02-reject/summary.json",
       "source": "ci_failure_orchestrator.foundation.AgentExecutionFoundation",
       "generated_by": "scripts/generate_sample_evidence.py",
-      "git_commit": "3c6d36f484869f8c064598950ccb8ba063d41dfe",
+      "git_commit": "1f6afb2ec6a00d41e31ae3e64b2fd4de221cac1b",
       "purpose": "Technical PASS + forbidden .git/ path \u2192 policy REJECT (phase-8 analogue)",
       "run_id": "sample-reject",
       "workflow_status": "REJECTED",
@@ -39,7 +39,7 @@
       "summary": "evidence/sample-runs/03-escalate/summary.json",
       "source": "ci_failure_orchestrator.foundation.AgentExecutionFoundation",
       "generated_by": "scripts/generate_sample_evidence.py",
-      "git_commit": "3c6d36f484869f8c064598950ccb8ba063d41dfe",
+      "git_commit": "1f6afb2ec6a00d41e31ae3e64b2fd4de221cac1b",
       "purpose": "Auth change \u2192 policy ESCALATE / AWAITING_HUMAN (BENCH-ESC-001 analogue)",
       "run_id": "sample-escalate",
       "workflow_status": "AWAITING_HUMAN",
@@ -47,6 +47,20 @@
       "synthetic": true,
       "reproduce": "python scripts/generate_sample_evidence.py",
       "verify": "ci-orchestrator foundation-verify sample-escalate --artifacts evidence/sample-runs/03-escalate"
+    },
+    {
+      "artifact": "evidence/sample-runs/04-human-approve/",
+      "summary": "evidence/sample-runs/04-human-approve/summary.json",
+      "source": "ci_failure_orchestrator.foundation.AgentExecutionFoundation",
+      "generated_by": "scripts/generate_sample_evidence.py",
+      "git_commit": "1f6afb2ec6a00d41e31ae3e64b2fd4de221cac1b",
+      "purpose": "Auth ESCALATE \u2192 foundation-decide APPROVE (no primary apply) \u2014 M4 human-loop slice",
+      "run_id": "sample-human-approve",
+      "workflow_status": "APPROVED",
+      "policy_outcome": "ESCALATE",
+      "synthetic": true,
+      "reproduce": "python scripts/generate_sample_evidence.py",
+      "verify": "ci-orchestrator foundation-verify sample-human-approve --artifacts evidence/sample-runs/04-human-approve"
     }
   ]
 }

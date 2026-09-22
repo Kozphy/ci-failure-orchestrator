@@ -1,0 +1,15 @@
+{
+  "label": "04-human-approve",
+  "purpose": "Auth ESCALATE \u2192 foundation-decide APPROVE (no primary apply) \u2014 M4 human-loop slice",
+  "run_id": "sample-human-approve",
+  "workflow_status": "APPROVED",
+  "technical_status": "PASS",
+  "policy_outcome": "ESCALATE",
+  "consistency_valid": true,
+  "evidence_root": "evidence/sample-runs/04-human-approve/runs/sample-human-approve",
+  "synthetic": true,
+  "git_commit": "1f6afb2ec6a00d41e31ae3e64b2fd4de221cac1b",
+  "note": "Local deterministic simulation with scripted proposals. Policy/human APPROVE does not mutate a primary product workspace.",
+  "human_action": "APPROVE",
+  "primary_workspace_mutated": false
+}

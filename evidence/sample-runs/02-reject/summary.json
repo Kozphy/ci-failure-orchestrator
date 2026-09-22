@@ -8,6 +8,6 @@
   "consistency_valid": true,
   "evidence_root": "evidence/sample-runs/02-reject/runs/sample-reject",
   "synthetic": true,
-  "git_commit": "3c6d36f484869f8c064598950ccb8ba063d41dfe",
-  "note": "Local deterministic simulation with scripted proposals. Policy APPROVE does not mutate a primary product workspace."
+  "git_commit": "1f6afb2ec6a00d41e31ae3e64b2fd4de221cac1b",
+  "note": "Local deterministic simulation with scripted proposals. Policy/human APPROVE does not mutate a primary product workspace."
 }

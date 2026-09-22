@@ -1,0 +1,8 @@
+{
+  "action": "APPROVE",
+  "comment": "Synthetic M4 human decision; primary tree must not change.",
+  "escalation_id": "esc-751aa665373f",
+  "primary_workspace_mutated": false,
+  "reviewer_id": "sample-reviewer",
+  "timestamp": "2026-09-22T16:51:23.780048+00:00"
+}
