@@ -11,8 +11,13 @@ from .audit import HashChainedAuditLog
 from .causal import infer_causal_edges
 from .classifier import classify_error
 from .config import load_failures, load_pipeline
+from .foundation import AgentExecutionFoundation
+from .foundation import FailureEvent as FoundationFailureEvent
 from .github_client import GitHubActionsClient
 from .github_ingest import failures_from_jobs, stages_from_jobs
+from .governed import GovernedAgentPipeline, failure_event_from_dict
+from .governed.explain import explain_result, explain_stored_run
+from .governed.store import SQLiteGovernedStore
 from .graph import PipelineGraph
 from .network_discovery import NetworkCapabilityDiscovery
 from .provenance import DependencyProvenanceEvaluator
@@ -29,10 +34,6 @@ from .trust_gateway import (
 )
 from .trust_policy import TrustPolicyEngine
 from .verification import plan_verification
-from .governed import GovernedAgentPipeline, failure_event_from_dict
-from .governed.explain import explain_result, explain_stored_run
-from .governed.store import SQLiteGovernedStore
-from .foundation import AgentExecutionFoundation, FailureEvent as FoundationFailureEvent
 
 
 def _dump(value):
