@@ -1,0 +1,384 @@
+ci_failure_orchestrator/governed/planner.py
+  s_a14a678ee2a2c0::t_b49b8971c76e59 1-70
+benchmarks/foundation/cases/classification/BENCH-CLASS-002.json
+  s_a14a678ee2a2c0::t_67bb902a819536 20-21
+  s_a14a678ee2a2c0::t_b9ee8e3804ba54 1-19,22-30
+benchmarks/foundation/cases/classification/BENCH-CLASS-004.json
+  s_a14a678ee2a2c0::t_f8f0fd4c20f010 1-3,5-7,9-17,19-30
+  s_a14a678ee2a2c0::t_5f7213f65a278c 4,8,18
+tests/test_foundation_phase_13_observability.py
+  s_a14a678ee2a2c0::t_873be5bfc8f859 1-178,180-326
+  s_a14a678ee2a2c0::t_0a55758a2875ae 179
+benchmarks/foundation/cases/policy/BENCH-POLICY-002.json
+  s_a14a678ee2a2c0::t_c19d0afa5fcd0f 1-43
+docs/operations/observability.md
+  s_a14a678ee2a2c0::t_1697816d27451a 1-77
+benchmarks/foundation/cases/recovery/BENCH-RECOVERY-002.json
+  s_a14a678ee2a2c0::t_86526f5c80479a 1-21
+ci_failure_orchestrator/governed/escalation.py
+  s_a14a678ee2a2c0::t_ac6e6d7f56725d 1-51
+docs/architecture/policy-gate.md
+  s_a14a678ee2a2c0::t_d62bc56171de9b 1-122
+config/slo.json
+  s_a14a678ee2a2c0::t_8f72733e9d7c97 1-51
+ci_failure_orchestrator/governed/explain.py
+  s_a14a678ee2a2c0::t_f290996341260f 1-66
+ci_failure_orchestrator/foundation/evaluator.py
+  s_a14a678ee2a2c0::t_ed5eb174b7b342 1-145
+tests/test_foundation_phase_7_retry.py
+  s_a14a678ee2a2c0::t_d0154eb0fa4795 519-520,527-528
+  s_a14a678ee2a2c0::t_5777f37d8ec288 392-393
+  s_a14a678ee2a2c0::t_bcb8646bc2fbf1 1-371,373-391,394-518,521-526,529-530
+  s_a14a678ee2a2c0::t_802896ea920fb1 372
+ci_failure_orchestrator/foundation/escalation.py
+  s_a14a678ee2a2c0::t_6b156abbb1df90 491-492,499,504
+  s_a14a678ee2a2c0::t_800f70718b085c 1-490,493-498,500-503,505-727
+ci_failure_orchestrator/foundation/observability/sli.py
+  s_a14a678ee2a2c0::t_f2b916e593ac83 1-282
+docs/evaluation/benchmark-harness.md
+  s_a14a678ee2a2c0::t_e46d3f1d0932b8 1-70
+docs/architecture/retry-budget.md
+  s_a14a678ee2a2c0::t_2b50289a602b0e 1-121,123-125,127-128,130-131,133-136
+  s_a14a678ee2a2c0::t_1c689eb62380db 122,126,129,132
+docs/integrations/evalforge.md
+  s_a14a678ee2a2c0::t_75e5f9de7e99f1 1-37
+ci_failure_orchestrator/foundation/benchmark/report.py
+  s_a14a678ee2a2c0::t_2cf0767564a936 1-196
+ci_failure_orchestrator/foundation/__init__.py
+  s_a14a678ee2a2c0::t_cea4f4d241b5e7 1,8-9
+  s_a14a678ee2a2c0::t_e247d27c3c261e 2,10-11,18,27-30,32-34,37,42,49
+  s_a14a678ee2a2c0::t_6c5e8de6037184 3-4,19-24,45-48
+  s_a14a678ee2a2c0::t_eac07dc7bf1328 5-7
+  s_a14a678ee2a2c0::t_e1e8634b8e46ad 12-17,31,35-36,41
+  s_a14a678ee2a2c0::t_c45b78e32425ab 26,43
+  s_a14a678ee2a2c0::t_f0d19f12a2ef57 25,38-40,44
+benchmarks/README.md
+  s_a14a678ee2a2c0::t_2f4d64646bb788 2,5-17
+  s_a14a678ee2a2c0::t_64172397f1ec84 1,3-4,18-26
+ci_failure_orchestrator/governed/retry.py
+  s_a14a678ee2a2c0::t_3233f42d9b5e22 1-78
+benchmarks/foundation/cases/retry/BENCH-RETRY-004.json
+  s_a14a678ee2a2c0::t_ae7f525ccd7fe3 1-54
+benchmarks/foundation/cases/security/BENCH-SEC-003.json
+  s_a14a678ee2a2c0::t_b0fe3298d3a3ae 1-40
+ci_failure_orchestrator/foundation/benchmark/injection.py
+  s_a14a678ee2a2c0::t_f52374c8dae03c 1-23,25-46,50-90,96-97,99-115,122-127,129-142,144-179
+  s_a14a678ee2a2c0::t_d14651dd1da8c6 24,47-49,91-95,98,116-121,128,143
+docs/security/threat-model.md
+  s_a14a678ee2a2c0::t_5e3525610b9a8c 1-29
+ci_failure_orchestrator/foundation/state_machine.py
+  s_a14a678ee2a2c0::t_b9a47f96c910c8 1,29-34,37-38,68-69
+  s_a14a678ee2a2c0::t_dd12b86dda00a3 2-15,39-64
+  s_a14a678ee2a2c0::t_6ff2bcefe5a4e9 17,21-28,35-36,65-67,70-72
+  s_a14a678ee2a2c0::t_bce32527824346 16,18-20
+benchmarks/foundation/cases/recovery/BENCH-RECOVERY-001.json
+  s_a14a678ee2a2c0::t_17d09492f030fd 1-21
+ci_failure_orchestrator/foundation/policy.py
+  s_a14a678ee2a2c0::t_4ce6d9a5ccb077 79-81,86,89,92
+  s_a14a678ee2a2c0::t_a86759f0a46b9a 494
+  s_a14a678ee2a2c0::t_eb67fea48de1ba 1-78,82-85,87-88,90-91,93-236,241-251,255-295,298-493,495-691
+  s_a14a678ee2a2c0::t_455533aef633c5 252-254,296-297
+  s_a14a678ee2a2c0::t_2449fb39d84551 237-240
+docs/adr/0003-durable-orchestration-state.md
+  s_a14a678ee2a2c0::t_06545ab6838078 1-18
+ci_failure_orchestrator/governed/store.py
+  s_a14a678ee2a2c0::t_915eac449fb2a6 1-88
+benchmarks/foundation/cases/classification/BENCH-CLASS-006.json
+  s_a14a678ee2a2c0::t_b1653c3a18a982 1-30
+docs/adr/0004-evaluation-gate.md
+  s_a14a678ee2a2c0::t_43a66109e86f46 1-18
+tests/test_foundation_phase_8_policy.py
+  s_a14a678ee2a2c0::t_6dcf8e73fa5bb9 275-276,282
+  s_a14a678ee2a2c0::t_32d1301eb9d811 403
+  s_a14a678ee2a2c0::t_10af9f6e22c23f 320,322,335
+  s_a14a678ee2a2c0::t_0a0439eb2cd6ee 339-341
+  s_a14a678ee2a2c0::t_7c4c984d72235e 298-300,304-305
+  s_a14a678ee2a2c0::t_73f412262e7c00 423,425
+  s_a14a678ee2a2c0::t_efa56d6b3eef55 454-456
+  s_a14a678ee2a2c0::t_8c9c79d7fc1187 384,386,399
+  s_a14a678ee2a2c0::t_be6cccf751affb 1-274,277-281,283-297,301-303,306-319,321,323-334,336-338,342-383,385,387-398,400-402,404-422,424,426-453
+ci_failure_orchestrator/foundation/observability/report.py
+  s_a14a678ee2a2c0::t_f9b5ee91e3d806 1-175
+benchmarks/foundation/cases/retry/BENCH-RETRY-005.json
+  s_a14a678ee2a2c0::t_d774f019e78e4b 1-51
+ci_failure_orchestrator/foundation/runner.py
+  s_a14a678ee2a2c0::t_c44bfddffc3c11 5
+  s_a14a678ee2a2c0::t_d96a7387cafb16 55,192,212,693-698
+  s_a14a678ee2a2c0::t_85b99232019308 65
+  s_a14a678ee2a2c0::t_f04809c0817e08 69,83-86,91-92
+  s_a14a678ee2a2c0::t_a004eeee6ecab6 820-826,838-845,847,849-855,866-874,876-878,880,889-891,894-909,911-924,952-968,971-978
+  s_a14a678ee2a2c0::t_8206ac1ba47ea0 56-61
+  s_a14a678ee2a2c0::t_9f4e4f25bb4e6b 1,26,36-43,80-82,89-90,93-95,99,130,152,175-177,188-189,209-210,246-247,257-258,379-380,559-569,621,641-647,665,675-678,691,700,721-725,747-760,763-766,773-786,816-818,846,879,1019-1021,1052-1054
+  s_a14a678ee2a2c0::t_f69fd6b79c8e93 1042,1060-1068,1072-1082
+  s_a14a678ee2a2c0::t_924c6d4d371411 196-198,220-221,227
+  s_a14a678ee2a2c0::t_e2a86f3b5a7a74 248,251-255,277,279-284,293-315,317-324,327,330,332-333,336-359,361,372-378,381-402,413,417-444,446,449-455,462-481,483,487,491-518,535-548,571,594-614,617,623-640,649,652-659,667-673,679-690,705-719,727-746
+  s_a14a678ee2a2c0::t_1c4ce471665d05 12-17
+  s_a14a678ee2a2c0::t_7491757a0f86ee 9
+  s_a14a678ee2a2c0::t_17c73f52da71b7 6-7,20,22,44-53,63-64,70,73-79,87-88,96-98,100-129,131-150,156-170,179-180,193-195,213-214,218,243-245,256,259-276,278,285-287,316,325-326,328,334-335,360,363-371,403-412,414-416,445,447-448,456-461,482,484-486,488-490,519-534,549-558,570,572-593,615-616,618-620,622,648,650-651,660,662-664,674,692,699,702-704,720,726,1006-1018,1024-1034,1043-1051,1059
+  s_a14a678ee2a2c0::t_d0231ea93f9f87 30-34
+  s_a14a678ee2a2c0::t_2f6023d6e92187 2-4,8,10-11,18-19,21,23-25,27-29,35,54,62,66-68,71-72,171-173,181-187,190-191,202-208,211,236-237,239-242,249-250,666,701
+  s_a14a678ee2a2c0::t_74c2c43e923f55 1069-1071
+  s_a14a678ee2a2c0::t_eb6e650e648cec 151,153-155,215-217,288-292,329,331,362,661,979-1005
+  s_a14a678ee2a2c0::t_77431691c054d7 200-201,228-229,231,233-235
+  s_a14a678ee2a2c0::t_83aa3010c45a34 174,178
+  s_a14a678ee2a2c0::t_2be776f6a13289 230,232,238
+  s_a14a678ee2a2c0::t_13c24c0e3f85a1 761-762,767-772,787-815,819,827-837,848,856-865,875,881-888,892-893,910,925-951,969-970
+  s_a14a678ee2a2c0::t_f76b689642d0e4 1022-1023,1035-1041,1055-1058
+  s_a14a678ee2a2c0::t_4ac35a42e41bf4 199,219,222-226
+ci_failure_orchestrator/governed/providers.py
+  s_a14a678ee2a2c0::t_943734090840d2 1-33,39-44,46-47,50-56
+  s_a14a678ee2a2c0::t_e6ce5f2ba8308c 34-38,45,48-49
+docs/operations/sli-slo.md
+  s_a14a678ee2a2c0::t_5ba88ee1adf31e 1-64
+benchmarks/foundation/cases/escalation/BENCH-ESC-001.json
+  s_a14a678ee2a2c0::t_6edc6c3a5cfca2 1-54
+benchmarks/foundation/cases/security/BENCH-SEC-002.json
+  s_a14a678ee2a2c0::t_f8722c41669d8a 1-29
+ci_failure_orchestrator/foundation/observability/slo.py
+  s_a14a678ee2a2c0::t_a1f1df69c0e080 1-255
+docs/architecture/current-state.md
+  s_a14a678ee2a2c0::t_b506d824298824 1-195
+benchmarks/cases/06_unsafe_workflow_modification.json
+  s_a14a678ee2a2c0::t_9863dcd91589fb 1-15
+ci_failure_orchestrator/governed/sandbox.py
+  s_a14a678ee2a2c0::t_bb9429a157ef9c 1-73
+README.md
+  s_a14a678ee2a2c0::t_562d5203d3c08a 15-22
+  s_a14a678ee2a2c0::t_2b4b8b106eb8b6 5-14,23-40
+docs/operations/dashboard-spec.md
+  s_a14a678ee2a2c0::t_2afad28f2d7981 1-16
+ci_failure_orchestrator/governed/state_machine.py
+  s_a14a678ee2a2c0::t_45153f1eeca9c2 1-67
+benchmarks/foundation/cases/retry/BENCH-RETRY-003.json
+  s_a14a678ee2a2c0::t_f7931b6e14b24a 1-54
+benchmarks/foundation/README.md
+  s_a14a678ee2a2c0::t_443ff5a970487b 1-60
+docs/adr/0006-policy-gate.md
+  s_a14a678ee2a2c0::t_fe4d4af95991c9 1-17
+ci_failure_orchestrator/governed/pipeline.py
+  s_a14a678ee2a2c0::t_790a0b18e95e37 1-6,8-118,123-384
+  s_a14a678ee2a2c0::t_5653878e9d63ac 7
+  s_a14a678ee2a2c0::t_93cc174c2c9cfa 119-122
+docs/adr/0007-mcp-ready-tool-boundary.md
+  s_a14a678ee2a2c0::t_ade7bcefc5a0e1 1-17
+ci_failure_orchestrator/governed/classifier.py
+  s_a14a678ee2a2c0::t_f40aec40bf4d85 1-47,54-88
+  s_a14a678ee2a2c0::t_7e4e19069ff509 48-53
+tests/test_foundation_phase_10_persistence.py
+  s_a14a678ee2a2c0::t_cf2ef520cd4d0b 1-214,226-385
+  s_a14a678ee2a2c0::t_d6d8be67d21303 215-225
+benchmarks/foundation/cases/policy/BENCH-POLICY-001.json
+  s_a14a678ee2a2c0::t_2ac5025bd6b340 1-42
+tests/test_governed_pipeline.py
+  s_a14a678ee2a2c0::t_8d1bc41b1bb439 1-199
+ci_failure_orchestrator/foundation/benchmark/metrics.py
+  s_a14a678ee2a2c0::t_c3f0fd9715f2e8 1-258
+ci_failure_orchestrator/governed/models.py
+  s_a14a678ee2a2c0::t_00ada8e14df91e 1-260
+ci_failure_orchestrator/governed/context.py
+  s_a14a678ee2a2c0::t_d6c9a650875efc 1-102
+benchmarks/cases/05_infrastructure_network.json
+  s_a14a678ee2a2c0::t_326be647b0e6d9 1-15
+ci_failure_orchestrator/governed/metrics.py
+  s_a14a678ee2a2c0::t_d5d2931225804b 1-48
+tests/test_foundation_phase_12_benchmark.py
+  s_a14a678ee2a2c0::t_41e5a82cfcf026 1-294
+ci_failure_orchestrator/governed/policy.py
+  s_a14a678ee2a2c0::t_9429781ec216fe 47-57
+  s_a14a678ee2a2c0::t_e34689cdb2687a 94-101,103,110-115
+  s_a14a678ee2a2c0::t_4c7af056365cb8 1-46,58-93,102,104-109,116-135
+ci_failure_orchestrator/foundation/benchmark/assertions.py
+  s_a14a678ee2a2c0::t_bdf798442472ac 14-16,20-21,23-24
+  s_a14a678ee2a2c0::t_b2a5e621c41b57 1-13,17-19,22,25-227
+ci_failure_orchestrator/foundation/observability/stats.py
+  s_a14a678ee2a2c0::t_41947cd91e7806 1-57
+benchmarks/foundation/cases/policy/BENCH-POLICY-004.json
+  s_a14a678ee2a2c0::t_a7d39a1d70b06e 1-42
+ci_failure_orchestrator/foundation/planner.py
+  s_a14a678ee2a2c0::t_554173022a37d5 16,28,39,48-53,82-89,92-95,100-104,113-149,165,167
+  s_a14a678ee2a2c0::t_8eeb0b8f4f0ad7 1-15,17-27,29-38,40-47,54-81,90-91,96-99,105-112,150-164,166
+docs/architecture/mcp-readiness.md
+  s_a14a678ee2a2c0::t_3f8db38e434e87 1-41
+benchmarks/cases/02_lint_failure.json
+  s_a14a678ee2a2c0::t_6b15563fae789f 1-14
+ci_failure_orchestrator/governed/__init__.py
+  s_a14a678ee2a2c0::t_9cf896789ac6e8 1-20
+benchmarks/foundation/cases/retry/BENCH-RETRY-002.json
+  s_a14a678ee2a2c0::t_ee6b47bf27686f 1-54
+ci_failure_orchestrator/foundation/observability/summary.py
+  s_a14a678ee2a2c0::t_af89585c1143e7 150,156-158
+  s_a14a678ee2a2c0::t_139f47ed704d35 8-9,11-14
+  s_a14a678ee2a2c0::t_44adea61c59321 18-23
+  s_a14a678ee2a2c0::t_72ded1404bd067 1-7,10,15-17,24-115,119-149,151-155,159-199
+  s_a14a678ee2a2c0::t_0fc6efbabbeb01 116-118
+ci_failure_orchestrator/foundation/sanitization.py
+  s_a14a678ee2a2c0::t_5cd1161010ac51 1-63
+benchmarks/foundation/baselines/current.json
+  s_a14a678ee2a2c0::t_91ee0fc59ac0dd 1-2,4-182,186-248,251-257
+  s_a14a678ee2a2c0::t_8d827080ddbcff 3,183-185,249-250
+ci_failure_orchestrator/governed/benchmark_runner.py
+  s_a14a678ee2a2c0::t_6f9e9ccc2a8392 1-76
+benchmarks/foundation/cases/audit/BENCH-AUDIT-001.json
+  s_a14a678ee2a2c0::t_e9eb6b1be88b7d 1-41
+ci_failure_orchestrator/foundation/context.py
+  s_a14a678ee2a2c0::t_12e3e7d03e66e4 1-131
+ci_failure_orchestrator/foundation/retry.py
+  s_a14a678ee2a2c0::t_31c04a00b788d0 1-376,378-389,391-392,394,396-475
+  s_a14a678ee2a2c0::t_24ea40a4314f72 377,390,393,395
+ci_failure_orchestrator/governed/evaluation.py
+  s_a14a678ee2a2c0::t_0b36b250a46498 1-107
+ci_failure_orchestrator/cli.py
+  s_a14a678ee2a2c0::t_e1b6660b3681b5 154-199,438-461
+  s_a14a678ee2a2c0::t_03812ac26b7c5f 32-34
+  s_a14a678ee2a2c0::t_55845d9e958c40 35
+  s_a14a678ee2a2c0::t_f0fa7eb485c6d1 312,314-317,320-324,330-347,398-399,462,529-530,532-533,538
+  s_a14a678ee2a2c0::t_2356bb107398bb 463-498
+  s_a14a678ee2a2c0::t_02e1bd357d41a3 499-528
+  s_a14a678ee2a2c0::t_ff5d3782a2033c 200-253
+  s_a14a678ee2a2c0::t_24143fbb09c551 254-311
+  s_a14a678ee2a2c0::t_ca6f0450ae3286 313,318-319,325-329,348-397
+  s_a14a678ee2a2c0::t_9658d876b68d7e 531,534-537,539-558
+benchmarks/cases/01_unit_test_failure.json
+  s_a14a678ee2a2c0::t_a751059995b30b 1-14
+ci_failure_orchestrator/foundation/sandbox.py
+  s_a14a678ee2a2c0::t_34dcd03f50d02e 43
+  s_a14a678ee2a2c0::t_f0d4e32e553e72 1-42,44-171
+docs/architecture/target-architecture.md
+  s_a14a678ee2a2c0::t_5dcca851f1a27e 1-56
+tests/test_foundation_phase_9_escalation.py
+  s_a14a678ee2a2c0::t_501955ae59d783 1-407
+docs/operations/slo.md
+  s_a14a678ee2a2c0::t_7d8952f9647cf9 1-21
+pyproject.toml
+  s_a14a678ee2a2c0::t_4d40bf854d1411 21-23
+.github/workflows/foundation-benchmark.yml
+  s_a14a678ee2a2c0::t_45930e6a42a34a 1-40
+benchmarks/cases/04_flaky_test.json
+  s_a14a678ee2a2c0::t_67a3167ffb3d4c 1-12,15
+  s_a14a678ee2a2c0::t_1c4111224a1ee5 13-14
+ci_failure_orchestrator/foundation/observability/audit_check.py
+  s_a14a678ee2a2c0::t_24b5dc451130be 1-25
+ci_failure_orchestrator/foundation/benchmark/runner.py
+  s_a14a678ee2a2c0::t_f64651dea67b46 17-19,27,30
+  s_a14a678ee2a2c0::t_fd259ef3aac942 404-411,417,419
+  s_a14a678ee2a2c0::t_015dcca969a003 504-511,521-523,525,552-557
+  s_a14a678ee2a2c0::t_0b907994b5e75b 15
+  s_a14a678ee2a2c0::t_912ad3a2079d6b 1-14,16,20-26,28-29,31-326,328,330-331,335-343,346-351,368-369,371-403,412-416,418,420-480,485,491,493-495,498-499,527-532,534-536,538,540-551,558-604
+  s_a14a678ee2a2c0::t_b070b05e9259c4 481-484,486-490,492,496-497,500-503,512-520,524,526,533,537,539
+  s_a14a678ee2a2c0::t_33dadb92fc02c5 327,329,332-334,344-345,352-367,370
+benchmarks/foundation/cases/security/BENCH-SEC-001.json
+  s_a14a678ee2a2c0::t_bfbd6604152356 1-30
+benchmarks/cases/08_retry_budget_shape.json
+  s_a14a678ee2a2c0::t_2600139a185396 1-15
+ci_failure_orchestrator/governed/tools.py
+  s_a14a678ee2a2c0::t_6246fdbed867cc 1-143
+ci_failure_orchestrator/foundation/observability/aggregator.py
+  s_a14a678ee2a2c0::t_5ba2eae6e5d3d7 1-11,13-285
+  s_a14a678ee2a2c0::t_78b38787c78336 12
+docs/operations/runbook.md
+  s_a14a678ee2a2c0::t_66600ded1dbde0 1-36
+benchmarks/foundation/cases/classification/BENCH-CLASS-005.json
+  s_a14a678ee2a2c0::t_aef6f7a202fe43 1-30
+ci_failure_orchestrator/foundation/observability/__init__.py
+  s_a14a678ee2a2c0::t_16d3c4afdcb2b2 3-5,8,10-11,19,23-77
+  s_a14a678ee2a2c0::t_15efdc79627afa 1-2,6-7,9,12-18,20-22
+ci_failure_orchestrator/foundation/benchmark/schemas.py
+  s_a14a678ee2a2c0::t_c1fcf91b9ec66a 1-127,131-132,134-151,167-168,170-349
+  s_a14a678ee2a2c0::t_71af70ace8c38f 128-130,133,152-166,169
+benchmarks/foundation/cases/classification/BENCH-CLASS-003.json
+  s_a14a678ee2a2c0::t_2ffcee12d70dc9 20-21
+  s_a14a678ee2a2c0::t_77747b8633eb51 1-19,22-30
+docs/adr/0005-retry-budget.md
+  s_a14a678ee2a2c0::t_d044497349927a 1-17
+benchmarks/foundation/cases/retry/BENCH-RETRY-001.json
+  s_a14a678ee2a2c0::t_69974aff67c8e7 1-50
+docs/architecture/agent-execution-foundation.md
+  s_a14a678ee2a2c0::t_07baccf1dd0130 9
+  s_a14a678ee2a2c0::t_57d26bd2b63950 7-8
+  s_a14a678ee2a2c0::t_1591756809ab7c 1,3,5,10,12,15-18,21,23-25,27
+  s_a14a678ee2a2c0::t_14cc774c08f706 2,4,6,11,13-14,19-20,22,26
+ci_failure_orchestrator/foundation/observability/recorder.py
+  s_a14a678ee2a2c0::t_cd7d9bec0be362 1-10,12-273
+  s_a14a678ee2a2c0::t_b80cc309990320 11
+ci_failure_orchestrator/foundation/benchmark/__init__.py
+  s_a14a678ee2a2c0::t_cd58f3514dadfc 1-37
+.gitignore
+  s_a14a678ee2a2c0::t_7d1c8dcfe0beb0 4-6
+  s_a14a678ee2a2c0::t_4cc8f66ef6e37b 55
+  s_a14a678ee2a2c0::t_7e143bf4523975 1,3,7-10,12-21,23-24,26-27,29-44,47-48,50-54,56-70
+  s_a14a678ee2a2c0::t_0f0b3ebb281599 49
+benchmarks/foundation/cases/repair/BENCH-REPAIR-001.json
+  s_a14a678ee2a2c0::t_9ef19fa64ebd1d 1-49
+docs/adr/0001-planning-vs-execution.md
+  s_a14a678ee2a2c0::t_186a3083834205 1-18
+tests/test_foundation_phases_2_6.py
+  s_a14a678ee2a2c0::t_75779564a5c72b 158
+  s_a14a678ee2a2c0::t_130a81165c5352 1-63,66-68,73,75-157,159-208,212-220,222-234
+  s_a14a678ee2a2c0::t_a98dd73285bbfe 64-65,69-70,74
+  s_a14a678ee2a2c0::t_82c7e69ef73f4f 209-211,221
+  s_a14a678ee2a2c0::t_0922dce172848c 71-72
+ci_failure_orchestrator/foundation/benchmark/baseline.py
+  s_a14a678ee2a2c0::t_a2d83020184573 1-115
+ci_failure_orchestrator/foundation/persistence.py
+  s_a14a678ee2a2c0::t_807fc0f5f6bc93 855-865,878
+  s_a14a678ee2a2c0::t_08d9437aa931a1 1-854,866-877,879-935
+benchmarks/foundation/cases/policy/BENCH-POLICY-003.json
+  s_a14a678ee2a2c0::t_9137fde4eb3b27 1-32,34-35
+  s_a14a678ee2a2c0::t_0fe4afff0bd555 33
+ci_failure_orchestrator/foundation/tools.py
+  s_a14a678ee2a2c0::t_08977d98133738 1-268
+ci_failure_orchestrator/foundation/models.py
+  s_a14a678ee2a2c0::t_af83f599372773 252-255
+  s_a14a678ee2a2c0::t_d3e7b2bab45f84 1,3
+  s_a14a678ee2a2c0::t_9371ba1f07e5a0 44-45
+  s_a14a678ee2a2c0::t_0c7f1a228cf8da 256-259
+  s_a14a678ee2a2c0::t_1bb17dc9720f41 33,50-53
+  s_a14a678ee2a2c0::t_62936bd1ce653c 2,4-32,34-43,54-245,260
+  s_a14a678ee2a2c0::t_0ea4c42acbdc65 46-49
+  s_a14a678ee2a2c0::t_7f9062d7cc19b6 246-251
+ci_failure_orchestrator/foundation/observability/recovery_metrics.py
+  s_a14a678ee2a2c0::t_91ce8291d8f588 1-35
+docs/adr/0002-tool-permission-model.md
+  s_a14a678ee2a2c0::t_48f2e2b83262a5 1-18
+ci_failure_orchestrator/foundation/benchmark/loader.py
+  s_a14a678ee2a2c0::t_3538dc727c308a 1-52
+docs/architecture/durable-state-and-audit.md
+  s_a14a678ee2a2c0::t_232e2777b29874 1-153
+benchmarks/foundation/cases/classification/BENCH-CLASS-001.json
+  s_a14a678ee2a2c0::t_5e4816824e90c0 1-30
+benchmarks/foundation/cases/policy/BENCH-POLICY-005.json
+  s_a14a678ee2a2c0::t_6b4443a88f841c 1-41
+docs/architecture/human-escalation.md
+  s_a14a678ee2a2c0::t_ebc9892be54d0a 1-137
+benchmarks/cases/03_dependency_failure.json
+  s_a14a678ee2a2c0::t_aac1d11216483a 1-12,15
+  s_a14a678ee2a2c0::t_300b3d9481e645 13-14
+ci_failure_orchestrator/foundation/observability/metrics.py
+  s_a14a678ee2a2c0::t_93df6f3964735b 1-306
+benchmarks/foundation/cases/security/BENCH-SEC-004.json
+  s_a14a678ee2a2c0::t_26011901a93ba5 1-40
+benchmarks/foundation/cases/recovery/BENCH-RECOVERY-003.json
+  s_a14a678ee2a2c0::t_95be42af39e4f8 1-22
+docs/evaluation/metrics.md
+  s_a14a678ee2a2c0::t_0982b79cf66bfc 1-30
+ci_failure_orchestrator/foundation/classifier.py
+  s_a14a678ee2a2c0::t_442f51d71c4238 1-69
+benchmarks/cases/07_unknown_escalates.json
+  s_a14a678ee2a2c0::t_8cbe79104efc67 1-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0a95a41ab1dcd51c494832554a5a75d197816415",
+  "prompts": {},
+  "sessions": {
+    "s_a14a678ee2a2c0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ba1c70df-c5eb-4e2e-83d8-761be607c5b1",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
