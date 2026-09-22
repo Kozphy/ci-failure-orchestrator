@@ -1,0 +1,179 @@
+scripts/generate_sample_evidence.py
+  s_dd5ec07e8f478a::t_7294caccb280b6 220-265,267-268,275-277
+  s_dd5ec07e8f478a::t_ebd3f9ee0e73ab 23
+  s_dd5ec07e8f478a::t_3197c03de6e715 266,269-274,279-284,289,293-300,305,307,314,317-321,332,348,352-353
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/policy/policy-decision.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-21
+tests/test_foundation_phases_2_6.py
+  s_dd5ec07e8f478a::t_8f43ef3ee30a7d 74-77
+evidence/sample-runs/03-escalate/runs/sample-escalate/escalation/evidence-index.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 8,13,21
+evidence/sample-runs/03-escalate/runs/sample-escalate/events.jsonl
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-19
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/attempts/attempt-001.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-9
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/escalation/evidence-index.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-30
+evidence/sample-runs/03-escalate/runs/sample-escalate/attempts/attempt-001.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 7
+docs/repository-audit.md
+  s_dd5ec07e8f478a::t_40565173fcd488 52
+  s_dd5ec07e8f478a::t_f20fffd1fbf05d 130-131
+  s_dd5ec07e8f478a::t_e0fe8a63251508 156,162,164-165,167,169,171
+  s_dd5ec07e8f478a::t_ef55d73e6c92dc 209,213
+  s_dd5ec07e8f478a::t_12b4c996faa7af 195
+  s_dd5ec07e8f478a::t_3571fdbf269b35 211
+  s_dd5ec07e8f478a::t_48778810449219 9-10
+  s_dd5ec07e8f478a::t_74462057e9d838 185,193
+evidence/sample-runs/02-reject/runs/sample-reject/proposals/proposal-001.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 6
+evidence/sample-runs/01-approve/runs/sample-approve/state.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 3,22,27
+ci_failure_orchestrator/foundation/escalation.py
+  s_dd5ec07e8f478a::t_cbb11d865d6c52 90-94,102-111
+evidence/sample-runs/02-reject/runs/sample-reject/input/failure-event.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 7,18
+evidence/sample-runs/03-escalate/runs/sample-escalate/metrics-summary.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 12
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/escalation/proposed.patch
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-4
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/plans/plan-001.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-19
+evidence/sample-runs/01-approve/runs/sample-approve/input/failure-event.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 7,18
+evidence/sample-runs/01-approve/summary.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 11-12
+evidence/sample-runs/01-approve/runs/sample-approve/events.jsonl
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-18
+evidence/sample-runs/01-approve/runs/sample-approve/attempts/attempt-001.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 7
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/escalation/summary.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-73
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/reviewer/decision.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-8
+evidence/manifest.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 3-5,7,14,28,42,50-63
+evidence/sample-runs/01-approve/runs/sample-approve/metrics-summary.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 12
+evidence/sample-runs/02-reject/runs/sample-reject/metrics-summary.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 12
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/tools/tool-001-test_runner.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-7
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/proposals/proposal-001.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-8
+README.md
+  s_dd5ec07e8f478a::t_0e9b85626baec1 5
+  s_dd5ec07e8f478a::t_b78b348149ee41 55
+  s_dd5ec07e8f478a::t_a2581577ed29a7 139
+  s_dd5ec07e8f478a::t_1ca6c8144d568f 152
+  s_dd5ec07e8f478a::t_fe1fac527c5eb1 132
+  s_dd5ec07e8f478a::t_d6be61a34b1333 44
+  s_dd5ec07e8f478a::t_b3b81d6ea659f2 126
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/events.jsonl
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-21
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/classification/classification.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-10
+evidence/sample-runs/03-escalate/runs/sample-escalate/state.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 3,23,28
+evidence/sample-runs/02-reject/summary.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 11-12
+evidence/sample-runs/01-approve/runs/sample-approve/sandbox/sandbox-001.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 8
+evidence/README.md
+  s_dd5ec07e8f478a::t_a86f45333ab510 23
+  s_dd5ec07e8f478a::t_5456b1c28663aa 43,46-53
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/tools/tool-001-file_reader.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-7
+evidence/sample-runs/02-reject/runs/sample-reject/attempts/attempt-001.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 7
+evidence/sample-runs/02-reject/runs/sample-reject/events.jsonl
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-17
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/metrics-summary.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-28
+evidence/sample-runs/03-escalate/runs/sample-escalate/escalation/summary.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 7-8,17,25
+docs/control-authority-map.md
+  s_dd5ec07e8f478a::t_1d514259075476 1-38,40-68,70-91
+  s_dd5ec07e8f478a::t_76d7f86f891974 39
+  s_dd5ec07e8f478a::t_48dabd62bf7234 69
+evidence/sample-runs/01-approve/runs/sample-approve/proposals/proposal-001.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 7
+ci_failure_orchestrator/foundation/__init__.py
+  s_dd5ec07e8f478a::t_53dfdeddbb7f3d 17,21-22,38,46,50
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/state.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-30
+evidence/sample-runs/03-escalate/summary.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 11-12
+evidence/sample-runs/04-human-approve/summary.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-15
+evidence/sample-runs/02-reject/runs/sample-reject/state.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 3,22,27
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/tools/tool-001-log_reader.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-7
+ci_failure_orchestrator/cli.py
+  s_dd5ec07e8f478a::t_ba095c9a110f69 388-417
+  s_dd5ec07e8f478a::t_410311c46f0f51 586-608
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/escalation/summary.md
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-142
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/input/failure-event.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-20
+tests/test_foundation_phase_9_escalation.py
+  s_dd5ec07e8f478a::t_9c89358646f359 246-251
+  s_dd5ec07e8f478a::t_05156d36a38667 150
+evidence/sample-runs/03-escalate/runs/sample-escalate/escalation/summary.md
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 7,130,132
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/proposals/proposal-001.patch
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-4
+evidence/sample-runs/03-escalate/runs/sample-escalate/input/failure-event.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 7,18
+ci_failure_orchestrator/foundation/persistence.py
+  s_dd5ec07e8f478a::t_c075568618cca9 740
+  s_dd5ec07e8f478a::t_4b07788d123dfc 630-635,640
+  s_dd5ec07e8f478a::t_256f3f03549238 173,196,228
+  s_dd5ec07e8f478a::t_34b97a1ed7a421 523
+  s_dd5ec07e8f478a::t_960972b8c0f981 19
+  s_dd5ec07e8f478a::t_f48848229ac24c 257-269
+  s_dd5ec07e8f478a::t_6a5e58810b3cd0 838-962,969,994-1074
+  s_dd5ec07e8f478a::t_d79bd0d9ef04f0 16
+  s_dd5ec07e8f478a::t_879a14dcd30a99 62-64,70-76,256
+  s_dd5ec07e8f478a::t_24810673f9f411 963-968,970-993
+evidence/sample-runs/03-escalate/runs/sample-escalate/sandbox/sandbox-001.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 7
+evidence/sample-runs/02-reject/runs/sample-reject/sandbox/sandbox-001.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 7
+docs/architecture/current-state.md
+  s_dd5ec07e8f478a::t_7e98c1885b0cf1 72
+  s_dd5ec07e8f478a::t_ef7739bcddb824 84
+  s_dd5ec07e8f478a::t_16bdf73adf9284 52-55
+  s_dd5ec07e8f478a::t_5b4fd9c57797f9 96
+  s_dd5ec07e8f478a::t_cb2716462e244f 130-131,142
+evidence/sample-runs/03-escalate/runs/sample-escalate/proposals/proposal-001.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 6
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/escalation/evaluation-summary.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-42
+tests/test_foundation_m4_human_decision.py
+  s_dd5ec07e8f478a::t_279444bbdb9cf9 1-124
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/evaluations/evaluation-001.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-39
+evidence/sample-runs/04-human-approve/runs/sample-human-approve/sandbox/sandbox-001.json
+  s_dd5ec07e8f478a::t_c51f82abd21f6f 1-11
+ci_failure_orchestrator/foundation/state_machine.py
+  s_dd5ec07e8f478a::t_66427b56c21ebb 37-40
+  s_dd5ec07e8f478a::t_325a530077e376 68-73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c188cd1b88000cc92ccfe2e228096084f8f5c711",
+  "prompts": {},
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
