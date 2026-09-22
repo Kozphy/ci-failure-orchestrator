@@ -1,0 +1,144 @@
+docs/repository-audit.md
+  s_a14a678ee2a2c0::t_6518e84784c2a6 9,20,45,47,53,56,60-61,65,91,95-96,111,131,133,135-138,157-159,161,165-167,177-181,183,185-189,191,205,207
+  s_a14a678ee2a2c0::t_7d730e2e25689f 209
+  s_a14a678ee2a2c0::t_688a6485349ed9 109
+  s_a14a678ee2a2c0::t_9ca1f6abf2b558 1-8,10-19,21-44,46,48-52,54-55,57-59,62-64,66-90,92-94,97-108,110,112-130,132,134,139-156,160,162-164,168-176,182,184,190,192-204,206,208
+evidence/sample-runs/01-approve/runs/sample-approve/evaluations/evaluation-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-39
+evidence/sample-runs/02-reject/runs/sample-reject/attempts/attempt-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-9
+evidence/sample-runs/03-escalate/runs/sample-escalate/plans/plan-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-19
+evidence/manifest.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-52
+evidence/sample-runs/03-escalate/runs/sample-escalate/escalation/proposed.patch
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-4
+.gitignore
+  s_a14a678ee2a2c0::t_ad9bb38d2be00e 45,48
+evidence/sample-runs/01-approve/runs/sample-approve/events.jsonl
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-18
+evidence/sample-runs/03-escalate/runs/sample-escalate/policy/policy-decision.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-21
+evidence/sample-runs/01-approve/runs/sample-approve/plans/plan-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-19
+evidence/sample-runs/03-escalate/runs/sample-escalate/tools/tool-001-log_reader.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-7
+README.md
+  s_a14a678ee2a2c0::t_b79afea1b75d4b 3,5,7,9,11-12,15,17,19-25,27,30-39,42,44,46,48,50-54,56,58,61,64,66,69-71,76,79-81,83,86,94,97-98,101,104-110,112,115,117,119-124,126,128-130,132,134-141,143,145,147-151,153,155,157,159
+evidence/sample-runs/03-escalate/runs/sample-escalate/proposals/proposal-001.patch
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-4
+evidence/sample-runs/02-reject/runs/sample-reject/metrics-summary.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-28
+evidence/sample-runs/02-reject/runs/sample-reject/evaluations/evaluation-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-19
+evidence/sample-runs/01-approve/runs/sample-approve/policy/policy-decision.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-22
+evidence/sample-runs/02-reject/runs/sample-reject/events.jsonl
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-17
+evidence/sample-runs/01-approve/runs/sample-approve/classification/classification.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-10
+evidence/sample-runs/03-escalate/runs/sample-escalate/escalation/evidence-index.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-30
+evidence/sample-runs/03-escalate/runs/sample-escalate/tools/tool-001-file_reader.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-7
+evidence/sample-runs/03-escalate/runs/sample-escalate/escalation/evaluation-summary.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-42
+evidence/sample-runs/01-approve/runs/sample-approve/input/failure-event.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-20
+evidence/sample-runs/03-escalate/summary.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-13
+evidence/sample-runs/02-reject/summary.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-13
+evidence/sample-runs/03-escalate/runs/sample-escalate/classification/classification.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-10
+evidence/sample-runs/02-reject/runs/sample-reject/proposals/proposal-001.patch
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-4
+docs/architecture/current-state.md
+  s_a14a678ee2a2c0::t_2a5563654c30ed 3-4,6,10,12,15-23,26,28-32,34,36,38,40,43-54,57,61,63-69,73,75-81,85,87,89-95,99,101,103-106,110,112-115,119,121-123,129,131-134
+evidence/sample-runs/02-reject/runs/sample-reject/plans/plan-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-19
+scripts/generate_sample_evidence.py
+  s_a14a678ee2a2c0::t_46e6a42e955cbe 32
+  s_a14a678ee2a2c0::t_de979785c137c5 76,78-81
+  s_a14a678ee2a2c0::t_cf8e900ec85198 56,65
+  s_a14a678ee2a2c0::t_b38320bf6c7e3e 25-26
+  s_a14a678ee2a2c0::t_bfe954ce656d92 1-24,27-31,33-55,57-64,66-75,77,82-287
+evidence/sample-runs/03-escalate/runs/sample-escalate/attempts/attempt-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-9
+evidence/sample-runs/01-approve/runs/sample-approve/tools/tool-001-log_reader.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-7
+evidence/sample-runs/02-reject/runs/sample-reject/sandbox/sandbox-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-11
+evidence/sample-runs/03-escalate/runs/sample-escalate/evaluations/evaluation-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-39
+evidence/sample-runs/01-approve/runs/sample-approve/attempts/attempt-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-9
+evidence/sample-runs/02-reject/runs/sample-reject/tools/tool-001-log_reader.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-7
+evidence/sample-runs/02-reject/runs/sample-reject/proposals/proposal-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-8
+evidence/sample-runs/01-approve/runs/sample-approve/tools/tool-001-test_runner.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-7
+evidence/sample-runs/02-reject/runs/sample-reject/state.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-28
+evidence/sample-runs/03-escalate/runs/sample-escalate/metrics-summary.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-28
+evidence/sample-runs/01-approve/runs/sample-approve/state.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-28
+evidence/sample-runs/03-escalate/runs/sample-escalate/tools/tool-001-test_runner.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-7
+evidence/sample-runs/03-escalate/runs/sample-escalate/sandbox/sandbox-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-11
+evidence/sample-runs/01-approve/runs/sample-approve/proposals/proposal-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-9
+evidence/sample-runs/01-approve/runs/sample-approve/proposals/proposal-001.patch
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-4
+evidence/sample-runs/03-escalate/runs/sample-escalate/state.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-29
+evidence/sample-runs/02-reject/runs/sample-reject/tools/tool-001-test_runner.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-7
+evidence/sample-runs/01-approve/summary.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-13
+evidence/sample-runs/03-escalate/runs/sample-escalate/events.jsonl
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-19
+evidence/sample-runs/03-escalate/runs/sample-escalate/proposals/proposal-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-8
+evidence/README.md
+  s_a14a678ee2a2c0::t_35d4bb8ed4fff4 1-48
+evidence/sample-runs/02-reject/runs/sample-reject/policy/policy-decision.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-31
+evidence/sample-runs/03-escalate/runs/sample-escalate/escalation/summary.md
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-142
+evidence/sample-runs/01-approve/runs/sample-approve/metrics-summary.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-28
+evidence/sample-runs/02-reject/runs/sample-reject/tools/tool-001-file_reader.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-7
+evidence/sample-runs/02-reject/runs/sample-reject/input/failure-event.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-20
+evidence/sample-runs/03-escalate/runs/sample-escalate/input/failure-event.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-20
+evidence/sample-runs/02-reject/runs/sample-reject/classification/classification.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-10
+evidence/sample-runs/01-approve/runs/sample-approve/tools/tool-001-file_reader.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-7
+evidence/sample-runs/03-escalate/runs/sample-escalate/escalation/summary.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-73
+evidence/sample-runs/01-approve/runs/sample-approve/sandbox/sandbox-001.json
+  s_a14a678ee2a2c0::t_4df96e0a15ce45 1-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1f6afb2ec6a00d41e31ae3e64b2fd4de221cac1b",
+  "prompts": {},
+  "sessions": {
+    "s_a14a678ee2a2c0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ba1c70df-c5eb-4e2e-83d8-761be607c5b1",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
