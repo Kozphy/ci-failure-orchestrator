@@ -1,6 +1,6 @@
 # Service v0.1.0 plan — narrow GitHub CI failure service
 
-**Status:** reviewed plan; Stages 0–1 implemented, awaiting review (see [CHANGELOG](../CHANGELOG.md)). Nothing is deleted before its stage is reviewed.  
+**Status:** reviewed plan; Stages 0, 1 and 1b implemented (see [CHANGELOG](../CHANGELOG.md)); Stage 2 next. Nothing is deleted before its stage is reviewed.  
 **Baseline (2026-09-25, commit `4620583`):** 382 tests pass; 17 workflows; ~90 top-level modules plus `foundation/` and `governed/`.
 
 This document records the architecture audit, the canonical module set, the staged plan with acceptance tests, and the decisions taken during review. Every stage must end with the full test suite green and report concrete evidence (test names, commands, artifacts), not feature claims.
@@ -59,7 +59,7 @@ Below the path level: three classifiers, four policy engines, four state machine
 | No run schema; no time-to-diagnosis or cost metrics | new | 5 |
 | No DAG over workflow jobs / packages / tests (`graph.py` is tied to the diagnosis `Stage` model) | new | 4 |
 | `repo_fix.py` exceeds 1,000 lines | `repo_fix.py` | 1 (done) |
-| `foundation/persistence.py` (1,254) and `foundation/runner.py` (1,082) exceed 1,000 lines | foundation | capped by ratchet test; split needs review |
+| `foundation/persistence.py` (1,254) and `foundation/runner.py` (1,082) exceed 1,000 lines | foundation | 1b (done) |
 
 ---
 
@@ -80,7 +80,8 @@ Rule: a canonical module must not import an experimental module.
 | Stage | Scope | Acceptance (all stages: full suite green) |
 | --- | --- | --- |
 | **0** | Module-status manifest; import-boundary test; experimental CLI labels; auto-merge disabled; `self-heal` and `agent-issue-delivery` manual-only | `tests/test_module_boundaries.py`; `tests/test_workflow_safety.py`; `tests/test_cli_groups.py` |
-| **1** | Split `repo_fix.py` into `service/` (pure move); `repo_fix.py` re-exports | `tests/test_repo_fix.py` unchanged and passing; no new canonical file > 1,000 lines (pre-existing oversize foundation files capped, not grown) |
+| **1** | Split `repo_fix.py` into `service/` (pure move); `repo_fix.py` re-exports | `tests/test_repo_fix.py` unchanged and passing; no canonical file > 1,000 lines |
+| **1b** | Split `foundation/persistence.py` and `foundation/runner.py` (verbatim move; both stay as stable import paths) | AST of every moved definition identical to HEAD; full suite green; no canonical file > 1,000 lines |
 | **2** | Security boundaries: symlink/submodule/binary/traversal patches rejected; seeded token absent from every artifact, prompt, run record, PR body; token env names blocked for provider and verify; workflow-command and ANSI neutralization; untrusted-log framing; trusted verify allowlist; refuse default-branch targets; draft-only PRs; static no-merge check | `tests/test_security_boundaries.py` |
 | **3** | Policy: escalate dependency / infrastructure / network / unknown classifications and low confidence; environment-failure detection at reproduce time escalates without calling the provider | dependency failure + source-only patch → `AWAITING_HUMAN`; golden baseline diff shown before intentional update |
 | **4** | `service/dag.py`: workflow `needs`, declared packages, test→module imports; upstream-most failed job; affected tests as evidence; undeclared import → dependency classification | cycle rejection, upstream selection, affected tests, undeclared-package tests |
@@ -117,7 +118,7 @@ Rule: a canonical module must not import an experimental module.
 | (b) | Environment/dependency failure correctly escalated | Historical failure from a public OSS repository, reproduced at the failing commit | Authentic real-world failure |
 | (c) | Sensitive change correctly blocked | One of the owner's existing repositories | Familiar environment, practical applicability |
 
-Each case records: repository and commit, failing run URL (when on GitHub), sanitized log excerpt, reproduction commands, verify allowlist, provider(s), `run.json`, audit timeline, PR or escalation link, and a comparison note. Every case is labeled **single case study (n=1), not production evidence**. Secrets: provider keys only via local environment or repository secrets; nothing stored in case-study artifacts (checked by the Stage 2 artifact scan). The mapping above is a proposal and can be swapped before Stage 8.
+Each case records: repository and commit, failing run URL (when on GitHub), sanitized log excerpt, reproduction commands, verify allowlist, provider(s), `run.json`, audit timeline, PR or escalation link, and a comparison note. Every case is labeled **single case study (n=1), not production evidence**. Secrets: provider keys only via local environment or repository secrets; nothing stored in case-study artifacts (checked by the Stage 2 artifact scan). Mapping confirmed in review.
 
 ### 5.3 Providers for the successful-repair case — comparison with a human baseline
 
@@ -125,9 +126,9 @@ Run case (a) with each available provider CLI behind the same `ProposalSource` i
 
 Recorded per provider: outcome, attempts, verification result, files changed, diff size, time-to-first-valid-patch, estimated cost, and whether the patch matches the human baseline's intent. Providers run in an empty temp directory with an env allowlist; their own tool permissions are documented per CLI. Results are comparative anecdotes (n=1 per provider), not a benchmark.
 
-### 5.4 Versioning — open decision (resolve in Stage 9)
+### 5.4 Versioning — decided: dual track
 
-The review asked both to reset `pyproject.toml` to `0.1.0` and to keep `1.2.0`; these conflict. Recommendation: keep the package at `1.2.0` (lowering it would make pip treat the release as a downgrade) and tag the service release `service-v0.1.0`; document both tracks in `CHANGELOG.md` (package: semantic `1.x`; service: `service-v0.x`). Alternative: reset to `0.1.0` with an explicit renumbering note. Decision required before tagging.
+The package stays at `1.2.0` in `pyproject.toml` (lowering it would make pip treat the release as a downgrade). The service release is tagged `service-v0.1.0`, then `service-v0.2.0`, …. `CHANGELOG.md` documents both tracks (package: semantic `1.x`; service: `service-v0.x`).
 
 ### 5.5 Risky workflows — phased
 

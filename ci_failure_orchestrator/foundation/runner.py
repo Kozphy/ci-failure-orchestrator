@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import time
-from collections.abc import Callable, Sequence
-from dataclasses import dataclass, field
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
+
 from .classifier import FailureClassifier
 from .context import ContextBuilder
 from .escalation import (
-    EscalationArtifactWriter,
     EscalationArtifacts,
+    EscalationArtifactWriter,
     HumanEscalation,
     HumanEscalationBuilder,
 )
@@ -19,13 +18,18 @@ from .evaluator import Evaluator, LocalEvaluator
 from .models import (
     FailureClassification,
     FailureEvent,
-    RepairPlan,
-    RepairProposal,
     RunState,
     RunStatus,
     ToolRiskLevel,
     new_id,
     utc_now,
+)
+
+# Phase 13 — optional observability (never critical to orchestration decisions)
+from .observability.metrics import (
+    MetricsRecorder,
+    NullMetricsRecorder,
+    SafeMetricsRecorder,
 )
 from .persistence import (
     AuditEventType,
@@ -37,10 +41,11 @@ from .policy import (
     PolicyConfig,
     PolicyDecision,
     PolicyEngine,
-    PolicyOutcome,
     StaticPolicyEngine,
-    build_policy_context,
 )
+from .policy_gate import PolicyGateMixin
+from .proposal_factories import ProposalFactory, ScriptedProposalFactory, default_proposal_factory
+from .results import FoundationResult
 from .retry import (
     AttemptRecord,
     RetryBudget,
@@ -53,124 +58,17 @@ from .retry import (
 )
 from .sandbox import SandboxExecutor, TempCopySandboxExecutor
 from .state_machine import ALLOWED_TRANSITIONS, FoundationStateMachine
-# Phase 13 — optional observability (never critical to orchestration decisions)
-from .observability.metrics import (
-    MetricsRecorder,
-    NullMetricsRecorder,
-    SafeMetricsRecorder,
-)
 from .tools import ToolRegistry, build_default_registry
 
-ProposalFactory = Callable[..., RepairProposal]
+__all__ = [
+    "AgentExecutionFoundation",
+    "FoundationResult",
+    "ProposalFactory",
+    "ScriptedProposalFactory",
+]
 
 
-@dataclass
-class FoundationResult:
-    """Run outcome including Phase 7–9 metrics."""
-
-    run: RunState
-    status: RunStatus
-    attempts: int = 0
-    retries: int = 0
-    stop_reason: RetryReason | None = None
-    duplicate_proposal_count: int = 0
-    duplicate_failure_count: int = 0
-    no_progress_count: int = 0
-    decisions: list[RetryDecision] = field(default_factory=list)
-    technical_status: str = "FAIL"  # PASS | FAIL
-    policy_outcome: PolicyOutcome | None = None
-    policy_decision: PolicyDecision | None = None
-    workflow_status: str | None = None
-    escalation: HumanEscalation | None = None
-    escalation_id: str | None = None
-    artifact_refs: dict[str, str] = field(default_factory=dict)
-
-    def explain(self) -> str:
-        parts = list(self.run.retry_trace)
-        parts.extend(self.run.policy_trace)
-        if self.escalation is not None:
-            parts.append(self.escalation.summary)
-        if not parts:
-            return self.status.value
-        return "\n".join(parts)
-
-
-class ScriptedProposalFactory:
-    """Yields predetermined patches / proposals for deterministic retry/policy tests."""
-
-    def __init__(self, patches: Sequence[str] | Sequence[RepairProposal]) -> None:
-        self._items = list(patches)
-        self._index = 0
-
-    def __call__(
-        self,
-        *,
-        run_id: str,
-        plan: RepairPlan,
-        classification: FailureClassification,
-        attempt_number: int,
-        paths: tuple[str, ...],
-        force_forbidden_path: bool,
-    ) -> RepairProposal:
-        if not self._items:
-            raise RuntimeError("ScriptedProposalFactory has no items")
-        idx = min(self._index, len(self._items) - 1)
-        self._index += 1
-        item = self._items[idx]
-        if isinstance(item, RepairProposal):
-            return RepairProposal(
-                proposal_id=new_id("prop"),
-                run_id=run_id,
-                files_changed=item.files_changed,
-                patch=item.patch,
-                rationale=item.rationale,
-                expected_effect=item.expected_effect,
-                verification_plan=item.verification_plan or plan.verification_steps,
-            )
-        use_paths = ("secrets/token",) if force_forbidden_path else paths[:5]
-        return RepairProposal(
-            proposal_id=new_id("prop"),
-            run_id=run_id,
-            files_changed=use_paths,
-            patch=item,
-            rationale=f"Scripted proposal attempt={attempt_number} ({classification.category})",
-            expected_effect="Restore targeted verification without broadening scope",
-            verification_plan=plan.verification_steps,
-        )
-
-
-def _default_proposal_factory(
-    *,
-    run_id: str,
-    plan: RepairPlan,
-    classification: FailureClassification,
-    attempt_number: int,
-    paths: tuple[str, ...],
-    force_forbidden_path: bool,
-) -> RepairProposal:
-    use_paths = (
-        ("secrets/token",)
-        if force_forbidden_path
-        else paths[:5] or ("src/module.py",)
-    )
-    return RepairProposal(
-        proposal_id=new_id("prop"),
-        run_id=run_id,
-        files_changed=use_paths,
-        patch=(
-            f"--- a/{use_paths[0]}\n+++ b/{use_paths[0]}\n"
-            f"@@\n+# foundation repair for {classification.category} attempt={attempt_number}\n"
-        ),
-        rationale=(
-            f"Minimal scoped proposal for {classification.category} "
-            f"(heuristic confidence={classification.confidence:.2f}; attempt={attempt_number})"
-        ),
-        expected_effect="Restore targeted verification without broadening scope",
-        verification_plan=plan.verification_steps,
-    )
-
-
-class AgentExecutionFoundation:
+class AgentExecutionFoundation(PolicyGateMixin):
     """FailureEvent → EvaluationResult → PolicyDecision → (optional) HumanEscalation.
 
     Evaluation PASS is technical success only.
@@ -211,7 +109,7 @@ class AgentExecutionFoundation:
         self.force_target_fail = force_target_fail
         self.force_forbidden_path = force_forbidden_path
         self.retry_budget = retry_budget or RetryBudget()
-        self.proposal_factory = proposal_factory or _default_proposal_factory
+        self.proposal_factory = proposal_factory or default_proposal_factory
         self.target_pass_schedule = (
             list(target_pass_schedule) if target_pass_schedule is not None else None
         )
@@ -745,237 +643,6 @@ class AgentExecutionFoundation:
             metadata=metadata,
         )
 
-    def _run_policy_gate(
-        self,
-        *,
-        sm: FoundationStateMachine,
-        state: RunState,
-        attempts: list[AttemptRecord],
-        decisions: list[RetryDecision],
-        classification: FailureClassification | None,
-        proposal: RepairProposal,
-        evaluation,
-        tools_used: tuple[str, ...],
-        tool_risks: tuple[ToolRiskLevel, ...],
-    ) -> FoundationResult:
-        journal = self.persistence
-        before = sm.status.value
-        sm.transition(RunStatus.POLICY_REVIEW, "evaluation_pass")
-        state.status = sm.status
-        state.technical_status = "PASS"
-        state.stop_reason = RetryReason.SUCCESS.value
-        self._audit(
-            journal,
-            AuditEventType.POLICY_REVIEW_STARTED,
-            state_before=before,
-            state_after=sm.status.value,
-        )
-
-        policy_ctx = build_policy_context(
-            proposal=proposal,
-            evaluation=evaluation,
-            classification=classification,
-            tools_used=tools_used,
-            tool_risk_levels=tool_risks,
-            attempt_count=len(attempts),
-            config=self.policy_config,
-        )
-        policy_decision = self.policy_engine.evaluate(policy_ctx)
-        state.policy_decision = policy_decision
-        state.policy_outcome = policy_decision.outcome.value
-        state.policy_trace.append(policy_decision.explain())
-
-        policy_ref = None
-        if journal is not None:
-            policy_ref = journal.write_json(
-                "policy",
-                {
-                    "outcome": policy_decision.outcome.value,
-                    "reasons": list(policy_decision.reasons),
-                    "matched_rules": list(policy_decision.matched_rules),
-                    "risk_level": policy_decision.risk_level.value,
-                    "evidence": list(policy_decision.evidence),
-                    "violations": [
-                        {
-                            "rule_id": v.rule_id,
-                            "severity": v.severity,
-                            "message": v.message,
-                            "evidence": list(v.evidence),
-                        }
-                        for v in policy_decision.violations
-                    ],
-                },
-                name="policy-decision.json",
-            )
-            journal.checkpoint(
-                workflow_status=sm.status.value,
-                technical_status="PASS",
-                policy_outcome=policy_decision.outcome.value,
-                latest_policy_decision_ref=policy_ref.ref,
-            )
-
-        outcome = policy_decision.outcome
-        if outcome is PolicyOutcome.APPROVE:
-            before = sm.status.value
-            sm.transition(
-                RunStatus.APPROVED,
-                policy_decision.matched_rules[0] if policy_decision.matched_rules else "approve",
-            )
-            state.status = sm.status
-            state.workflow_status = RunStatus.APPROVED.value
-            state.updated_at = utc_now()
-            self._audit(
-                journal,
-                AuditEventType.POLICY_APPROVED,
-                state_before=before,
-                state_after=sm.status.value,
-                evidence_refs=(policy_ref,) if policy_ref else (),
-                metadata={"rules": list(policy_decision.matched_rules)},
-            )
-            self._audit(journal, AuditEventType.RUN_SUCCEEDED, state_after=sm.status.value)
-            if journal is not None:
-                journal.checkpoint(workflow_status=sm.status.value, technical_status="PASS")
-            return self._result(
-                state,
-                attempts,
-                decisions,
-                RetryReason.SUCCESS,
-                technical_status="PASS",
-                policy_decision=policy_decision,
-            )
-
-        if outcome is PolicyOutcome.REJECT:
-            before = sm.status.value
-            sm.transition(
-                RunStatus.REJECTED,
-                policy_decision.matched_rules[0] if policy_decision.matched_rules else "reject",
-            )
-            state.status = sm.status
-            state.workflow_status = RunStatus.REJECTED.value
-            state.updated_at = utc_now()
-            self._audit(
-                journal,
-                AuditEventType.POLICY_REJECTED,
-                state_before=before,
-                state_after=sm.status.value,
-                evidence_refs=(policy_ref,) if policy_ref else (),
-                metadata={"rules": list(policy_decision.matched_rules)},
-            )
-            if journal is not None:
-                journal.checkpoint(workflow_status=sm.status.value, technical_status="PASS")
-            return self._result(
-                state,
-                attempts,
-                decisions,
-                RetryReason.SUCCESS,
-                technical_status="PASS",
-                policy_decision=policy_decision,
-            )
-
-        before = sm.status.value
-        sm.transition(
-            RunStatus.ESCALATED,
-            policy_decision.matched_rules[0] if policy_decision.matched_rules else "escalate",
-        )
-        state.status = sm.status
-        self._audit(
-            journal,
-            AuditEventType.POLICY_ESCALATED,
-            state_before=before,
-            state_after=sm.status.value,
-            evidence_refs=(policy_ref,) if policy_ref else (),
-            metadata={"rules": list(policy_decision.matched_rules)},
-        )
-        try:
-            sm.transition(RunStatus.ESCALATION_BUILDING, "build_package")
-            state.status = sm.status
-            if journal is not None:
-                journal.checkpoint(workflow_status=sm.status.value)
-            escalation = self.escalation_builder.build(
-                run_id=state.run_id,
-                policy_decision=policy_decision,
-                proposal=proposal,
-                evaluation=evaluation,
-                attempts=attempts,
-                classification=classification,
-                event=state.event,
-                policy_context_categories=policy_ctx.file_categories,
-                policy_context_scope=policy_ctx.change_scope,
-            )
-            artifacts = self.escalation_writer.write(
-                escalation,
-                proposal=proposal,
-                evaluation=evaluation,
-            )
-            before = sm.status.value
-            sm.transition(RunStatus.AWAITING_HUMAN, escalation.escalation_id)
-            state.status = sm.status
-            state.workflow_status = RunStatus.AWAITING_HUMAN.value
-            state.escalation = escalation
-            state.escalation_id = escalation.escalation_id
-            state.artifact_refs = {
-                "root": str(artifacts.root),
-                "summary_json": str(artifacts.summary_json),
-                "summary_md": str(artifacts.summary_md),
-                "evidence_index": str(artifacts.evidence_index),
-                "proposed_patch": str(artifacts.proposed_patch),
-                "evaluation_summary": str(artifacts.evaluation_summary),
-            }
-            state.updated_at = utc_now()
-            if journal is not None:
-                eref = journal.write_json(
-                    "escalation",
-                    escalation.to_dict(),
-                    name="summary.json",
-                )
-                journal.checkpoint(
-                    workflow_status=sm.status.value,
-                    escalation_ref=eref.ref,
-                    technical_status="PASS",
-                    policy_outcome=PolicyOutcome.ESCALATE.value,
-                )
-                self._audit(
-                    journal,
-                    AuditEventType.ESCALATION_PACKAGE_CREATED,
-                    evidence_refs=(eref,),
-                    metadata={
-                        "escalation_id": escalation.escalation_id,
-                        "completeness": escalation.evidence_completeness.status.value,
-                    },
-                )
-                self._audit(
-                    journal,
-                    AuditEventType.AWAITING_HUMAN,
-                    state_before=before,
-                    state_after=sm.status.value,
-                )
-            return self._result(
-                state,
-                attempts,
-                decisions,
-                RetryReason.SUCCESS,
-                technical_status="PASS",
-                policy_decision=policy_decision,
-                escalation=escalation,
-                artifacts=artifacts,
-            )
-        except Exception as exc:  # noqa: BLE001 — fail closed, never APPROVE/REJECT
-            if RunStatus.ESCALATION_ERROR in ALLOWED_TRANSITIONS.get(sm.status, frozenset()):
-                sm.transition(RunStatus.ESCALATION_ERROR, f"escalation_failed:{exc}")
-            state.status = RunStatus.ESCALATION_ERROR
-            state.workflow_status = RunStatus.ESCALATION_ERROR.value
-            state.updated_at = utc_now()
-            state.policy_trace.append(f"escalation_package_failed: {type(exc).__name__}")
-            if journal is not None:
-                journal.checkpoint(workflow_status=state.status.value)
-            return self._result(
-                state,
-                attempts,
-                decisions,
-                RetryReason.SUCCESS,
-                technical_status="PASS",
-                policy_decision=policy_decision,
-            )
 
     def _resolve_classification(
         self,

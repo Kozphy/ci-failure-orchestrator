@@ -10,11 +10,6 @@ from ci_failure_orchestrator import module_status as ms
 PACKAGE = "ci_failure_orchestrator"
 PACKAGE_DIR = Path(__file__).resolve().parents[1] / PACKAGE
 MAX_CANONICAL_LINES = 1000
-# Pre-existing oversize canonical files: capped at their current size until split.
-OVERSIZE_CAPS = {
-    "foundation/persistence.py": 1254,
-    "foundation/runner.py": 1082,
-}
 
 
 def _top_level_entries() -> set[str]:
@@ -111,14 +106,10 @@ def test_canonical_modules_do_not_import_experimental():
 def test_canonical_files_stay_under_line_limit():
     over = {}
     for path in _canonical_files():
-        rel = path.relative_to(PACKAGE_DIR).as_posix()
         lines = len(path.read_text(encoding="utf-8").splitlines())
-        if lines > OVERSIZE_CAPS.get(rel, MAX_CANONICAL_LINES):
-            over[rel] = lines
+        if lines > MAX_CANONICAL_LINES:
+            over[path.relative_to(PACKAGE_DIR).as_posix()] = lines
     assert over == {}
-    for rel in OVERSIZE_CAPS:
-        lines = len((PACKAGE_DIR / rel).read_text(encoding="utf-8").splitlines())
-        assert lines > MAX_CANONICAL_LINES, f"{rel} is back under the limit; remove its cap"
 
 
 def test_checker_detects_relative_absolute_and_inline_imports():

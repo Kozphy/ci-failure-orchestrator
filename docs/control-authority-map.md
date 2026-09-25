@@ -39,7 +39,7 @@ Foundation does **not** import governed or trust. The CLI wires stacks side-by-s
 | Retry budget | `foundation/retry.py` | Finite; fingerprint / no-progress / security stops | Trust gateway retry/budget states |
 | **Policy gate** | **`foundation/policy.py`** | `APPROVE` \| `REJECT` \| `ESCALATE`; default ≠ `APPROVE`; errors → `ESCALATE` | `governed/policy.py`; `trust_policy.py`; root `policy.py` |
 | Human escalation | `foundation/escalation.py` + `persistence.apply_reviewer_decision` | Local review package → `AWAITING_HUMAN`; explicit `foundation-decide` → `APPROVED`/`REJECTED`/`DEFER` (APPROVE ≠ primary apply) | Trust `HUMAN_ESCALATION`; governed `AWAITING_HUMAN` |
-| Durable run state + audit | `foundation/persistence.py` | `state.json` + append-oriented `events.jsonl` | `audit.HashChainedAuditLog` (diagnosis/trust); `governed/store.py` SQLite |
+| Durable run state + audit | `foundation/persistence.py` (facade over `durable.py`, `recovery.py`, `human_decision.py`) | `state.json` + append-oriented `events.jsonl` | `audit.HashChainedAuditLog` (diagnosis/trust); `governed/store.py` SQLite |
 | Cryptographic audit integrity | **Not foundation** | Append-oriented only | Hash-chain lives in `audit.py` for other stacks |
 | Observability / SLI / SLO | `foundation/observability/*` | Rebuild from artifacts; **never authorizes** | Root telemetry / OTEL helpers |
 | Synthetic evaluation | `foundation/benchmark/*` | 26 golden cases + baseline CI | Governed 8-case suite (`benchmark` CLI) |
