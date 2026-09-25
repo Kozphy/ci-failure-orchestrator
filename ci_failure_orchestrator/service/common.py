@@ -5,6 +5,7 @@ from __future__ import annotations
 import shlex
 import shutil
 import subprocess
+from collections.abc import Sequence
 from pathlib import Path
 
 DEFAULT_ENV_ALLOWLIST: tuple[str, ...] = (
@@ -19,6 +20,39 @@ DEFAULT_ENV_ALLOWLIST: tuple[str, ...] = (
     "APPDATA",
     "LOCALAPPDATA",
 )
+
+# Credentials and git/ssh indirection that would let a provider or repository code act
+# on GitHub (push, merge, mint OIDC tokens). Never forwarded, even when requested.
+BLOCKED_ENV_NAMES = frozenset(
+    {
+        "GITHUB_TOKEN",
+        "GH_TOKEN",
+        "GITHUB_PAT",
+        "GH_ENTERPRISE_TOKEN",
+        "GITHUB_ENTERPRISE_TOKEN",
+        "GIT_ASKPASS",
+        "SSH_ASKPASS",
+        "SSH_AUTH_SOCK",
+        "GIT_SSH",
+        "GIT_SSH_COMMAND",
+        "GIT_CREDENTIAL_HELPER",
+    }
+)
+BLOCKED_ENV_PREFIXES = ("ACTIONS_", "GIT_CONFIG")
+
+
+def blocked_env_names(names: Sequence[str]) -> tuple[str, ...]:
+    blocked: list[str] = []
+    for name in names:
+        upper = name.strip().upper()
+        if (
+            upper in BLOCKED_ENV_NAMES
+            or upper.startswith(BLOCKED_ENV_PREFIXES)
+            or upper.endswith(("_GITHUB_TOKEN", "_GH_TOKEN"))
+        ):
+            blocked.append(name)
+    return tuple(blocked)
+
 
 FIX_DIR = "fix-repo"
 METADATA_NAME = "metadata.json"

@@ -9,6 +9,7 @@ from ..foundation.sanitization import sanitize_text
 from .common import MAX_FEEDBACK_CHARS, MAX_LOG_CHARS, git, tail
 from .ingest import related_tracked_paths
 from .session import FixSession
+from .untrusted import UNTRUSTED_NOTICE, neutralize, untrusted_block
 
 _MAX_TRACKED_LISTED = 400
 _MAX_RELEVANT_FILES = 6
@@ -34,25 +35,34 @@ def build_prompt(session: FixSession, *, attempt_number: int, changed_paths: Seq
         "Rules: make the smallest change that makes the verification commands pass; context lines must",
         "match the file contents shown below exactly; do not modify CI workflows, secrets, credentials",
         "or dependency manifests unless the failure clearly requires it.",
+        UNTRUSTED_NOTICE,
         "",
-        "## Failure",
-        f"workflow: {failure.get('workflow', '')}",
-        f"job: {failure.get('job', '')}",
-        f"failed step: {failure.get('failed_step', '')}",
-        f"message: {failure.get('message', '')}",
+        untrusted_block(
+            "failure metadata",
+            "\n".join(
+                f"{label}: {neutralize(str(failure.get(key, '')))}"
+                for label, key in (
+                    ("workflow", "workflow"),
+                    ("job", "job"),
+                    ("failed step", "failed_step"),
+                    ("message", "message"),
+                )
+            ),
+        ),
     ]
-    log = str(failure.get("log_excerpt") or "")
+    log = neutralize(str(failure.get("log_excerpt") or ""))
     if log:
-        parts += ["", "## CI log excerpt (tail)", "```", tail(log, MAX_LOG_CHARS), "```"]
+        parts += ["", untrusted_block("CI log excerpt (tail)", tail(log, MAX_LOG_CHARS))]
 
     failing_baseline = next((s for s in session.baseline if not s.passed), None)
     if failing_baseline is not None and failure.get("source") != "local_reproduction":
+        output = neutralize(f"{failing_baseline.stdout}\n{failing_baseline.stderr}".strip())
         parts += [
             "",
-            f"## Local reproduction at base commit (step {failing_baseline.name}, exit {failing_baseline.returncode})",
-            "```",
-            tail(f"{failing_baseline.stdout}\n{failing_baseline.stderr}".strip(), MAX_FEEDBACK_CHARS),
-            "```",
+            untrusted_block(
+                f"local reproduction at base commit (step {failing_baseline.name}, exit {failing_baseline.returncode})",
+                tail(output, MAX_FEEDBACK_CHARS),
+            ),
         ]
 
     parts += ["", "## Verification commands (all must pass after your patch)"]
@@ -65,7 +75,7 @@ def build_prompt(session: FixSession, *, attempt_number: int, changed_paths: Seq
             "Do not repeat that patch.",
         ]
         if item.get("output"):
-            parts += ["```", item["output"], "```"]
+            parts += [untrusted_block(f"output of attempt {item['attempt']}", neutralize(item["output"]))]
 
     tracked = session.tracked_files
     listed = tracked[:_MAX_TRACKED_LISTED]
@@ -98,7 +108,7 @@ def build_prompt(session: FixSession, *, attempt_number: int, changed_paths: Seq
         cleaned, redactions = sanitize_text(content[:_MAX_FILE_CHARS])
         redacted_any = redacted_any or redactions > 0
         truncated = " (truncated)" if len(content) > _MAX_FILE_CHARS else ""
-        parts += ["", f"## File: {path}{truncated}", "```", cleaned, "```"]
+        parts += ["", untrusted_block(f"file {path}{truncated}", cleaned)]
         shown += 1
     if redacted_any:
         parts += [

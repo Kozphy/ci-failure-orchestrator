@@ -27,7 +27,10 @@ from ..foundation.persistence import (
     verify_run_consistency,
 )
 from .common import FINAL_PATCH_NAME, FIX_DIR, METADATA_NAME, git
-from .patches import parse_patch_files
+from .patches import parse_patch_files, patch_violation
+from .untrusted import clean_untrusted
+
+ALWAYS_PROTECTED_BRANCHES = frozenset({"main", "master"})
 
 
 @dataclass
@@ -57,7 +60,23 @@ def _commit_message(metadata: dict[str, Any], run_id: str, approval: str) -> str
         *[f"  - {cmd}" for cmd in metadata.get("verify_commands") or []],
         f"Patch sha256: {metadata.get('patch_sha256', '')}",
     ]
-    return "\n".join(lines) + "\n"
+    return clean_untrusted("\n".join(lines) + "\n")
+
+
+def protected_branches(repo: Path, remote: str) -> frozenset[str]:
+    """Branch names fix-repo-apply must never create or push: main, master and the remote default."""
+
+    names = set(ALWAYS_PROTECTED_BRANCHES)
+    head = git(repo, "symbolic-ref", "--quiet", "--short", f"refs/remotes/{remote}/HEAD")
+    if head.returncode == 0 and head.stdout.strip():
+        names.add(head.stdout.strip().removeprefix(f"{remote}/").lower())
+    return frozenset(names)
+
+
+def build_pr_command(gh: str, branch: str, title: str, body: str) -> list[str]:
+    """Always a draft: a human must mark it ready and merge it."""
+
+    return [gh, "pr", "create", "--draft", "--head", branch, "--title", title, "--body", body]
 
 
 def apply_fix(
@@ -109,6 +128,9 @@ def apply_fix(
     files = parse_patch_files(patch_text)
     if list(files) != list(metadata.get("files_changed") or []):
         return blocked("final.patch files do not match the verified file list")
+    violation = patch_violation(patch_text)
+    if violation:
+        return blocked(f"final.patch refused: {violation}")
 
     events, _ = FileAuditStore(artifacts_root).read_events_tolerant(run_id)
     if any(e.event_type == AuditEventType.TARGET_PATCH_APPLIED.value for e in events):
@@ -124,6 +146,8 @@ def apply_fix(
     branch_name = branch or f"ci-orchestrator/fix-{run_id}"
     if git(repo, "check-ref-format", "--branch", branch_name).returncode != 0:
         return blocked(f"invalid branch name: {branch_name}")
+    if branch_name.removeprefix("refs/heads/").lower() in protected_branches(repo, remote):
+        return blocked(f"refusing to write to protected branch {branch_name}; fixes only go to new branches")
     if git(repo, "rev-parse", "--verify", "--quiet", f"refs/heads/{branch_name}").returncode == 0:
         return blocked(f"branch already exists: {branch_name}")
 
@@ -199,6 +223,15 @@ def apply_fix(
     )
 
     if push or open_pr:
+        existing = git(repo, "ls-remote", "--heads", remote, f"refs/heads/{branch_name}", timeout=120)
+        if existing.returncode != 0 or existing.stdout.strip():
+            result.status = "PARTIAL"
+            result.message += (
+                f" Not pushed: remote branch {branch_name} already exists on {remote}."
+                if existing.returncode == 0
+                else f" Not pushed: cannot check {remote} for an existing branch: {existing.stderr.strip()[:300]}"
+            )
+            return result
         pushed = git(repo, "push", "--set-upstream", remote, f"refs/heads/{branch_name}:refs/heads/{branch_name}", timeout=300)
         if pushed.returncode != 0:
             result.status = "PARTIAL"
@@ -216,12 +249,11 @@ def apply_fix(
         if gh is None:
             result.status = "PARTIAL"
             result.message += " GitHub CLI (gh) not found; PR not opened."
-            result.next_steps = [f"gh pr create --head {branch_name} --fill"]
+            result.next_steps = [f"gh pr create --draft --head {branch_name} --fill"]
             return result
-        title = _commit_message(metadata, run_id, approval).splitlines()[0]
         body = _commit_message(metadata, run_id, approval)
         pr = subprocess.run(
-            [gh, "pr", "create", "--head", branch_name, "--title", title, "--body", body],
+            build_pr_command(gh, branch_name, body.splitlines()[0], body),
             cwd=repo, capture_output=True, text=True, encoding="utf-8", errors="replace", check=False, timeout=300,
         )
         if pr.returncode != 0:

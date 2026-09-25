@@ -13,10 +13,11 @@ from ..foundation.models import (
 from ..foundation.persistence import FileEvidenceStore
 from ..patch_sandbox import WorktreePatchVerifier
 from .common import FIX_DIR, MAX_FEEDBACK_CHARS, tail
-from .patches import extract_patch, is_unsafe_path, parse_patch_files
+from .patches import extract_patch, is_unsafe_path, parse_patch_files, patch_violation
 from .prompt import build_prompt, extract_rationale
 from .proposals import ProposalSource
 from .session import FixSession
+from .untrusted import clean_untrusted
 
 
 class RepoFixProposalFactory:
@@ -68,7 +69,7 @@ class WorktreeSandbox:
 
     def _record(self, reason: str, output: str = "") -> None:
         self.session.feedback.append(
-            {"attempt": self.attempt, "reason": reason, "output": tail(output, MAX_FEEDBACK_CHARS)}
+            {"attempt": self.attempt, "reason": reason, "output": tail(clean_untrusted(output), MAX_FEEDBACK_CHARS)}
         )
 
     def execute(
@@ -84,12 +85,14 @@ class WorktreeSandbox:
             self._record(error, "No unified diff was found in the response.")
             return SandboxResult(proposal.run_id, proposal.proposal_id, False, False, (), (), error=error, workspace="git-worktree")
 
-        unsafe = [p for p in proposal.files_changed if is_unsafe_path(p)]
-        if unsafe:
-            self._record("forbidden_path_outside_repo", ", ".join(unsafe))
+        violation = patch_violation(proposal.patch)
+        if violation is None and any(is_unsafe_path(p) for p in proposal.files_changed):
+            violation = "forbidden_path_outside_repo"
+        if violation:
+            self._record(violation, "Patch refused before any worktree was created.")
             return SandboxResult(
-                proposal.run_id, proposal.proposal_id, False, False, (), tuple(unsafe),
-                error="forbidden_path_outside_repo", workspace="git-worktree",
+                proposal.run_id, proposal.proposal_id, False, False, (), proposal.files_changed,
+                error=violation, workspace="git-worktree",
             )
 
         result = self.verifier.verify(

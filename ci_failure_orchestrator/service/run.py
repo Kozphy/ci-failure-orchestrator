@@ -14,8 +14,16 @@ from ..foundation.retry import RetryBudget
 from ..foundation.runner import AgentExecutionFoundation
 from ..patch_sandbox import WorktreePatchVerifier
 from .adapters import RepoFixProposalFactory, WorktreeSandbox
-from .common import DEFAULT_ENV_ALLOWLIST, FINAL_PATCH_NAME, FIX_DIR, METADATA_NAME, git, split_command
-from .ingest import failure_from_reproduction, related_tracked_paths
+from .common import (
+    DEFAULT_ENV_ALLOWLIST,
+    FINAL_PATCH_NAME,
+    FIX_DIR,
+    METADATA_NAME,
+    blocked_env_names,
+    git,
+    split_command,
+)
+from .ingest import clean_failure, failure_from_reproduction, related_tracked_paths
 from .patches import parse_patch_files
 from .proposals import PatchFileSource, ProposalSource, ProviderCommandSource
 from .session import FixSession, VerifyCommand
@@ -72,6 +80,9 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
         return _outcome(outcome="ERROR", message=f"not a git repository: {repo}")
 
     try:
+        blocked = blocked_env_names(config.verify_env)
+        if blocked:
+            raise ValueError(f"refusing to pass credential variables to verification commands: {', '.join(blocked)}")
         commands = _build_commands(config.verify_commands)
         source = _build_source(config)
     except ValueError as exc:
@@ -101,7 +112,7 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
             ),
         )
 
-    failure = dict(config.failure) if config.failure else failure_from_reproduction(baseline, commands)
+    failure = clean_failure(config.failure) if config.failure else failure_from_reproduction(baseline, commands)
     tracked = tuple(
         line for line in git(repo, "ls-tree", "-r", "--name-only", base_commit).stdout.splitlines() if line
     )

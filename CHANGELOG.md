@@ -6,6 +6,14 @@ Versioning (plan §5.4) uses two tracks: the Python package keeps semantic versi
 
 ## [Unreleased]
 
+### Stage 2 — security boundaries on the service path
+
+- Patch guard (`service/patches.py::patch_violation`), enforced in `WorktreeSandbox.execute` before any worktree is created and again in `apply_fix`: rejects symlinks (mode `120000`), submodules (mode `160000` / `Subproject commit`), binary patches, traversal / absolute / drive-letter paths (including `rename`/`copy` headers), `.git/` paths, and added lines containing a high-confidence secret (GitHub token, AWS key, private key). Codes (`forbidden_path_*`, `binary_patch_rejected`, `invalid_patch_contains_secret`) are unrecoverable in `classify_disposition`, so a refused patch stops the run after one attempt.
+- Credentials: `GITHUB_TOKEN`, `GH_TOKEN`, `GITHUB_PAT`, `ACTIONS_*`, `GIT_CONFIG*`, `GIT_ASKPASS`, `SSH_AUTH_SOCK` and similar are refused in `--provider-env` / `--verify-env` (run ends `ERROR`, no artifacts). Ambient values never reach the provider or verification commands (env allowlist).
+- Untrusted content (`service/untrusted.py`): ANSI/OSC escapes and control characters are stripped, `::command::` and `##[...]` lines are neutralized, and secrets are redacted at intake (fixture, log file, GitHub, local reproduction) and in verification feedback. Prompt sections holding logs, output and file contents are labeled `UNTRUSTED` inside fences the content cannot close, with a data-only instruction.
+- `fix-repo-apply`: PRs are always `--draft`; refuses `main`, `master` and the remote default branch; refuses to push when the branch already exists on the remote; commit message / PR body sanitized.
+- Evidence: `tests/test_security_boundaries.py` (41 tests) — including a seeded GitHub token and AWS key in the CI log, verification output and provider response, scanned across every artifact file (`state.json`, `events.jsonl`, `metadata.json`, prompts, responses), provider stdin, the run outcome, the commit message and the PR body; and static AST checks that canonical code contains no merge call and every `gh pr create` argv includes `--draft`. Full suite 438 passed.
+
 ### Stage 1b — foundation files split under 1,000 lines (verbatim move)
 
 - `foundation/persistence.py` (1,254 lines) → `durable.py` (schemas, stores, sanitize/JSON helpers; 587), `recovery.py` (assess / verify / inspect / replay / resume), `human_decision.py` (`apply_reviewer_decision`, `append_operator_event`); `persistence.py` keeps `RunPersistence` and re-exports every name, so `foundation.persistence` imports are unchanged.

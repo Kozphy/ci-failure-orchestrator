@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Protocol
 
 from ..provider_adapters import ProviderSpec, SandboxRunner
-from .common import DEFAULT_ENV_ALLOWLIST, tail
+from .common import DEFAULT_ENV_ALLOWLIST, blocked_env_names, tail
 from .patches import decode_patch_bytes
 
 
@@ -52,6 +52,9 @@ class ProviderCommandSource:
         timeout_seconds: int = 600,
         env_passthrough: Sequence[str] = (),
     ) -> None:
+        blocked = blocked_env_names(env_passthrough)
+        if blocked:
+            raise ValueError(f"refusing to pass credential variables to the provider: {', '.join(blocked)}")
         self.spec = ProviderSpec(
             name="fix-repo-provider",
             argv=tuple(argv),

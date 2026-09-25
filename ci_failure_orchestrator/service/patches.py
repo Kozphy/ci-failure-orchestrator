@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import re
 
+from ..foundation.sanitization import contains_high_confidence_secret
+
 _DIFF_LINE_PREFIXES = (
     "diff ",
     "index ",
@@ -28,6 +30,11 @@ _DIFF_LINE_PREFIXES = (
 )
 _FENCE_RE = re.compile(r"```[A-Za-z0-9_-]*[^\n]*\n(.*?)```", re.DOTALL)
 _DIFF_GIT_RE = re.compile(r"^diff --git a/(.+?) b/(.+)$")
+_MODE_LINE_RE = re.compile(r"^(?:new file mode|deleted file mode|old mode|new mode) (\d{6})\s*$")
+_INDEX_MODE_RE = re.compile(r"^index [0-9a-f]+\.\.[0-9a-f]+ (\d{6})\s*$")
+_RENAME_COPY_RE = re.compile(r"^(?:rename|copy) (?:from|to) (.+)$")
+_SYMLINK_MODE = "120000"
+_SUBMODULE_MODE = "160000"
 
 
 def decode_patch_bytes(raw: bytes) -> str:
@@ -119,3 +126,36 @@ def added_files(patch: str) -> tuple[str, ...]:
 def is_unsafe_path(path: str) -> bool:
     p = path.replace("\\", "/")
     return not p or p.startswith("/") or re.match(r"^[A-Za-z]:", p) is not None or ".." in p.split("/")
+
+
+def patch_violation(patch: str) -> str | None:
+    """First structural reason to refuse a patch before it reaches any worktree, or None.
+
+    Codes are chosen so the foundation retry engine treats them as unrecoverable
+    (``forbidden_path*``, ``binary_patch_rejected``, ``invalid*``).
+    """
+
+    lines = patch.split("\n")
+    paths = list(parse_patch_files(patch))
+    for line in lines:
+        mode = _MODE_LINE_RE.match(line) or _INDEX_MODE_RE.match(line)
+        if mode and mode.group(1) == _SYMLINK_MODE:
+            return "forbidden_path_symlink"
+        if mode and mode.group(1) == _SUBMODULE_MODE:
+            return "forbidden_path_submodule"
+        if line.startswith(("GIT binary patch", "Binary files ")):
+            return "binary_patch_rejected"
+        if line[1:].startswith("Subproject commit "):
+            return "forbidden_path_submodule"
+        renamed = _RENAME_COPY_RE.match(line)
+        if renamed:
+            paths.append(_strip_prefix(renamed.group(1), ""))
+    for path in paths:
+        if is_unsafe_path(path):
+            return "forbidden_path_outside_repo"
+        if ".git" in path.replace("\\", "/").split("/"):
+            return "forbidden_path_git_dir"
+    added = "\n".join(line[1:] for line in lines if line.startswith("+") and not line.startswith("+++"))
+    if contains_high_confidence_secret(added):
+        return "invalid_patch_contains_secret"
+    return None

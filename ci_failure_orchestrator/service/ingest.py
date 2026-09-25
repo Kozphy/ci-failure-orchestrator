@@ -12,6 +12,7 @@ from ..github_client import GitHubActionsClient
 from ..patch_sandbox import VerificationStep
 from .common import MAX_LOG_CHARS, tail
 from .session import VerifyCommand
+from .untrusted import clean_untrusted
 
 _GH_TIMESTAMP_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z ?", re.MULTILINE)
 _MESSAGE_RE = re.compile(r"(error|failed|failure|exception|assert|traceback)", re.IGNORECASE)
@@ -48,22 +49,28 @@ def related_tracked_paths(text: str, tracked: Sequence[str], *, limit: int = 8) 
     return tuple(found)
 
 
+def clean_failure(failure: dict[str, Any]) -> dict[str, Any]:
+    """Every string field of a failure record is untrusted CI output."""
+
+    return {key: clean_untrusted(value) if isinstance(value, str) else value for key, value in failure.items()}
+
+
 def failure_from_fixture(path: str | Path) -> dict[str, Any]:
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
-    return dict(raw.get("failure", raw))
+    return clean_failure(dict(raw.get("failure", raw)))
 
 
 def failure_from_log_file(path: str | Path) -> dict[str, Any]:
     text = Path(path).read_text(encoding="utf-8", errors="replace")
-    log = tail(text, MAX_LOG_CHARS)
-    return {
+    log = tail(clean_untrusted(text), MAX_LOG_CHARS)
+    return clean_failure({
         "source": "log_file",
         "workflow": "ci",
         "job": "ci",
         "failed_step": "unknown",
         "message": summarize_failure_message(log),
         "log_excerpt": log,
-    }
+    })
 
 
 def failure_from_github(
@@ -87,8 +94,8 @@ def failure_from_github(
     )
     job_name = str(job.get("name") or job.get("id"))
     log = _GH_TIMESTAMP_RE.sub("", evidence.logs.get(job_name, ""))
-    log = tail(log, MAX_LOG_CHARS)
-    return {
+    log = tail(clean_untrusted(log), MAX_LOG_CHARS)
+    return clean_failure({
         "source": "github_actions",
         "repository": repository,
         "workflow": str(job.get("workflow_name") or "ci"),
@@ -99,14 +106,14 @@ def failure_from_github(
         "branch": str(job.get("head_branch") or ""),
         "log_excerpt": log,
         "raw_log_ref": str(job.get("html_url") or ""),
-    }
+    })
 
 
 def failure_from_reproduction(steps: Sequence[VerificationStep], commands: Sequence[VerifyCommand]) -> dict[str, Any]:
     failing = next((s for s in steps if not s.passed), steps[-1])
     display = next((c.display for c in commands if c.name == failing.name), failing.name)
-    output = tail(f"{failing.stdout}\n{failing.stderr}".strip(), MAX_LOG_CHARS)
-    return {
+    output = tail(clean_untrusted(f"{failing.stdout}\n{failing.stderr}".strip()), MAX_LOG_CHARS)
+    return clean_failure({
         "source": "local_reproduction",
         "workflow": "local",
         "job": "verify",
@@ -114,4 +121,4 @@ def failure_from_reproduction(steps: Sequence[VerificationStep], commands: Seque
         "message": summarize_failure_message(output) or f"{display} exited {failing.returncode}",
         "exit_code": failing.returncode,
         "log_excerpt": output,
-    }
+    })

@@ -23,6 +23,17 @@ _PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
 )
 
 
+# Patterns specific enough to reject content outright (e.g. a proposed patch);
+# the ``assignment`` pattern would flag ordinary code like ``token = os.environ[...]``.
+_HIGH_CONFIDENCE = frozenset({"github_token", "aws_key", "private_key"})
+
+
+def contains_high_confidence_secret(text: str) -> bool:
+    return bool(text) and any(
+        pattern.search(text) for name, pattern in _PATTERNS if name in _HIGH_CONFIDENCE
+    )
+
+
 def sanitize_text(text: str) -> tuple[str, int]:
     """Redact common secret patterns. Returns (cleaned, redaction_count).
 
