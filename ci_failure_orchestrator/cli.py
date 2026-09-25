@@ -19,10 +19,11 @@ from .governed import GovernedAgentPipeline, failure_event_from_dict
 from .governed.explain import explain_result, explain_stored_run
 from .governed.store import SQLiteGovernedStore
 from .graph import PipelineGraph
+from .module_status import EXPERIMENTAL_COMMANDS, EXPERIMENTAL_LABEL
 from .network_discovery import NetworkCapabilityDiscovery
 from .provenance import DependencyProvenanceEvaluator
 from .ranker import RootCauseRanker
-from .repo_fix import (
+from .service import (
     FixRepoConfig,
     apply_fix,
     failure_from_fixture,
@@ -494,27 +495,40 @@ def cmd_fix_repo_apply(args):
     return 0 if result.status == "APPLIED" else 1
 
 
+def _add_experimental(sub, name, help_text):
+    if name not in EXPERIMENTAL_COMMANDS:
+        raise ValueError(f"{name} is not registered in module_status.EXPERIMENTAL_COMMANDS")
+    return sub.add_parser(name, help=EXPERIMENTAL_LABEL + help_text)
+
+
 def build_parser():
-    parser = argparse.ArgumentParser(prog="ci-orchestrator")
+    parser = argparse.ArgumentParser(
+        prog="ci-orchestrator",
+        description=(
+            "Canonical service commands: fix-repo, fix-repo-apply, foundation-*. "
+            "Commands marked [experimental] are outside the v0.1 service path "
+            "(see docs/module-status.md)."
+        ),
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    classify = sub.add_parser("classify", help="Classify a CI error message")
+    classify = _add_experimental(sub, "classify", "Classify a CI error message")
     classify.add_argument("message")
     classify.set_defaults(func=cmd_classify)
 
-    rank = sub.add_parser("rank", help="Rank failures by probable root cause")
+    rank = _add_experimental(sub, "rank", "Rank failures by probable root cause")
     rank.add_argument("--pipeline", required=True)
     rank.add_argument("--failures", required=True)
     rank.add_argument("--audit")
     rank.set_defaults(func=cmd_rank)
 
-    analyze = sub.add_parser("analyze", help="Analyze normalized GitHub Actions jobs and logs")
+    analyze = _add_experimental(sub, "analyze", "Analyze normalized GitHub Actions jobs and logs")
     analyze.add_argument("--jobs", required=True)
     analyze.add_argument("--logs")
     analyze.add_argument("--audit")
     analyze.set_defaults(func=cmd_analyze)
 
-    analyze_run = sub.add_parser("analyze-run", help="Fetch and analyze a GitHub Actions workflow run")
+    analyze_run = _add_experimental(sub, "analyze-run", "Fetch and analyze a GitHub Actions workflow run")
     analyze_run.add_argument("--repo", required=True, help="Repository in owner/name format")
     analyze_run.add_argument("--run-id", required=True, type=int, help="GitHub Actions workflow run ID")
     analyze_run.add_argument("--token", help="GitHub token; defaults to GITHUB_TOKEN")
@@ -524,7 +538,7 @@ def build_parser():
     analyze_run.add_argument("--audit")
     analyze_run.set_defaults(func=cmd_analyze_run)
 
-    trust_run = sub.add_parser("trust-run", help="Run a policy-gated tool proposal scenario")
+    trust_run = _add_experimental(sub, "trust-run", "Run a policy-gated tool proposal scenario")
     trust_run.add_argument("--scenario", required=True)
     trust_run.add_argument("--providers")
     trust_run.add_argument("--policies")
@@ -533,23 +547,23 @@ def build_parser():
     trust_run.add_argument("--approved", action="store_true")
     trust_run.set_defaults(func=cmd_trust_run)
 
-    run_cmd = sub.add_parser("run", help="Run governed agent pipeline on a failure fixture")
+    run_cmd = _add_experimental(sub, "run", "Run governed agent pipeline on a failure fixture")
     run_cmd.add_argument("--fixture", required=True, help="JSON FailureEvent fixture")
     run_cmd.add_argument("--store", help="SQLite governed run store path")
     run_cmd.add_argument("--audit", help="Optional hash-chained audit JSONL path")
     run_cmd.set_defaults(func=cmd_run)
 
-    explain = sub.add_parser("explain", help="Explain a stored governed run")
+    explain = _add_experimental(sub, "explain", "Explain a stored governed run")
     explain.add_argument("run_id")
     explain.add_argument("--store", help="SQLite governed run store path")
     explain.set_defaults(func=cmd_explain)
 
-    replay = sub.add_parser("replay", help="Replay stored governed run events")
+    replay = _add_experimental(sub, "replay", "Replay stored governed run events")
     replay.add_argument("run_id")
     replay.add_argument("--store", help="SQLite governed run store path")
     replay.set_defaults(func=cmd_replay)
 
-    bench = sub.add_parser("benchmark", help="Run governed synthetic benchmark suite")
+    bench = _add_experimental(sub, "benchmark", "Run governed synthetic benchmark suite")
     bench.add_argument(
         "--cases",
         default="benchmarks/cases",

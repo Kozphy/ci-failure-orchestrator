@@ -1,8 +1,10 @@
 name: agent-issue-delivery
 
+# Manual-only: issue text reaches a shell agent and the PR is not a draft
+# (docs/service-v0.1-plan.md §5.5). The job needs an issues payload, so a manual
+# dispatch is a no-op. Previous trigger: issues labeled 'agent-ready'.
 on:
-  issues:
-    types: [labeled]
+  workflow_dispatch:
 
 permissions:
   contents: write

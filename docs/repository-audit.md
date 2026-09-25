@@ -44,7 +44,7 @@ Values: **Yes** / **Partial** / **No** / **Unknown**.
 | Deterministic tool planning | Yes | Yes | Yes | No | No | `foundation/planner.py`, `tools.py` |
 | Path-safe tool execution | Yes | Yes | Yes | Partial | No | `tools.py` (`_safe_relpath`); BENCH-SEC-* |
 | Repair proposal generation (LLM) | Partial (docs honest) | Partial | Partial | No | No | Default heuristic / `ScriptedProposalFactory`; governed `DeterministicAgentModel`; opt-in provider CLI via `fix-repo --provider-cmd` (tested with a fake provider only, `tests/test_repo_fix.py`) |
-| Real-repo patch verification | Yes | Yes | Yes | No | No | `repo_fix.py` + `patch_sandbox.py`: local failure reproduced first, then patch verified by executing commands in a disposable git worktree; `tests/test_repo_fix.py` |
+| Real-repo patch verification | Yes | Yes | Yes | No | No | `service/` + `patch_sandbox.py`: local failure reproduced first, then patch verified by executing commands in a disposable git worktree; `tests/test_repo_fix.py` |
 | Target repo write after APPROVED | Yes | Yes | Yes | No | No | `fix-repo-apply` → new branch via temporary index; requires `APPROVED`, patch hash match; audit `TARGET_*` events |
 | Isolated sandbox (temp copy) | Yes | Yes | Yes | Partial | No | `foundation/sandbox.py`; phase 2–6 + security benches |
 | Real patch apply to primary tree | No (docs honest) | No | N/A | No | No | `runner.py`: “Policy APPROVE does not apply the patch to the primary workspace” |

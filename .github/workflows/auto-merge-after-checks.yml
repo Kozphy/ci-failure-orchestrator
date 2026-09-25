@@ -1,9 +1,8 @@
 name: Auto merge after checks
 
+# Disabled: the CI failure service never merges pull requests
+# (docs/service-v0.1-plan.md §5.5). Scheduled for deletion in Stage 9.
 on:
-  check_suite:
-    types: [completed]
-  status:
   workflow_dispatch:
 
 permissions:
@@ -16,7 +15,7 @@ jobs:
   auto-merge-gate:
     name: Auto merge gate
     runs-on: ubuntu-latest
-    if: github.repository_owner == 'Kozphy'
+    if: ${{ false }}
     steps:
       - name: Resolve pull request and merge only when every check is green
         env:

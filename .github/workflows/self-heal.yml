@@ -1,9 +1,12 @@
 name: self-heal
 
+# Manual-only: this path commits and opens PRs without foundation policy or
+# escalation (docs/service-v0.1-plan.md §5.5). The job needs a workflow_run
+# payload, so a manual dispatch is a no-op. Replaced by the canonical Action in
+# Stage 6. Previous trigger: workflow_run on ci, ct, security,
+# provider-contract, repair-benchmark, Production Proof (completed).
 on:
-  workflow_run:
-    workflows: ["ci", "ct", "security", "provider-contract", "repair-benchmark", "Production Proof"]
-    types: [completed]
+  workflow_dispatch:
 
 permissions:
   contents: write

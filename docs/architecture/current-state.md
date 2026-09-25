@@ -82,7 +82,7 @@ FailureEvent
 - Local durable state + append-oriented audit + inspect/verify/resume.
 - Human escalation package writer (local files).
 - Explicit human decision resume (`foundation-decide`) from `AWAITING_HUMAN` → `APPROVED`/`REJECTED` without primary-tree apply.
-- `fix-repo` (`repo_fix.py`): real patches for another local git repo (patch file or one provider CLI). They are verified by executing the operator's commands in a disposable worktree, with the local failure reproduced first. Every foundation control still applies. `fix-repo-apply` writes a new branch in the target repo only after `APPROVED`.
+- `fix-repo` (`service/`; `repo_fix.py` re-exports it): real patches for another local git repo (patch file or one provider CLI). They are verified by executing the operator's commands in a disposable worktree, with the local failure reproduced first. Every foundation control still applies. `fix-repo-apply` writes a new branch in the target repo only after `APPROVED`.
 - Golden synthetic regression harness with baseline compare in CI.
 - Observability rebuild that cannot break or authorize the orchestrator.
 
