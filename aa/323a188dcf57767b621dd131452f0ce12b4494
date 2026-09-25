@@ -1,0 +1,46 @@
+docs/control-authority-map.md
+  s_dd5ec07e8f478a::t_d0432070af4637 42
+docs/service-v0.1-plan.md
+  s_dd5ec07e8f478a::t_13b610f5d040ba 129,131
+  s_dd5ec07e8f478a::t_9c33dd0ce39c71 3
+  s_dd5ec07e8f478a::t_68b56a2d73ba22 62
+  s_dd5ec07e8f478a::t_e6e88aae4ad4f0 121
+  s_dd5ec07e8f478a::t_872d6975892c1e 83-84
+tests/test_module_boundaries.py
+  s_dd5ec07e8f478a::t_a4c04661495045 110-111
+CHANGELOG.md
+  s_dd5ec07e8f478a::t_5d0d169cf2a91d 5,9-15
+  s_dd5ec07e8f478a::t_255fea899a1b85 21
+ci_failure_orchestrator/foundation/durable.py
+  s_dd5ec07e8f478a::t_437c0e31582c9b 1-587
+ci_failure_orchestrator/foundation/human_decision.py
+  s_dd5ec07e8f478a::t_36d5027c2089af 1-301
+ci_failure_orchestrator/foundation/persistence.py
+  s_dd5ec07e8f478a::t_c528f40657ca18 1,3-6,12-40,42-81
+ci_failure_orchestrator/foundation/policy_gate.py
+  s_dd5ec07e8f478a::t_abe7745e49fb03 1-256
+ci_failure_orchestrator/foundation/proposal_factories.py
+  s_dd5ec07e8f478a::t_7600126e7951ba 1-84
+ci_failure_orchestrator/foundation/recovery.py
+  s_dd5ec07e8f478a::t_7500f8c3ad751e 1-268
+ci_failure_orchestrator/foundation/results.py
+  s_dd5ec07e8f478a::t_6a15f86767f906 1-41
+ci_failure_orchestrator/foundation/runner.py
+  s_dd5ec07e8f478a::t_daf31f9335360a 6,8,13,27-33,46-48,63-68,71,112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "aa323a188dcf57767b621dd131452f0ce12b4494",
+  "prompts": {},
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
