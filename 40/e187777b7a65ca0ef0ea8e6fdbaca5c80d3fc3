@@ -1,0 +1,88 @@
+docs/module-status.md
+  s_dd5ec07e8f478a::t_3d32d8fe83d393 1-58
+ci_failure_orchestrator/service/patches.py
+  s_dd5ec07e8f478a::t_047ba47a0a9a67 1-121
+ci_failure_orchestrator/module_status.py
+  s_dd5ec07e8f478a::t_10e5379595197f 1-17,20-171
+  s_dd5ec07e8f478a::t_ec3e7be0e89da6 18-19
+ci_failure_orchestrator/service/ingest.py
+  s_dd5ec07e8f478a::t_f47837c6f08d8b 1-117
+ci_failure_orchestrator/service/__init__.py
+  s_dd5ec07e8f478a::t_ff2ecd60f2d6c1 1-58
+docs/control-authority-map.md
+  s_dd5ec07e8f478a::t_1a5928db782ae8 35
+  s_dd5ec07e8f478a::t_bbf0c4c3d75da9 37
+docs/architecture/current-state.md
+  s_dd5ec07e8f478a::t_7efff3660d3c12 85
+docs/service-v0.1-plan.md
+  s_dd5ec07e8f478a::t_020a0591da7593 56
+  s_dd5ec07e8f478a::t_c59efdc47e3763 1-2,4-52,55,57-60,63-82,84-136
+  s_dd5ec07e8f478a::t_fca0ab49f3fe83 3
+  s_dd5ec07e8f478a::t_be0eca002ca178 61-62
+  s_dd5ec07e8f478a::t_ae66d3cc04720b 53-54
+  s_dd5ec07e8f478a::t_eebbf90f5b0f1e 83
+docs/repository-audit.md
+  s_dd5ec07e8f478a::t_a02cc0f036e370 47
+ci_failure_orchestrator/service/run.py
+  s_dd5ec07e8f478a::t_cdeece2188465d 1-194
+ci_failure_orchestrator/service/apply.py
+  s_dd5ec07e8f478a::t_af87c2969b153a 1-239
+tests/test_workflow_safety.py
+  s_dd5ec07e8f478a::t_ec6f029d6eeffa 1-69
+ci_failure_orchestrator/service/session.py
+  s_dd5ec07e8f478a::t_d6946d550b4066 1-29
+tests/test_module_boundaries.py
+  s_dd5ec07e8f478a::t_e034dcf23a724d 33
+  s_dd5ec07e8f478a::t_dc77b6d44519c2 1-11,18-32,34-110,124-140
+  s_dd5ec07e8f478a::t_e28ce9c85ca853 12-17
+  s_dd5ec07e8f478a::t_4534c4b896b2ad 111-118,122-123
+  s_dd5ec07e8f478a::t_56cb5424abc4dd 119-121
+ci_failure_orchestrator/cli.py
+  s_dd5ec07e8f478a::t_748591f200b4c1 556
+  s_dd5ec07e8f478a::t_0a502055e27b0f 26
+  s_dd5ec07e8f478a::t_bfec1d9cf8883b 498-503,505-512,515,519
+  s_dd5ec07e8f478a::t_c1addc462b9884 541
+  s_dd5ec07e8f478a::t_75240a30d91526 550
+  s_dd5ec07e8f478a::t_1c32cf72da2fde 561
+  s_dd5ec07e8f478a::t_a6df67f287f017 525
+  s_dd5ec07e8f478a::t_28267c1f82697c 566
+  s_dd5ec07e8f478a::t_e277488cc0ed8f 22
+  s_dd5ec07e8f478a::t_a5d688bcea9b63 531
+ci_failure_orchestrator/service/proposals.py
+  s_dd5ec07e8f478a::t_bfc85d10accc24 1-67
+ci_failure_orchestrator/service/adapters.py
+  s_dd5ec07e8f478a::t_254252fc40b26f 1-148
+.github/workflows/auto-merge-after-checks.yml
+  s_dd5ec07e8f478a::t_21660be2871510 18
+  s_dd5ec07e8f478a::t_c8aa5fffe369cc 3-4
+.github/workflows/self-heal.yml
+  s_dd5ec07e8f478a::t_bfbf90ec1399a3 3-7,9
+tests/test_cli_groups.py
+  s_dd5ec07e8f478a::t_6b94eba64bfc5f 1-32
+.github/workflows/agent-issue-delivery.yml
+  s_dd5ec07e8f478a::t_7ef2b26cccb9a6 3-5,7
+ci_failure_orchestrator/service/common.py
+  s_dd5ec07e8f478a::t_99bf9b84d7cc1a 1-71
+CHANGELOG.md
+  s_dd5ec07e8f478a::t_cf502ba265e1fa 1-27
+ci_failure_orchestrator/repo_fix.py
+  s_dd5ec07e8f478a::t_0b28e72c514922 1-30,33-61
+ci_failure_orchestrator/service/prompt.py
+  s_dd5ec07e8f478a::t_37c3a959d48614 1-118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "40e187777b7a65ca0ef0ea8e6fdbaca5c80d3fc3",
+  "prompts": {},
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
