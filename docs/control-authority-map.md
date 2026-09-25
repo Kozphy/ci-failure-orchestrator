@@ -32,7 +32,9 @@ Foundation does **not** import governed or trust. The CLI wires stacks side-by-s
 | Tool planning & path-safe tools | `foundation/planner.py`, `foundation/tools.py` | Bounded tool plan; `_safe_relpath` | `governed/tools.py` |
 | Repair proposal | `foundation` heuristic / `ScriptedProposalFactory` | Proposal under retry budget | Governed `DeterministicAgentModel`; MockLLM in trust |
 | Sandbox execution | `foundation/sandbox.py` | Temp-copy workspace; stub/schedule verify allowed | Governed dry-run; `patch_sandbox.py` / trust isolated workspace |
+| Real-repo proposals + verification | `repo_fix.py` (composes foundation) | `fix-repo`: patch file or provider CLI → disposable git worktree of the target repo → foundation evaluation/retry/policy/escalation | — |
 | **Primary workspace mutation** | **None (deliberate)** | Policy `APPROVE` does **not** apply to primary tree | Governed may model later `APPLYING` states in its own SM — not foundation product path |
+| **Target repository write** | `repo_fix.apply_fix` only | Explicit operator command `fix-repo-apply`; requires durable `APPROVED` (policy or human), verified patch hash; creates a new branch + commit via a temporary index (working tree, index and current branch untouched); audited as `TARGET_PATCH_APPLIED` / `TARGET_BRANCH_PUSHED` / `TARGET_PR_OPENED` | — |
 | Technical evaluation | `foundation/evaluator.py` | PASS/FAIL; fail-closed without target verification | `governed/evaluation.py`; root `evaluator.py` |
 | Retry budget | `foundation/retry.py` | Finite; fingerprint / no-progress / security stops | Trust gateway retry/budget states |
 | **Policy gate** | **`foundation/policy.py`** | `APPROVE` \| `REJECT` \| `ESCALATE`; default ≠ `APPROVE`; errors → `ESCALATE` | `governed/policy.py`; `trust_policy.py`; root `policy.py` |
@@ -67,6 +69,8 @@ Portfolio and audit claims about the control plane must use **foundation** termi
 | CLI command | Stack | Authority for claims? |
 | --- | --- | --- |
 | `foundation-run`, `foundation-benchmark`, `foundation-inspect`, `foundation-events`, `foundation-resume`, `foundation-decide`, `foundation-verify`, `foundation-operations-report`, `foundation-slo-check` | Foundation | **Yes** — canonical |
+| `fix-repo` | Foundation (real proposal source + worktree sandbox) | **Yes** — same foundation terminals; never writes the target repo |
+| `fix-repo-apply` | Operator side effect after `APPROVED` | Only command that writes to a target repo (new branch; optional push/PR) |
 | `run`, `explain`, `replay`, `benchmark` | Governed | Simulation only |
 | `trust-run` | Trust | Demo / adjacent |
 | `analyze`, `analyze-run`, `classify`, `rank` | Diagnosis | RCA only |
@@ -77,7 +81,7 @@ Portfolio and audit claims about the control plane must use **foundation** termi
 
 1. **One policy engine per claim.** Do not cite trust YAML or governed policy as proof of foundation fail-closed behavior (or vice versa).
 2. **Metrics never authorize.** Foundation observability cannot flip `REJECT`/`ESCALATE` to `APPROVE`.
-3. **Evaluation PASS ≠ policy APPROVE ≠ primary apply.** All three separations are foundation invariants.
+3. **Evaluation PASS ≠ policy APPROVE ≠ primary apply.** All three separations are foundation invariants. Writing a target repo is a separate, explicit `fix-repo-apply` step that refuses anything but `APPROVED`.
 4. **Hash-chained audit ≠ foundation durable log.** Claiming tamper-evident proof requires the `audit.py` stack (or future foundation work) — not the append-only foundation store alone.
 5. **Release/production predicates are optional composition.** Wiring them into foundation terminals is future work, not current product behavior.
 

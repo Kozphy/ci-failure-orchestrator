@@ -62,6 +62,9 @@ class AuditEventType(str, Enum):
     HUMAN_DECISION_RECORDED = "HUMAN_DECISION_RECORDED"
     HUMAN_APPROVED = "HUMAN_APPROVED"
     HUMAN_REJECTED = "HUMAN_REJECTED"
+    TARGET_PATCH_APPLIED = "TARGET_PATCH_APPLIED"
+    TARGET_BRANCH_PUSHED = "TARGET_BRANCH_PUSHED"
+    TARGET_PR_OPENED = "TARGET_PR_OPENED"
     RUN_SUCCEEDED = "RUN_SUCCEEDED"
     RUN_FAILED = "RUN_FAILED"
     PERSISTENCE_ERROR = "PERSISTENCE_ERROR"
@@ -522,6 +525,7 @@ class FileEvidenceStore:
         "escalation": "escalation",
         "reviewer": "reviewer",
         "tool": "tools",
+        "target": "target",
     }
 
     def __init__(self, artifacts_root: Path, limits: EvidenceLimits | None = None) -> None:
@@ -1070,6 +1074,47 @@ def apply_reviewer_decision(
         seq,
         primary_workspace_mutated=False,
     )
+
+
+def append_operator_event(
+    artifacts_root: Path,
+    run_id: str,
+    event_type: AuditEventType,
+    *,
+    actor: str,
+    component: str,
+    metadata: dict[str, Any] | None = None,
+    evidence_refs: tuple[DurableEvidenceRef, ...] = (),
+) -> int:
+    """Append an operator-initiated audit event without changing workflow status.
+
+    Used for side effects that happen after a terminal workflow decision
+    (for example applying an APPROVED patch to a target repository).
+    """
+
+    store = FileStateStore(artifacts_root)
+    audit = FileAuditStore(artifacts_root)
+    state = store.load_run(run_id)
+    seq = audit.latest_sequence(run_id) + 1
+    audit.append(
+        AuditEvent(
+            schema_version=AUDIT_SCHEMA,
+            event_id=new_id("evt"),
+            run_id=run_id,
+            sequence=seq,
+            timestamp=utc_now(),
+            event_type=event_type.value,
+            actor=actor or "operator",
+            component=component,
+            state_before=state.workflow_status,
+            state_after=state.workflow_status,
+            evidence_refs=evidence_refs,
+            metadata=dict(metadata or {}),
+        )
+    )
+    state.last_event_sequence = seq
+    store.save_run(state)
+    return seq
 
 
 class RunPersistence:

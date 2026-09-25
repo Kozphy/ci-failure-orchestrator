@@ -218,6 +218,19 @@ def assess_progress(
     return ProgressAssessment(improved=bool(signals), signals=tuple(signals))
 
 
+# A generated proposal that did not apply (or could not be extracted) is a defect of
+# that proposal, not of the run; a different next proposal may succeed. The finite
+# budget plus identical-proposal / no-progress guards still bound these retries.
+RECOVERABLE_PROPOSAL_ERRORS = frozenset(
+    {
+        "patch_check_failed",
+        "patch_apply_failed",
+        "no_patch_extracted",
+        "provider_failed",
+    }
+)
+
+
 def classify_disposition(
     *,
     evaluation: EvaluationResult,
@@ -228,6 +241,8 @@ def classify_disposition(
         return FailureDisposition.UNRECOVERABLE
     if err in {"empty_patch", "binary_patch_rejected"} or "invalid" in err:
         return FailureDisposition.UNRECOVERABLE
+    if err in RECOVERABLE_PROPOSAL_ERRORS:
+        return FailureDisposition.RECOVERABLE
     if sandbox.timeout or "timeout" in err or "setup" in err:
         return FailureDisposition.TRANSIENT
     if evaluation.passed:

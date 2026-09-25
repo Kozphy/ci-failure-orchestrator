@@ -82,6 +82,7 @@ FailureEvent
 - Local durable state + append-oriented audit + inspect/verify/resume.
 - Human escalation package writer (local files).
 - Explicit human decision resume (`foundation-decide`) from `AWAITING_HUMAN` → `APPROVED`/`REJECTED` without primary-tree apply.
+- `fix-repo` (`repo_fix.py`): real patches for another local git repo (patch file or one provider CLI). They are verified by executing the operator's commands in a disposable worktree, with the local failure reproduced first. Every foundation control still applies. `fix-repo-apply` writes a new branch in the target repo only after `APPROVED`.
 - Golden synthetic regression harness with baseline compare in CI.
 - Observability rebuild that cannot break or authorize the orchestrator.
 
@@ -91,7 +92,7 @@ FailureEvent
 
 | Gap | Status |
 | --- | --- |
-| Live LLM proposal factory in foundation default path | Not wired |
+| Live LLM proposal factory in foundation default path | Not wired in `foundation-run`; opt-in via `fix-repo --provider-cmd` (single provider, no ablation evidence) |
 | Policy APPROVE → mutate primary workspace | Deliberately not done |
 | Human reviewer decision → resume-to-approve loop | **Partial (M4 slice)** — `apply_reviewer_decision` / `foundation-decide`; still no notification channel |
 | Cryptographic integrity of foundation durable audit | Append-oriented only (`audit.py` hash-chain is a separate stack) |

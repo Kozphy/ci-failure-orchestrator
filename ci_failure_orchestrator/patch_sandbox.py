@@ -4,9 +4,14 @@ import os
 import subprocess
 import tempfile
 from dataclasses import dataclass
+from hashlib import sha256
 from pathlib import Path
 from time import perf_counter
 from typing import Mapping, Sequence
+
+# Check out repository bytes as stored so LF patches apply identically on every OS
+# (core.autocrlf=true would otherwise rewrite the worktree to CRLF on Windows).
+_BYTE_EXACT_CHECKOUT = ("-c", "core.autocrlf=false")
 
 
 @dataclass(frozen=True)
@@ -64,9 +69,79 @@ class WorktreePatchVerifier:
 
     def _run(self, argv: Sequence[str], *, cwd: Path, env: Mapping[str, str]) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            list(argv), cwd=cwd, env=dict(env), text=True, capture_output=True,
-            timeout=self.timeout_seconds, shell=False, check=False,
+            list(argv), cwd=cwd, env=dict(env), text=True, encoding="utf-8", errors="replace",
+            capture_output=True, timeout=self.timeout_seconds, shell=False, check=False,
         )
+
+    def _run_steps(self, *, worktree: Path, env: Mapping[str, str]) -> list[VerificationStep]:
+        steps: list[VerificationStep] = []
+        for name, argv in self.commands:
+            started = perf_counter()
+            try:
+                completed = self._run(argv, cwd=worktree, env=env)
+                latency_ms = (perf_counter() - started) * 1000.0
+                step = VerificationStep(
+                    name=name,
+                    returncode=completed.returncode,
+                    stdout=completed.stdout[-self.max_output_chars :],
+                    stderr=completed.stderr[-self.max_output_chars :],
+                    latency_ms=latency_ms,
+                )
+            except subprocess.TimeoutExpired as exc:
+                latency_ms = (perf_counter() - started) * 1000.0
+                stdout = exc.stdout if isinstance(exc.stdout, str) else ""
+                stderr = exc.stderr if isinstance(exc.stderr, str) else ""
+                step = VerificationStep(name, 124, stdout[-self.max_output_chars :], (stderr + "\nverification_timeout")[-self.max_output_chars :], latency_ms)
+            except OSError as exc:
+                latency_ms = (perf_counter() - started) * 1000.0
+                step = VerificationStep(name, 127, "", f"command_not_runnable: {exc}", latency_ms)
+            steps.append(step)
+            if not step.passed:
+                break
+        return steps
+
+    @staticmethod
+    def _require_repo(repo_path: str | Path) -> Path:
+        repo = Path(repo_path).resolve()
+        if not (repo / ".git").exists():
+            raise ValueError(f"not a git repository: {repo}")
+        return repo
+
+    def _add_worktree(self, *, repo: Path, worktree: Path, base_ref: str, env: Mapping[str, str]) -> bool:
+        add = self._run(
+            ("git", *_BYTE_EXACT_CHECKOUT, "worktree", "add", "--detach", str(worktree), base_ref),
+            cwd=repo,
+            env=env,
+        )
+        return add.returncode == 0
+
+    @staticmethod
+    def _remove_worktree(*, repo: Path, worktree: Path, env: Mapping[str, str]) -> None:
+        subprocess.run(("git", "worktree", "remove", "--force", str(worktree)), cwd=repo, env=dict(env), text=True, capture_output=True, shell=False, check=False)
+        subprocess.run(("git", "worktree", "prune"), cwd=repo, env=dict(env), text=True, capture_output=True, shell=False, check=False)
+
+    def reproduce(
+        self,
+        *,
+        repo_path: str | Path,
+        base_ref: str = "HEAD",
+        extra_env: Mapping[str, str] | None = None,
+    ) -> tuple[VerificationStep, ...] | None:
+        """Run the verification commands on an unpatched disposable worktree.
+
+        Returns ``None`` when the worktree cannot be created.
+        """
+
+        repo = self._require_repo(repo_path)
+        env = self._env(extra_env)
+        with tempfile.TemporaryDirectory(prefix="ci-orchestrator-repro-") as temp_dir:
+            worktree = Path(temp_dir) / "repo"
+            if not self._add_worktree(repo=repo, worktree=worktree, base_ref=base_ref, env=env):
+                return None
+            try:
+                return tuple(self._run_steps(worktree=worktree, env=env))
+            finally:
+                self._remove_worktree(repo=repo, worktree=worktree, env=env)
 
     def verify(
         self,
@@ -76,11 +151,7 @@ class WorktreePatchVerifier:
         base_ref: str = "HEAD",
         extra_env: Mapping[str, str] | None = None,
     ) -> PatchVerification:
-        from hashlib import sha256
-
-        repo = Path(repo_path).resolve()
-        if not (repo / ".git").exists() and not (repo / ".git").is_file():
-            raise ValueError(f"not a git repository: {repo}")
+        repo = self._require_repo(repo_path)
         if not patch_text.strip():
             return PatchVerification(False, True, False, sha256(b"").hexdigest(), (), (), 0.0, "empty_patch")
 
@@ -90,13 +161,13 @@ class WorktreePatchVerifier:
 
         with tempfile.TemporaryDirectory(prefix="ci-orchestrator-worktree-") as temp_dir:
             worktree = Path(temp_dir) / "repo"
-            add = self._run(("git", "worktree", "add", "--detach", str(worktree), base_ref), cwd=repo, env=env)
-            if add.returncode != 0:
+            if not self._add_worktree(repo=repo, worktree=worktree, base_ref=base_ref, env=env):
                 return PatchVerification(False, True, False, patch_hash, (), (), (perf_counter() - total_started) * 1000.0, "worktree_create_failed")
 
             try:
                 patch_file = Path(temp_dir) / "agent.patch"
-                patch_file.write_text(patch_text, encoding="utf-8")
+                # Bytes, not write_text: text mode would turn LF into CRLF on Windows.
+                patch_file.write_bytes(patch_text.encode("utf-8"))
                 check = self._run(("git", "apply", "--check", str(patch_file)), cwd=worktree, env=env)
                 if check.returncode != 0:
                     return PatchVerification(False, True, False, patch_hash, (), (), (perf_counter() - total_started) * 1000.0, "patch_check_failed")
@@ -106,29 +177,15 @@ class WorktreePatchVerifier:
                     return PatchVerification(False, True, False, patch_hash, (), (), (perf_counter() - total_started) * 1000.0, "patch_apply_failed")
 
                 diff = self._run(("git", "diff", "--name-only"), cwd=worktree, env=env)
-                changed_files = tuple(line.strip() for line in diff.stdout.splitlines() if line.strip())
-                steps: list[VerificationStep] = []
-
-                for name, argv in self.commands:
-                    started = perf_counter()
-                    try:
-                        completed = self._run(argv, cwd=worktree, env=env)
-                        latency_ms = (perf_counter() - started) * 1000.0
-                        step = VerificationStep(
-                            name=name,
-                            returncode=completed.returncode,
-                            stdout=completed.stdout[-self.max_output_chars :],
-                            stderr=completed.stderr[-self.max_output_chars :],
-                            latency_ms=latency_ms,
-                        )
-                    except subprocess.TimeoutExpired as exc:
-                        latency_ms = (perf_counter() - started) * 1000.0
-                        stdout = exc.stdout if isinstance(exc.stdout, str) else ""
-                        stderr = exc.stderr if isinstance(exc.stderr, str) else ""
-                        step = VerificationStep(name, 124, stdout[-self.max_output_chars :], (stderr + "\nverification_timeout")[-self.max_output_chars :], latency_ms)
-                    steps.append(step)
-                    if not step.passed:
-                        break
+                untracked = self._run(("git", "ls-files", "--others", "--exclude-standard"), cwd=worktree, env=env)
+                changed_files = tuple(
+                    dict.fromkeys(
+                        line.strip()
+                        for line in (diff.stdout + "\n" + untracked.stdout).splitlines()
+                        if line.strip()
+                    )
+                )
+                steps = self._run_steps(worktree=worktree, env=env)
 
                 status = self._run(("git", "status", "--porcelain"), cwd=worktree, env=env)
                 clean_after_apply = bool(status.stdout.strip())
@@ -144,5 +201,4 @@ class WorktreePatchVerifier:
                     reason=None if passed else "verification_failed",
                 )
             finally:
-                subprocess.run(("git", "worktree", "remove", "--force", str(worktree)), cwd=repo, env=env, text=True, capture_output=True, shell=False, check=False)
-                subprocess.run(("git", "worktree", "prune"), cwd=repo, env=env, text=True, capture_output=True, shell=False, check=False)
+                self._remove_worktree(repo=repo, worktree=worktree, env=env)

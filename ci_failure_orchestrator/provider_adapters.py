@@ -76,6 +76,8 @@ class SandboxRunner:
                     cwd=sandbox_path,
                     env=env,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                     capture_output=True,
                     timeout=spec.timeout_seconds,
                     shell=False,
@@ -101,6 +103,16 @@ class SandboxRunner:
                     stdout=stdout[-spec.max_output_chars :],
                     stderr=(stderr + "\nprovider_timeout")[-spec.max_output_chars :],
                     latency_ms=latency_ms,
+                    command=spec.argv,
+                    sandbox=str(sandbox_path),
+                )
+            except OSError as exc:
+                return ProviderRun(
+                    provider=spec.name,
+                    returncode=127,
+                    stdout="",
+                    stderr=f"provider_not_runnable: {exc}",
+                    latency_ms=(perf_counter() - started) * 1000.0,
                     command=spec.argv,
                     sandbox=str(sandbox_path),
                 )

@@ -84,6 +84,33 @@ ci-orchestrator foundation-run \
 ci-orchestrator foundation-benchmark --required-only --compare-baseline
 ```
 
+### Fix another repository (`fix-repo`)
+
+`fix-repo` takes a real patch for a local checkout of another git repo and runs it through the foundation:
+
+1. It runs your `--verify` commands in a disposable worktree at `--base-ref`. They must fail there, otherwise the result is `NO_FAILURE` and nothing is proposed.
+2. It gets a patch from `--patch-file` or from `--provider-cmd`, a CLI that reads the prompt on stdin and prints a fenced diff block.
+3. It applies the patch in a fresh worktree and reruns the verify commands. The foundation's evaluation, finite retry, policy and escalation then decide the outcome. The provider sees the previous failure on retry.
+4. The target repo is not modified. On `APPROVED`, `fix-repo-apply` creates a new branch and commit through a temporary index, leaving your working tree, index and current branch alone. It can optionally push and open a PR.
+
+```bash
+# Verify a patch you already have
+ci-orchestrator fix-repo --repo-path ../my-service \
+  --verify "python -m pytest tests/test_calc.py -q" \
+  --patch-file fix.patch
+
+# Let an LLM CLI propose patches, seeded with the failing GitHub Actions run
+ci-orchestrator fix-repo --repo-path ../my-service \
+  --github-repo me/my-service --github-run-id 123456789 \
+  --verify "python -m pytest tests/test_calc.py -q" \
+  --provider-cmd "claude -p" --provider-env ANTHROPIC_API_KEY
+
+# Only after APPROVED (auth/CI/dependency changes escalate: use foundation-decide first)
+ci-orchestrator fix-repo-apply <run_id> --push --open-pr
+```
+
+Exit codes for `fix-repo` are 0 for `APPROVED` or `NO_FAILURE`, 3 for `AWAITING_HUMAN`, and 2 otherwise. For `fix-repo-apply` they are 0 when the branch is created and 1 when it is blocked or only partly done. The provider CLI runs in an empty temp directory with an environment allowlist and gets the prompt on stdin. Any tool permissions of that CLI are yours to restrict.
+
 ### Diagnosis (example fixtures)
 
 ```bash
@@ -124,6 +151,7 @@ Synthetic benchmarks demonstrate governance behavior. Targets in `config/slo.jso
 5. Observability metrics never authorize orchestration decisions.
 6. Escalation builds a review package and stops; it does not auto-approve.
 7. Human `foundation-decide APPROVE` records durable approval but **still does not** mutate the primary workspace.
+8. `fix-repo` never writes the target repo. `fix-repo-apply` is the only writer: it requires `APPROVED`, checks the verified patch hash, commits to a new branch, and records audit events.
 
 ## Reliability & governance (honest scope)
 
@@ -147,7 +175,7 @@ Adjacent / aspirational modules (tournaments, fleet, canary, REPAIR/RELEASE/PROD
 
 ## Limitations
 
-- Default proposals are heuristic or scripted — not live multi-provider repair.
+- `foundation-run` proposals are heuristic or scripted. Real proposals come only from `fix-repo` (a patch file or one provider CLI), and they are only as good as the provider and your `--verify` commands.
 - Sandbox may use scheduled/stub target verification in benches.
 - Human escalation is a **local artifact package** plus optional `foundation-decide`; not a notification/approval workflow channel.
 - Foundation durable audit is **append-oriented**, not cryptographically tamper-proof.

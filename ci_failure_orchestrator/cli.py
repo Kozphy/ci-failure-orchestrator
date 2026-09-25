@@ -22,6 +22,14 @@ from .graph import PipelineGraph
 from .network_discovery import NetworkCapabilityDiscovery
 from .provenance import DependencyProvenanceEvaluator
 from .ranker import RootCauseRanker
+from .repo_fix import (
+    FixRepoConfig,
+    apply_fix,
+    failure_from_fixture,
+    failure_from_github,
+    failure_from_log_file,
+    run_fix_repo,
+)
 from .trust import ProviderRegistry, TrustContextBuilder
 from .trust_gateway import (
     AllowlistedFileExecutor,
@@ -428,6 +436,64 @@ def cmd_foundation_verify(args):
     return 0 if report.valid else 2
 
 
+_FIX_REPO_EXIT = {"APPROVED": 0, "NO_FAILURE": 0, "AWAITING_HUMAN": 3}
+
+
+def cmd_fix_repo(args):
+    failure = None
+    try:
+        if args.github_repo or args.github_run_id:
+            if not (args.github_repo and args.github_run_id):
+                raise ValueError("--github-repo and --github-run-id must be used together")
+            failure = failure_from_github(
+                args.github_repo,
+                args.github_run_id,
+                token=args.github_token,
+                api_url=args.github_api_url,
+            )
+        elif args.log_file:
+            failure = failure_from_log_file(args.log_file)
+        elif args.fixture:
+            failure = failure_from_fixture(args.fixture)
+    except Exception as exc:  # noqa: BLE001 - surface ingestion errors as structured output
+        _dump({"outcome": "ERROR", "message": f"failure ingestion failed: {exc}", "primary_workspace_mutated": False})
+        return 2
+
+    outcome = run_fix_repo(
+        FixRepoConfig(
+            repo_path=Path(args.repo_path),
+            verify_commands=args.verify,
+            patch_file=Path(args.patch_file) if args.patch_file else None,
+            provider_cmd=args.provider_cmd,
+            provider_env=args.provider_env or (),
+            provider_timeout=args.provider_timeout,
+            verify_env=args.verify_env or (),
+            verify_timeout=args.verify_timeout,
+            base_ref=args.base_ref,
+            max_attempts=args.max_attempts,
+            artifacts_root=Path(args.artifacts),
+            failure=failure,
+        )
+    )
+    _dump(outcome)
+    return _FIX_REPO_EXIT.get(outcome.get("outcome"), 2)
+
+
+def cmd_fix_repo_apply(args):
+    result = apply_fix(
+        Path(args.artifacts),
+        args.run_id,
+        repo_path=Path(args.repo_path) if args.repo_path else None,
+        branch=args.branch,
+        remote=args.remote,
+        push=args.push,
+        open_pr=args.open_pr,
+        actor=args.actor,
+    )
+    _dump(result.to_dict())
+    return 0 if result.status == "APPLIED" else 1
+
+
 def build_parser():
     parser = argparse.ArgumentParser(prog="ci-orchestrator")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -610,6 +676,57 @@ def build_parser():
     fv.add_argument("run_id")
     fv.add_argument("--artifacts", default="artifacts")
     fv.set_defaults(func=cmd_foundation_verify)
+
+    fix = sub.add_parser(
+        "fix-repo",
+        help=(
+            "Verify a real patch for another git repo in a disposable worktree, then run "
+            "evaluation/retry/policy/escalation (never modifies the target repo)"
+        ),
+    )
+    fix.add_argument("--repo-path", required=True, help="Local checkout of the repository to fix")
+    fix.add_argument(
+        "--verify",
+        action="append",
+        required=True,
+        metavar="CMD",
+        help="Verification command run in the worktree (repeatable; must fail before and pass after)",
+    )
+    proposal = fix.add_mutually_exclusive_group(required=True)
+    proposal.add_argument("--patch-file", help="Unified diff to verify (e.g. from git diff or a teammate)")
+    proposal.add_argument(
+        "--provider-cmd",
+        help="CLI that reads the prompt on stdin and prints a ```diff block (e.g. \"claude -p\")",
+    )
+    fix.add_argument("--provider-env", action="append", metavar="NAME", help="Env var passed to the provider")
+    fix.add_argument("--provider-timeout", type=int, default=600)
+    fix.add_argument("--verify-env", action="append", metavar="NAME", help="Env var passed to verify commands")
+    fix.add_argument("--verify-timeout", type=int, default=600)
+    source = fix.add_mutually_exclusive_group()
+    source.add_argument("--github-repo", help="owner/name of the failing GitHub Actions run")
+    source.add_argument("--log-file", help="CI log file describing the failure")
+    source.add_argument("--fixture", help="JSON failure fixture")
+    fix.add_argument("--github-run-id", type=int, help="GitHub Actions workflow run ID")
+    fix.add_argument("--github-token", help="GitHub token; defaults to GITHUB_TOKEN")
+    fix.add_argument("--github-api-url", default="https://api.github.com")
+    fix.add_argument("--base-ref", default="HEAD", help="Commit the patch must apply to")
+    fix.add_argument("--max-attempts", type=int, default=3)
+    fix.add_argument("--artifacts", default="artifacts")
+    fix.set_defaults(func=cmd_fix_repo)
+
+    fixa = sub.add_parser(
+        "fix-repo-apply",
+        help="Commit an APPROVED fix-repo patch to a new branch of the target repo (explicit operator step)",
+    )
+    fixa.add_argument("run_id")
+    fixa.add_argument("--artifacts", default="artifacts")
+    fixa.add_argument("--repo-path", help="Override the repository path recorded by fix-repo")
+    fixa.add_argument("--branch", help="Branch name (default ci-orchestrator/fix-<run_id>)")
+    fixa.add_argument("--remote", default="origin")
+    fixa.add_argument("--push", action="store_true", help="Push the new branch to --remote")
+    fixa.add_argument("--open-pr", action="store_true", help="Push and open a PR with the GitHub CLI")
+    fixa.add_argument("--actor", default="operator", help="Operator identity recorded in the audit log")
+    fixa.set_defaults(func=cmd_fix_repo_apply)
     return parser
 
 
