@@ -1,0 +1,59 @@
+ci_failure_orchestrator/provider_adapters.py
+  s_dd5ec07e8f478a::t_4f843a94fb8a61 109-118
+  s_dd5ec07e8f478a::t_59c7021a0dd1f4 79-80
+ci_failure_orchestrator/foundation/persistence.py
+  s_dd5ec07e8f478a::t_63772cc3528a2c 1079-1119
+  s_dd5ec07e8f478a::t_1c68633779508c 528
+  s_dd5ec07e8f478a::t_eb51276d364f66 65-67
+ci_failure_orchestrator/repo_fix.py
+  s_dd5ec07e8f478a::t_1fa7a3e7919185 334
+  s_dd5ec07e8f478a::t_deeec21a1a4419 24
+  s_dd5ec07e8f478a::t_a2c95f2740867e 78
+  s_dd5ec07e8f478a::t_06461bb75f198d 212
+  s_dd5ec07e8f478a::t_591dcc3d031e52 485,488-490
+  s_dd5ec07e8f478a::t_7c994578d0b5b4 28
+  s_dd5ec07e8f478a::t_6d971285330e80 494-497
+  s_dd5ec07e8f478a::t_3665355055b55d 1-23,25-27,29-77,79-211,213-333,335-484,486-487,491-493,498-1045
+tests/test_repo_fix.py
+  s_dd5ec07e8f478a::t_2790205ecd67ae 1-245
+README.md
+  s_dd5ec07e8f478a::t_878e5738abe5f8 87-113
+  s_dd5ec07e8f478a::t_b074c660446285 154
+  s_dd5ec07e8f478a::t_d7cd1f5488d122 178
+ci_failure_orchestrator/cli.py
+  s_dd5ec07e8f478a::t_f8709ced1c05f1 25-32
+  s_dd5ec07e8f478a::t_5fb8ce14de30a3 439-496
+  s_dd5ec07e8f478a::t_5071aeb730e9f3 679-729
+docs/repository-audit.md
+  s_dd5ec07e8f478a::t_93676c33c03379 46-48
+docs/control-authority-map.md
+  s_dd5ec07e8f478a::t_bcb725f92394c1 35,37
+  s_dd5ec07e8f478a::t_0b16f7b26bf3ae 72-73
+  s_dd5ec07e8f478a::t_7c2e0f8d8b9680 84
+ci_failure_orchestrator/foundation/retry.py
+  s_dd5ec07e8f478a::t_f5937c8e214417 221-233,244-245
+docs/architecture/current-state.md
+  s_dd5ec07e8f478a::t_ec293849041481 85
+  s_dd5ec07e8f478a::t_e761cdeb36cfad 95
+ci_failure_orchestrator/patch_sandbox.py
+  s_dd5ec07e8f478a::t_2d8a00b3fc1205 76-145,154,164,169-170,180-188
+  s_dd5ec07e8f478a::t_560eb62c1924fd 7,12-15
+  s_dd5ec07e8f478a::t_7505569efdcd9b 204
+  s_dd5ec07e8f478a::t_6bdb646e021ef7 72-73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "46205831b94cad8f08ef90a4c9e4b2fecd8e3fc4",
+  "prompts": {},
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
