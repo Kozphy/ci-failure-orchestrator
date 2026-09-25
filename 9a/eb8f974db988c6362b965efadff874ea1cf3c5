@@ -1,0 +1,75 @@
+ci_failure_orchestrator/service/apply.py
+  s_dd5ec07e8f478a::t_2fdd6c38858f8b 149-150
+  s_dd5ec07e8f478a::t_1c244d2827c7c6 226-234
+  s_dd5ec07e8f478a::t_0770ad585a6a84 63-79
+  s_dd5ec07e8f478a::t_1f43b17be73b28 30-33
+  s_dd5ec07e8f478a::t_2136d24d267826 252,256
+  s_dd5ec07e8f478a::t_f3a1240a1d4bd4 131-133
+ci_failure_orchestrator/service/patches.py
+  s_dd5ec07e8f478a::t_5be069a6fc9b5f 33-37
+  s_dd5ec07e8f478a::t_157dc4343ce2fe 148-149
+  s_dd5ec07e8f478a::t_09ae2d8db0407c 159
+  s_dd5ec07e8f478a::t_58d2c4920916fa 8
+  s_dd5ec07e8f478a::t_91c3f45b517f71 7
+  s_dd5ec07e8f478a::t_c5ed7a885df3a4 129-147,150-158,160-161
+ci_failure_orchestrator/service/run.py
+  s_dd5ec07e8f478a::t_35e7af1a18e195 17-26
+  s_dd5ec07e8f478a::t_cf2193115988d8 115
+  s_dd5ec07e8f478a::t_81873f38c8c293 83-85
+ci_failure_orchestrator/service/adapters.py
+  s_dd5ec07e8f478a::t_c1ba03d7fdcd78 72
+  s_dd5ec07e8f478a::t_26bbe719f2aa7a 88-92,94-95
+  s_dd5ec07e8f478a::t_605d5bb760fae9 16,20
+ci_failure_orchestrator/service/prompt.py
+  s_dd5ec07e8f478a::t_96efbec674fd7e 12
+  s_dd5ec07e8f478a::t_83d7e1207a5be8 111
+  s_dd5ec07e8f478a::t_ce3d15c1f8f67e 38,40-51,53,55,59,62-65
+  s_dd5ec07e8f478a::t_19ddc9152374c9 78
+ci_failure_orchestrator/service/untrusted.py
+  s_dd5ec07e8f478a::t_8ae81f9a90b3fa 1-49
+ci_failure_orchestrator/service/common.py
+  s_dd5ec07e8f478a::t_04723273416415 24-56
+  s_dd5ec07e8f478a::t_1cc85d60d5ed96 8
+tests/test_security_boundaries.py
+  s_dd5ec07e8f478a::t_cbbd29d35196d7 304
+  s_dd5ec07e8f478a::t_4f71c7685574e9 1-5,7-121,124-132,134-156,158-184,186-301,303,305-451,453-482,484
+  s_dd5ec07e8f478a::t_c6101dd405d83a 122-123
+  s_dd5ec07e8f478a::t_cfbf45d6daad66 157
+  s_dd5ec07e8f478a::t_0b466a3baf3c4c 452
+  s_dd5ec07e8f478a::t_54cbad88d7e8d2 133
+  s_dd5ec07e8f478a::t_8fc502e4c0e1e5 6
+  s_dd5ec07e8f478a::t_bad6baa1b3fe92 185
+  s_dd5ec07e8f478a::t_e03c9de51ee222 302
+  s_dd5ec07e8f478a::t_5a16bc13a65839 483
+CHANGELOG.md
+  s_dd5ec07e8f478a::t_114457f5d33fd8 9-16
+ci_failure_orchestrator/service/proposals.py
+  s_dd5ec07e8f478a::t_cd49cf223e2d3f 11
+  s_dd5ec07e8f478a::t_747d5c394f797e 55-57
+ci_failure_orchestrator/service/ingest.py
+  s_dd5ec07e8f478a::t_d036ed5aba0f40 73
+  s_dd5ec07e8f478a::t_a7df34020747bb 52,60,66,98,116
+  s_dd5ec07e8f478a::t_e4dc0006d4d218 115,124
+  s_dd5ec07e8f478a::t_0c51d023519e2d 109
+  s_dd5ec07e8f478a::t_1f39caba306ab3 97
+  s_dd5ec07e8f478a::t_1dc00ec622a76e 53-57,65
+  s_dd5ec07e8f478a::t_18c2a6e45b655f 15
+ci_failure_orchestrator/foundation/sanitization.py
+  s_dd5ec07e8f478a::t_0bf2ba573da119 26-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9aeb8f974db988c6362b965efadff874ea1cf3c5",
+  "prompts": {},
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
