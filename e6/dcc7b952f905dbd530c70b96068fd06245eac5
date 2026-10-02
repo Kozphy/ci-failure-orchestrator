@@ -1,0 +1,110 @@
+ci_failure_orchestrator/service/adapters.py
+  s_dd5ec07e8f478a::t_4dedfe7360de13 115
+  s_dd5ec07e8f478a::t_40ce32d75bf68e 123
+  s_dd5ec07e8f478a::t_1cf5679fa4d37c 46-47
+  s_dd5ec07e8f478a::t_85e840ffea5f0a 82-103
+  s_dd5ec07e8f478a::t_b47f81415f3cd8 5-7,15,23
+  s_dd5ec07e8f478a::t_789d5c122c7eba 166,171-173
+ci_failure_orchestrator/service/run.py
+  s_dd5ec07e8f478a::t_c679a59176a0b7 80-157
+  s_dd5ec07e8f478a::t_f6dd5f101ab211 31
+  s_dd5ec07e8f478a::t_4847ad198c89cc 49
+  s_dd5ec07e8f478a::t_9a8bc29e42acae 170-171
+  s_dd5ec07e8f478a::t_3a25aca4aa22b4 203-208
+  s_dd5ec07e8f478a::t_0397062bcaf0e2 219
+  s_dd5ec07e8f478a::t_ad04583f0b99ec 220,230-232
+  s_dd5ec07e8f478a::t_0d5e5d888e7c3a 245-263
+  s_dd5ec07e8f478a::t_ddc0d860181c68 285-286
+  s_dd5ec07e8f478a::t_2b4997e078cd05 308-309,312,315
+  s_dd5ec07e8f478a::t_8526eb8a504b43 19
+  s_dd5ec07e8f478a::t_d534e113bcbae0 11
+  s_dd5ec07e8f478a::t_e40b22915621d1 27
+tests/test_task_run_attempt.py
+  s_dd5ec07e8f478a::t_27d9c5fd793430 90
+  s_dd5ec07e8f478a::t_bd9eba80a278f2 1-89,91-196,199-241
+  s_dd5ec07e8f478a::t_38720de52c5ec9 197-198
+CHANGELOG.md
+  s_dd5ec07e8f478a::t_971e86c9c9e291 17-25
+  s_dd5ec07e8f478a::t_c57c4b1daac156 9-16
+docs/roadmap-agent-control-plane.md
+  s_dd5ec07e8f478a::t_4f865a3c8bb158 1-39,41-67
+  s_dd5ec07e8f478a::t_41d51bf4ed6da6 40
+docs/architecture/policy-gate.md
+  s_dd5ec07e8f478a::t_a7f91d296ed30a 99-115
+ci_failure_orchestrator/cli.py
+  s_dd5ec07e8f478a::t_2ab1f9939a8afc 33,492-493,747
+  s_dd5ec07e8f478a::t_7b7257ae5758f3 739,743-746
+  s_dd5ec07e8f478a::t_7718d5de67821d 519
+  s_dd5ec07e8f478a::t_c62f8418908f17 478,485-491
+ci_failure_orchestrator/service/__init__.py
+  s_dd5ec07e8f478a::t_b7ec67a8a91a0b 10-11
+  s_dd5ec07e8f478a::t_502f43f6845470 28
+  s_e0caa866ebc5e0::t_676f2ec349babf 47-48
+  s_dd5ec07e8f478a::t_cc60c9e6e3d2b6 38-39
+  s_dd5ec07e8f478a::t_e990347294b204 60,65
+ci_failure_orchestrator/foundation/classifier.py
+  s_dd5ec07e8f478a::t_bdd0ac9256eb2d 28-34,36-47,52-54,56-61,64-66,68
+  s_dd5ec07e8f478a::t_e2f517e1695b06 35
+ci_failure_orchestrator/service/common.py
+  s_dd5ec07e8f478a::t_ce6b3d7bfba305 60
+docs/module-status.md
+  s_dd5ec07e8f478a::t_6ea4562953f4b0 18
+  s_dd5ec07e8f478a::t_5d642f29671509 22
+  s_dd5ec07e8f478a::t_6eb45741d5190a 10
+ci_failure_orchestrator/service/records.py
+  s_dd5ec07e8f478a::t_d4b9b78884aaeb 1-140
+tests/test_stage3_escalation.py
+  s_dd5ec07e8f478a::t_8dbe3790b034b8 48-60
+  s_dd5ec07e8f478a::t_312708c06f3c48 113
+  s_dd5ec07e8f478a::t_e02315efe50112 71
+  s_dd5ec07e8f478a::t_23c1cd80bbd68c 1-47,61-70,72-112,114-337
+ci_failure_orchestrator/service/proposals.py
+  s_dd5ec07e8f478a::t_898d7216a4caa8 22-34,37,46
+  s_dd5ec07e8f478a::t_a17da0ef7ffc19 73
+ci_failure_orchestrator/module_status.py
+  s_dd5ec07e8f478a::t_712f3c572728b3 126
+  s_dd5ec07e8f478a::t_266dbd441ccce1 119-120
+docs/service-v0.1-plan.md
+  s_dd5ec07e8f478a::t_8fd13aba4eda54 140-148
+  s_dd5ec07e8f478a::t_f04f8557f5791f 51-52
+  s_dd5ec07e8f478a::t_bc0ca0666bda86 87
+  s_dd5ec07e8f478a::t_4281a8267ef37b 3
+  s_dd5ec07e8f478a::t_a41fd8ad4e9900 53-60
+  s_dd5ec07e8f478a::t_62929a510b12b9 90
+ci_failure_orchestrator/foundation/policy.py
+  s_dd5ec07e8f478a::t_456fe26601bb63 227-228
+  s_dd5ec07e8f478a::t_bc6d8653ccda73 445-452
+  s_dd5ec07e8f478a::t_38229742a7a3eb 178-185
+  s_dd5ec07e8f478a::t_7b17d2907d7a4b 200-201
+  s_dd5ec07e8f478a::t_80d3d2ce8ce336 521-532
+ci_failure_orchestrator/service/session.py
+  s_dd5ec07e8f478a::t_3cf7177efd64b8 28-30,33-34
+ci_failure_orchestrator/service/environment.py
+  s_dd5ec07e8f478a::t_cf3619e96431b2 1-33,35-108,110-115
+  s_dd5ec07e8f478a::t_559b65fe0b8208 34
+  s_dd5ec07e8f478a::t_84153b9814c59d 109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e6dcc7b952f905dbd530c70b96068fd06245eac5",
+  "prompts": {},
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_e0caa866ebc5e0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5d157ab8-c11b-4bbd-b652-008b5cb68317",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
