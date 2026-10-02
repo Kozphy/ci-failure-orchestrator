@@ -19,8 +19,22 @@ class GeneratedText:
     detail: str = ""
 
 
+_INTERPRETERS = frozenset({"python", "python3", "py", "node", "bash", "sh", "pwsh", "powershell", "uv", "npx"})
+
+
+def agent_label(argv: Sequence[str]) -> str:
+    """Stable identity for a provider CLI: the executable, or the script an interpreter runs."""
+    parts = [Path(arg).stem for arg in argv if arg and not arg.startswith("-")]
+    if not parts:
+        return "provider"
+    if parts[0].lower() in _INTERPRETERS and len(parts) > 1:
+        return parts[1]
+    return parts[0]
+
+
 class ProposalSource(Protocol):
     name: str
+    agent: str
 
     def generate(self, prompt: str, attempt_number: int) -> GeneratedText: ...
 
@@ -29,6 +43,7 @@ class PatchFileSource:
     """Returns the same operator-supplied patch on every attempt."""
 
     name = "patch-file"
+    agent = "patch-file"
 
     def __init__(self, path: str | Path) -> None:
         self.path = Path(path)
@@ -55,6 +70,7 @@ class ProviderCommandSource:
         blocked = blocked_env_names(env_passthrough)
         if blocked:
             raise ValueError(f"refusing to pass credential variables to the provider: {', '.join(blocked)}")
+        self.agent = agent_label(argv)
         self.spec = ProviderSpec(
             name="fix-repo-provider",
             argv=tuple(argv),

@@ -8,7 +8,7 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
-from ..foundation.models import FailureEvent, RunStatus, new_id
+from ..foundation.models import FailureEvent, RunStatus, new_id, utc_now
 from ..foundation.persistence import FileEvidenceStore
 from ..foundation.retry import RetryBudget
 from ..foundation.runner import AgentExecutionFoundation
@@ -16,6 +16,7 @@ from ..patch_sandbox import WorktreePatchVerifier
 from .adapters import RepoFixProposalFactory, WorktreeSandbox
 from .common import (
     DEFAULT_ENV_ALLOWLIST,
+    ESCALATION_NAME,
     FINAL_PATCH_NAME,
     FIX_DIR,
     METADATA_NAME,
@@ -23,9 +24,11 @@ from .common import (
     git,
     split_command,
 )
+from .environment import EnvironmentFinding, detect_environment_failure
 from .ingest import clean_failure, failure_from_reproduction, related_tracked_paths
 from .patches import parse_patch_files
 from .proposals import PatchFileSource, ProposalSource, ProviderCommandSource
+from .records import Task, TaskStore
 from .session import FixSession, VerifyCommand
 
 
@@ -43,6 +46,7 @@ class FixRepoConfig:
     max_attempts: int = 3
     artifacts_root: Path = Path("artifacts")
     failure: dict[str, Any] | None = None
+    task_id: str | None = None
 
 
 def _outcome(**values: Any) -> dict[str, Any]:
@@ -73,6 +77,84 @@ def _build_source(config: FixRepoConfig) -> ProposalSource:
     )
 
 
+def _task_for(tasks: TaskStore, task: Task | None, failure: dict[str, Any], repo: Path) -> Task:
+    if task is not None:
+        return task
+    return tasks.create(
+        repository=str(failure.get("repository") or repo),
+        trigger=str(failure.get("source") or "fix-repo"),
+        objective=str(failure.get("message") or "make the failing verification commands pass")[:300],
+    )
+
+
+def _escalate_environment(
+    config: FixRepoConfig,
+    finding: EnvironmentFinding,
+    *,
+    failure: dict[str, Any],
+    repo: Path,
+    base_commit: str,
+    artifacts_root: Path,
+    tasks: TaskStore,
+    task: Task | None,
+    source: ProposalSource,
+) -> dict[str, Any]:
+    """Escalate before any provider call: the reproduction failed for an environment reason."""
+    run_id = new_id("run")
+    task = _task_for(tasks, task, failure, repo)
+    reason = f"environment_failure:{finding.kind}"
+    record = {
+        "stage": "reproduce",
+        "reason": reason,
+        "finding": finding.to_dict(),
+        "repo_path": str(repo),
+        "base_commit": base_commit,
+        "task_id": task.task_id,
+        "provider_called": False,
+        "failure_message": str(failure.get("message") or "")[:300],
+        "created_at": utc_now(),
+    }
+    ref = FileEvidenceStore(artifacts_root).write_json(run_id, FIX_DIR, record, name=ESCALATION_NAME)
+    tasks.append_run(
+        task.task_id,
+        {
+            "run_id": run_id,
+            "started_at": record["created_at"],
+            "completed_at": utc_now(),
+            "workflow_status": RunStatus.AWAITING_HUMAN.value,
+            "technical_status": None,
+            "policy_outcome": None,
+            "risk_level": None,
+            "attempts": 0,
+            "stop_reason": reason,
+            "base_commit": base_commit,
+            "proposal_source": source.name,
+            "agent": source.agent,
+        },
+    )
+    return _outcome(
+        outcome=RunStatus.AWAITING_HUMAN.value,
+        run_id=run_id,
+        task_id=task.task_id,
+        workflow_status=RunStatus.AWAITING_HUMAN.value,
+        technical_status=None,
+        policy_outcome=None,
+        attempts=0,
+        stop_reason=reason,
+        provider_called=False,
+        escalation=record,
+        repo_path=str(repo),
+        base_commit=base_commit,
+        artifacts=str(artifacts_root / "runs" / run_id),
+        escalation_path=str(artifacts_root / "runs" / run_id / ref.ref),
+        next_steps=[
+            f"The unpatched reproduction failed for an environment reason ({finding.kind}): {finding.evidence}",
+            "No patch was requested. Fix the environment or the verification command, then re-run:",
+            f"python -m ci_failure_orchestrator.cli fix-repo ... --task-id {task.task_id} --artifacts {config.artifacts_root}",
+        ],
+    )
+
+
 def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
     repo = Path(config.repo_path).resolve()
     artifacts_root = Path(config.artifacts_root).resolve()
@@ -85,6 +167,8 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
             raise ValueError(f"refusing to pass credential variables to verification commands: {', '.join(blocked)}")
         commands = _build_commands(config.verify_commands)
         source = _build_source(config)
+        tasks = TaskStore(artifacts_root)
+        task: Task | None = tasks.load(config.task_id) if config.task_id else None
     except ValueError as exc:
         return _outcome(outcome="ERROR", message=str(exc))
 
@@ -116,6 +200,12 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
     tracked = tuple(
         line for line in git(repo, "ls-tree", "-r", "--name-only", base_commit).stdout.splitlines() if line
     )
+    finding = detect_environment_failure(baseline, commands, tracked)
+    if finding is not None:
+        return _escalate_environment(
+            config, finding, failure=failure, repo=repo, base_commit=base_commit,
+            artifacts_root=artifacts_root, tasks=tasks, task=task, source=source,
+        )
     if not failure.get("changed_paths"):
         failure["changed_paths"] = list(
             related_tracked_paths(str(failure.get("log_excerpt") or "") + "\n" + str(failure.get("message") or ""), tracked)
@@ -126,6 +216,8 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
     failure["commit_sha"] = failure.get("commit_sha") or base_commit
     failure["repository"] = failure.get("repository") or str(repo)
     event = FailureEvent.from_dict(failure, run_id=run_id)
+    task = _task_for(tasks, task, failure, repo)
+    started_at = utc_now()
 
     session = FixSession(
         repo=repo,
@@ -135,6 +227,9 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
         baseline=baseline,
         tracked_files=tracked,
         artifacts_root=artifacts_root,
+        task_id=task.task_id,
+        proposal_source=source.name,
+        agent=source.agent,
     )
     foundation = AgentExecutionFoundation(
         sandbox=WorktreeSandbox(session, verifier),
@@ -147,6 +242,25 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
     result = foundation.run(event)
     workflow = result.workflow_status or result.status.value
     proposal = result.run.proposal
+    policy_outcome = result.policy_outcome.value if result.policy_outcome else None
+    stop_reason = result.stop_reason.value if result.stop_reason else None
+    tasks.append_run(
+        task.task_id,
+        {
+            "run_id": run_id,
+            "started_at": started_at,
+            "completed_at": utc_now(),
+            "workflow_status": workflow,
+            "technical_status": result.technical_status,
+            "policy_outcome": policy_outcome,
+            "risk_level": result.policy_decision.risk_level.value if result.policy_decision else None,
+            "attempts": result.attempts,
+            "stop_reason": stop_reason,
+            "base_commit": base_commit,
+            "proposal_source": source.name,
+            "agent": source.agent,
+        },
+    )
 
     patch_path: Path | None = None
     files_changed: tuple[str, ...] = ()
@@ -168,6 +282,8 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
                 "verify_commands": [c.display for c in commands],
                 "proposal_id": proposal.proposal_id,
                 "proposal_source": source.name,
+                "agent": source.agent,
+                "task_id": task.task_id,
                 "failure_message": str(failure.get("message") or "")[:300],
             },
             name=METADATA_NAME,
@@ -189,12 +305,14 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
     return _outcome(
         outcome=workflow,
         run_id=run_id,
+        task_id=task.task_id,
+        agent=source.agent,
         workflow_status=workflow,
         technical_status=result.technical_status,
-        policy_outcome=result.policy_outcome.value if result.policy_outcome else None,
+        policy_outcome=policy_outcome,
         policy_rules=list(result.policy_decision.matched_rules) if result.policy_decision else [],
         attempts=result.attempts,
-        stop_reason=result.stop_reason.value if result.stop_reason else None,
+        stop_reason=stop_reason,
         repo_path=str(repo),
         base_commit=base_commit,
         files_changed=list(files_changed),

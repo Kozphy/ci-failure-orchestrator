@@ -1,6 +1,6 @@
 # Service v0.1.0 plan — narrow GitHub CI failure service
 
-**Status:** reviewed plan; Stages 0, 1 and 1b implemented (see [CHANGELOG](../CHANGELOG.md)); Stage 2 next. Nothing is deleted before its stage is reviewed.  
+**Status:** reviewed plan; Stages 0, 1, 1b, 2, 2b and 3 implemented (see [CHANGELOG](../CHANGELOG.md)); Stage 4 next. Nothing is deleted before its stage is reviewed. Longer-term roadmap and its gap analysis: [roadmap-agent-control-plane.md](roadmap-agent-control-plane.md).  
 **Baseline (2026-09-25, commit `4620583`):** 382 tests pass; 17 workflows; ~90 top-level modules plus `foundation/` and `governed/`.
 
 This document records the architecture audit, the canonical module set, the staged plan with acceptance tests, and the decisions taken during review. Every stage must end with the full test suite green and report concrete evidence (test names, commands, artifacts), not feature claims.
@@ -48,15 +48,16 @@ Below the path level: three classifiers, four policy engines, four state machine
 
 | Gap | Where | Stage |
 | --- | --- | --- |
-| Policy ignores failure classification: a dependency failure "fixed" by a small source patch is auto-APPROVED | `foundation/policy.py` (`_evaluate` never reads `classification`) | 3 |
-| No escalation on low classifier confidence | `foundation/policy.py` | 3 |
-| `fix-repo-apply --open-pr` does not pass `--draft`; branch name is not checked against `main`/`master`/default branch | `service/apply.py` | 2 |
-| `--provider-env GITHUB_TOKEN` would pass a token to the provider | `service/proposals.py` | 2 |
-| Symlink (`120000`) and submodule entries in patches are not rejected | `patch_sandbox.py` | 2 |
-| Log sanitization redacts secrets only: no ANSI/control stripping, no `::workflow-command::` neutralization, no untrusted-data framing in prompts | `foundation/sanitization.py`, `service/prompt.py` | 2 |
-| Evidence strings, not log line-range references | `foundation/classifier.py` | 2/4 |
-| Verify commands must come from trusted config in an Action context (never from the checked-out repo) | new | 2/6 |
-| No run schema; no time-to-diagnosis or cost metrics | new | 5 |
+| Policy ignores failure classification: a dependency failure "fixed" by a small source patch is auto-APPROVED | `foundation/policy.py` (`_evaluate` never reads `classification`) | 3 (done) |
+| No escalation on low classifier confidence | `foundation/policy.py` | 3 (done) |
+| `fix-repo-apply --open-pr` does not pass `--draft`; branch name is not checked against `main`/`master`/default branch | `service/apply.py` | 2 (done) |
+| `--provider-env GITHUB_TOKEN` would pass a token to the provider | `service/proposals.py` | 2 (done) |
+| Symlink (`120000`) and submodule entries in patches are not rejected | `patch_sandbox.py` | 2 (done) |
+| Log sanitization redacts secrets only: no ANSI/control stripping, no `::workflow-command::` neutralization, no untrusted-data framing in prompts | `foundation/sanitization.py`, `service/prompt.py` | 2 (done) |
+| Evidence strings, not log line-range references | `foundation/classifier.py` | 4 |
+| Verify commands must come from trusted config in an Action context (never from the checked-out repo) | new | 6 |
+| No task identity linking runs of one failure; attempts not attributed to an agent | `service/` | 2b (done) |
+| No run schema; no time-to-diagnosis or cost metrics; no cost budget | new | 5 |
 | No DAG over workflow jobs / packages / tests (`graph.py` is tied to the diagnosis `Stage` model) | new | 4 |
 | `repo_fix.py` exceeds 1,000 lines | `repo_fix.py` | 1 (done) |
 | `foundation/persistence.py` (1,254) and `foundation/runner.py` (1,082) exceed 1,000 lines | foundation | 1b (done) |
@@ -83,9 +84,10 @@ Rule: a canonical module must not import an experimental module.
 | **1** | Split `repo_fix.py` into `service/` (pure move); `repo_fix.py` re-exports | `tests/test_repo_fix.py` unchanged and passing; no canonical file > 1,000 lines |
 | **1b** | Split `foundation/persistence.py` and `foundation/runner.py` (verbatim move; both stay as stable import paths) | AST of every moved definition identical to HEAD; full suite green; no canonical file > 1,000 lines |
 | **2** | Security boundaries: symlink/submodule/binary/traversal patches rejected; seeded token absent from every artifact, prompt, run record, PR body; token env names blocked for provider and verify; workflow-command and ANSI neutralization; untrusted-log framing; trusted verify allowlist; refuse default-branch targets; draft-only PRs; static no-merge check | `tests/test_security_boundaries.py` |
+| **2b** | Task / Run / Attempt records wrapping fix-repo (roadmap Phase 1): `service/records.py`, `tasks/<id>/task.json` + append-only `runs.jsonl`, `attempt-NNN.json` per proposal with agent identity, `fix-repo --task-id`, read-only `fix-repo-task`; foundation schemas unchanged | `tests/test_task_run_attempt.py` |
 | **3** | Policy: escalate dependency / infrastructure / network / unknown classifications and low confidence; environment-failure detection at reproduce time escalates without calling the provider | dependency failure + source-only patch → `AWAITING_HUMAN`; golden baseline diff shown before intentional update |
 | **4** | `service/dag.py`: workflow `needs`, declared packages, test→module imports; upstream-most failed job; affected tests as evidence; undeclared import → dependency classification | cycle rejection, upstream selection, affected tests, undeclared-package tests |
-| **5** | `schemas/run.v1.json`; `run.json` per run; `service-metrics`: classification accuracy and false approval (labeled runs only), repair success, time-to-diagnosis p50/p95, retries, estimated cost (labeled as estimate) | schema validation; metric tests on known inputs; population + "not production evidence" in output |
+| **5** | `schemas/run.v1.json` (includes `task_id` and per-attempt `agent` from Stage 2b); `run.json` per run; cost budget: optional per-run limit on estimated provider cost / tokens, checked before each attempt, exhaustion stops with a dedicated stop reason and escalates (never approves); `service-metrics`: classification accuracy and false approval (labeled runs only), repair success, time-to-diagnosis p50/p95, retries, estimated cost per run, per task and per agent (labeled as estimate) | schema validation; budget exhaustion → `AWAITING_HUMAN` without another provider call; metric tests on known inputs; population + "not production evidence" in output |
 | **6** | GitHub integration phase 1: reusable composite Action (see §5.1); draft PR or escalation summary/issue; replace `self-heal.yml` with a dogfood caller | static `action.yml` test (minimal permissions, no `pull_request_target`, `--draft`, no merge); apply-refusal tests |
 | **7** | Local end-to-end demo: three local repos (repair, dependency escalation, sensitive block), local bare remote, recorded provider by default | `tests/test_demo.py`: APPROVED / AWAITING_HUMAN / REJECTED-or-BLOCKED |
 | **8** | Three real repository case studies (see §5.2) with provider comparison (see §5.3) | per case: `run.json`, audit events, PR/issue link, sanitized log excerpt, reproduction commands; labeled n=1 |
@@ -135,3 +137,12 @@ The package stays at `1.2.0` in `pyproject.toml` (lowering it would make pip tre
 - **Stage 0:** `auto-merge-after-checks.yml` → manual trigger only **and** job hard-disabled (`if: false`), so it cannot merge even when dispatched. `self-heal.yml` and `agent-issue-delivery.yml` → `workflow_dispatch` only. Their jobs depend on `workflow_run` / `issues` event payloads, so a manual dispatch is a no-op until they are replaced.
 - **Stage 6:** replace `self-heal.yml` with the canonical Action caller.
 - **Stage 9:** delete workflows no longer needed; record each change in `CHANGELOG.md`.
+
+### 5.6 Agent control plane roadmap — adopted in part
+
+Reviewed 2026-09-25; details and gap analysis in [roadmap-agent-control-plane.md](roadmap-agent-control-plane.md).
+
+- **Now:** Task / Run / Attempt records (Stage 2b, done) before Stage 3.
+- **In v0.1.0:** Stage 5 carries `task_id`, agent per attempt and a cost budget.
+- **After v0.1.0:** real resume (continuing a run from its last attempt), EvalForge integration, deterministic agent router, control panel UI, SQLite/PostgreSQL state.
+- **Kept open:** alternative directions (roadmap §17) if requirements or constraints change.

@@ -57,6 +57,7 @@ def blocked_env_names(names: Sequence[str]) -> tuple[str, ...]:
 FIX_DIR = "fix-repo"
 METADATA_NAME = "metadata.json"
 FINAL_PATCH_NAME = "final.patch"
+ESCALATION_NAME = "environment-escalation.json"
 
 MAX_LOG_CHARS = 12_000
 MAX_FEEDBACK_CHARS = 4_000

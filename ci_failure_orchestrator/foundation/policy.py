@@ -175,6 +175,14 @@ class PolicyConfig:
     max_attempts_for_escalation: int = 3
     small_scope_max_files: int = 3
     moderate_scope_max_files: int = 8
+    # A passing patch does not show that an environment, dependency or unexplained failure is fixed.
+    escalation_failure_categories: tuple[str, ...] = (
+        "dependency_failure",
+        "infrastructure_failure",
+        "network_failure",
+        "unknown",
+    )
+    min_classification_confidence: float = 0.6
 
     def __post_init__(self) -> None:
         if not isinstance(self.default_outcome, PolicyOutcome):
@@ -189,6 +197,8 @@ class PolicyConfig:
             raise ValueError("small_scope_max_files must be <= moderate_scope_max_files")
         if self.max_attempts_for_escalation < 1:
             raise ValueError("max_attempts_for_escalation must be >= 1")
+        if not 0.0 <= self.min_classification_confidence <= 1.0:
+            raise ValueError("min_classification_confidence must be within [0, 1]")
         for level in self.auto_approve_risk_levels:
             if not isinstance(level, GovernanceRiskLevel):
                 raise ValueError(f"invalid risk level: {level!r}")
@@ -214,6 +224,8 @@ RULE_BROAD_SCOPE = "POL-010-BROAD-SCOPE"
 RULE_HIGH_RETRY_COUNT = "POL-011-HIGH-RETRY-COUNT"
 RULE_INVALID_PROPOSAL = "POL-012-INVALID-PROPOSAL"
 RULE_ENGINE_FAILURE = "POL-013-ENGINE-FAILURE"
+RULE_FAILURE_CATEGORY = "POL-014-ENVIRONMENT-OR-UNKNOWN-FAILURE"
+RULE_LOW_CONFIDENCE = "POL-015-LOW-CLASSIFICATION-CONFIDENCE"
 
 
 DEPENDENCY_BASENAMES = frozenset(
@@ -430,6 +442,14 @@ class StaticPolicyEngine:
             f"categories={','.join(c.value for c in context.file_categories) or 'none'}",
             f"tools={','.join(context.tools_used) or 'none'}",
             f"attempts={context.attempt_count}",
+            *(
+                [
+                    f"failure_category={context.classification.category}",
+                    f"classification_confidence={context.classification.confidence:.2f}",
+                ]
+                if context.classification is not None
+                else ["failure_category=none"]
+            ),
             *[f"file:{f}" for f in context.changed_files[:8]],
         ]
 
@@ -497,6 +517,18 @@ class StaticPolicyEngine:
 
         # --- 2. Mandatory escalation ---
         escalate_reasons: list[str] = []
+
+        classification = context.classification
+        if classification is None:
+            matched.append(RULE_LOW_CONFIDENCE)
+            escalate_reasons.append("classification_missing")
+        else:
+            if classification.category in cfg.escalation_failure_categories:
+                matched.append(RULE_FAILURE_CATEGORY)
+                escalate_reasons.append(f"failure_category:{classification.category}")
+            if classification.confidence < cfg.min_classification_confidence:
+                matched.append(RULE_LOW_CONFIDENCE)
+                escalate_reasons.append("low_classification_confidence")
 
         auth_hits = [
             f

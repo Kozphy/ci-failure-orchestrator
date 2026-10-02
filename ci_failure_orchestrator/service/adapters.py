@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import time
+from hashlib import sha256
+
 from ..foundation.models import (
     FailureClassification,
     RepairPlan,
@@ -9,6 +12,7 @@ from ..foundation.models import (
     SandboxResult,
     ToolResult,
     new_id,
+    utc_now,
 )
 from ..foundation.persistence import FileEvidenceStore
 from ..patch_sandbox import WorktreePatchVerifier
@@ -16,6 +20,7 @@ from .common import FIX_DIR, MAX_FEEDBACK_CHARS, tail
 from .patches import extract_patch, is_unsafe_path, parse_patch_files, patch_violation
 from .prompt import build_prompt, extract_rationale
 from .proposals import ProposalSource
+from .records import Attempt, AttemptStatus, write_attempt
 from .session import FixSession
 from .untrusted import clean_untrusted
 
@@ -38,6 +43,8 @@ class RepoFixProposalFactory:
         paths: tuple[str, ...],
         force_forbidden_path: bool,
     ) -> RepairProposal:
+        self.session.attempt_started_at = utc_now()
+        self.session.attempt_started_clock = time.monotonic()
         prompt = build_prompt(self.session, attempt_number=attempt_number, changed_paths=paths)
         generated = self.source.generate(prompt, attempt_number)
         patch = extract_patch(generated.text)
@@ -72,6 +79,28 @@ class WorktreeSandbox:
             {"attempt": self.attempt, "reason": reason, "output": tail(clean_untrusted(output), MAX_FEEDBACK_CHARS)}
         )
 
+    def _attempt(self, proposal: RepairProposal, status: AttemptStatus, error: str | None) -> None:
+        session = self.session
+        started_clock = session.attempt_started_clock or time.monotonic()
+        write_attempt(
+            session.artifacts_root,
+            Attempt(
+                attempt_id=new_id("att"),
+                task_id=session.task_id,
+                run_id=proposal.run_id,
+                number=self.attempt,
+                agent=session.agent,
+                proposal_source=session.proposal_source,
+                status=status,
+                error=error,
+                patch_sha256=sha256(proposal.patch.encode("utf-8")).hexdigest() if proposal.patch.strip() else None,
+                files_changed=proposal.files_changed,
+                started_at=session.attempt_started_at or utc_now(),
+                completed_at=utc_now(),
+                duration_ms=int((time.monotonic() - started_clock) * 1000),
+            ),
+        )
+
     def execute(
         self,
         proposal: RepairProposal,
@@ -83,6 +112,7 @@ class WorktreeSandbox:
         if not proposal.patch.strip():
             error = self.session.last_error or "no_patch_extracted"
             self._record(error, "No unified diff was found in the response.")
+            self._attempt(proposal, AttemptStatus.NO_PATCH, error)
             return SandboxResult(proposal.run_id, proposal.proposal_id, False, False, (), (), error=error, workspace="git-worktree")
 
         violation = patch_violation(proposal.patch)
@@ -90,6 +120,7 @@ class WorktreeSandbox:
             violation = "forbidden_path_outside_repo"
         if violation:
             self._record(violation, "Patch refused before any worktree was created.")
+            self._attempt(proposal, AttemptStatus.REFUSED, violation)
             return SandboxResult(
                 proposal.run_id, proposal.proposal_id, False, False, (), proposal.files_changed,
                 error=violation, workspace="git-worktree",
@@ -132,10 +163,14 @@ class WorktreeSandbox:
 
         if not result.applied:
             self._record(error, "git apply rejected the patch; context lines must match the base files exactly.")
+            self._attempt(proposal, AttemptStatus.PATCH_REJECTED, error)
         elif not result.passed:
             label = displays.get(failing.name, failing.name) if failing else "verification"
             output = f"{failing.stdout}\n{failing.stderr}".strip() if failing else ""
             self._record(f"verification command failed: {label}", output)
+            self._attempt(proposal, AttemptStatus.VERIFICATION_FAILED, f"verification command failed: {label}")
+        else:
+            self._attempt(proposal, AttemptStatus.VERIFIED, None)
 
         changed = tuple(dict.fromkeys((*result.changed_files, *proposal.files_changed)))
         return SandboxResult(

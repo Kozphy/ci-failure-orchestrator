@@ -7,7 +7,7 @@ Source of truth: [`ci_failure_orchestrator/module_status.py`](../ci_failure_orch
 | Module | Role |
 | --- | --- |
 | `foundation/` | Control plane: state machine, retry budget, fail-closed policy, evaluator, escalation, persistence, audit, human decisions, benchmark and operations reports |
-| `service/` | Service path: failure ingest, prompt building, proposal sources, worktree sandbox adapter, run and apply (Stage 1 split of `repo_fix.py`) |
+| `service/` | Service path: failure ingest, prompt building, proposal sources, worktree sandbox adapter, run and apply (Stage 1 split of `repo_fix.py`), Task / Attempt records (`records.py`) |
 | `repo_fix.py` | Compatibility shim re-exporting `service` |
 | `patch_sandbox.py` | Disposable git worktree: reproduce, apply, verify |
 | `provider_adapters.py` | Subprocess provider runner with env allowlist, timeout, output cap |
@@ -15,13 +15,11 @@ Source of truth: [`ci_failure_orchestrator/module_status.py`](../ci_failure_orch
 | `classifier.py` | Pure regex error classifier used by `foundation/classifier.py` |
 | `module_status.py` | This manifest |
 
-Entrypoint: `cli.py` wires both canonical and experimental commands. Canonical commands: `fix-repo`, `fix-repo-apply`, `foundation-*`. All others are labeled `[experimental]` in `ci-orchestrator --help`.
+Entrypoint: `cli.py` wires both canonical and experimental commands. Canonical commands: `fix-repo`, `fix-repo-apply`, `fix-repo-task` (read-only), `foundation-*`. All others are labeled `[experimental]` in `ci-orchestrator --help`.
 
 ## Known boundary violations (may only shrink)
 
-| From (canonical) | To (experimental) | Removal |
-| --- | --- | --- |
-| `foundation.classifier` | `github_repair_adapter` (pulls in `supervisor`, `task_idempotency`) | Stage 3 — classification-aware policy |
+None. The last one (`foundation.classifier` → `github_repair_adapter`) was removed in Stage 3: the CI-step heuristic now lives in `foundation/classifier.py::classify_ci_step`.
 
 ## Experimental — kept, not on the service path
 

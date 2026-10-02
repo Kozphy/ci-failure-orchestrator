@@ -116,15 +116,14 @@ EXPERIMENTAL: dict[str, frozenset[str]] = {
 
 # Canonical -> experimental imports that already exist. The boundary test fails
 # on any new edge and on any listed edge that no longer exists, so this set can
-# only shrink. Removal is scheduled for Stage 3 (classification-aware policy).
-KNOWN_BOUNDARY_VIOLATIONS: frozenset[tuple[str, str]] = frozenset(
-    {("foundation.classifier", "github_repair_adapter")}
-)
+# only shrink. Empty since Stage 3.
+KNOWN_BOUNDARY_VIOLATIONS: frozenset[tuple[str, str]] = frozenset()
 
 CANONICAL_COMMANDS: frozenset[str] = frozenset(
     {
         "fix-repo",
         "fix-repo-apply",
+        "fix-repo-task",
         "foundation-run",
         "foundation-inspect",
         "foundation-events",

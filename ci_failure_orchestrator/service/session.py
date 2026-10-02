@@ -25,5 +25,10 @@ class FixSession:
     baseline: tuple[VerificationStep, ...]
     tracked_files: tuple[str, ...]
     artifacts_root: Path
+    task_id: str = ""
+    proposal_source: str = ""
+    agent: str = ""
     feedback: list[dict[str, Any]] = field(default_factory=list)
     last_error: str | None = None
+    attempt_started_at: str = ""
+    attempt_started_clock: float = 0.0

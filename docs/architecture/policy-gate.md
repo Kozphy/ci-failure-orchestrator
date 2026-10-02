@@ -96,6 +96,23 @@ Restricted tools with non-`SMALL` scope escalate when configured.
 
 Path/config detection only — no semantic security analyzer.
 
+## Failure classification and confidence (Stage 3)
+
+A passing patch does not show that an environment or unexplained failure is fixed, so the
+classification of the original failure also gates approval:
+
+- `dependency_failure`, `infrastructure_failure`, `network_failure`, `unknown` → escalate
+  (`POL-014-ENVIRONMENT-OR-UNKNOWN-FAILURE`; set via `PolicyConfig.escalation_failure_categories`)
+- classifier confidence below `PolicyConfig.min_classification_confidence` (default `0.6`), or no
+  classification at all → escalate (`POL-015-LOW-CLASSIFICATION-CONFIDENCE`)
+
+In the classifier, content-based environment signals (dependency, network, package, deployment
+patterns in the message or log excerpt) outrank job/step names, so a `test` job that fails on a
+missing package is a dependency failure. Before any of this, `fix-repo` checks the unpatched
+reproduction for environment failures (missing command or third-party module, dependency
+resolution, network, resource exhaustion) and escalates without calling a provider
+(`service/environment.py`).
+
 ## Example configuration
 
 Constructor injection via `PolicyConfig` (no new config framework):

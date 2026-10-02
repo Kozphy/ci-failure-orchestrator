@@ -30,6 +30,7 @@ from .service import (
     failure_from_github,
     failure_from_log_file,
     run_fix_repo,
+    task_summary,
 )
 from .trust import ProviderRegistry, TrustContextBuilder
 from .trust_gateway import (
@@ -474,10 +475,20 @@ def cmd_fix_repo(args):
             max_attempts=args.max_attempts,
             artifacts_root=Path(args.artifacts),
             failure=failure,
+            task_id=args.task_id,
         )
     )
     _dump(outcome)
     return _FIX_REPO_EXIT.get(outcome.get("outcome"), 2)
+
+
+def cmd_fix_repo_task(args):
+    try:
+        _dump(task_summary(Path(args.artifacts), args.task_id))
+    except ValueError as exc:
+        _dump({"outcome": "ERROR", "message": str(exc)})
+        return 2
+    return 0
 
 
 def cmd_fix_repo_apply(args):
@@ -505,7 +516,7 @@ def build_parser():
     parser = argparse.ArgumentParser(
         prog="ci-orchestrator",
         description=(
-            "Canonical service commands: fix-repo, fix-repo-apply, foundation-*. "
+            "Canonical service commands: fix-repo, fix-repo-apply, fix-repo-task, foundation-*. "
             "Commands marked [experimental] are outside the v0.1 service path "
             "(see docs/module-status.md)."
         ),
@@ -725,8 +736,14 @@ def build_parser():
     fix.add_argument("--github-api-url", default="https://api.github.com")
     fix.add_argument("--base-ref", default="HEAD", help="Commit the patch must apply to")
     fix.add_argument("--max-attempts", type=int, default=3)
+    fix.add_argument("--task-id", help="Record this run under an existing task (default: create a new task)")
     fix.add_argument("--artifacts", default="artifacts")
     fix.set_defaults(func=cmd_fix_repo)
+
+    fixt = sub.add_parser("fix-repo-task", help="Show a task with its runs and per-attempt records (read-only)")
+    fixt.add_argument("task_id")
+    fixt.add_argument("--artifacts", default="artifacts")
+    fixt.set_defaults(func=cmd_fix_repo_task)
 
     fixa = sub.add_parser(
         "fix-repo-apply",
