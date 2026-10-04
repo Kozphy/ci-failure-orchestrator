@@ -145,7 +145,7 @@ actions-doctor demo --all                  # all six, with a summary table
 | Scenario | Diagnosis | Decision | Why |
 | --- | --- | --- | --- |
 | `dependency-drift` | `dependency_failure` | awaiting human | POL-014 dependency failure, POL-007 `requirements.txt` changed |
-| `flaky-test` | `flaky_failure` | approved | test-only fix, verified over 30 seeds (POL-005) |
+| `flaky-test` | `flaky_failure` | awaiting human | verified over 30 seeds, but the fix changes the test's assertion (POL-019), so a person confirms the old expectation was wrong |
 | `network-failure` | `network_failure` | awaiting human | the reproduction itself fails on the network, so no patch is requested |
 | `timeout` | `timeout_failure` | awaiting human | POL-014: a passing patch cannot show whether the hang or the runner was the cause |
 | `configuration-error` | `configuration_failure` | awaiting human | configuration files are not auto-approved (POL-006) |

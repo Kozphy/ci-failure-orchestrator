@@ -69,6 +69,7 @@ class PolicyGateMixin:
                 "policy",
                 {
                     "outcome": policy_decision.outcome.value,
+                    "policy_version": policy_decision.policy_version,
                     "reasons": list(policy_decision.reasons),
                     "matched_rules": list(policy_decision.matched_rules),
                     "risk_level": policy_decision.risk_level.value,

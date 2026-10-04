@@ -30,6 +30,7 @@ from .policy import (
     RULE_HIGH_RETRY_COUNT,
     RULE_RESTRICTED_TOOL,
     RULE_SECURITY_SENSITIVE,
+    RULE_VERIFICATION_CHANGE_REVIEW,
     ChangeScope,
     FileCategory,
     GovernanceRiskLevel,
@@ -57,6 +58,7 @@ class EscalationReasonCode(str, Enum):
     UNKNOWN_CHANGE_CATEGORY = "UNKNOWN_CHANGE_CATEGORY"
     MAX_RETRY_SUCCESS_WITH_UNCERTAINTY = "MAX_RETRY_SUCCESS_WITH_UNCERTAINTY"
     RESTRICTED_TOOL_USED = "RESTRICTED_TOOL_USED"
+    VERIFICATION_CHANGE = "VERIFICATION_CHANGE"
     OTHER_POLICY_ESCALATION = "OTHER_POLICY_ESCALATION"
 
 
@@ -157,6 +159,7 @@ _RULE_TO_REASON: dict[str, EscalationReasonCode] = {
     RULE_DEPENDENCY_CHANGE: EscalationReasonCode.DEPENDENCY_CHANGE,
     RULE_BROAD_SCOPE: EscalationReasonCode.BROAD_CHANGE_SCOPE,
     RULE_RESTRICTED_TOOL: EscalationReasonCode.RESTRICTED_TOOL_USED,
+    RULE_VERIFICATION_CHANGE_REVIEW: EscalationReasonCode.VERIFICATION_CHANGE,
     RULE_HIGH_RETRY_COUNT: EscalationReasonCode.MAX_RETRY_SUCCESS_WITH_UNCERTAINTY,
     RULE_DEFAULT_ESCALATION: EscalationReasonCode.POLICY_UNCERTAINTY,
     RULE_ENGINE_FAILURE: EscalationReasonCode.POLICY_UNCERTAINTY,
@@ -230,6 +233,9 @@ def build_checklist(reason_codes: tuple[EscalationReasonCode, ...]) -> tuple[str
         add("Review cross-module interactions")
     if EscalationReasonCode.RESTRICTED_TOOL_USED in codes:
         add("Review restricted tool invocations and side effects")
+    if EscalationReasonCode.VERIFICATION_CHANGE in codes:
+        add("Confirm the changed test expectation was wrong, not the code under test")
+        add("Confirm each added suppression or CI-environment branch has a stated reason")
     if codes & {
         EscalationReasonCode.POLICY_UNCERTAINTY,
         EscalationReasonCode.UNKNOWN_CHANGE_CATEGORY,

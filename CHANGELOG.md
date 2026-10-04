@@ -6,6 +6,33 @@ Versioning (plan §5.4) uses two tracks: the Python package keeps semantic versi
 
 ## [Unreleased]
 
+### Reject repairs that make CI green by weakening verification
+
+- New `foundation/verification_integrity.py`: deterministic, line-based analysis of the proposed diff. The policy engine runs it on every evaluation; it does not depend on an LLM.
+- `POL-018-VERIFICATION-WEAKENED` (REJECT, checked right after forbidden paths). It fires when a patch does any of the following:
+  - deletes test files or test cases
+  - adds skip, xfail or `.only` markers, or deselects tests
+  - removes assertions or weakens them (`== expected` → `is not None`, `toEqual` → `toBeDefined`, `x == x`)
+  - forces the runner's exit status
+  - lowers or removes a coverage threshold
+  - removes a check command from CI, or deletes a CI file
+  - lets a CI step fail (`continue-on-error`, `allow_failure`, `|| true`)
+  - disables lint or type checks in configuration, or removes pre-commit hooks
+  - edits CODEOWNERS or repository rulesets
+  - silently swallows a broad exception in production code
+  - has production code detect the test runner (`PYTEST_CURRENT_TEST`, `NODE_ENV === 'test'`)
+- `POL-019-VERIFICATION-CHANGE-REVIEW` (ESCALATE, reason code `VERIFICATION_CHANGE`) for changes that are sometimes correct but need a person: an existing test assertion changed, an inline suppression added (`noqa`, `type: ignore`, `@ts-ignore`, `nosec`, ...), or production code branching on the CI environment.
+- Policy decisions carry `policy_version` (`2026.10.1`), which is also written to `policy-decision.json`.
+- Behaviour change: the `flaky-test` demo is now AWAITING_HUMAN (POL-019) instead of APPROVED, because its fix rewrites the test's assertion. `test_only_the_flaky_test_fix_is_approved` became `test_no_demo_fix_is_auto_approved`.
+- Evidence:
+  - `tests/test_verification_integrity.py` has 72 tests: 36 weakening patterns across Python, JS/TS, Go, Java and CI/config files, 6 review cases, and 11 legitimate repairs that must not be flagged.
+  - It also includes an end-to-end `fix-repo` run in a real git worktree. On the previous gate, a provider that deleted the failing test got pytest green and the run was APPROVED (POL-005). It is now REJECTED (POL-018), while the real code fix is still APPROVED.
+  - Full suite: 670 passed. Benchmark compare: 26 `UNCHANGED_PASS`, 12 `NEW_CASE`; baseline not updated.
+- Limits:
+  - Detection is per line and per file. A weakening hidden in a helper, split across files, or made by widening a numeric tolerance is not detected.
+  - Hardcoding a test's expected value in production code is detected only when the code checks for the test runner.
+  - A rejected patch ends the run; it is not yet fed back to the provider as a retry.
+
 ### Phase 1a: fix defects found in the current-state assessment
 
 - Runner: a `PersistenceError` now sets `workflow_status` to `PERSISTENCE_ERROR`, so `persistence_ok` is false in metrics and in `metrics-summary.json`. Classification is fixed to the reported failure for the whole run. Previously a changed failure fingerprint triggered a second classification, which could move the incident into a lower-risk category.

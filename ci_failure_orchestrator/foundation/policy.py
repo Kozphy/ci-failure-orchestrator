@@ -17,6 +17,11 @@ from .models import (
     ToolRiskLevel,
     utc_now,
 )
+from .verification_integrity import IntegritySeverity, analyze_patch
+
+# Bump when a rule is added, removed or changes outcome, so a stored decision can be
+# matched to the rules that produced it.
+POLICY_VERSION = "2026.10.1"
 
 
 class PolicyOutcome(str, Enum):
@@ -72,6 +77,7 @@ class PolicyDecision:
     evidence: tuple[str, ...] = ()
     explanation: str = ""
     timestamp: str = field(default_factory=utc_now)
+    policy_version: str = POLICY_VERSION
 
     def explain(self) -> str:
         if self.explanation:
@@ -233,6 +239,8 @@ RULE_FAILURE_CATEGORY = "POL-014-ENVIRONMENT-OR-UNKNOWN-FAILURE"
 RULE_LOW_CONFIDENCE = "POL-015-LOW-CLASSIFICATION-CONFIDENCE"
 RULE_ESCALATION_PATH = "POL-016-ESCALATION-PATH"
 RULE_INFRA_OR_MIGRATION = "POL-017-INFRASTRUCTURE-OR-MIGRATION"
+RULE_VERIFICATION_WEAKENED = "POL-018-VERIFICATION-WEAKENED"
+RULE_VERIFICATION_CHANGE_REVIEW = "POL-019-VERIFICATION-CHANGE-REVIEW"
 
 
 DEPENDENCY_BASENAMES = frozenset(
@@ -522,8 +530,40 @@ class StaticPolicyEngine:
                 detail=f"Forbidden path(s): {', '.join(forbidden_hits)}.",
             )
 
+        # Passing checks are no evidence of a fix when the patch weakened the checks.
+        findings = analyze_patch(context.proposal.patch)
+        weakening = [f for f in findings if f.severity is IntegritySeverity.REJECT]
+        if weakening:
+            matched.append(RULE_VERIFICATION_WEAKENED)
+            violations.extend(
+                PolicyViolation(RULE_VERIFICATION_WEAKENED, "HIGH", f.message, (f.describe(),))
+                for f in weakening
+            )
+            codes = tuple(dict.fromkeys(f.code.value for f in weakening))
+            return self._decision(
+                PolicyOutcome.REJECT,
+                matched,
+                violations,
+                reasons=tuple(f"verification_weakened:{c}" for c in codes),
+                risk=GovernanceRiskLevel.CRITICAL,
+                evidence=list(evidence) + [f"integrity:{f.describe()}" for f in weakening],
+                detail=(
+                    "Patch weakens the checks used to verify it ("
+                    + ", ".join(codes)
+                    + "); a passing run is not evidence of a fix."
+                ),
+            )
+
         # --- 2. Mandatory escalation ---
         escalate_reasons: list[str] = []
+
+        review_findings = [f for f in findings if f.severity is IntegritySeverity.ESCALATE]
+        if review_findings:
+            matched.append(RULE_VERIFICATION_CHANGE_REVIEW)
+            escalate_reasons.extend(
+                dict.fromkeys(f"verification_change:{f.code.value}" for f in review_findings)
+            )
+            evidence.extend(f"integrity:{f.describe()}" for f in review_findings)
 
         classification = context.classification
         if classification is None:

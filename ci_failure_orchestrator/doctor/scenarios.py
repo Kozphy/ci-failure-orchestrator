@@ -286,8 +286,10 @@ FAILED tests/test_pick.py::test_picks_two_different_reviewers[2-3] - AssertionEr
     ),
     verify=("{python} tools/repeat_tests.py",),
     expected_category="flaky_failure",
-    expected_outcome="APPROVED",
-    expected_rules=("POL-005",),
+    # The fix is right, but it changes what the test checks; only a person can confirm the old
+    # expectation was wrong rather than loosened until it passed.
+    expected_outcome="AWAITING_HUMAN",
+    expected_rules=("POL-019",),
 )
 
 # --- network failure --------------------------------------------------------------------------

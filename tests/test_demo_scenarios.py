@@ -69,9 +69,10 @@ def test_scenario_runs_end_to_end_with_the_expected_decision(name, tmp_path):
     assert any(line.startswith("6 Evidence") for line in lines)
 
 
-def test_only_the_flaky_test_fix_is_approved():
+def test_no_demo_fix_is_auto_approved():
+    # flaky-test was approved until POL-019: its fix rewrites the test's assertion.
     approved = [s.name for s in SCENARIOS.values() if s.expected_outcome == "APPROVED"]
-    assert approved == ["flaky-test"]
+    assert approved == []
 
 
 def test_demo_cli_lists_scenarios(capsys):
