@@ -1,0 +1,57 @@
+tests/test_doctor.py
+  s_dd5ec07e8f478a::t_6421b4319e46be 94-97
+benchmarks/foundation/cases/classification/BENCH-CLASS-008.json
+  s_dd5ec07e8f478a::t_dcf96bdfd05071 1-30
+benchmarks/foundation/cases/classification/BENCH-CLASS-009.json
+  s_dd5ec07e8f478a::t_6609058868c3de 1-30
+ci_failure_orchestrator/ci_audit/collect.py
+  s_dd5ec07e8f478a::t_6a4edc0bd9ff90 211
+  s_dd5ec07e8f478a::t_c322c1ab73e612 206-209
+  s_dd5ec07e8f478a::t_a0f567fa71e740 10
+benchmarks/foundation/cases/classification/BENCH-CLASS-011.json
+  s_dd5ec07e8f478a::t_0ad08b9ff1dae5 1-30
+ci_failure_orchestrator/foundation/classifier.py
+  s_dd5ec07e8f478a::t_e1891d3f583255 5-6
+  s_dd5ec07e8f478a::t_8241696bdbbedf 35-39
+  s_dd5ec07e8f478a::t_d42ac5fdaa0ec4 70-74,77-91
+  s_dd5ec07e8f478a::t_e3c6fada6c0d4e 75-76
+  s_dd5ec07e8f478a::t_ff904a0904497a 19
+  s_dd5ec07e8f478a::t_65cc48869732ef 34,40-45
+docs/product-spec.md
+  s_dd5ec07e8f478a::t_302912e74898f0 113-114
+docs/productization-audit.md
+  s_dd5ec07e8f478a::t_a1b71586d9b07a 214-215,217,221-228
+CHANGELOG.md
+  s_dd5ec07e8f478a::t_614bcda17d90a7 9-17
+benchmarks/foundation/cases/policy/BENCH-POLICY-006.json
+  s_dd5ec07e8f478a::t_a1f6444acc57f5 1-4,6-23,25-41
+  s_dd5ec07e8f478a::t_3941cf348dc366 24
+  s_dd5ec07e8f478a::t_1bb34f901fd4a9 5
+ci_failure_orchestrator/foundation/policy.py
+  s_dd5ec07e8f478a::t_36f68dc78850ee 178-179,185
+tests/test_classifier_step_and_security.py
+  s_dd5ec07e8f478a::t_220053cb6cf756 1-44,48-130
+  s_dd5ec07e8f478a::t_ec282667c5b41b 45-47
+tests/test_ci_audit.py
+  s_dd5ec07e8f478a::t_a5924cb63bada0 231
+benchmarks/foundation/cases/classification/BENCH-CLASS-010.json
+  s_dd5ec07e8f478a::t_6e69cade41e762 1-30
+benchmarks/foundation/cases/classification/BENCH-CLASS-007.json
+  s_dd5ec07e8f478a::t_19eec642e5e51b 1-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "000b5dbce512fdd3ece66081f53f18f05fe0ab3e",
+  "prompts": {},
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
