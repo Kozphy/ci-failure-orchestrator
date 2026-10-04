@@ -236,5 +236,12 @@ The CI Doctor phases overlap the remaining service-plan stages. One sequence, no
    categories the scenarios need (debt item 5 included) and a flaky signal that a single
    log can carry (one test both passed and failed in the same repeated run). Only the
    flaky-test fix is approved; the other five escalate, which is the policy's intent.
-6. Next: the GitHub Action and PR comment (section 9, Stage 6), with tests that reuse the
-   demo scenarios' logs.
+6. Done (diagnosis only). `action.yml` at the repository root: a composite action that
+   installs the package into a virtual environment and runs `doctor/action.py` on the run
+   that triggered a `workflow_run` event, writing the diagnosis to the job log, the job
+   summary, `diagnosis.json` and two outputs. Read-only (`actions: read`); it never checks
+   out the failed run's code. `.github/workflows/ci-doctor.yml` runs it on this
+   repository's own `ci` failures. Tests use a fake GitHub reader, not the demo logs.
+7. Next: a Markdown renderer for the summary (it is the text report in a code block today),
+   then one PR comment updated in place (`pull-requests: write`), then a `v1` release and
+   Marketplace listing.

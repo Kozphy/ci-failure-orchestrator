@@ -1,0 +1,25 @@
+name: CI Doctor
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run-id:
+        description: ID of the workflow run to diagnose
+        required: true
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  diagnose:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      # Checks out this repository's default branch (the action itself), never the failed run's code.
+      - uses: actions/checkout@v7
+      - uses: ./
+        with:
+          run-id: ${{ inputs.run-id || github.event.workflow_run.id }}

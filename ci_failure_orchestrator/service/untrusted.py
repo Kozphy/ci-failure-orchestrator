@@ -41,9 +41,13 @@ def clean_untrusted(text: str) -> str:
     return sanitize_text(neutralize(text))[0]
 
 
-def untrusted_block(title: str, text: str, *, info: str = "text") -> str:
-    """A prompt section whose fence cannot be closed by the content it wraps."""
+def fenced(text: str, *, info: str = "text") -> str:
+    """A Markdown code block whose fence cannot be closed by the content it wraps."""
 
     longest = max((len(run) for run in re.findall(r"`+", text)), default=0)
     fence = "`" * max(3, longest + 1)
-    return f"## UNTRUSTED: {title}\n{fence}{info}\n{text.rstrip()}\n{fence}"
+    return f"{fence}{info}\n{text.rstrip()}\n{fence}"
+
+
+def untrusted_block(title: str, text: str, *, info: str = "text") -> str:
+    return f"## UNTRUSTED: {title}\n{fenced(text, info=info)}"

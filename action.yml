@@ -1,0 +1,60 @@
+name: CI Doctor
+description: Diagnose a failed GitHub Actions run from its logs and show the evidence in the job summary. Read-only.
+author: Kozphy
+branding:
+  icon: activity
+  color: red
+
+inputs:
+  run-id:
+    description: ID of the workflow run to diagnose. Defaults to the run that triggered a workflow_run event.
+    required: false
+    default: ${{ github.event.workflow_run.id }}
+  repository:
+    description: Repository of the run, as owner/name.
+    required: false
+    default: ${{ github.repository }}
+  github-token:
+    description: Token with actions:read on the repository.
+    required: false
+    default: ${{ github.token }}
+  python-version:
+    description: Python used to run CI Doctor (3.10 or newer).
+    required: false
+    default: "3.12"
+
+outputs:
+  failure-class:
+    description: Failure class of the most likely root cause, or "none" when no job failed.
+    value: ${{ steps.diagnose.outputs.failure-class }}
+  diagnosis-file:
+    description: Path to diagnosis.json on the runner.
+    value: ${{ steps.diagnose.outputs.diagnosis-file }}
+
+runs:
+  using: composite
+  steps:
+    - id: python
+      uses: actions/setup-python@v7
+      with:
+        python-version: ${{ inputs.python-version }}
+        update-environment: false
+    - id: install
+      shell: bash
+      env:
+        SETUP_PYTHON: ${{ steps.python.outputs.python-path }}
+      run: |
+        venv="$RUNNER_TEMP/ci-doctor-venv"
+        "$SETUP_PYTHON" -m venv "$venv"
+        python="$venv/bin/python"
+        [ -x "$python" ] || python="$venv/Scripts/python.exe"
+        "$python" -m pip install --quiet --disable-pip-version-check "$GITHUB_ACTION_PATH"
+        echo "python=$python" >> "$GITHUB_OUTPUT"
+    - id: diagnose
+      shell: bash
+      env:
+        CI_DOCTOR_PYTHON: ${{ steps.install.outputs.python }}
+        CI_DOCTOR_REPOSITORY: ${{ inputs.repository }}
+        CI_DOCTOR_RUN_ID: ${{ inputs.run-id }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: '"$CI_DOCTOR_PYTHON" -m ci_failure_orchestrator.doctor.action'
