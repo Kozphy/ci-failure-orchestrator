@@ -23,6 +23,8 @@ CANONICAL: frozenset[str] = frozenset(
         "github_client",
         # Pure regex classifier used by foundation.classifier.
         "classifier",
+        # Read-only GitHub Actions reliability audit (collect / analyze / report).
+        "ci_audit",
     }
 )
 
@@ -121,6 +123,8 @@ KNOWN_BOUNDARY_VIOLATIONS: frozenset[tuple[str, str]] = frozenset()
 
 CANONICAL_COMMANDS: frozenset[str] = frozenset(
     {
+        "ci-audit-collect",
+        "ci-audit-report",
         "fix-repo",
         "fix-repo-apply",
         "fix-repo-task",

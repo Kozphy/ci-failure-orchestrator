@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from dataclasses import asdict
 from pathlib import Path
 
@@ -9,11 +10,12 @@ import yaml
 
 from .audit import HashChainedAuditLog
 from .causal import infer_causal_edges
+from .ci_audit import analyze_export, collect_export, render_report
 from .classifier import classify_error
 from .config import load_failures, load_pipeline
 from .foundation import AgentExecutionFoundation
 from .foundation import FailureEvent as FoundationFailureEvent
-from .github_client import GitHubActionsClient
+from .github_client import GitHubActionsClient, GitHubAPIError
 from .github_ingest import failures_from_jobs, stages_from_jobs
 from .governed import GovernedAgentPipeline, failure_event_from_dict
 from .governed.explain import explain_result, explain_stored_run
@@ -506,6 +508,47 @@ def cmd_fix_repo_apply(args):
     return 0 if result.status == "APPLIED" else 1
 
 
+def cmd_ci_audit_collect(args):
+    token = args.token or os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN")
+    client = GitHubActionsClient(token=token, api_url=args.api_url, timeout=args.timeout)
+    try:
+        export = collect_export(
+            client, args.repo, days=args.days, max_runs=args.max_runs, max_logs=args.max_logs
+        )
+    except (GitHubAPIError, ValueError) as exc:
+        _dump({"outcome": "ERROR", "message": str(exc)})
+        return 2
+    Path(args.output).write_text(json.dumps(export, indent=2), encoding="utf-8")
+    _dump({
+        "outcome": "COLLECTED",
+        "output": args.output,
+        "runs": len(export["runs"]),
+        "jobs": len(export["jobs"]),
+        "failed_jobs": len(export["failures"]),
+        "warnings": len(export["warnings"]),
+        "authenticated": bool(token),
+    })
+    return 0
+
+
+def cmd_ci_audit_report(args):
+    try:
+        export = json.loads(Path(args.export).read_text(encoding="utf-8"))
+        analysis = analyze_export(export)
+    except (OSError, ValueError, KeyError) as exc:
+        _dump({"outcome": "ERROR", "message": str(exc)})
+        return 2
+    Path(args.output).write_text(render_report(analysis), encoding="utf-8")
+    if args.json:
+        Path(args.json).write_text(json.dumps(analysis, indent=2), encoding="utf-8")
+    _dump({
+        "outcome": "REPORTED",
+        "output": args.output,
+        "findings": [f"{f['id']} {f['severity']}: {f['title']}" for f in analysis["findings"]],
+    })
+    return 0
+
+
 def _add_experimental(sub, name, help_text):
     if name not in EXPERIMENTAL_COMMANDS:
         raise ValueError(f"{name} is not registered in module_status.EXPERIMENTAL_COMMANDS")
@@ -516,7 +559,8 @@ def build_parser():
     parser = argparse.ArgumentParser(
         prog="ci-orchestrator",
         description=(
-            "Canonical service commands: fix-repo, fix-repo-apply, fix-repo-task, foundation-*. "
+            "Canonical service commands: ci-audit-collect, ci-audit-report, fix-repo, fix-repo-apply, "
+            "fix-repo-task, foundation-*. "
             "Commands marked [experimental] are outside the v0.1 service path "
             "(see docs/module-status.md)."
         ),
@@ -758,6 +802,26 @@ def build_parser():
     fixa.add_argument("--open-pr", action="store_true", help="Push and open a PR with the GitHub CLI")
     fixa.add_argument("--actor", default="operator", help="Operator identity recorded in the audit log")
     fixa.set_defaults(func=cmd_fix_repo_apply)
+
+    cac = sub.add_parser(
+        "ci-audit-collect",
+        help="Read-only: export GitHub Actions runs, jobs and classified failures for one repository",
+    )
+    cac.add_argument("--repo", required=True, help="owner/name")
+    cac.add_argument("--days", type=int, default=30, help="Window size in days")
+    cac.add_argument("--max-runs", type=int, default=500)
+    cac.add_argument("--max-logs", type=int, default=50, help="Failed-job logs to fetch for classification")
+    cac.add_argument("--output", default="ci-audit-export.json")
+    cac.add_argument("--token", help="GitHub token; defaults to GITHUB_TOKEN or GH_TOKEN")
+    cac.add_argument("--api-url", default="https://api.github.com")
+    cac.add_argument("--timeout", type=float, default=30.0)
+    cac.set_defaults(func=cmd_ci_audit_collect)
+
+    car = sub.add_parser("ci-audit-report", help="Render a Markdown reliability report from a ci-audit export")
+    car.add_argument("export", help="JSON file written by ci-audit-collect")
+    car.add_argument("--output", default="ci-audit-report.md")
+    car.add_argument("--json", help="Also write the computed analysis as JSON")
+    car.set_defaults(func=cmd_ci_audit_report)
     return parser
 
 

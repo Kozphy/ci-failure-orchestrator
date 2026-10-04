@@ -11,11 +11,12 @@ Source of truth: [`ci_failure_orchestrator/module_status.py`](../ci_failure_orch
 | `repo_fix.py` | Compatibility shim re-exporting `service` |
 | `patch_sandbox.py` | Disposable git worktree: reproduce, apply, verify |
 | `provider_adapters.py` | Subprocess provider runner with env allowlist, timeout, output cap |
-| `github_client.py` | GitHub Actions REST client (runs, jobs, logs) |
+| `ci_audit/` | Read-only CI reliability audit: collect a sanitized 30-day export, compute metrics and ranked findings, render the Markdown report |
+| `github_client.py` | GitHub Actions REST client (runs, jobs, logs; read-only, token dropped on cross-host redirects) |
 | `classifier.py` | Pure regex error classifier used by `foundation/classifier.py` |
 | `module_status.py` | This manifest |
 
-Entrypoint: `cli.py` wires both canonical and experimental commands. Canonical commands: `fix-repo`, `fix-repo-apply`, `fix-repo-task` (read-only), `foundation-*`. All others are labeled `[experimental]` in `ci-orchestrator --help`.
+Entrypoint: `cli.py` wires both canonical and experimental commands. Canonical commands: `fix-repo`, `fix-repo-apply`, `fix-repo-task` (read-only), `ci-audit-collect` and `ci-audit-report` (read-only), `foundation-*`. All others are labeled `[experimental]` in `ci-orchestrator --help`.
 
 ## Known boundary violations (may only shrink)
 

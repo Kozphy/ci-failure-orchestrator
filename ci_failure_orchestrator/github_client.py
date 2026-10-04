@@ -4,11 +4,31 @@ import json
 import os
 from dataclasses import dataclass
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.parse import urlsplit
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 
 class GitHubAPIError(RuntimeError):
     """Raised when GitHub Actions evidence cannot be collected safely."""
+
+
+class _DropAuthOnCrossHostRedirect(HTTPRedirectHandler):
+    """Log downloads redirect to blob storage; the GitHub token must not follow."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        new = super().redirect_request(req, fp, code, msg, headers, newurl)
+        if new is not None and urlsplit(newurl).netloc != urlsplit(req.full_url).netloc:
+            new.remove_header("Authorization")
+        return new
+
+
+_OPENER = build_opener(_DropAuthOnCrossHostRedirect)
+
+
+def _check_repository(repository: str) -> None:
+    owner, _, name = repository.partition("/")
+    if not owner or not name or "/" in name:
+        raise ValueError("repository must use owner/name format")
 
 
 @dataclass(frozen=True)
@@ -41,7 +61,7 @@ class GitHubActionsClient:
             headers["Authorization"] = f"Bearer {self.token}"
         request = Request(f"{self.api_url}{path}", headers=headers, method="GET")
         try:
-            with urlopen(request, timeout=self.timeout) as response:
+            with _OPENER.open(request, timeout=self.timeout) as response:
                 return response.read()
         except HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")
@@ -54,6 +74,45 @@ class GitHubActionsClient:
             return json.loads(self._request(path).decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
             raise GitHubAPIError("GitHub API returned invalid JSON") from exc
+
+    def list_workflow_runs(self, repository: str, *, created_since: str, max_runs: int) -> list[dict]:
+        """Newest-first workflow runs created on or after ``created_since`` (YYYY-MM-DD)."""
+        _check_repository(repository)
+        runs: list[dict] = []
+        page = 1
+        while len(runs) < max_runs:
+            payload = self._get_json(
+                f"/repos/{repository}/actions/runs?created=%3E%3D{created_since}&per_page=100&page={page}"
+            )
+            batch = payload.get("workflow_runs", [])
+            if not isinstance(batch, list):
+                raise GitHubAPIError("GitHub runs response did not contain a workflow_runs list")
+            runs.extend(batch)
+            if len(batch) < 100:
+                break
+            page += 1
+        return runs[:max_runs]
+
+    def list_run_jobs(self, repository: str, run_id: int) -> list[dict]:
+        """Jobs from every attempt of a run (``filter=all``), so reruns stay visible."""
+        _check_repository(repository)
+        jobs: list[dict] = []
+        page = 1
+        while True:
+            payload = self._get_json(
+                f"/repos/{repository}/actions/runs/{run_id}/jobs?filter=all&per_page=100&page={page}"
+            )
+            batch = payload.get("jobs", [])
+            if not isinstance(batch, list):
+                raise GitHubAPIError("GitHub jobs response did not contain a jobs list")
+            jobs.extend(batch)
+            if len(batch) < 100:
+                return jobs
+            page += 1
+
+    def job_log(self, repository: str, job_id: int) -> str:
+        _check_repository(repository)
+        return self._request(f"/repos/{repository}/actions/jobs/{job_id}/logs").decode("utf-8", errors="replace")
 
     def collect_run(self, repository: str, run_id: int, *, include_logs: bool = True) -> WorkflowRunEvidence:
         """Collect normalized job metadata and failed-job logs for a workflow run."""
