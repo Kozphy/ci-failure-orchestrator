@@ -92,6 +92,8 @@ Restricted tools with non-`SMALL` scope escalate when configured.
 - Dependency manifests/lockfiles → escalate (`POL-007`)  
 - CI workflows (e.g. `.github/workflows/`) → escalate (`POL-004`)  
 - Auth/security-sensitive paths → escalate (`POL-003` / `POL-009`)  
+- Infrastructure or migration files → escalate (`POL-017`)  
+- Any other configured escalation path (`PolicyConfig.escalation_paths`) → escalate (`POL-016`)  
 - Forbidden paths (`.env`, `secrets/`, `.git/`, `id_rsa`) → reject (`POL-002`)
 
 Path/config detection only — no semantic security analyzer.

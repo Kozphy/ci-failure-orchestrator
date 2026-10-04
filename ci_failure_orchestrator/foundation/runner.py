@@ -184,7 +184,7 @@ class AgentExecutionFoundation(PolicyGateMixin):
                 state.status = sm.status
 
                 classification = self._resolve_classification(
-                    event, classification, attempts, attempt_number, sm
+                    event, classification, attempt_number, sm
                 )
                 state.classification = classification
                 state.status = sm.status
@@ -578,6 +578,7 @@ class AgentExecutionFoundation(PolicyGateMixin):
             )
         except PersistenceError as exc:
             state.status = RunStatus.FAILED
+            state.workflow_status = "PERSISTENCE_ERROR"
             state.technical_status = "FAIL"
             state.stop_reason = f"PERSISTENCE_ERROR:{exc}"
             state.updated_at = utc_now()
@@ -648,25 +649,14 @@ class AgentExecutionFoundation(PolicyGateMixin):
         self,
         event: FailureEvent,
         classification: FailureClassification | None,
-        attempts: list[AttemptRecord],
         attempt_number: int,
         sm: FoundationStateMachine,
     ) -> FailureClassification:
-        reclassify = classification is None
-        if (
-            not reclassify
-            and attempt_number > 1
-            and len(attempts) >= 2
-            and attempts[-1].failure_fingerprint != attempts[-2].failure_fingerprint
-        ):
-            reclassify = True
-
-        if reclassify or classification is None:
+        # Classification is fixed to the reported failure for the whole run. Reclassifying
+        # from sandbox output could move an incident into a lower-risk category and widen
+        # what policy approves.
+        if classification is None:
             classification = self.classifier.classify(event)
-            if attempt_number == 1:
-                sm.transition(RunStatus.CLASSIFIED, classification.category)
-            return classification
-
         if attempt_number == 1:
             sm.transition(RunStatus.CLASSIFIED, classification.category)
         return classification

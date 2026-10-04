@@ -188,17 +188,19 @@ The target lifecycle runs: **ingest → incident → classify → propose → po
 
 ## 7. Architectural risks and verified defects
 
-### 7.1 Correctness defects (verified, each a small fix)
+### 7.1 Correctness defects
 
-1. **Persistence failure is reported as success.** On `PersistenceError` the runner never sets `workflow_status` to `PERSISTENCE_ERROR` (`foundation/runner.py:579-590`), so `persistence_ok` is always true (`recorder.py:112`, `aggregator.py:133`).
-2. **Reclassification reuses the same event** (`foundation/runner.py:655-665`). The second classification sees the same input as the first, so reclassifying cannot change the outcome.
-3. **Policy rule IDs are misattributed.** The escalation path is tagged POL-003 (`foundation/policy.py:579-582`) and the infra path is tagged as broad scope (`:608-611`). POL-001 is unreachable.
-4. **The restricted-tool check is a no-op** (`foundation/policy.py:662-664`).
-5. **Protected paths are matched by substring** (`foundation/policy.py:674`). `a/.github-notes/x` matches `.github`, and a path can avoid a substring that a stricter matcher would catch.
-6. **A failed or timed-out provider's stdout is still parsed for a patch** (`service/adapters.py:49-52`). That patch then passes through structural checks and verification (`:112-133`), so this is a fail-open gap, not a bypass.
-7. **`clean_after_apply` is inverted** (`patch_sandbox.py:191`).
-8. **A benchmark metric is overwritten**: `escalation_accuracy` is reassigned at `foundation/benchmark/metrics.py:147`.
-9. **The simulated sandbox reports success without applying anything** (`foundation/sandbox.py:82-88`, `:94-113`). The timeout is checked only after the work finishes (`:115-116`).
+Line numbers refer to `2380771`. Status is as of Phase 1a; regression tests are in `tests/test_foundation_defect_regressions.py`, and each one failed on the code before its fix.
+
+1. **Fixed: a persistence failure was reported as success.** On `PersistenceError` the runner never set `workflow_status` to `PERSISTENCE_ERROR` (`foundation/runner.py:579-590`), so `persistence_ok` was always true (`recorder.py:112`, `aggregator.py:133`).
+2. **Fixed: reclassification could change the risk class.** When the failure fingerprint changed, the runner classified again (`foundation/runner.py:655-665`). Classification is now fixed to the reported failure, because reclassifying from sandbox output could move an incident into a lower-risk category. Reclassifying on new evidence, allowed only to raise risk, is deferred to Phase 3.
+3. **Fixed: policy rule IDs were misattributed.** A plain escalation-path hit was tagged POL-003 security-sensitive (`foundation/policy.py:579-582`), and infrastructure/migration files were tagged POL-003 or POL-010 broad scope (`:608-611`). These now have their own rules, POL-016 and POL-017. The outcome is still ESCALATE. POL-001 never fires from the runner, because the gate is reached only after evaluation passes; it remains as defense in depth.
+4. **Removed: a restricted-tool branch that did nothing** (`foundation/policy.py:662-664`). This was dead code, not a missing check: restricted tools with a non-small scope are already escalated at `:584-590`.
+5. **Not a defect: protected paths are matched by substring** (`foundation/policy.py:674`). Substring matching only ever matches more paths, so it errs toward over-blocking (for example `src/redeploy/x.py` escalates). Segment matching would loosen the gate: `.env.local` would stop matching `.env`. Left unchanged.
+6. **Fixed: a failed or timed-out provider's stdout was still parsed for a patch** (`service/adapters.py:49-52`). On the old code, a provider that printed a correct diff and exited 1 had its patch verified and APPROVED.
+7. **Fixed: `clean_after_apply` meant only "the patch changed something"** (`patch_sandbox.py:191`). It now means the verify commands left the worktree as the patch left it. No caller reads it yet.
+8. **Removed: dead code in `escalation_accuracy`** (`foundation/benchmark/metrics.py:122-147`). The final line already computed the documented definition, so the metric's value is unchanged.
+9. **Open: the simulated sandbox reports success without applying anything** (`foundation/sandbox.py:82-88`, `:94-113`). The timeout is checked only after the work finishes (`:115-116`). This is the `foundation-run` simulation path; it is addressed by labelling simulation in reports (Phase 6), not by a quick fix.
 
 ### 7.2 Security risks
 

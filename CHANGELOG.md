@@ -6,6 +6,14 @@ Versioning (plan §5.4) uses two tracks: the Python package keeps semantic versi
 
 ## [Unreleased]
 
+### Phase 1a: fix defects found in the current-state assessment
+
+- Runner: a `PersistenceError` now sets `workflow_status` to `PERSISTENCE_ERROR`, so `persistence_ok` is false in metrics and in `metrics-summary.json`. Classification is fixed to the reported failure for the whole run. Previously a changed failure fingerprint triggered a second classification, which could move the incident into a lower-risk category.
+- Policy: escalation-path hits get `POL-016-ESCALATION-PATH` instead of POL-003 security-sensitive, and infrastructure/migration files get `POL-017-INFRASTRUCTURE-OR-MIGRATION` instead of POL-003 or POL-010 broad scope. As a result, escalation packets no longer carry the privilege-boundary or broad-scope checklist for these files. Outcomes are unchanged. A restricted-tool branch that did nothing was removed.
+- fix-repo: a provider that exits non-zero or times out yields no patch, even if it printed a diff. Before this change, such a diff was verified and could be approved.
+- `PatchVerification.clean_after_apply` now means the verify commands left the worktree unchanged after the patch. Dead code removed from the benchmark's `escalation_accuracy` (value unchanged).
+- Evidence: `tests/test_foundation_defect_regressions.py` (6 tests). Each failed on `2380771`, the commit before these fixes. For the two policy cases, the old engine returned POL-003 for `src/infra/settings.py` and `infra/main.tf`. Full suite 598 passed. Benchmark compare: 26 `UNCHANGED_PASS`, 12 `NEW_CASE`, no regressions; the baseline file was not updated. `docs/architecture/current-state.md` §7.1 records the status of each finding, including two that turned out not to be defects (substring path matching over-blocks rather than under-blocks; POL-001 is defense in depth).
+
 ### GitHub Action: diagnose failed runs in the job summary
 
 - New `action.yml` (composite) at the repository root. Inputs: `run-id` (default: the run behind a `workflow_run` event), `repository`, `github-token` (default `github.token`), `python-version`. It sets up Python without changing the caller's environment (`update-environment: false`), installs the package from the action's own checkout into a virtual environment, and runs `python -m ci_failure_orchestrator.doctor.action`. Outputs: `failure-class` (`none` when no job failed) and `diagnosis-file`.

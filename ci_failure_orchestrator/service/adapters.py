@@ -47,7 +47,8 @@ class RepoFixProposalFactory:
         self.session.attempt_started_clock = time.monotonic()
         prompt = build_prompt(self.session, attempt_number=attempt_number, changed_paths=paths)
         generated = self.source.generate(prompt, attempt_number)
-        patch = extract_patch(generated.text)
+        # A provider that exited non-zero or timed out may have printed a partial diff.
+        patch = "" if generated.error else extract_patch(generated.text)
         files = parse_patch_files(patch)
         self.session.last_error = generated.error or (None if patch else "no_patch_extracted")
         if self.source.name == "provider-cmd":

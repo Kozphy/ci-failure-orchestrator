@@ -185,10 +185,10 @@ class WorktreePatchVerifier:
                         if line.strip()
                     )
                 )
+                status_before = self._run(("git", "status", "--porcelain"), cwd=worktree, env=env)
                 steps = self._run_steps(worktree=worktree, env=env)
-
-                status = self._run(("git", "status", "--porcelain"), cwd=worktree, env=env)
-                clean_after_apply = bool(status.stdout.strip())
+                status_after = self._run(("git", "status", "--porcelain"), cwd=worktree, env=env)
+                clean_after_apply = status_before.stdout == status_after.stdout
                 passed = bool(steps) and all(step.passed for step in steps)
                 return PatchVerification(
                     applied=True,

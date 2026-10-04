@@ -122,28 +122,6 @@ def security_control_success_rate(results: list[BenchmarkCaseResult]) -> MetricR
 def escalation_accuracy(results: list[BenchmarkCaseResult]) -> MetricResult:
     subset = [r for r in results if _in_pop(r, "escalation")]
     den = len(subset)
-    num = 0
-    for r in subset:
-        ok = True
-        for name in ("policy_outcome", "escalation_required", "workflow_status"):
-            assertion = next((a for a in r.assertions if a.name == name), None)
-            if assertion is not None and not assertion.passed:
-                ok = False
-        if ok and r.passed:
-            num += 1
-        elif ok and all(
-            next((a for a in r.assertions if a.name == n), None) is None
-            or next(a for a in r.assertions if a.name == n).passed
-            for n in ("policy_outcome", "escalation_required")
-            if any(a.name == n for a in r.assertions)
-        ):
-            # count assertion-level correctness even if other assertions failed
-            pol = next((a for a in r.assertions if a.name == "policy_outcome"), None)
-            esc = next((a for a in r.assertions if a.name == "escalation_required"), None)
-            if (pol is None or pol.passed) and (esc is None or esc.passed):
-                if pol is not None or esc is not None:
-                    num += 1
-    # Simplify: case passed within escalation population
     num = sum(1 for r in subset if r.passed)
     return MetricResult("escalation_accuracy", num, den, _ratio(num, den))
 

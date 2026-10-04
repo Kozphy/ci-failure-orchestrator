@@ -231,6 +231,8 @@ RULE_INVALID_PROPOSAL = "POL-012-INVALID-PROPOSAL"
 RULE_ENGINE_FAILURE = "POL-013-ENGINE-FAILURE"
 RULE_FAILURE_CATEGORY = "POL-014-ENVIRONMENT-OR-UNKNOWN-FAILURE"
 RULE_LOW_CONFIDENCE = "POL-015-LOW-CLASSIFICATION-CONFIDENCE"
+RULE_ESCALATION_PATH = "POL-016-ESCALATION-PATH"
+RULE_INFRA_OR_MIGRATION = "POL-017-INFRASTRUCTURE-OR-MIGRATION"
 
 
 DEPENDENCY_BASENAMES = frozenset(
@@ -576,9 +578,13 @@ class StaticPolicyEngine:
             matched.append(RULE_DEPENDENCY_CHANGE)
             escalate_reasons.append("dependency_manifest_or_lockfile")
 
+        if FileCategory.INFRASTRUCTURE in context.file_categories or FileCategory.MIGRATION in context.file_categories:
+            matched.append(RULE_INFRA_OR_MIGRATION)
+            escalate_reasons.append("infra_or_migration")
+
         esc_path_hits = self._matching_paths(context.changed_files, cfg.escalation_paths)
         if esc_path_hits and not escalate_reasons:
-            matched.append(RULE_SECURITY_SENSITIVE)
+            matched.append(RULE_ESCALATION_PATH)
             escalate_reasons.append("escalation_path_prefix")
 
         if (
@@ -604,11 +610,6 @@ class StaticPolicyEngine:
             escalate_reasons.append("unknown_file_category")
             if RULE_DEFAULT_ESCALATION not in matched:
                 matched.append(RULE_DEFAULT_ESCALATION)
-
-        if FileCategory.INFRASTRUCTURE in context.file_categories or FileCategory.MIGRATION in context.file_categories:
-            escalate_reasons.append("infra_or_migration")
-            if RULE_SECURITY_SENSITIVE not in matched and RULE_BROAD_SCOPE not in matched:
-                matched.append(RULE_BROAD_SCOPE)
 
         if escalate_reasons:
             # Deduplicate matched while preserving order
@@ -657,12 +658,7 @@ class StaticPolicyEngine:
             return False
         if not context.file_categories:
             return False
-        if any(c not in cfg.auto_approve_categories for c in context.file_categories):
-            return False
-        if ToolRiskLevel.RESTRICTED in context.tool_risk_levels and len(context.changed_files) > 1:
-            # Restricted tools ok for tiny single-file source repairs under LOW risk only if still SMALL
-            pass
-        return True
+        return all(c in cfg.auto_approve_categories for c in context.file_categories)
 
     @staticmethod
     def _matching_paths(files: tuple[str, ...], patterns: tuple[str, ...]) -> list[str]:
