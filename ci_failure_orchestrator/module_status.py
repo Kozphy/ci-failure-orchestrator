@@ -25,6 +25,8 @@ CANONICAL: frozenset[str] = frozenset(
         "classifier",
         # Read-only GitHub Actions reliability audit (collect / analyze / report).
         "ci_audit",
+        # CI Doctor product CLI (actions-doctor); read-only wrappers over the canonical path.
+        "doctor",
     }
 )
 

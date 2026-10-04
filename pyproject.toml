@@ -17,6 +17,7 @@ observability = ["opentelemetry-api>=1.25", "opentelemetry-sdk>=1.25"]
 
 [project.scripts]
 ci-orchestrator = "ci_failure_orchestrator.cli:main"
+actions-doctor = "ci_failure_orchestrator.doctor.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

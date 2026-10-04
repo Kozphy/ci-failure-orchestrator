@@ -12,6 +12,7 @@ Source of truth: [`ci_failure_orchestrator/module_status.py`](../ci_failure_orch
 | `patch_sandbox.py` | Disposable git worktree: reproduce, apply, verify |
 | `provider_adapters.py` | Subprocess provider runner with env allowlist, timeout, output cap |
 | `ci_audit/` | Read-only CI reliability audit: collect a sanitized 30-day export, compute metrics and ranked findings, render the Markdown report |
+| `doctor/` | CI Doctor product CLI (`actions-doctor`). `analyze` diagnoses one failed run or saved log: evidence line, failing command, ranked failed jobs, policy preview from the engine's `PolicyConfig`. Read-only; no model calls |
 | `github_client.py` | GitHub Actions REST client (runs, jobs, logs; read-only, token dropped on cross-host redirects) |
 | `classifier.py` | Pure regex error classifier used by `foundation/classifier.py` |
 | `module_status.py` | This manifest |

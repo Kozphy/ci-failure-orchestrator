@@ -93,6 +93,10 @@ class GitHubActionsClient:
             page += 1
         return runs[:max_runs]
 
+    def get_run(self, repository: str, run_id: int) -> dict:
+        _check_repository(repository)
+        return self._get_json(f"/repos/{repository}/actions/runs/{run_id}")
+
     def list_run_jobs(self, repository: str, run_id: int) -> list[dict]:
         """Jobs from every attempt of a run (``filter=all``), so reruns stay visible."""
         _check_repository(repository)

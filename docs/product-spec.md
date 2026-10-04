@@ -73,7 +73,8 @@ so scripts can branch on it).
 
 **Audit IDs.** `CID-<UTC date>-<first 8 hex of the run hash>`, derived from the existing
 foundation run ID. No counter or database is needed, so the Action can create them
-statelessly. The brief's sequential form (`CID-2026-000142`) would need a shared counter.
+statelessly. A saved log gets `CID-log-<first 8 hex of the log's SHA-256>`, so the same log
+always gets the same ID. The brief's sequential form (`CID-2026-000142`) would need a shared counter.
 
 ### 2.3 `analyze` output
 

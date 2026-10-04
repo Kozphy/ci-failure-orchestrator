@@ -32,6 +32,11 @@ _STEP_CATEGORY = {
 _ENVIRONMENT_CATEGORIES = frozenset({"dependency_failure", "network_failure", "infrastructure_failure"})
 _ENVIRONMENT_CLASSES = frozenset({"DEPENDENCY_ERROR", "NETWORK_ERROR", "PACKAGE_ERROR", "DEPLOYMENT_ERROR"})
 _GENERIC_ERROR_RE = re.compile(r"(?i)^process completed with exit code \d+\.?$")
+# Tool output that states the error itself (pip, mypy, tsc, pytest's summary, ruff/flake8 rule codes),
+# not a help URL or a tally such as "Found 1 error.".
+_EXPLICIT_ERROR_RE = re.compile(
+    r"^(?:ERROR|Error|error)(?::|\[| TS\d+)|^FAILED |: error: |^[A-Z]{1,4}\d{3,4} (?:\[\*\] )?\S|:\d+:\d+: [A-Z]{1,4}\d{3,4} "
+)
 
 _RUN_FIELDS = (
     "id",
@@ -90,7 +95,7 @@ def _run_record(run: dict) -> dict:
     return record
 
 
-def _job_record(job: dict) -> dict:
+def job_record(job: dict) -> dict:
     labels = [str(label) for label in job.get("labels") or []]
     failed_step = next(
         (str(step.get("name") or "") for step in job.get("steps") or [] if step.get("conclusion") in FAILED_CONCLUSIONS),
@@ -110,13 +115,18 @@ def _job_record(job: dict) -> dict:
     }
 
 
+def log_lines(log: str) -> list[str]:
+    """Log lines without GitHub's timestamp prefix; indices match the downloaded log's lines."""
+    return _GH_TIMESTAMP_RE.sub("", log).splitlines()
+
+
 def failing_section(log: str) -> str:
     """The failing step's output, from its ``##[group]Run`` header to the first ``##[error]`` block.
 
     Post-job cleanup (checkout teardown, git config) and the echoed step script are
     dropped; they would otherwise dominate the tail, the message and the category.
     """
-    lines = _GH_TIMESTAMP_RE.sub("", log).splitlines()
+    lines = log_lines(log)
     cleanup = next((i for i, line in enumerate(lines) if line.strip() == "Post job cleanup."), len(lines))
     lines = lines[:cleanup]
     first_error = next((i for i, line in enumerate(lines) if line.startswith(_ERROR_MARK)), None)
@@ -148,8 +158,9 @@ def failure_message(section: str) -> str:
         warnings = [line[len(_WARNING_MARK):].strip() for line in lines if line.startswith(_WARNING_MARK)]
         if warnings:
             return warnings[-1]
-    body = "\n".join(line for line in lines if not line.startswith("##["))
-    return summarize_failure_message(body) or (errors[0] if errors else "")
+    body_lines = [line for line in lines if not line.startswith("##[")]
+    explicit = next((line for line in body_lines if _EXPLICIT_ERROR_RE.search(line)), "")
+    return explicit or summarize_failure_message("\n".join(body_lines)) or (errors[0] if errors else "")
 
 
 def classify_failure(workflow: str, job: dict, log: str) -> dict:
@@ -170,9 +181,9 @@ def classify_failure(workflow: str, job: dict, log: str) -> dict:
     )
     classification = FailureClassifier().classify(event)
     header = next((line for line in section.splitlines() if line.startswith("##[group]Run ")), "")
-    category, confidence, basis = refine_category(
-        classification.category, classification.confidence, message, f"{job['name']} {job['failed_step']} {header}"
-    )
+    # The step that ran names the tool; a job called "tests" can fail in its pip install step.
+    step_text = f"{job['failed_step']} {header}".strip() or job["name"]
+    category, confidence, basis = refine_category(classification.category, classification.confidence, message, step_text)
     return {
         "run_id": job["run_id"],
         "run_attempt": job["run_attempt"],
@@ -184,6 +195,8 @@ def classify_failure(workflow: str, job: dict, log: str) -> dict:
         "category": category,
         "confidence": confidence,
         "classified_by": basis,
+        "policy_category": classification.category,
+        "policy_confidence": classification.confidence,
         "log_available": bool(log),
         "html_url": job["html_url"],
     }
@@ -232,7 +245,7 @@ def collect_export(
         if run["status"] != "completed":
             continue
         try:
-            jobs.extend(_job_record(job) for job in reader.list_run_jobs(repository, int(run["id"])))
+            jobs.extend(job_record(job) for job in reader.list_run_jobs(repository, int(run["id"])))
         except (GitHubAPIError, OSError) as exc:
             warnings.append(f"jobs unavailable for run {run['id']}: {clean_untrusted(str(exc))[:200]}")
 

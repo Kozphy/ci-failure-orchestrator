@@ -211,6 +211,20 @@ def test_failure_message_prefers_specific_error_then_warning():
     assert failure_message("scanning\n##[warning]Leaks detected, see job summary") == "Leaks detected, see job summary"
 
 
+def test_failure_message_prefers_the_tool_error_over_help_urls_and_tallies():
+    generic = "##[error]Process completed with exit code 1."
+    pip = (
+        "ERROR: Cannot install a==1 and b==2 because these package versions have conflicting dependencies.\n"
+        "ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/dependency-resolution/\n"
+    )
+    assert failure_message(pip + generic).startswith("ERROR: Cannot install a==1")
+    ruff = "I001 [*] Import block is un-sorted or un-formatted\n  --> cli.py:11:1\nFound 1 error.\n"
+    assert failure_message(ruff + generic) == "I001 [*] Import block is un-sorted or un-formatted"
+    mypy = "src/a.py:3: error: Incompatible types\nFound 1 error in 1 file (checked 4 source files)\n"
+    assert failure_message(mypy + generic) == "src/a.py:3: error: Incompatible types"
+    assert failure_message("HTTP 404 from mirror\nbuild failed\n" + generic) == "build failed"
+
+
 def test_audit_refinement_does_not_hide_real_dependency_failures():
     job = {"id": 1, "run_id": 1, "run_attempt": 1, "name": "lint", "failed_step": "Run ruff", "html_url": ""}
     lint = classify_failure("CI", job, REAL_SHAPED_LOG)

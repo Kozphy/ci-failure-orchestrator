@@ -1,0 +1,109 @@
+"""``actions-doctor``: the CI Doctor command line (read-only diagnosis)."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+
+from ..github_client import GitHubActionsClient, GitHubAPIError
+from ..service.untrusted import clean_untrusted
+from .diagnose import Diagnosis, diagnose_log, diagnose_run
+from .render import render_text
+
+EXIT_OK = 0
+EXIT_USAGE = 2
+EXIT_INPUT = 3
+_RUN_URL_RE = re.compile(r"^https://github\.com/([\w.-]+/[\w.-]+)/actions/runs/(\d+)(?:/attempts/(\d+))?/?(?:[?#].*)?$")
+
+
+def parse_run_url(url: str) -> tuple[str, int, int | None]:
+    match = _RUN_URL_RE.match(url.strip())
+    if not match:
+        raise ValueError("expected https://github.com/<owner>/<repo>/actions/runs/<run id>")
+    repository, run_id, attempt = match.groups()
+    return repository, int(run_id), int(attempt) if attempt else None
+
+
+def _emit(diagnosis: Diagnosis, args: argparse.Namespace) -> None:
+    payload = diagnosis.to_dict()
+    if args.out:
+        out = Path(args.out)
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "diagnosis.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    sys.stdout.write(json.dumps(payload, indent=2) + "\n" if args.json else render_text(diagnosis))
+
+
+def cmd_analyze(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
+    if args.log:
+        if args.run or args.attempt:
+            parser.error("--run and --attempt apply to --repo or --url, not --log")
+        try:
+            log = Path(args.log).read_text(encoding="utf-8-sig", errors="replace")
+        except OSError as exc:
+            print(f"error: cannot read {args.log}: {exc.strerror}", file=sys.stderr)
+            return EXIT_INPUT
+        _emit(diagnose_log(log, job=args.job or Path(args.log).stem), args)
+        return EXIT_OK
+
+    if args.url:
+        if args.run:
+            parser.error("--run is part of --url")
+        try:
+            repository, run_id, url_attempt = parse_run_url(args.url)
+        except ValueError as exc:
+            parser.error(str(exc))
+        attempt = args.attempt or url_attempt
+    else:
+        if not args.run:
+            parser.error("--repo needs --run <run id>")
+        repository, run_id, attempt = args.repo, args.run, args.attempt
+
+    client = GitHubActionsClient(token=args.token, api_url=args.api_url)
+    try:
+        diagnosis = diagnose_run(client, repository, run_id, attempt=attempt, job=args.job)
+    except (GitHubAPIError, ValueError, OSError) as exc:
+        print(f"error: {clean_untrusted(str(exc))[:500]}", file=sys.stderr)
+        return EXIT_INPUT
+    _emit(diagnosis, args)
+    return EXIT_OK
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="actions-doctor",
+        description="CI Doctor: diagnose GitHub Actions failures from log evidence. Read-only.",
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+    analyze = sub.add_parser(
+        "analyze",
+        help="Diagnose one failed run or one saved job log (read-only)",
+        description="Diagnose one failed run or one saved job log. Never writes to a repository.",
+    )
+    source = analyze.add_mutually_exclusive_group(required=True)
+    source.add_argument("--url", help="Run URL: https://github.com/<owner>/<repo>/actions/runs/<id>")
+    source.add_argument("--repo", help="Repository as owner/name (with --run)")
+    source.add_argument("--log", help="Saved job log file (offline; no token needed)")
+    analyze.add_argument("--run", type=int, help="Workflow run ID (with --repo)")
+    analyze.add_argument("--attempt", type=int, help="Run attempt (default: latest)")
+    analyze.add_argument("--job", help="Only this job; with --log, the job name to show")
+    analyze.add_argument("--token", help="GitHub token; defaults to GITHUB_TOKEN. Never printed or stored")
+    analyze.add_argument("--api-url", default="https://api.github.com")
+    analyze.add_argument("--json", action="store_true", help="Print the diagnosis as JSON")
+    analyze.add_argument("--out", help="Also write diagnosis.json to this directory")
+    analyze.set_defaults(func=cmd_analyze)
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(errors="replace")
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    return args.func(args, parser)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
