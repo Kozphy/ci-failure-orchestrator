@@ -6,8 +6,14 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Any, Protocol
 
-from ..classifier import classify_error
-from ..foundation.classifier import SECURITY_MESSAGE_RE, SECURITY_TOOL_RE, FailureClassifier, classify_ci_step
+from ..foundation.classifier import (
+    ENVIRONMENT_CLASSES,
+    SECURITY_MESSAGE_RE,
+    SECURITY_TOOL_RE,
+    FailureClassifier,
+    classify_ci_step,
+    classify_text,
+)
 from ..foundation.models import FailureEvent
 from ..github_client import GitHubAPIError
 from ..service.common import MAX_LOG_CHARS, tail
@@ -28,13 +34,16 @@ _STEP_CATEGORY = {
     "unit_test_failure": "test_failure",
 }
 _ENVIRONMENT_CATEGORIES = frozenset({"dependency_failure", "network_failure", "infrastructure_failure"})
-_ENVIRONMENT_CLASSES = frozenset({"DEPENDENCY_ERROR", "NETWORK_ERROR", "PACKAGE_ERROR", "DEPLOYMENT_ERROR"})
 _GENERIC_ERROR_RE = re.compile(r"(?i)^process completed with exit code \d+\.?$")
-# Tool output that states the error itself (pip, mypy, tsc, pytest's summary, ruff/flake8 rule codes),
-# not a help URL or a tally such as "Found 1 error.".
+# Tool output that states the error itself (pip, mypy, tsc, pytest's summary including collection
+# errors, ruff/flake8 rule codes), not a help URL or a tally such as "Found 1 error.".
 _EXPLICIT_ERROR_RE = re.compile(
-    r"^(?:ERROR|Error|error)(?::|\[| TS\d+)|^FAILED |: error: |^[A-Z]{1,4}\d{3,4} (?:\[\*\] )?\S|:\d+:\d+: [A-Z]{1,4}\d{3,4} "
+    r"^(?:ERROR|Error|error)(?::|\[| TS\d+)|^FAILED |^ERROR \S+ - |: error: |^[A-Z]{1,4}\d{3,4} (?:\[\*\] )?\S"
+    r"|:\d+:\d+: [A-Z]{1,4}\d{3,4} "
 )
+# The last line of a Python traceback (``ImportError: ...``, ``urllib.error.URLError: ...``). unittest
+# prints ``ERROR: test_x (...)`` above it as a header; pytest's ``E   ...`` lines never match.
+_PY_EXCEPTION_RE = re.compile(r"^(?:[A-Za-z_]\w*\.)*[A-Za-z_]\w*(?:Error|Exception)(?:: .+)?$")
 
 _RUN_FIELDS = (
     "id",
@@ -157,27 +166,36 @@ def failure_message(section: str) -> str:
         if warnings:
             return warnings[-1]
     body_lines = [line for line in lines if not line.startswith("##[")]
+    exception = next((line for line in reversed(body_lines) if _PY_EXCEPTION_RE.match(line)), "")
     explicit = next((line for line in body_lines if _EXPLICIT_ERROR_RE.search(line)), "")
-    return explicit or summarize_failure_message("\n".join(body_lines)) or (errors[0] if errors else "")
+    return (
+        exception or explicit or summarize_failure_message("\n".join(body_lines)) or (errors[0] if errors else "")
+    )
+
+
+def failure_event_fields(workflow: str, job: dict, log: str) -> dict[str, str]:
+    """The ``FailureEvent`` fields the policy engine classifies for one failed job's log."""
+
+    section = failing_section(log)
+    return {
+        "workflow": workflow,
+        "job": job["name"],
+        "failed_step": job["failed_step"] or "unknown",
+        "message": failure_message(section) or f"{job['name']} failed",
+        "log_excerpt": tail(clean_untrusted(section), MAX_LOG_CHARS),
+    }
 
 
 def classify_failure(workflow: str, job: dict, log: str) -> dict:
     """Taxonomy entry for one failed job; the log is reduced to one scrubbed line."""
 
-    section = failing_section(log)
-    excerpt = tail(clean_untrusted(section), MAX_LOG_CHARS)
-    message = failure_message(section) or f"{job['name']} failed"
+    fields = failure_event_fields(workflow, job, log)
+    message = fields["message"]
     event = FailureEvent(
-        event_id=f"job-{job['id']}",
-        run_id=str(job["run_id"]),
-        source="github_actions",
-        workflow=workflow,
-        job=job["name"],
-        failed_step=job["failed_step"] or "unknown",
-        message=message,
-        log_excerpt=excerpt,
+        event_id=f"job-{job['id']}", run_id=str(job["run_id"]), source="github_actions", **fields
     )
     classification = FailureClassifier().classify(event)
+    section = failing_section(log)
     header = next((line for line in section.splitlines() if line.startswith("##[group]Run ")), "")
     # The step that ran names the tool; a job called "tests" can fail in its pip install step.
     step_text = f"{job['failed_step']} {header}".strip() or job["name"]
@@ -211,7 +229,7 @@ def refine_category(category: str, confidence: float, message: str, step_text: s
     if SECURITY_TOOL_RE.search(step_text) or SECURITY_MESSAGE_RE.search(message):
         return "security_scan_failure", 0.8, "step"
     tool = _STEP_CATEGORY.get(classify_ci_step("", step_text, step_text, ""), "")
-    if tool and category in _ENVIRONMENT_CATEGORIES and classify_error(message)[0] not in _ENVIRONMENT_CLASSES:
+    if tool and category in _ENVIRONMENT_CATEGORIES and classify_text(message)[0] not in ENVIRONMENT_CLASSES:
         return tool, 0.7, "step"
     return category, confidence, "classifier"
 

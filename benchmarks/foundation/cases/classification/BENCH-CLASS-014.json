@@ -1,0 +1,35 @@
+{
+  "case_id": "BENCH-CLASS-014",
+  "version": 1,
+  "title": "Application configuration error",
+  "description": "Synthetic classification fixture: app.config.ConfigError: unknown setting 'retry_limt' in config/app.ini (did you ",
+  "rationale": "A config loader rejecting an unknown key is a configuration failure, not unknown.",
+  "category": "CLASSIFICATION",
+  "tags": [
+    "classification",
+    "configuration"
+  ],
+  "required": true,
+  "tier": "tier1",
+  "mode": "classify",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "build",
+      "failed_step": "Check configuration",
+      "message": "app.config.ConfigError: unknown setting 'retry_limt' in config/app.ini (did you mean 'retry_limit'?)",
+      "log_excerpt": "python -m app --check-config",
+      "changed_paths": [],
+      "exit_code": 1
+    }
+  },
+  "expected": {
+    "classification": "configuration_failure",
+    "populations": [
+      "classification"
+    ]
+  }
+}

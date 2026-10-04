@@ -177,12 +177,15 @@ class PolicyConfig:
     moderate_scope_max_files: int = 8
     # A passing patch does not show that an environment, dependency or unexplained failure is fixed,
     # and a security finding (leaked secret, vulnerability) needs a person whatever the patch does.
+    # A timeout may be a hang or a slow runner; only a person can tell which one a patch addressed.
     escalation_failure_categories: tuple[str, ...] = (
         "dependency_failure",
         "infrastructure_failure",
         "network_failure",
         "unknown",
         "security_scan_failure",
+        "timeout_failure",
+        "environment_failure",
     )
     min_classification_confidence: float = 0.6
 

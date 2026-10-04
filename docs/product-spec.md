@@ -46,6 +46,7 @@ These rules come from the existing safety model and constrain every interface be
 | `verify` | Reproduce the failure, apply the patch in a temporary worktree, re-run the checks, and evaluate policy. | Temporary worktree, audit artifacts | `fix-repo` (`service/`, `repo_fix.py`) |
 | `repair` | Record a human decision, then open a draft pull request with the verified patch. | New branch and draft PR | `foundation-decide`, `fix-repo-apply` |
 | `report` | Summarize one attempt, or 30 days of a repository's CI. | Report file | `ci-audit-collect`, `ci-audit-report`, foundation operations report |
+| `demo` | Six offline scenarios, each run through `analyze` and `fix-repo` with a recorded patch. | Its own work directory only | `doctor/scenarios.py`, `doctor/demo.py` |
 
 The existing `ci-orchestrator` commands stay as the engine-level interface. The product
 commands are thin wrappers that change naming, input handling and output, not behavior.
@@ -78,8 +79,9 @@ always gets the same ID. The brief's sequential form (`CID-2026-000142`) would n
 
 ### 2.3 `analyze` output
 
-Example from the dependency demo scenario (synthetic; every value comes from the saved log
-and the existing rules):
+Design mock of a dependency failure (synthetic; every value comes from the saved log and
+the existing rules). The implemented output differs in layout; `actions-doctor demo
+dependency-drift` runs a real dependency-drift scenario end to end.
 
 ```
 CI Doctor · analyze · demo/dependency-drift (saved log)
@@ -110,8 +112,9 @@ Notes on each field:
 
 - **Failure class.** The foundation taxonomy (see [failure-taxonomy.md](failure-taxonomy.md)
   when written): test, lint, type, build, dependency, network, infrastructure,
-  configuration, flaky, unknown, security scan. A security scan finding always escalates
-  (POL-014); CI Doctor never proposes code for it.
+  configuration, timeout, environment (runtime version mismatch), flaky, unknown, security
+  scan. A security scan finding always escalates (POL-014); CI Doctor never proposes code
+  for it. Timeout and environment failures also escalate under POL-014.
 - **Confidence.** Mapped from the rule that matched: a specific `##[error]` line with a
   known pattern is high, a step-name refinement is medium, a fallback summary is low.
   Reported as heuristic until calibration exists.

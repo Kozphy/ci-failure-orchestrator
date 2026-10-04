@@ -46,8 +46,19 @@ NEXT_STEPS = {
     "infrastructure_failure": (
         "Runner or service problem: check runner availability, disk, memory and job timeouts before changing code."
     ),
-    "configuration_failure": "Check the workflow or tool configuration named in the error.",
-    "flaky_failure": "Re-run once to confirm. If it passes, track the test as flaky instead of retrying silently.",
+    "configuration_failure": "Check the workflow, tool or application configuration named in the error.",
+    "timeout_failure": (
+        "Find where the step stopped making progress: a hang in code and a slow or overloaded runner need "
+        "different fixes. Raising the time limit hides both."
+    ),
+    "environment_failure": (
+        "The CI runtime does not match what the project declares (language or tool version). Align the "
+        "workflow with the declaration, or the declaration with the code; the code itself is not the cause."
+    ),
+    "flaky_failure": (
+        "Make the test deterministic (fixed seeds, no ordering or timing assumptions) instead of retrying "
+        "it silently; until then, track it as flaky."
+    ),
     "security_scan_failure": "Open the scanner's finding. Rotate any exposed secret before changing code.",
     "unknown": "No rule matched. Read the failing section of the log; nothing is inferred beyond it.",
 }

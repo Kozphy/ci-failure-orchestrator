@@ -114,7 +114,9 @@ Three findings change the plan and need a decision before anything is published:
 4. **173 ruff findings** outside the files changed recently.
 5. **Timeouts are classified as flaky tests.** `classifier.py` maps "timed out" to
    `FLAKY_TEST`. Most CI timeouts are infrastructure or hung processes, not flakes; this
-   matters because flaky failures are not escalated by POL-014.
+   matters because flaky failures are not escalated by POL-014. Fixed in the policy
+   classifier: without an explicit flaky or intermittent marker, a timeout is
+   `timeout_failure`, which POL-014 escalates. The shared table is unchanged.
 6. **Fixed confidence.** Every regex match reports 0.9. POL-015 (low confidence escalates)
    therefore only fires for `unknown`.
 7. **Package metadata over-claims.** The `pyproject.toml` description lists production
@@ -169,7 +171,9 @@ Three findings change the plan and need a decision before anything is published:
 - Port the ranking idea from `ranker.py` into a canonical `RootCauseRanker` over one run's
   jobs (service plan Stage 4) instead of reviving the experimental graph.
 - Split "timed out" out of `FLAKY_TEST` into a timeout signal mapped to infrastructure,
-  with a benchmark case so the change is measured.
+  with a benchmark case so the change is measured. Done as its own `timeout_failure`
+  category instead of infrastructure: a hung test and a slow runner need different next
+  steps, and both escalate (BENCH-CLASS-012, BENCH-POLICY-007).
 - Point `ci.yml` lint and smoke tests at the canonical path.
 - Rewrite the `pyproject.toml` description to what the tool does.
 
@@ -181,7 +185,8 @@ shows no canonical importer)
   and the governed commands (`run`, `explain`, `replay`, `benchmark`). Tag the last commit
   that contains them.
 - `auto-merge-after-checks.yml` (disabled, and contradicts the no-merge invariant).
-- `demo.sh` once the new demo exists.
+- `demo.sh` once the new demo exists. For now it runs `actions-doctor demo --all` instead
+  of the experimental `rank` command.
 - Legacy top-level design docs, moved to `docs/archive/` rather than deleted.
 
 ### Do not touch yet
@@ -224,5 +229,12 @@ The CI Doctor phases overlap the remaining service-plan stages. One sequence, no
    category that POL-014 escalates, and a linter, formatter or type-checker step whose
    output quotes source is no longer read as an environment failure. Benchmark cases
    BENCH-CLASS-007..011 and BENCH-POLICY-006 hold both fixes and their guards.
-5. Next: the six-scenario demo (section 9, Phase 5), which also moves timeouts out of
-   `flaky_test` (debt item 5).
+5. Done. `actions-doctor demo` runs six offline scenarios (dependency drift, flaky test,
+   network failure, timeout, configuration error, environment mismatch) through `analyze`
+   and `fix-repo`. Each is a real failure in a generated repository: its verify command
+   fails at the base commit and passes with the recorded fix. The classifier gained the
+   categories the scenarios need (debt item 5 included) and a flaky signal that a single
+   log can carry (one test both passed and failed in the same repeated run). Only the
+   flaky-test fix is approved; the other five escalate, which is the policy's intent.
+6. Next: the GitHub Action and PR comment (section 9, Stage 6), with tests that reuse the
+   demo scenarios' logs.

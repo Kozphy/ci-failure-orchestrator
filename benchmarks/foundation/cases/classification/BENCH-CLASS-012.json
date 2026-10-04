@@ -1,0 +1,35 @@
+{
+  "case_id": "BENCH-CLASS-012",
+  "version": 1,
+  "title": "Job timeout inside a test step",
+  "description": "Synthetic classification fixture: The job running on runner GitHub Actions 3 has exceeded the maximum execution ti",
+  "rationale": "A timeout is a hang or a slow runner, not a test failure or a flake; the step name must not decide.",
+  "category": "CLASSIFICATION",
+  "tags": [
+    "classification",
+    "timeout"
+  ],
+  "required": true,
+  "tier": "tier1",
+  "mode": "classify",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "build",
+      "failed_step": "Run tests",
+      "message": "The job running on runner GitHub Actions 3 has exceeded the maximum execution time of 10 minutes.",
+      "log_excerpt": "test_poller.py::test_wait_until_ready\n##[error]The operation was canceled.",
+      "changed_paths": [],
+      "exit_code": 1
+    }
+  },
+  "expected": {
+    "classification": "timeout_failure",
+    "populations": [
+      "classification"
+    ]
+  }
+}

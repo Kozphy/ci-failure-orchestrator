@@ -1,0 +1,36 @@
+{
+  "case_id": "BENCH-CLASS-016",
+  "version": 1,
+  "title": "Upstream package removed a name",
+  "description": "Synthetic classification fixture: ImportError: cannot import name 'parse' from 'fakelib' (/opt/hostedtoolcache/fak",
+  "rationale": "An import that breaks after an unpinned upgrade is a dependency failure.",
+  "category": "CLASSIFICATION",
+  "tags": [
+    "classification",
+    "dependency",
+    "drift"
+  ],
+  "required": true,
+  "tier": "tier1",
+  "mode": "classify",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "build",
+      "failed_step": "Run tests",
+      "message": "ImportError: cannot import name 'parse' from 'fakelib' (/opt/hostedtoolcache/fakelib/__init__.py)",
+      "log_excerpt": "Successfully installed fakelib-2.0.0\nERROR collecting tests/test_invoice.py",
+      "changed_paths": [],
+      "exit_code": 1
+    }
+  },
+  "expected": {
+    "classification": "dependency_failure",
+    "populations": [
+      "classification"
+    ]
+  }
+}

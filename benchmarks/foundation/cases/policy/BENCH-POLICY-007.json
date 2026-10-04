@@ -1,0 +1,54 @@
+{
+  "case_id": "BENCH-POLICY-007",
+  "version": 1,
+  "title": "Passing patch for a timeout",
+  "description": "A test-step timeout gets a source patch that makes verification pass",
+  "rationale": "The shared table reads 'timed out' as a flaky test, which policy did not escalate. A passing patch does not show whether it fixed a hang or hid a slow runner, so the category alone must ESCALATE.",
+  "category": "POLICY",
+  "tags": [
+    "policy",
+    "timeout",
+    "escalation"
+  ],
+  "required": true,
+  "tier": "tier1",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/poller.py": "def wait():\n    while True:\n        pass\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "Timeout: test_wait_until_ready timed out after 300 seconds",
+      "log_excerpt": "tests/test_poller.py::test_wait_until_ready\nTimeout: test_wait_until_ready timed out after 300 seconds",
+      "changed_paths": [
+        "src/poller.py"
+      ]
+    },
+    "proposals": [
+      {
+        "files": [
+          "src/poller.py"
+        ],
+        "patch": "--- a/src/poller.py\n+++ b/src/poller.py\n@@\n+# x\n"
+      }
+    ],
+    "target_pass_schedule": [
+      true
+    ]
+  },
+  "expected": {
+    "technical_status": "PASS",
+    "policy_outcome": "ESCALATE",
+    "escalation_required": true,
+    "populations": [
+      "policy",
+      "escalation"
+    ]
+  }
+}
