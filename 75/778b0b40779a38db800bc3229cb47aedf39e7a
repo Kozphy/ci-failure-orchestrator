@@ -1,0 +1,95 @@
+ci_failure_orchestrator/ci_audit/__init__.py
+  s_dd5ec07e8f478a::t_4e33f31fe79fa4 1-14
+README.md
+  s_dd5ec07e8f478a::t_2be673cedcb53c 98
+  s_dd5ec07e8f478a::t_9f9d1b62e986bd 166-177
+  s_dd5ec07e8f478a::t_f2578cb2adb679 3-32,37-39,41-55
+  s_dd5ec07e8f478a::t_07c4cd3a781807 40
+  s_dd5ec07e8f478a::t_5db982f9dceb30 33-36
+ci_failure_orchestrator/ci_audit/analyze.py
+  s_dd5ec07e8f478a::t_f88d3d42607da8 1-51,56-67,69-80,82-160,163-164,169-174,176-230,232,234-244,247-339,342-346
+  s_dd5ec07e8f478a::t_51bac0f6c0e854 231,233
+  s_dd5ec07e8f478a::t_dd4e270afa885f 245-246
+  s_dd5ec07e8f478a::t_336a311ae514e2 52-55
+  s_dd5ec07e8f478a::t_69b471e456a810 340-341
+  s_dd5ec07e8f478a::t_6fa9404ce2ddc6 175
+  s_dd5ec07e8f478a::t_2bcb1c1bd6d6f4 161-162,166
+  s_dd5ec07e8f478a::t_bd16693ed74c56 68
+  s_dd5ec07e8f478a::t_ac611be5361fe5 81
+  s_dd5ec07e8f478a::t_b92457422c9473 165,167-168
+ci_failure_orchestrator/ci_audit/collect.py
+  s_dd5ec07e8f478a::t_ebc74f0aef3e83 125
+  s_dd5ec07e8f478a::t_719d93896f2fe0 9-10
+  s_dd5ec07e8f478a::t_c6b50fc19325b9 114,116-117
+  s_dd5ec07e8f478a::t_cf13b4160e3f46 172-175,184-186,190-205
+  s_dd5ec07e8f478a::t_600084d9300a7d 130-138
+  s_dd5ec07e8f478a::t_80a9b71ae96b84 40
+  s_dd5ec07e8f478a::t_3dd1fc4ab67ff1 236
+  s_dd5ec07e8f478a::t_cf6d8934ee9bbc 245,251-252,254-255
+  s_dd5ec07e8f478a::t_f5fbf41aaeaa30 147-150
+  s_dd5ec07e8f478a::t_d88c03fa032767 1-8,11-20,35-39,41-76,85-86,88,90-112,155-157,161-171,176-183,187-189,206-225,227-235,237-244,246-250,253,256-269
+  s_dd5ec07e8f478a::t_38f7b8105d3a7e 113,115,118-119,122-123,126-129,139-146,151-154,158-160
+  s_dd5ec07e8f478a::t_49d0230c6081f7 77-84,87,89
+  s_dd5ec07e8f478a::t_53457b5d4fcc6e 22
+  s_dd5ec07e8f478a::t_8c469cff4bb737 226
+  s_dd5ec07e8f478a::t_cf1f8bbd30c9e6 21,34
+  s_dd5ec07e8f478a::t_ea60579934c3a1 120-121,124
+  s_dd5ec07e8f478a::t_677e4763464cc4 23-33
+ci_failure_orchestrator/cli.py
+  s_dd5ec07e8f478a::t_1088c2753f8c9c 18
+  s_dd5ec07e8f478a::t_c975b62ac0598a 511-551
+  s_dd5ec07e8f478a::t_4a090c8e59a281 5
+  s_dd5ec07e8f478a::t_6c3dd3dac04e03 562-563
+  s_dd5ec07e8f478a::t_5f02afbed9ff82 13
+  s_dd5ec07e8f478a::t_5babdacb2a20c5 805-824
+ci_failure_orchestrator/github_client.py
+  s_dd5ec07e8f478a::t_30e0b8872f75f4 64
+  s_dd5ec07e8f478a::t_f68917dd78c1e5 7-8,15-25
+  s_dd5ec07e8f478a::t_7667c2396d935b 28-33
+  s_dd5ec07e8f478a::t_d72298f6d7ff23 26-27,78-116
+docs/ci-reliability-audit.md
+  s_dd5ec07e8f478a::t_bbef36974a019b 1-49
+tests/test_ci_audit.py
+  s_dd5ec07e8f478a::t_65efa180c425f8 13-19
+  s_dd5ec07e8f478a::t_7ba0d601fa37a2 6
+  s_dd5ec07e8f478a::t_e69e4d31b00ee6 1-5,7-12,21-141,144-173,238-280
+  s_dd5ec07e8f478a::t_b933d63f9a5bb3 20
+  s_dd5ec07e8f478a::t_233f47a7f536cb 142-143
+  s_dd5ec07e8f478a::t_98d108934bd61c 174-185,224-237
+  s_dd5ec07e8f478a::t_4769428783dcaf 186-223
+ci_failure_orchestrator/module_status.py
+  s_dd5ec07e8f478a::t_73179d19537d29 126-127
+  s_dd5ec07e8f478a::t_217d7f10c55a31 26-27
+docs/sample-audit-report.md
+  s_dd5ec07e8f478a::t_e2814994f9dbbf 1-100,102-120,122-127,129-144
+  s_dd5ec07e8f478a::t_4c193737e9e737 101,121,128
+docs/module-status.md
+  s_dd5ec07e8f478a::t_fa091e0a6f054b 14-15
+  s_dd5ec07e8f478a::t_b379b7fc09e7b3 19
+ci_failure_orchestrator/ci_audit/report.py
+  s_dd5ec07e8f478a::t_91df5d5437dd9d 40-41
+  s_dd5ec07e8f478a::t_afb79849f9b823 48-51
+  s_dd5ec07e8f478a::t_c7b99b932ce480 136-140
+  s_dd5ec07e8f478a::t_e0927f7758ced8 1-37,43-47,52-135,141-156
+  s_dd5ec07e8f478a::t_3da8f13aa7d165 38-39,42
+CHANGELOG.md
+  s_dd5ec07e8f478a::t_79c6c86a329769 9-11,14-16,18
+  s_dd5ec07e8f478a::t_156e45d7ae2308 17
+  s_dd5ec07e8f478a::t_266a7b49f2d923 12-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "75778b0b40779a38db800bc3229cb47aedf39e7a",
+  "prompts": {},
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
