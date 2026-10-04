@@ -1,0 +1,34 @@
+CHANGELOG.md
+  s_dd5ec07e8f478a::t_aeb30a41be7e4e 9-10,13
+  s_dd5ec07e8f478a::t_b916154d59e721 12
+  s_dd5ec07e8f478a::t_232af8c3f28c70 11
+docs/product-spec.md
+  s_dd5ec07e8f478a::t_b513099158aebc 1-2,7-55,65-101,104-135,137-145,147-150,155-174,176-189,191-216,218-233,235-246,249-255,257-291
+  s_dd5ec07e8f478a::t_626c78a543684c 151-154
+  s_dd5ec07e8f478a::t_5969f010602a7b 3-6
+  s_dd5ec07e8f478a::t_9e46780e0fe8ab 136
+  s_dd5ec07e8f478a::t_a2cea90f9bf398 56-64,102-103,146,175,190,217,234,247-248,256
+docs/productization-audit.md
+  s_dd5ec07e8f478a::t_9964d5db5a1bd2 178-179
+  s_dd5ec07e8f478a::t_511f0fa677f076 27-28
+  s_dd5ec07e8f478a::t_482e540bd6bb41 180-182
+  s_dd5ec07e8f478a::t_6737cecbec7087 145
+  s_dd5ec07e8f478a::t_c838892c998e15 216-217
+  s_dd5ec07e8f478a::t_db8b43ee916585 1-26,29-144,146-177,183-215,218-220
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "47f7f6d16ab863d3b5f7272d75357960dd566963",
+  "prompts": {},
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
