@@ -1,0 +1,94 @@
+ci_failure_orchestrator/ci_audit/collect.py
+  s_dd5ec07e8f478a::t_02d42bb3830242 38-39,41-42
+  s_dd5ec07e8f478a::t_15a26fdeb89226 176-186,192-193,195,198
+  s_dd5ec07e8f478a::t_387c823d5887ac 44-46
+  s_dd5ec07e8f478a::t_93ecee794936f7 169,171-173
+  s_dd5ec07e8f478a::t_71f3d4a01d6365 9-16,174-175
+  s_dd5ec07e8f478a::t_f6f06891e5f1fe 232
+demo.sh
+  s_dd5ec07e8f478a::t_4c0e1b060cebd3 3-4
+benchmarks/foundation/cases/classification/BENCH-CLASS-012.json
+  s_dd5ec07e8f478a::t_1e245fa00c72e6 1-35
+benchmarks/foundation/cases/classification/BENCH-CLASS-015.json
+  s_dd5ec07e8f478a::t_1e245fa00c72e6 1-35
+benchmarks/foundation/cases/classification/BENCH-CLASS-016.json
+  s_dd5ec07e8f478a::t_1e245fa00c72e6 1-36
+ci_failure_orchestrator/foundation/classifier.py
+  s_dd5ec07e8f478a::t_60a4906d2c2348 21-23
+  s_dd5ec07e8f478a::t_7ac9cd6cf71f3e 152
+  s_dd5ec07e8f478a::t_d13c7216979188 144-145
+  s_dd5ec07e8f478a::t_c1499b06bb5135 85-94
+  s_dd5ec07e8f478a::t_8aced26cae84a6 34-35,37-84,95-111
+  s_dd5ec07e8f478a::t_59b8a3ed42a4fa 36,164-165,171-172
+  s_dd5ec07e8f478a::t_07e2ddc74b99c5 179-181
+  s_dd5ec07e8f478a::t_7d46fa5ec552f2 176
+CHANGELOG.md
+  s_dd5ec07e8f478a::t_e7594b2281e0b3 9-17
+ci_failure_orchestrator/doctor/cli.py
+  s_dd5ec07e8f478a::t_e1122ea7e5d10b 52,54-55
+  s_dd5ec07e8f478a::t_a3efde1879c1e5 1
+  s_dd5ec07e8f478a::t_841c7ccf0f5eaa 137-150
+  s_dd5ec07e8f478a::t_99c56a928185cd 131
+  s_dd5ec07e8f478a::t_6de5f44e029b8f 80-109
+  s_dd5ec07e8f478a::t_13c93c73ae020a 113-116
+  s_dd5ec07e8f478a::t_e66928d123b9be 9,14,17,20
+docs/product-spec.md
+  s_dd5ec07e8f478a::t_54a044d9160b55 115-117
+  s_dd5ec07e8f478a::t_1608c5de26cd4b 49
+  s_dd5ec07e8f478a::t_72b269ba8bf23f 82-84
+tests/test_classifier_failure_types.py
+  s_dd5ec07e8f478a::t_361b291f643d2d 1-130
+tests/test_demo_scenarios.py
+  s_dd5ec07e8f478a::t_89b7f41f4000d8 1-145
+benchmarks/foundation/cases/policy/BENCH-POLICY-007.json
+  s_dd5ec07e8f478a::t_1e245fa00c72e6 1-54
+docs/productization-audit.md
+  s_dd5ec07e8f478a::t_6371f55e1b564e 188-189
+  s_dd5ec07e8f478a::t_17e871fd7cac3e 232-240
+  s_dd5ec07e8f478a::t_ae5d1924624c57 117-119
+  s_dd5ec07e8f478a::t_99bf23c00532ef 174-176
+ci_failure_orchestrator/doctor/demo.py
+  s_dd5ec07e8f478a::t_ff6774320bc672 216-219
+  s_dd5ec07e8f478a::t_c2f491b150cf37 67-71
+  s_dd5ec07e8f478a::t_319025c8cd2a61 154-167,170-172
+  s_dd5ec07e8f478a::t_3b50af2222f732 1-14,16-33,43-55,57-66,72-153,168-169,173-185,190-198,200-215,220-224
+  s_dd5ec07e8f478a::t_54026440872b79 186-189
+  s_dd5ec07e8f478a::t_dd1714ca009aec 15
+  s_dd5ec07e8f478a::t_9d91de49e9ef54 56
+  s_dd5ec07e8f478a::t_129f6497acc19a 199
+  s_dd5ec07e8f478a::t_d4856e0253fd71 34-42
+benchmarks/foundation/cases/classification/BENCH-CLASS-014.json
+  s_dd5ec07e8f478a::t_1e245fa00c72e6 1-35
+ci_failure_orchestrator/doctor/diagnose.py
+  s_dd5ec07e8f478a::t_5cbdc1f88280de 49-57
+  s_dd5ec07e8f478a::t_1c5b70cb4b8aaf 58-61
+ci_failure_orchestrator/foundation/policy.py
+  s_dd5ec07e8f478a::t_58da0f8fc8206a 180,187-188
+ci_failure_orchestrator/doctor/scenarios.py
+  s_dd5ec07e8f478a::t_639806878d0815 321,323,325
+  s_dd5ec07e8f478a::t_01fbf88debbb08 173
+  s_dd5ec07e8f478a::t_ddd9c36c516f65 470
+  s_dd5ec07e8f478a::t_5ec196459969f8 12
+  s_dd5ec07e8f478a::t_85103b6d69d664 1-11,13-172,174-320,322,324,326-469,471-632
+benchmarks/foundation/cases/classification/BENCH-CLASS-013.json
+  s_dd5ec07e8f478a::t_1e245fa00c72e6 1-35
+README.md
+  s_dd5ec07e8f478a::t_b33ee523da25a7 40-42
+  s_dd5ec07e8f478a::t_6ee348fc8a811c 130-158
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fa293845dd1a723a9ff28db66a9eab5540d8c37c",
+  "prompts": {},
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
