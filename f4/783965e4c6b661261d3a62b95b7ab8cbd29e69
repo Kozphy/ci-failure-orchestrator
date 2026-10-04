@@ -1,0 +1,71 @@
+ci_failure_orchestrator/doctor/cli.py
+  s_dd5ec07e8f478a::t_b0eec93dd4a9e8 1-109
+tests/test_doctor.py
+  s_dd5ec07e8f478a::t_dd880857becff5 25-28
+  s_dd5ec07e8f478a::t_bb7983e68b0b2d 169
+  s_dd5ec07e8f478a::t_d94ce24827580f 181
+  s_dd5ec07e8f478a::t_ef2b39f5e51ee8 1-24,29-35,43-44,50-90,92-168,170-180,182-274
+  s_dd5ec07e8f478a::t_03de8e0bfcb534 91
+  s_dd5ec07e8f478a::t_b3f9b59b62a7a3 36-42,45-49
+ci_failure_orchestrator/ci_audit/collect.py
+  s_dd5ec07e8f478a::t_386807ce75d822 184-186
+  s_dd5ec07e8f478a::t_babd92d86d538b 161-163
+  s_dd5ec07e8f478a::t_23b602f35520c1 118-122,129
+  s_dd5ec07e8f478a::t_36bd2c0e2961c8 198-199
+  s_dd5ec07e8f478a::t_a3562f20d7214c 248
+  s_dd5ec07e8f478a::t_d93133708aad34 35-39
+  s_dd5ec07e8f478a::t_eaea2146420cef 98
+ci_failure_orchestrator/github_client.py
+  s_dd5ec07e8f478a::t_6ef744eedaa2eb 96-99
+ci_failure_orchestrator/doctor/render.py
+  s_dd5ec07e8f478a::t_045d2f3975ea82 94
+  s_dd5ec07e8f478a::t_7ac232ca74656d 105
+  s_dd5ec07e8f478a::t_55b3ef35654ea4 46,55,57,59-61
+  s_dd5ec07e8f478a::t_e53f620f943f0c 102-103
+  s_dd5ec07e8f478a::t_68e0b4793a6ea6 1-15,18-20,22-40,42,44-45,52-54,56,58,62-66,68-81,83,85-93,95-101,104,106-109
+  s_dd5ec07e8f478a::t_425be229d9440d 16-17,21
+  s_dd5ec07e8f478a::t_9d379f133e28c7 41,43
+  s_dd5ec07e8f478a::t_89550ae144e332 47-51
+  s_dd5ec07e8f478a::t_f495e7a72f0cb7 82
+  s_dd5ec07e8f478a::t_0b5196205787d3 84
+  s_dd5ec07e8f478a::t_acf9e24e483506 67
+tests/test_ci_audit.py
+  s_dd5ec07e8f478a::t_cea9c531f11c45 214-227
+ci_failure_orchestrator/doctor/__init__.py
+  s_dd5ec07e8f478a::t_a756a0d1fa358b 1-6
+docs/module-status.md
+  s_dd5ec07e8f478a::t_491c75615db0f1 15
+ci_failure_orchestrator/module_status.py
+  s_dd5ec07e8f478a::t_35bdef8efcb490 28-29
+ci_failure_orchestrator/doctor/diagnose.py
+  s_dd5ec07e8f478a::t_b97902cf712649 32-33
+  s_dd5ec07e8f478a::t_5e49231b7aa8f2 128-129
+  s_dd5ec07e8f478a::t_2b069403c200a1 10
+  s_dd5ec07e8f478a::t_401e3e94180854 137-139
+  s_dd5ec07e8f478a::t_33883c2fbac7a4 151
+  s_dd5ec07e8f478a::t_62b554512f6661 1-9,11-31,34-127,130-136,140-150,152-312
+docs/product-spec.md
+  s_dd5ec07e8f478a::t_e710024c3c93c1 76-77
+CHANGELOG.md
+  s_dd5ec07e8f478a::t_25f4eaa81affca 9-15
+pyproject.toml
+  s_dd5ec07e8f478a::t_ccca1defa39ae1 20
+ci_failure_orchestrator/doctor/__main__.py
+  s_dd5ec07e8f478a::t_7cb3c52c25c454 1-3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f4783965e4c6b661261d3a62b95b7ab8cbd29e69",
+  "prompts": {},
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
