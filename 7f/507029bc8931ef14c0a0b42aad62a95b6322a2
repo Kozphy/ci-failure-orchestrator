@@ -1,0 +1,52 @@
+ci_failure_orchestrator/doctor/scenarios.py
+  s_dd5ec07e8f478a::t_4d35bf47661f90 289-292
+ci_failure_orchestrator/foundation/escalation.py
+  s_dd5ec07e8f478a::t_7a14812627150d 33,61,162,236-238
+ci_failure_orchestrator/foundation/policy_gate.py
+  s_dd5ec07e8f478a::t_7a14812627150d 72
+CHANGELOG.md
+  s_dd5ec07e8f478a::t_40521c508e6f6a 9-35
+tests/test_verification_integrity.py
+  s_dd5ec07e8f478a::t_ce9f79dc3a12fc 445,449-451
+  s_dd5ec07e8f478a::t_dc742d1b25bdd2 1-432,434-444,446-448,452-500
+  s_dd5ec07e8f478a::t_2215d6470c27e6 433
+ci_failure_orchestrator/foundation/verification_integrity.py
+  s_dd5ec07e8f478a::t_2f9f4bd2dd5f7d 1-19,21-130,132,134,136-137,161-165,170,172-173,176-177,180,183-186,188-190,193-303,305-308,310-331,337-395,397-437,446-448,451-484,492-551
+  s_dd5ec07e8f478a::t_4dd85a33dff14c 332-336
+  s_dd5ec07e8f478a::t_f8ae6b0817af40 309
+  s_dd5ec07e8f478a::t_269fe6548719af 131,133,135,138-160,166-169,171,174-175,178-179,181-182,187,191-192
+  s_dd5ec07e8f478a::t_1416cf5e620e0a 304
+  s_dd5ec07e8f478a::t_ed2541cad9d3b6 396
+  s_dd5ec07e8f478a::t_7c65f257390f70 485-491
+  s_dd5ec07e8f478a::t_e3a9b83e3bdf04 438-445,449-450
+  s_dd5ec07e8f478a::t_d62f1ff77bc5c4 20
+README.md
+  s_dd5ec07e8f478a::t_bf7ab56ebf873e 148
+tests/test_demo_scenarios.py
+  s_dd5ec07e8f478a::t_b945fa51ba139f 72-73,75
+docs/architecture/policy-gate.md
+  s_dd5ec07e8f478a::t_efb1367c9b0f31 95-96
+ci_failure_orchestrator/foundation/policy.py
+  s_dd5ec07e8f478a::t_56617c90825967 20-24,80,242-243,533-556,560-567
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7f507029bc8931ef14c0a0b42aad62a95b6322a2",
+  "prompts": {},
+  "humans": {
+    "h_1d8a7f1e671f32": {
+      "author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
