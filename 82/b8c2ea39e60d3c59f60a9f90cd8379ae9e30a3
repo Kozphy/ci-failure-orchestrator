@@ -1,0 +1,42 @@
+.github/workflows/ci-doctor.yml
+  s_dd5ec07e8f478a::t_ee8ee30999c23e 1-22,24-25
+  s_dd5ec07e8f478a::t_8d8231913f2b5d 23
+LICENSE
+  s_dd5ec07e8f478a::t_a070baac68a36b 1-21
+ci_failure_orchestrator/doctor/action.py
+  s_dd5ec07e8f478a::t_f948ec001436f0 1-86
+ci_failure_orchestrator/service/untrusted.py
+  s_dd5ec07e8f478a::t_b9fdbabd367bbe 44-45,49-53
+action.yml
+  s_dd5ec07e8f478a::t_a088d89a35724f 1-60
+CHANGELOG.md
+  s_dd5ec07e8f478a::t_d7afb519998321 16
+  s_dd5ec07e8f478a::t_ad26e0eb20b62a 9-15,17
+README.md
+  s_dd5ec07e8f478a::t_0a803f338d73d4 40
+  s_dd5ec07e8f478a::t_98a14219d940fd 312
+  s_dd5ec07e8f478a::t_8ba4cedb963adb 158-186
+docs/productization-audit.md
+  s_dd5ec07e8f478a::t_e501d07a7f4ffb 239-247
+docs/architecture/current-state.md
+  s_dd5ec07e8f478a::t_54aced9b590adb 1,3-4,6-14,18-29,31,34-71,74,76-78,80,84-114,117-120,123-125,129,131,133-161,165-167,169-222,226,228,230-236,240,242-250,254,256-269,273-275,277-281,283,287,289-293
+tests/test_doctor_action.py
+  s_dd5ec07e8f478a::t_b536fb8c696b0c 1-106,108-111,113-169
+  s_dd5ec07e8f478a::t_c13daf5a963521 107,112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "82b8c2ea39e60d3c59f60a9f90cd8379ae9e30a3",
+  "prompts": {},
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
