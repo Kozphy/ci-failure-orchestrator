@@ -1,0 +1,39 @@
+CHANGELOG.md
+  s_dd5ec07e8f478a::t_f768d4ddc2654f 9-16
+ci_failure_orchestrator/foundation/runner.py
+  s_dd5ec07e8f478a::t_5d8b63bf129336 187,581,655-658
+docs/architecture/policy-gate.md
+  s_dd5ec07e8f478a::t_c18f671dd48056 95-96
+ci_failure_orchestrator/service/adapters.py
+  s_dd5ec07e8f478a::t_5d8b63bf129336 50-51
+tests/test_foundation_defect_regressions.py
+  s_dd5ec07e8f478a::t_3d483d8d0a0f32 1-187,189-233
+  s_dd5ec07e8f478a::t_d29682341c6927 188
+ci_failure_orchestrator/patch_sandbox.py
+  s_dd5ec07e8f478a::t_5d8b63bf129336 188,190-191
+docs/architecture/current-state.md
+  s_dd5ec07e8f478a::t_94562d1e652b43 191-203
+ci_failure_orchestrator/foundation/policy.py
+  s_dd5ec07e8f478a::t_27f57d234aecf9 234-235,581-584,587,661
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d437bdaf2aebbbbfde552fa633fb86f578f3ce8f",
+  "prompts": {},
+  "humans": {
+    "h_1d8a7f1e671f32": {
+      "author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
