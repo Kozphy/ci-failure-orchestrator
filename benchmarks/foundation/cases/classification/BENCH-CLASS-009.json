@@ -1,0 +1,30 @@
+{
+  "case_id": "BENCH-CLASS-009",
+  "version": 1,
+  "title": "Test collection fails on a missing module",
+  "description": "pytest reports a collection error; the log shows ModuleNotFoundError",
+  "rationale": "Guard for BENCH-CLASS-007: test steps never treat environment signals as quoted source, so a missing module still escalates.",
+  "category": "CLASSIFICATION",
+  "tags": ["classification", "dependency", "guard"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "classify",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "Interrupted: 1 error during collection",
+      "log_excerpt": "ModuleNotFoundError: No module named 'requests'",
+      "changed_paths": [],
+      "exit_code": 2
+    }
+  },
+  "expected": {
+    "classification": "dependency_failure",
+    "populations": ["classification"]
+  }
+}

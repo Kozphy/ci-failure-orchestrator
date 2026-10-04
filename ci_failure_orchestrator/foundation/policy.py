@@ -175,12 +175,14 @@ class PolicyConfig:
     max_attempts_for_escalation: int = 3
     small_scope_max_files: int = 3
     moderate_scope_max_files: int = 8
-    # A passing patch does not show that an environment, dependency or unexplained failure is fixed.
+    # A passing patch does not show that an environment, dependency or unexplained failure is fixed,
+    # and a security finding (leaked secret, vulnerability) needs a person whatever the patch does.
     escalation_failure_categories: tuple[str, ...] = (
         "dependency_failure",
         "infrastructure_failure",
         "network_failure",
         "unknown",
+        "security_scan_failure",
     )
     min_classification_confidence: float = 0.6
 

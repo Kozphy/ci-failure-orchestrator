@@ -1,0 +1,30 @@
+{
+  "case_id": "BENCH-CLASS-008",
+  "version": 1,
+  "title": "Lint job failing in its install step",
+  "description": "A job named lint fails while pip resolves conflicting versions",
+  "rationale": "Guard for BENCH-CLASS-007: only the failing step may mark output as quoted source, never the job name. A real dependency failure must stay dependency_failure so policy escalates it.",
+  "category": "CLASSIFICATION",
+  "tags": ["classification", "dependency", "guard"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "classify",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "lint",
+      "failed_step": "Install dependencies",
+      "message": "ERROR: Cannot install flake8==7.0 and pyflakes==2.0 because these package versions have conflicts.",
+      "log_excerpt": "ERROR: ResolutionImpossible: see https://pip.pypa.io/dependency-resolution/",
+      "changed_paths": [],
+      "exit_code": 1
+    }
+  },
+  "expected": {
+    "classification": "dependency_failure",
+    "populations": ["classification"]
+  }
+}

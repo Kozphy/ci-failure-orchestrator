@@ -110,7 +110,8 @@ Notes on each field:
 
 - **Failure class.** The foundation taxonomy (see [failure-taxonomy.md](failure-taxonomy.md)
   when written): test, lint, type, build, dependency, network, infrastructure,
-  configuration, flaky, unknown, plus `security_scan_failure` from the step refinement.
+  configuration, flaky, unknown, security scan. A security scan finding always escalates
+  (POL-014); CI Doctor never proposes code for it.
 - **Confidence.** Mapped from the rule that matched: a specific `##[error]` line with a
   known pattern is high, a step-name refinement is medium, a fallback summary is low.
   Reported as heuristic until calibration exists.

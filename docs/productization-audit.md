@@ -211,10 +211,18 @@ The CI Doctor phases overlap the remaining service-plan stages. One sequence, no
 
 ## 10. Recommended next iterations
 
-1. Commit the pending `ci_audit` work as its own change, so the product layer starts from
-   a clean base.
+1. Done. Commit the pending `ci_audit` work as its own change, so the product layer starts
+   from a clean base.
 2. Published name: decided, `actions-doctor` (see section 1).
-3. Add `actions-doctor analyze` as a read-only command: GitHub run or local log
+3. Done. Add `actions-doctor analyze` as a read-only command: GitHub run or local log
    in, formatted diagnosis out, with evidence line references and a policy preview. Reuses
    `github_client`, `ci_audit.collect` and the foundation classifier; no writes, no
    provider. Tests use saved logs.
+4. Done. Running `analyze` on real runs showed the policy engine's classifier calling a
+   gitleaks finding `lint_failure` (eligible for repair) and a ruff failure
+   `dependency_failure` (escalated). The classifier now has a `security_scan_failure`
+   category that POL-014 escalates, and a linter, formatter or type-checker step whose
+   output quotes source is no longer read as an environment failure. Benchmark cases
+   BENCH-CLASS-007..011 and BENCH-POLICY-006 hold both fixes and their guards.
+5. Next: the six-scenario demo (section 9, Phase 5), which also moves timeouts out of
+   `flaky_test` (debt item 5).

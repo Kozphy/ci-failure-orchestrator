@@ -1,0 +1,30 @@
+{
+  "case_id": "BENCH-CLASS-007",
+  "version": 1,
+  "title": "Linter quoting a dependency identifier",
+  "description": "ruff fails in a lint step; its output quotes a line importing DependencyProvenanceEvaluator",
+  "rationale": "Source lines quoted by a linter, formatter, or type checker are not dependency failures. Shape taken from a real ruff failure that was classified as dependency_failure.",
+  "category": "CLASSIFICATION",
+  "tags": ["classification", "lint", "quoted_source"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "classify",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "Trust control-plane lint",
+      "message": "Found 1 error.",
+      "log_excerpt": "I001 [*] Import block is un-sorted or un-formatted\n18 | from .provenance import DependencyProvenanceEvaluator\nFound 1 error.",
+      "changed_paths": [],
+      "exit_code": 1
+    }
+  },
+  "expected": {
+    "classification": "lint_failure",
+    "populations": ["classification"]
+  }
+}

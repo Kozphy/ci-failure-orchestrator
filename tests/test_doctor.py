@@ -91,7 +91,10 @@ def test_action_step_is_not_offered_as_a_command_and_security_gets_no_code_fix()
     text = " ".join(render_text(d).split())
     assert "does not propose code changes for security findings" in text
     assert "fix-repo" not in text
-    assert f"The engine decides on its own category, {top.policy_category}" in text
+    assert top.policy_category == "security_scan_failure"
+    assert d.policy is not None and d.policy.outcome == "ESCALATE"
+    assert "POL-014-ENVIRONMENT-OR-UNKNOWN-FAILURE" in d.policy.rules
+    assert "policy gate sees" not in text
 
 
 def test_specific_error_line_gives_high_confidence():

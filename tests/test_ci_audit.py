@@ -228,7 +228,7 @@ def test_failure_message_prefers_the_tool_error_over_help_urls_and_tallies():
 def test_audit_refinement_does_not_hide_real_dependency_failures():
     job = {"id": 1, "run_id": 1, "run_attempt": 1, "name": "lint", "failed_step": "Run ruff", "html_url": ""}
     lint = classify_failure("CI", job, REAL_SHAPED_LOG)
-    assert (lint["category"], lint["classified_by"]) == ("lint_failure", "step")
+    assert (lint["category"], lint["policy_category"]) == ("lint_failure", "lint_failure")
     missing = classify_failure("CI", {**job, "name": "test", "failed_step": "Run pytest"}, "##[group]Run pytest\n##[endgroup]\nModuleNotFoundError: No module named 'requests'\n##[error]Process completed with exit code 1.")
     assert missing["category"] == "dependency_failure"
     scan = classify_failure("CI", {**job, "name": "Gitleaks", "failed_step": "Run gitleaks/gitleaks-action@v2"}, "##[warning]Leaks detected")

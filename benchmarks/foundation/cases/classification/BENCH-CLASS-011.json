@@ -1,0 +1,30 @@
+{
+  "case_id": "BENCH-CLASS-011",
+  "version": 1,
+  "title": "Scanner success lines next to a test failure",
+  "description": "The log contains 'no leaks found' and 'No known vulnerabilities found' before a failing test",
+  "rationale": "Guard for BENCH-CLASS-010: a scanner reporting a clean result must not turn an ordinary test failure into a security finding.",
+  "category": "CLASSIFICATION",
+  "tags": ["classification", "test", "guard"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "classify",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "event": {
+      "source": "synthetic",
+      "workflow": "ci",
+      "job": "test",
+      "failed_step": "pytest",
+      "message": "AssertionError",
+      "log_excerpt": "INF no leaks found\nNo known vulnerabilities found\nFAILED tests/test_a.py::test_x - AssertionError",
+      "changed_paths": [],
+      "exit_code": 1
+    }
+  },
+  "expected": {
+    "classification": "test_failure",
+    "populations": ["classification"]
+  }
+}

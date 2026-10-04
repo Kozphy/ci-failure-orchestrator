@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Protocol
 
 from ..classifier import classify_error
-from ..foundation.classifier import FailureClassifier, classify_ci_step
+from ..foundation.classifier import SECURITY_MESSAGE_RE, SECURITY_TOOL_RE, FailureClassifier, classify_ci_step
 from ..foundation.models import FailureEvent
 from ..github_client import GitHubAPIError
 from ..service.common import MAX_LOG_CHARS, tail
@@ -20,8 +20,6 @@ _GH_TIMESTAMP_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z 
 _MESSAGE_LIMIT = 300
 _ERROR_MARK = "##[error]"
 _WARNING_MARK = "##[warning]"
-_SECURITY_TOOL_RE = re.compile(r"(?i)gitleaks|trufflehog|codeql|trivy|bandit|semgrep|snyk|grype|secret[- ]?scan")
-_SECURITY_MESSAGE_RE = re.compile(r"(?i)leaks? (?:detected|found)|secrets? detected|vulnerabilit(?:y|ies) found")
 _STEP_CATEGORY = {
     "lint": "lint_failure",
     "formatting": "lint_failure",
@@ -205,12 +203,12 @@ def classify_failure(workflow: str, job: dict, log: str) -> dict:
 def refine_category(category: str, confidence: float, message: str, step_text: str) -> tuple[str, float, str]:
     """Report-only refinement of the foundation category; the policy gate never sees this.
 
-    The foundation lets any environment pattern anywhere in the log win, so a lint step
-    whose output quotes ``import DependencyX`` reads as a dependency failure. When the
-    step that ran names a tool and the error line itself carries no environment signal,
-    the tool wins. Secret and security scanners get their own audit category.
+    The foundation only sees the step name. The audit also reads the step's ``Run`` header,
+    so when that names a tool and the error line carries no environment signal, the tool
+    wins here even where the foundation still reports an environment category. Security
+    scanners are matched with the same patterns the foundation uses.
     """
-    if _SECURITY_TOOL_RE.search(step_text) or _SECURITY_MESSAGE_RE.search(message):
+    if SECURITY_TOOL_RE.search(step_text) or SECURITY_MESSAGE_RE.search(message):
         return "security_scan_failure", 0.8, "step"
     tool = _STEP_CATEGORY.get(classify_ci_step("", step_text, step_text, ""), "")
     if tool and category in _ENVIRONMENT_CATEGORIES and classify_error(message)[0] not in _ENVIRONMENT_CLASSES:

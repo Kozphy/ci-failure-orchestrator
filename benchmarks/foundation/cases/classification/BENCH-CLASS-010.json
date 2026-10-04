@@ -1,0 +1,30 @@
+{
+  "case_id": "BENCH-CLASS-010",
+  "version": 1,
+  "title": "Secret scanner reports leaks",
+  "description": "gitleaks-action fails with 'Leaks detected'",
+  "rationale": "Security scan findings get their own category so policy routes them to a human. Shape taken from a real gitleaks failure that was classified as lint_failure.",
+  "category": "CLASSIFICATION",
+  "tags": ["classification", "security_scan"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "classify",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "event": {
+      "source": "synthetic",
+      "workflow": "security",
+      "job": "Gitleaks",
+      "failed_step": "Run gitleaks/gitleaks-action@v2",
+      "message": "Leaks detected, see job summary for details",
+      "log_excerpt": "WRN leaks found: 1",
+      "changed_paths": [],
+      "exit_code": 1
+    }
+  },
+  "expected": {
+    "classification": "security_scan_failure",
+    "populations": ["classification"]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "case_id": "BENCH-POLICY-006",
+  "version": 1,
+  "title": "Passing patch for a security scan finding",
+  "description": "A gitleaks failure gets a patch that makes verification pass; the excerpt is trimmed from a real gitleaks run that the engine had classified as lint_failure (policy ELIGIBLE)",
+  "rationale": "Passing verification does not make a security finding safe to auto-repair. The category alone must ESCALATE, even for an ordinary source path.",
+  "category": "POLICY",
+  "tags": ["policy", "security_scan", "escalation"],
+  "required": true,
+  "tier": "tier1",
+  "mode": "orchestrator",
+  "synthetic": true,
+  "source": "synthetic",
+  "fixture": {
+    "workspace_files": {
+      "src/app.py": "API_KEY = 'x'\n"
+    },
+    "event": {
+      "source": "synthetic",
+      "workflow": "security",
+      "job": "Gitleaks",
+      "failed_step": "Run gitleaks/gitleaks-action@v2",
+      "message": "Leaks detected, see job summary for details",
+      "log_excerpt": "gitleaks cmd: gitleaks detect --redact -v --exit-code=2 --report-format=sarif --report-path=results.sarif\nFinding:     api_key=\"REDACTED\"\nSecret:      REDACTED\nRuleID:      generic-api-key\nFile:        src/app.py\nLine:        1\nINF 271 commits scanned.\nWRN leaks found: 1\n##[warning]Leaks detected, see job summary for details",
+      "changed_paths": ["src/app.py"]
+    },
+    "proposals": [
+      {
+        "files": ["src/app.py"],
+        "patch": "--- a/src/app.py\n+++ b/src/app.py\n@@\n+# x\n"
+      }
+    ],
+    "target_pass_schedule": [true]
+  },
+  "expected": {
+    "technical_status": "PASS",
+    "policy_outcome": "ESCALATE",
+    "escalation_required": true,
+    "populations": ["policy", "security", "escalation"]
+  }
+}
