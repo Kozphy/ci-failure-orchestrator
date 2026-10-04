@@ -6,6 +6,11 @@ Versioning (plan §5.4) uses two tracks: the Python package keeps semantic versi
 
 ## [Unreleased]
 
+### CI Doctor productization: audit and product spec (docs only)
+
+- [docs/productization-audit.md](docs/productization-audit.md): current state measured (165 modules; experimental code is 99 modules / 10.1k lines against 65 canonical / 13.2k), assets to keep, missing product layers, debt, UX problems, risks, and preserve / refactor / remove / do-not-touch lists, mapped onto service plan Stages 4–9. Flags that `ci-doctor` is already taken on PyPI by a project with the same purpose (decision: brand "CI Doctor", package and command `actions-doctor`), that confidence is heuristic (fixed 0.9), and that POL-007 / POL-014 escalate dependency repairs by design.
+- [docs/product-spec.md](docs/product-spec.md): `actions-doctor` CLI (`analyze`, `explain`, `propose`, `verify`, `repair`, `report` as thin wrappers over existing commands), Action-first GitHub integration with least-privilege jobs and label or `workflow_dispatch` approval (comments cannot hold buttons), and a dashboard concept with metric definitions. No code changed.
+
 ### CI reliability audit (read-only) and README positioning
 
 - `ci_audit/` (canonical): `collect.py` pulls up to `--max-runs` workflow runs from the last `--days`, their jobs from every attempt (`filter=all`) and the newest `--max-logs` failed-job logs. Each failure is reduced to one scrubbed line (`clean_untrusted`, ≤300 chars) and classified with the foundation `FailureClassifier`; full logs are never stored. `analyze.py` (pure) computes failure and rerun rates, flaky indicators (rerun turned green, fail then pass on the same commit), duplicate push + pull_request runs, OS-weighted minute estimates, per-workflow p50/p90 and queue time, and ranked findings with minimum sample sizes. `report.py` renders the 13-section Markdown report with reviewer markers.
