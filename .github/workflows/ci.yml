@@ -29,6 +29,8 @@ jobs:
           tests/test_network_discovery.py
           tests/test_trust_gateway.py
           tests/test_trust_policy.py
+      - name: Canonical public docstrings
+        run: python -m ruff check --select D101,D102,D103,D106,D417,D419 ci_failure_orchestrator
       - name: Trust control-plane type check
         run: >-
           python -m mypy --follow-imports=skip

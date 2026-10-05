@@ -79,12 +79,14 @@ def _analyze_jobs(jobs, logs, audit=None, event="github_actions_analyzed"):
 
 
 def cmd_classify(args):
+    """Run the classify command: print the regex error type and confidence for a message."""
     error_type, confidence = classify_error(args.message)
     _dump({"error_type": error_type, "confidence": confidence})
     return 0
 
 
 def cmd_rank(args):
+    """Run the rank command: print failures ranked by probable root cause, optionally auditing the ranking."""
     graph = PipelineGraph(load_pipeline(args.pipeline))
     ranked = RootCauseRanker(graph).rank(load_failures(args.failures))
     output = [item.to_dict() for item in ranked]
@@ -95,6 +97,7 @@ def cmd_rank(args):
 
 
 def cmd_analyze(args):
+    """Run the analyze command: rank root causes from saved GitHub Actions jobs and logs JSON files."""
     raw = json.loads(Path(args.jobs).read_text(encoding="utf-8"))
     jobs = raw.get("jobs", raw) if isinstance(raw, dict) else raw
     logs = json.loads(Path(args.logs).read_text(encoding="utf-8")) if args.logs else {}
@@ -102,12 +105,14 @@ def cmd_analyze(args):
 
 
 def cmd_analyze_run(args):
+    """Run the analyze-run command: fetch one workflow run's jobs and logs from GitHub and analyze them."""
     client = GitHubActionsClient(token=args.token, api_url=args.api_url, timeout=args.timeout)
     evidence = client.collect_run(args.repo, args.run_id, include_logs=not args.no_logs)
     return _analyze_jobs(evidence.jobs, evidence.logs, args.audit, event="github_workflow_run_analyzed")
 
 
 def cmd_trust_run(args):
+    """Run the trust-run command: replay a policy-gated proposal scenario; exit 2 unless verified_success."""
     scenario_path = Path(args.scenario).resolve()
     scenario = yaml.safe_load(scenario_path.read_text(encoding="utf-8"))
     proposals = []
@@ -192,12 +197,14 @@ def cmd_run(args):
 
 
 def cmd_explain(args):
+    """Run the explain command: print an explanation of a stored governed run."""
     store = SQLiteGovernedStore(args.store) if args.store else SQLiteGovernedStore()
     print(explain_stored_run(store, args.run_id))
     return 0
 
 
 def cmd_replay(args):
+    """Run the replay command: print a stored governed run and its events; exit 2 if the run is not found."""
     store = SQLiteGovernedStore(args.store) if args.store else SQLiteGovernedStore()
     state = store.load_run(args.run_id)
     if state is None:
@@ -209,6 +216,7 @@ def cmd_replay(args):
 
 
 def cmd_benchmark(args):
+    """Run the benchmark command: run the governed synthetic benchmark suite; exit 2 if any case fails."""
     from .governed.benchmark_runner import run_benchmark_suite
 
     summary = run_benchmark_suite(Path(args.cases))
@@ -372,6 +380,7 @@ def cmd_foundation_run(args):
 
 
 def cmd_foundation_inspect(args):
+    """Run the foundation-inspect command: print the state of a durable foundation run."""
     from ci_failure_orchestrator.foundation import inspect_run
 
     info = inspect_run(Path(args.artifacts), args.run_id)
@@ -380,6 +389,7 @@ def cmd_foundation_inspect(args):
 
 
 def cmd_foundation_events(args):
+    """Run the foundation-events command: print a foundation run's audit timeline, one event per line."""
     from ci_failure_orchestrator.foundation import replay_events
 
     for line in replay_events(Path(args.artifacts), args.run_id):
@@ -388,6 +398,7 @@ def cmd_foundation_events(args):
 
 
 def cmd_foundation_resume(args):
+    """Run the foundation-resume command: print the resume decision for a durable run; exit 2 if INCONSISTENT."""
     from ci_failure_orchestrator.foundation import resume_run
 
     decision = resume_run(Path(args.artifacts), args.run_id)
@@ -404,6 +415,7 @@ def cmd_foundation_resume(args):
 
 
 def cmd_foundation_decide(args):
+    """Run the foundation-decide command: record a reviewer decision; exit 1 if BLOCKED, 2 if INCONSISTENT."""
     from ci_failure_orchestrator.foundation import apply_reviewer_decision
 
     result = apply_reviewer_decision(
@@ -434,6 +446,7 @@ def cmd_foundation_decide(args):
 
 
 def cmd_foundation_verify(args):
+    """Run the foundation-verify command: check a run's state and audit consistency; exit 2 if invalid."""
     from ci_failure_orchestrator.foundation import verify_run_consistency
 
     report = verify_run_consistency(artifacts_root=Path(args.artifacts), run_id=args.run_id)
@@ -450,6 +463,7 @@ _FIX_REPO_EXIT = {"APPROVED": 0, "NO_FAILURE": 0, "AWAITING_HUMAN": 3}
 
 
 def cmd_fix_repo(args):
+    """Run the fix-repo command: verify a patch; exit 0 if APPROVED or NO_FAILURE, 3 if AWAITING_HUMAN, else 2."""
     failure = None
     try:
         if args.github_repo or args.github_run_id:
@@ -498,6 +512,7 @@ def cmd_fix_repo(args):
 
 
 def cmd_fix_repo_verify_ci(args):
+    """Run the fix-repo-verify-ci command: record real CI results; exit 0 VERIFIED_FIXED, 3 PENDING, 2 ERROR, else 1."""
     token = args.github_token or os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN")
     try:
         provider = GitHubActionsCIProvider(
@@ -520,11 +535,13 @@ def cmd_fix_repo_verify_ci(args):
 
 
 def cmd_fix_repo_metrics(args):
+    """Run the fix-repo-metrics command: print remediation metrics for an artifacts directory."""
     _dump(compute_remediation_metrics(load_remediation_records(Path(args.artifacts))))
     return 0
 
 
 def cmd_fix_repo_task(args):
+    """Run the fix-repo-task command: print a task with its runs and attempts; exit 2 if it cannot be loaded."""
     try:
         _dump(task_summary(Path(args.artifacts), args.task_id))
     except ValueError as exc:
@@ -534,6 +551,7 @@ def cmd_fix_repo_task(args):
 
 
 def cmd_fix_repo_apply(args):
+    """Run the fix-repo-apply command: commit an APPROVED patch to a new branch; exit 1 unless APPLIED."""
     result = apply_fix(
         Path(args.artifacts),
         args.run_id,
@@ -549,6 +567,7 @@ def cmd_fix_repo_apply(args):
 
 
 def cmd_ci_audit_collect(args):
+    """Run the ci-audit-collect command: write a read-only Actions export as JSON; exit 2 on API or input errors."""
     token = args.token or os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN")
     client = GitHubActionsClient(token=token, api_url=args.api_url, timeout=args.timeout)
     try:
@@ -572,6 +591,7 @@ def cmd_ci_audit_collect(args):
 
 
 def cmd_ci_audit_report(args):
+    """Run the ci-audit-report command: render a Markdown report from an export; exit 2 if it cannot be read."""
     try:
         export = json.loads(Path(args.export).read_text(encoding="utf-8"))
         analysis = analyze_export(export)
@@ -596,6 +616,7 @@ def _add_experimental(sub, name, help_text):
 
 
 def build_parser():
+    """Build the ``ci-orchestrator`` argument parser with every subcommand."""
     parser = argparse.ArgumentParser(
         prog="ci-orchestrator",
         description=(
@@ -900,6 +921,7 @@ def build_parser():
 
 
 def main():
+    """Parse the command line and run the chosen subcommand, returning its exit code."""
     args = build_parser().parse_args()
     return args.func(args)
 

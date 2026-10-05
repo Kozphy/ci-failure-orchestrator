@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import re
 from pathlib import Path
 
 from ci_failure_orchestrator import module_status as ms
@@ -110,6 +111,14 @@ def test_canonical_files_stay_under_line_limit():
         if lines > MAX_CANONICAL_LINES:
             over[path.relative_to(PACKAGE_DIR).as_posix()] = lines
     assert over == {}
+
+
+def test_docstring_lint_scope_matches_canonical_manifest():
+    pyproject = (PACKAGE_DIR.parent / "pyproject.toml").read_text(encoding="utf-8")
+    match = re.search(r'^"!' + PACKAGE + r'/\{([^}]*)\}\.py" = \["D"\]$', pyproject, re.MULTILINE)
+    assert match, "ruff per-file-ignores must exempt non-canonical modules from D rules"
+    scoped = {entry.removesuffix("/**") for entry in match.group(1).split(",")}
+    assert scoped == set(ms.CANONICAL) | set(ms.ENTRYPOINTS)
 
 
 def test_checker_detects_relative_absolute_and_inline_imports():

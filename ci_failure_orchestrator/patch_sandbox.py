@@ -16,6 +16,8 @@ _BYTE_EXACT_CHECKOUT = ("-c", "core.autocrlf=false")
 
 @dataclass(frozen=True)
 class VerificationStep:
+    """Result of one verification command: return code, tail-truncated output and latency."""
+
     name: str
     returncode: int
     stdout: str
@@ -24,11 +26,14 @@ class VerificationStep:
 
     @property
     def passed(self) -> bool:
+        """Whether the command exited with return code 0."""
         return self.returncode == 0
 
 
 @dataclass(frozen=True)
 class PatchVerification:
+    """Outcome of applying and verifying one patch in a disposable worktree; ``reason`` names a failure."""
+
     applied: bool
     clean_after_apply: bool
     passed: bool
@@ -154,6 +159,14 @@ class WorktreePatchVerifier:
         base_ref: str = "HEAD",
         extra_env: Mapping[str, str] | None = None,
     ) -> PatchVerification:
+        """Apply ``patch_text`` in a disposable worktree at ``base_ref`` and run the verification commands.
+
+        An empty patch, a worktree that cannot be created, or a patch that fails to apply is
+        returned as an unapplied result with ``reason`` set rather than raised.
+
+        Raises:
+            ValueError: When ``repo_path`` is not a git repository.
+        """
         repo = self._require_repo(repo_path)
         if not patch_text.strip():
             return PatchVerification(False, True, False, sha256(b"").hexdigest(), (), (), 0.0, "empty_patch")

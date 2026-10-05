@@ -18,6 +18,7 @@ PATTERNS: list[tuple[str, tuple[str, ...]]] = [
 
 
 def classify_error(message: str) -> tuple[str, float]:
+    """Return the first matching error type and its confidence: 0.9 on a match, ``("UNKNOWN", 0.35)`` otherwise."""
     normalized = message.lower()
     for error_type, patterns in PATTERNS:
         for pattern in patterns:

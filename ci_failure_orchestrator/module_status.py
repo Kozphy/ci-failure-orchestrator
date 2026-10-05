@@ -162,6 +162,7 @@ EXPERIMENTAL_LABEL = "[experimental] "
 
 
 def experimental_group(top_level: str) -> str | None:
+    """Return the experimental group that lists a top-level module, or None."""
     for group, members in EXPERIMENTAL.items():
         if top_level in members:
             return group
@@ -169,6 +170,7 @@ def experimental_group(top_level: str) -> str | None:
 
 
 def status_of(top_level: str) -> str | None:
+    """Return ``"canonical"``, ``"entrypoint"`` or ``"experimental"`` for a top-level module, or None if unlisted."""
     if top_level in CANONICAL:
         return "canonical"
     if top_level in ENTRYPOINTS:

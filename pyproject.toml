@@ -30,6 +30,17 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 120
 
+[tool.ruff.lint]
+# Public docstrings are required on the canonical path only (module_status.CANONICAL plus cli);
+# the per-file ignore below exempts everything else. CI runs the same codes explicitly.
+extend-select = ["D101", "D102", "D103", "D106", "D417", "D419"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"!ci_failure_orchestrator/{foundation/**,service/**,ci_audit/**,doctor/**,__init__,module_status,repo_fix,patch_sandbox,provider_adapters,github_client,classifier,cli}.py" = ["D"]
+
 [tool.mypy]
 python_version = "3.10"
 ignore_missing_imports = true

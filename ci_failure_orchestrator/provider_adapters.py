@@ -12,6 +12,8 @@ from typing import Mapping, Sequence
 
 @dataclass(frozen=True)
 class ProviderRun:
+    """Result of one provider CLI run: return code, tail-truncated output, latency and sandbox path."""
+
     provider: str
     returncode: int
     stdout: str
@@ -23,6 +25,8 @@ class ProviderRun:
 
 @dataclass(frozen=True)
 class ProviderSpec:
+    """Provider CLI command (argv) with its timeout and captured-output limit."""
+
     name: str
     argv: tuple[str, ...]
     timeout_seconds: int = 120
@@ -30,6 +34,11 @@ class ProviderSpec:
 
     @classmethod
     def from_env(cls, name: str, env_var: str, *, timeout_seconds: int = 120) -> "ProviderSpec":
+        """Build a spec by shell-splitting the command string stored in ``env_var``.
+
+        Raises:
+            ValueError: When ``env_var`` is unset or blank.
+        """
         raw = os.getenv(env_var, "").strip()
         if not raw:
             raise ValueError(f"{env_var} is not configured")
@@ -59,6 +68,10 @@ class SandboxRunner:
         repo_path: str | Path | None = None,
         extra_env: Mapping[str, str] | None = None,
     ) -> ProviderRun:
+        """Run the provider CLI in a temporary directory with ``prompt`` on stdin.
+
+        A timeout is returned as return code 124 and an unrunnable command as 127 rather than raised.
+        """
         env = {key: os.environ[key] for key in self.env_allowlist if key in os.environ}
         if extra_env:
             env.update(extra_env)
@@ -125,12 +138,18 @@ class ProviderRegistry:
         self._specs = {spec.name: spec for spec in specs}
 
     def get(self, name: str) -> ProviderSpec:
+        """Return the spec registered under ``name``.
+
+        Raises:
+            KeyError: When no provider with that name is registered.
+        """
         try:
             return self._specs[name]
         except KeyError as exc:
             raise KeyError(f"unknown provider: {name}") from exc
 
     def names(self) -> tuple[str, ...]:
+        """Return the registered provider names in sorted order."""
         return tuple(sorted(self._specs))
 
 

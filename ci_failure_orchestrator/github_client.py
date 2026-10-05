@@ -96,10 +96,12 @@ class GitHubActionsClient:
         return runs[:max_runs]
 
     def get_run(self, repository: str, run_id: int) -> dict:
+        """Return one workflow run's JSON object."""
         _check_repository(repository)
         return self._get_json(f"/repos/{repository}/actions/runs/{run_id}")
 
     def list_runs_for_commit(self, repository: str, head_sha: str) -> list[dict]:
+        """Return workflow runs for one commit SHA (a single page of at most 100 runs)."""
         _check_repository(repository)
         payload = self._get_json(f"/repos/{repository}/actions/runs?head_sha={head_sha}&per_page=100")
         runs = payload.get("workflow_runs", [])
@@ -108,6 +110,7 @@ class GitHubActionsClient:
         return runs
 
     def list_latest_jobs(self, repository: str, run_id: int) -> list[dict]:
+        """Return jobs from a run's latest attempt (``filter=latest``, a single page of at most 100 jobs)."""
         _check_repository(repository)
         payload = self._get_json(f"/repos/{repository}/actions/runs/{run_id}/jobs?filter=latest&per_page=100")
         jobs = payload.get("jobs", [])
@@ -116,6 +119,7 @@ class GitHubActionsClient:
         return jobs
 
     def rerun_workflow_run(self, repository: str, run_id: int) -> None:
+        """Request a re-run of a workflow run; this client's only write request."""
         _check_repository(repository)
         self._request(f"/repos/{repository}/actions/runs/{run_id}/rerun", method="POST")
 
@@ -137,6 +141,7 @@ class GitHubActionsClient:
             page += 1
 
     def job_log(self, repository: str, job_id: int) -> str:
+        """Return one job's log text, decoded as UTF-8 with invalid bytes replaced."""
         _check_repository(repository)
         return self._request(f"/repos/{repository}/actions/jobs/{job_id}/logs").decode("utf-8", errors="replace")
 
