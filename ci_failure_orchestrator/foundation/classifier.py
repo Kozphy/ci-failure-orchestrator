@@ -122,6 +122,10 @@ SECURITY_MESSAGE_RE = re.compile(
 # deliberately excluded: a missing module in pytest output must stay a dependency failure.
 _SOURCE_QUOTING_STEPS = frozenset({"lint", "formatting", "typing"})
 
+# ``pytest -q`` prints no "pytest" banner, but its summary block closes the log, so it
+# survives log truncation. Matched against the lower-cased haystack.
+_PYTEST_SUMMARY_RE = re.compile(r"short test summary info|(?:^|\s)failed \S+\.py::\S", re.MULTILINE)
+
 
 def classify_ci_step(workflow: str, job: str, failed_step: str, log_excerpt: str) -> str:
     """Map common Actions job/step names to stable classes; unknown stays unknown."""
@@ -134,7 +138,7 @@ def classify_ci_step(workflow: str, job: str, failed_step: str, log_excerpt: str
         return "typing"
     if "workflow" in haystack and ("yaml" in haystack or "syntax" in haystack):
         return "workflow_syntax"
-    if "pytest" in haystack or "test" in failed_step.lower():
+    if "pytest" in haystack or "test" in failed_step.lower() or _PYTEST_SUMMARY_RE.search(haystack):
         return "unit_test_failure"
     return "unknown"
 

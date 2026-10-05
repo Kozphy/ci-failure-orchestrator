@@ -38,7 +38,7 @@ ALWAYS_PROTECTED_BRANCHES = frozenset({"main", "master"})
 class ApplyResult:
     """Outcome of one fix-repo-apply invocation."""
 
-    status: str  # APPLIED | BLOCKED | PARTIAL
+    status: str  # APPLIED | BLOCKED | PARTIAL | DRY_RUN
     run_id: str
     message: str
     repo_path: str = ""
@@ -47,6 +47,8 @@ class ApplyResult:
     pushed: bool = False
     pr_url: str = ""
     next_steps: list[str] = field(default_factory=list)
+    rollback: list[str] = field(default_factory=list)
+    files: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         """Return the result as a plain dict."""
@@ -83,6 +85,19 @@ def build_pr_command(gh: str, branch: str, title: str, body: str) -> list[str]:
     return [gh, "pr", "create", "--draft", "--head", branch, "--title", title, "--body", body]
 
 
+def rollback_commands(result: ApplyResult, remote: str) -> list[str]:
+    """Commands that undo what this apply wrote, newest first; the working tree was never touched."""
+
+    commands: list[str] = []
+    if result.pr_url:
+        commands.append(f"gh pr close {result.pr_url}")
+    if result.pushed:
+        commands.append(f"git -C {result.repo_path} push {remote} --delete {result.branch}")
+    if result.branch and result.commit:
+        commands.append(f"git -C {result.repo_path} branch -D {result.branch}")
+    return commands
+
+
 def apply_fix(
     artifacts_root: Path,
     run_id: str,
@@ -93,11 +108,14 @@ def apply_fix(
     push: bool = False,
     open_pr: bool = False,
     actor: str = "operator",
+    dry_run: bool = False,
 ) -> ApplyResult:
     """Commit an APPROVED fix-repo patch onto a new branch of the target repository.
 
     Uses a temporary index (read-tree / apply --cached / commit-tree), so the
-    operator's working tree, index and current branch are left untouched.
+    operator's working tree, index and current branch are left untouched. With
+    ``dry_run`` every gate runs and the patch is checked against the base commit, but no
+    git object, branch, remote or audit event is written.
     """
 
     artifacts_root = Path(artifacts_root)
@@ -174,14 +192,30 @@ def apply_fix(
         (tmp / "fix.patch").write_bytes(patch_bytes)
         (tmp / "message.txt").write_bytes(_commit_message(metadata, run_id, approval).encode("utf-8"))
 
+        apply_args = ("apply", "--cached", "--whitespace=nowarn", *(("--check",) if dry_run else ()), str(tmp / "fix.patch"))
         steps = (
             ("read-tree", ("read-tree", base_commit)),
-            ("apply", ("apply", "--cached", "--whitespace=nowarn", str(tmp / "fix.patch"))),
+            ("apply", apply_args),
         )
         for label, args in steps:
             done = git(repo, *args, env=env)
             if done.returncode != 0:
                 return blocked(f"git {label} failed: {done.stderr.strip()[:500]}")
+        if dry_run:
+            planned = [f"create branch {branch_name} from {base_commit[:12]} with {len(files)} changed file(s)"]
+            if push or open_pr:
+                planned.append(f"push {branch_name} to {remote}")
+            if open_pr:
+                planned.append("open a draft pull request with the GitHub CLI")
+            return ApplyResult(
+                "DRY_RUN",
+                run_id,
+                "Dry run: every gate passed and the patch applies to the base commit; nothing was written. "
+                "Would: " + "; ".join(planned) + ".",
+                repo_path=str(repo),
+                branch=branch_name,
+                files=list(files),
+            )
         tree = git(repo, "write-tree", env=env)
         if tree.returncode != 0:
             return blocked(f"git write-tree failed: {tree.stderr.strip()[:500]}")
@@ -232,8 +266,28 @@ def apply_fix(
         repo_path=str(repo),
         branch=branch_name,
         commit=commit_sha,
+        files=sorted(diff_names),
     )
+    _publish(result, repo, metadata, approval, artifacts_root=artifacts_root, remote=remote,
+             push=push, open_pr=open_pr, actor=actor)
+    result.rollback = rollback_commands(result, remote)
+    return result
 
+
+def _publish(
+    result: ApplyResult,
+    repo: Path,
+    metadata: dict[str, Any],
+    approval: str,
+    *,
+    artifacts_root: Path,
+    remote: str,
+    push: bool,
+    open_pr: bool,
+    actor: str,
+) -> None:
+    """Push the new branch and open a draft PR when asked; failures downgrade the result to PARTIAL."""
+    run_id, branch_name = result.run_id, result.branch
     if push or open_pr:
         existing = git(repo, "ls-remote", "--heads", remote, f"refs/heads/{branch_name}", timeout=120)
         if existing.returncode != 0 or existing.stdout.strip():
@@ -243,13 +297,15 @@ def apply_fix(
                 if existing.returncode == 0
                 else f" Not pushed: cannot check {remote} for an existing branch: {existing.stderr.strip()[:300]}"
             )
-            return result
+            return
         pushed = git(repo, "push", "--set-upstream", remote, f"refs/heads/{branch_name}:refs/heads/{branch_name}", timeout=300)
         if pushed.returncode != 0:
             result.status = "PARTIAL"
             result.message += f" Push failed: {pushed.stderr.strip()[:500]}"
+            if pushed.returncode == 124:
+                result.message += f" The push may have reached {remote}; check before retrying."
             result.next_steps = [f"git -C {repo} push --set-upstream {remote} {branch_name}"]
-            return result
+            return
         result.pushed = True
         append_operator_event(
             artifacts_root, run_id, AuditEventType.TARGET_BRANCH_PUSHED,
@@ -262,16 +318,22 @@ def apply_fix(
             result.status = "PARTIAL"
             result.message += " GitHub CLI (gh) not found; PR not opened."
             result.next_steps = [f"gh pr create --draft --head {branch_name} --fill"]
-            return result
+            return
         body = _commit_message(metadata, run_id, approval)
-        pr = subprocess.run(
-            build_pr_command(gh, branch_name, body.splitlines()[0], body),
-            cwd=repo, capture_output=True, text=True, encoding="utf-8", errors="replace", check=False, timeout=300,
-        )
+        try:
+            pr = subprocess.run(
+                build_pr_command(gh, branch_name, body.splitlines()[0], body),
+                cwd=repo, capture_output=True, text=True, encoding="utf-8", errors="replace", check=False, timeout=300,
+            )
+        except subprocess.TimeoutExpired:
+            result.status = "PARTIAL"
+            result.message += " gh pr create timed out after 300s; a draft PR may exist. Check before retrying."
+            result.next_steps = [f"gh pr list --head {branch_name}"]
+            return
         if pr.returncode != 0:
             result.status = "PARTIAL"
             result.message += f" gh pr create failed: {pr.stderr.strip()[:500]}"
-            return result
+            return
         result.pr_url = pr.stdout.strip().splitlines()[-1] if pr.stdout.strip() else ""
         append_operator_event(
             artifacts_root, run_id, AuditEventType.TARGET_PR_OPENED,
@@ -280,4 +342,3 @@ def apply_fix(
 
     if not result.pushed:
         result.next_steps = [f"git -C {repo} switch {branch_name}", f"git -C {repo} push --set-upstream {remote} {branch_name}"]
-    return result

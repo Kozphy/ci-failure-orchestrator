@@ -38,6 +38,90 @@ def load_remediation_records(artifacts_root: Path) -> list[dict[str, Any]]:
     return records
 
 
+def _read_json(path: Path) -> dict[str, Any]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def load_run_measurements(artifacts_root: Path) -> list[dict[str, Any]]:
+    """Per-run timestamps and counters for every ingested failure, excluding benchmark runs.
+
+    Each item holds ``received_at`` (failure ingestion), ``classified_at``, ``category`` and,
+    when the run wrote ``metrics-summary.json``, ``attempts``, ``retries``,
+    ``duration_seconds`` and ``escalated``.
+    """
+    measurements: list[dict[str, Any]] = []
+    for event_path in sorted((Path(artifacts_root) / "runs").glob("*/input/failure-event.json")):
+        run_root = event_path.parent.parent
+        summary = _read_json(run_root / "metrics-summary.json")
+        if summary.get("source") == "benchmark":
+            continue
+        classification = _read_json(run_root / "classification" / "classification.json")
+        measurements.append({
+            "run_id": run_root.name,
+            "received_at": _read_json(event_path).get("timestamp"),
+            "classified_at": classification.get("timestamp"),
+            "category": classification.get("category"),
+            "has_summary": bool(summary),
+            "attempts": summary.get("attempts"),
+            "retries": summary.get("retries"),
+            "duration_seconds": summary.get("duration_seconds"),
+            "escalated": summary.get("escalated"),
+        })
+    return measurements
+
+
+def compute_operational_metrics(runs: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    """Diagnosis, retry, compute and escalation measures over ingested failures.
+
+    Averages and rates are None when nothing was measured. Model cost is reported as not
+    instrumented instead of estimated.
+    """
+    runs = list(runs)
+    classified = [r for r in runs if r.get("classified_at")]
+    summarized = [r for r in runs if r.get("has_summary")]
+
+    def mean(values: list[float]) -> float | None:
+        return round(sum(values) / len(values), 3) if values else None
+
+    diagnosis = [
+        d for r in classified
+        if (d := _seconds(str(r.get("received_at") or ""), str(r.get("classified_at") or ""))) is not None
+    ]
+    return {
+        "failures_ingested": len(runs),
+        "classified_rate": (
+            round(sum(1 for r in classified if r.get("category") not in (None, "unknown")) / len(runs), 4)
+            if runs else None
+        ),
+        "mean_time_to_diagnosis_seconds": mean(diagnosis),
+        "mean_attempts_per_failure": mean([float(r["attempts"]) for r in summarized if r.get("attempts") is not None]),
+        "mean_retries_per_failure": mean([float(r["retries"]) for r in summarized if r.get("retries") is not None]),
+        "mean_compute_seconds_per_failure": mean(
+            [float(r["duration_seconds"]) for r in summarized if r.get("duration_seconds") is not None]
+        ),
+        "escalation_rate": (
+            round(sum(1 for r in summarized if r.get("escalated")) / len(summarized), 4) if summarized else None
+        ),
+        "model_cost_per_repair": None,
+        "definitions": {
+            "failures_ingested": "runs with a stored failure event (benchmark runs excluded)",
+            "classified_rate": "runs classified into a known category (not 'unknown') / failures ingested",
+            "mean_time_to_diagnosis_seconds": (
+                "failure ingestion to classification; the CI failure time itself is not recorded"
+            ),
+            "mean_attempts_per_failure": "repair attempts per run that wrote a metrics summary",
+            "mean_retries_per_failure": "attempts after the first, per run that wrote a metrics summary",
+            "mean_compute_seconds_per_failure": "wall-clock orchestration time per run, including sandbox commands",
+            "escalation_rate": "runs that ended escalated to a human / runs that wrote a metrics summary",
+            "model_cost_per_repair": "not instrumented: provider commands do not report token usage or cost",
+        },
+    }
+
+
 def _seconds(start: str, end: str) -> float | None:
     try:
         return (datetime.fromisoformat(end) - datetime.fromisoformat(start)).total_seconds()
@@ -78,6 +162,7 @@ def compute_remediation_metrics(records: Iterable[dict[str, Any]]) -> dict[str, 
         "states": dict(sorted(states.items())),
         "definitions": {
             "verified_repair_rate": "VERIFIED_FIXED / attempted repairs",
+            "operational": "per-run diagnosis, retry, compute and escalation measures; see operational.definitions",
             "ci_green_rate": "repairs whose configured checks passed / attempted repairs (not a success measure)",
             "false_repair_rate": "CI-green repairs later rejected, regressed or not fixed / CI-green repairs",
             "regression_rate": "REGRESSION_DETECTED / attempted repairs",

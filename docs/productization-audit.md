@@ -9,6 +9,124 @@ useful, trustworthy answer in a few minutes? It complements, and does not replac
 [`repository-audit.md`](repository-audit.md) (evidence and maturity) and
 [`service-v0.1-plan.md`](service-v0.1-plan.md) (the consolidation plan already in flight).
 
+Section 0 is the commercialization update of 2026-10-05. Sections 1 to 10 are the
+original audit of 2026-10-04, kept as written except where marked as corrected.
+
+## 0. Commercialization update (2026-10-05)
+
+Companion documents: [ICP.md](ICP.md) (buyer), [COMMERCIAL_ARCHITECTURE.md](COMMERCIAL_ARCHITECTURE.md)
+(workflow and what not to build), [SAFETY_CONTROLS.md](SAFETY_CONTROLS.md) (control status) and
+[COMMERCIALIZATION_PLAN.md](COMMERCIALIZATION_PLAN.md) (packaging, pricing, roadmap).
+
+### Existing strengths
+
+- **Verified repair, not "CI went green".** A repair moves through explicit states
+  (`POLICY_APPROVED`, `CI_GREEN_BUT_UNVERIFIED`, `VERIFIED_FIXED`, `REGRESSION_DETECTED`, ...).
+  A green CI rerun alone never counts as fixed; regression suites, affected tests and real CI
+  results are separate evidence.
+- **Deterministic authority.** The static policy engine (POL-001 to POL-019) decides; a model
+  can only propose a patch through `--provider-cmd`. Default outcome is ESCALATE.
+- **Isolated verification.** Every proposal is applied and tested in a disposable git worktree;
+  the operator's checkout is never touched.
+- **One writer, no merge.** `fix-repo-apply` is the only path that writes to a repository: a new
+  branch, optionally pushed, optionally a draft PR. A guard test fails on any merge API string.
+- **Evidence per repair.** `fix-repo/evidence-report.json` and `.md` answer what broke, why it
+  is believed to have broken, what changed, which tests ran, what evidence supports the fix and
+  which risks remain, from stored artifacts only.
+- **A golden benchmark** guards classifier and policy behavior; baseline updates are reviewed.
+
+### Existing architecture
+
+Three layers, all in one Python package with one runtime dependency (PyYAML):
+
+| Layer | Modules | Role |
+| --- | --- | --- |
+| Control plane | `foundation/` | classifier, planner, sandbox, evaluator, policy, retry budget, durable state and audit |
+| Service | `service/` | `fix-repo` reproduction, proposal sources, worktree verification, remediation decision, apply, evidence report, metrics |
+| Product surface | `doctor/`, `ci_audit/`, `cli.py`, `action.yml` | `actions-doctor` (read-only diagnosis, offline demo, GitHub Action), `ci-orchestrator` (repair and audit commands) |
+
+Experimental modules are fenced off by `module_status.py` and boundary tests. Details and the
+14-step workflow map are in [COMMERCIAL_ARCHITECTURE.md](COMMERCIAL_ARCHITECTURE.md).
+
+### Working user flows
+
+Each flow below is exercised by tests in this repository. None has production users yet.
+
+1. **Diagnose a failed run:** `actions-doctor diagnose` (alias of `analyze`) on a GitHub run or a
+   saved log; read-only.
+2. **Diagnose in CI:** the composite action in `action.yml` on `workflow_run` failures; writes the
+   job summary and `diagnosis.json`; `actions: read` only.
+3. **Offline demo:** `actions-doctor demo` runs six generated failure scenarios.
+4. **Audit CI health:** `ci-orchestrator ci-audit-collect` and `ci-audit-report` over 30 days of runs.
+5. **Repair locally:** `ci-orchestrator fix-repo` with `--patch-file` or `--provider-cmd`, then
+   `fix-repo-apply` (now with `--dry-run` and rollback commands), `fix-repo-verify-ci` for the
+   real CI result, `fix-repo-report` and `fix-repo-metrics`.
+6. **End-to-end proof:** `examples/demo-repo/run_demo.py` goes from a failing pytest run to a
+   diagnosis, a verified patch, a new branch, a passing CI command and an evidence report. It
+   ends at `POLICY_APPROVED`, not `VERIFIED_FIXED`, because no real CI provider runs in the demo.
+
+### Missing commercial capabilities
+
+- **No built-in model provider.** Repairs come from a patch file or an operator-supplied
+  provider command; there is no packaged LLM integration, prompt tuning or cost reporting.
+- **No PR comment or GitHub App.** The Action writes a job summary only.
+- **No hosted service:** no accounts, tenancy, dashboard, billing or usage metering.
+- **Single repository, single machine.** No queue, no multi-repo view, no shared artifact store.
+- **GitHub Actions only** for live ingestion; other CI systems work only through `--log-file`.
+- **Not published:** not on PyPI, no tagged product release, no Marketplace listing.
+- **No customer evidence:** no production users, case studies or measured outcome rates.
+
+### Technical risks
+
+- **Heuristic classification.** Regex tables with fixed confidence (0.9 on a match, 0.7 from
+  step names); `calibrated` is always false. Misclassification changes policy outcomes.
+- **Python-centric signals.** Step and log heuristics know pytest, ruff, mypy and pip well;
+  other ecosystems mostly fall to `unknown` and escalate (safe, but low automation).
+- **Local verification is not CI.** A worktree run can pass where CI fails (OS, secrets,
+  services). `VERIFIED_FIXED` therefore requires `fix-repo-verify-ci` on the real CI run.
+- **Experimental code still ships** (about 43% of lines, section 5), costing test time and reader focus.
+
+### Security risks
+
+- **Commands run as the operator** without container isolation; a malicious patch can execute
+  code during verification (mitigated by worktrees, env allowlist and structural patch refusal).
+- **CI logs are untrusted input** fed to a provider command; prompt injection is mitigated by
+  neutralization, but the provider's output is only trusted after verification and policy.
+- **The fix-repo audit log is not tamper-evident** (append-only JSONL with sequence checks, no
+  hash chain; correction to section 3, item 4).
+- **No executable allowlist** for verification commands. See [SAFETY_CONTROLS.md](SAFETY_CONTROLS.md#known-gaps).
+
+### UX friction
+
+- Two console commands (`actions-doctor`, `ci-orchestrator`) with internal-sounding names
+  (`foundation-decide`, `fix-repo-apply`).
+- Repair needs a local clone, a reproducible verify command and, for policy approval, a
+  classifiable failure log.
+- JSON-first output; the Markdown evidence report is new and not yet posted anywhere.
+- Opaque run IDs; approval of escalated runs needs `foundation-decide`.
+
+### Deployment blockers
+
+- Package name and description: `pyproject.toml` still describes research features
+  (canaries, fleet policy, production proof).
+- No release workflow, signed artifacts, SECURITY.md or support policy.
+- MIT license: the code can be used commercially by anyone, so revenue must come from service,
+  hosting or support rather than license restrictions.
+
+### Recommended MVP scope
+
+Sell a **verified-repair pilot for one GitHub repository**: diagnosis Action on every failed
+run, `fix-repo` driven by the customer's own patch or provider command, apply to a draft PR only
+after policy approval, evidence report per repair, and a monthly metrics report from
+`fix-repo-metrics`. Everything in that scope exists in code today; the missing parts are
+packaging, a PR comment and onboarding.
+
+### Features to postpone
+
+GitHub App, hosted dashboard, multi-tenant service, billing integration, non-GitHub live
+ingestion, auto-merge of any kind, calibrated confidence models, graph-based root-cause ranking
+and container sandboxes. Reasons are in [COMMERCIAL_ARCHITECTURE.md](COMMERCIAL_ARCHITECTURE.md).
+
 ## 1. Summary
 
 The engineering core is stronger than the product around it. The deterministic control
@@ -67,9 +185,11 @@ Three findings change the plan and need a decision before anything is published:
    retries; escalation writes a reviewable package; `foundation-decide` records a human
    decision; `fix-repo-apply` is the only code path that writes to a repository, and it
    only opens draft pull requests on a new branch.
-4. **Durable audit and evidence.** Append-only `events.jsonl` with hash-chained events,
-   evidence references with digests, `foundation-verify` to check integrity, and
-   `foundation-resume` for interrupted runs.
+4. **Durable audit and evidence.** Append-only `events.jsonl` with monotonic sequence numbers
+   and unique event IDs, `foundation-verify` to check run consistency, and
+   `foundation-resume` for interrupted runs. (Corrected 2026-10-05: the original text said
+   "hash-chained events, evidence references with digests". Hash chains exist only in the
+   trust-plane `audit.py`, not in the foundation event log.)
 5. **Real worktree verification** (`service/`, `repo_fix.py`). Reproduce the failure,
    apply a patch in a git worktree, re-run the command, keep the evidence, and detect
    environment failures (missing tools, missing modules) before blaming the code.

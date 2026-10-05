@@ -29,16 +29,20 @@ from .service import (
     FixRepoConfig,
     GitHubActionsCIProvider,
     apply_fix,
+    compute_operational_metrics,
     compute_remediation_metrics,
     failure_from_fixture,
     failure_from_github,
     failure_from_log_file,
     load_remediation_records,
+    load_run_measurements,
     load_verification_config,
     read_verification_config_file,
+    render_repair_evidence_markdown,
     run_fix_repo,
     task_summary,
     verify_real_ci,
+    write_repair_evidence,
 )
 from .trust import ProviderRegistry, TrustContextBuilder
 from .trust_gateway import (
@@ -536,7 +540,10 @@ def cmd_fix_repo_verify_ci(args):
 
 def cmd_fix_repo_metrics(args):
     """Run the fix-repo-metrics command: print remediation metrics for an artifacts directory."""
-    _dump(compute_remediation_metrics(load_remediation_records(Path(args.artifacts))))
+    artifacts = Path(args.artifacts)
+    metrics = compute_remediation_metrics(load_remediation_records(artifacts))
+    metrics["operational"] = compute_operational_metrics(load_run_measurements(artifacts))
+    _dump(metrics)
     return 0
 
 
@@ -551,7 +558,7 @@ def cmd_fix_repo_task(args):
 
 
 def cmd_fix_repo_apply(args):
-    """Run the fix-repo-apply command: commit an APPROVED patch to a new branch; exit 1 unless APPLIED."""
+    """Run the fix-repo-apply command: commit an APPROVED patch to a new branch; exit 1 unless APPLIED or DRY_RUN."""
     result = apply_fix(
         Path(args.artifacts),
         args.run_id,
@@ -561,9 +568,25 @@ def cmd_fix_repo_apply(args):
         push=args.push,
         open_pr=args.open_pr,
         actor=args.actor,
+        dry_run=args.dry_run,
     )
+    if not args.dry_run and (Path(args.artifacts) / "runs" / args.run_id).is_dir():
+        write_repair_evidence(Path(args.artifacts), args.run_id)
     _dump(result.to_dict())
-    return 0 if result.status == "APPLIED" else 1
+    return 0 if result.status in ("APPLIED", "DRY_RUN") else 1
+
+
+def cmd_fix_repo_report(args):
+    """Run the fix-repo-report command: refresh and print a run's evidence report; exit 2 if the run is unknown."""
+    if not (Path(args.artifacts) / "runs" / args.run_id).is_dir():
+        _dump({"outcome": "ERROR", "message": f"unknown run: {args.run_id}"})
+        return 2
+    report = write_repair_evidence(Path(args.artifacts), args.run_id)
+    if args.format == "json":
+        _dump(report)
+    else:
+        print(render_repair_evidence_markdown(report), end="")
+    return 0
 
 
 def cmd_ci_audit_collect(args):
@@ -879,6 +902,15 @@ def build_parser():
     fixm.add_argument("--artifacts", default="artifacts")
     fixm.set_defaults(func=cmd_fix_repo_metrics)
 
+    fixr = sub.add_parser(
+        "fix-repo-report",
+        help="Print a run's evidence report: what broke, what changed, which tests ran, what is safe, what risk remains",
+    )
+    fixr.add_argument("run_id")
+    fixr.add_argument("--format", choices=("md", "json"), default="md")
+    fixr.add_argument("--artifacts", default="artifacts")
+    fixr.set_defaults(func=cmd_fix_repo_report)
+
     fixt = sub.add_parser("fix-repo-task", help="Show a task with its runs and per-attempt records (read-only)")
     fixt.add_argument("task_id")
     fixt.add_argument("--artifacts", default="artifacts")
@@ -896,6 +928,9 @@ def build_parser():
     fixa.add_argument("--push", action="store_true", help="Push the new branch to --remote")
     fixa.add_argument("--open-pr", action="store_true", help="Push and open a PR with the GitHub CLI")
     fixa.add_argument("--actor", default="operator", help="Operator identity recorded in the audit log")
+    fixa.add_argument(
+        "--dry-run", action="store_true", help="Run every gate and check the patch applies; write nothing"
+    )
     fixa.set_defaults(func=cmd_fix_repo_apply)
 
     cac = sub.add_parser(

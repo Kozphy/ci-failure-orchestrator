@@ -40,6 +40,10 @@ from .verification import (
 )
 
 
+# Every attempt may call a model provider and run the full verification suite.
+MAX_ATTEMPTS_CEILING = 10
+
+
 @dataclass
 class FixRepoConfig:
     """Operator settings for one fix-repo run."""
@@ -178,6 +182,8 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
         return _outcome(outcome="ERROR", message=f"not a git repository: {repo}")
 
     try:
+        if not 1 <= config.max_attempts <= MAX_ATTEMPTS_CEILING:
+            raise ValueError(f"--max-attempts must be between 1 and {MAX_ATTEMPTS_CEILING}, got {config.max_attempts}")
         blocked = blocked_env_names(config.verify_env)
         if blocked:
             raise ValueError(f"refusing to pass credential variables to verification commands: {', '.join(blocked)}")
@@ -253,7 +259,7 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
         workspace_root=repo,
         artifacts_root=artifacts_root,
         enable_persistence=True,
-        retry_budget=RetryBudget(max_attempts=max(1, config.max_attempts)),
+        retry_budget=RetryBudget(max_attempts=config.max_attempts),
     )
     result = foundation.run(event)
     workflow = result.workflow_status or result.status.value

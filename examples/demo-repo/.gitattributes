@@ -1,0 +1,2 @@
+# The recorded patch must apply byte for byte, so keep LF on every platform.
+* text eol=lf

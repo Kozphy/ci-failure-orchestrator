@@ -256,6 +256,18 @@ def test_cli_log_round_trip_text_json_and_out(tmp_path, capsys):
     assert saved["findings"][0]["category"] == "dependency_failure"
 
 
+def test_cli_diagnose_is_an_alias_of_analyze(tmp_path, capsys):
+    log = tmp_path / "tests.log"
+    log.write_text(PIP_LOG, encoding="utf-8")
+    assert main(["analyze", "--log", str(log), "--json"]) == 0
+    analyzed = json.loads(capsys.readouterr().out)
+    assert main(["diagnose", "--log", str(log), "--json"]) == 0
+    diagnosed = json.loads(capsys.readouterr().out)
+    assert {k: v for k, v in diagnosed.items() if k != "diagnosis_id"} == {
+        k: v for k, v in analyzed.items() if k != "diagnosis_id"
+    }
+
+
 def test_cli_errors(tmp_path, capsys):
     assert main(["analyze", "--log", str(tmp_path / "missing.log")]) == EXIT_INPUT
     assert "cannot read" in capsys.readouterr().err

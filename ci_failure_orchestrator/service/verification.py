@@ -49,6 +49,7 @@ from ..foundation.test_evidence import (
 from ..foundation.verification_integrity import IntegritySeverity, analyze_patch, is_test_path, parse_unified_diff
 from ..patch_sandbox import VerificationStep, WorktreePatchVerifier
 from .common import FIX_DIR, REMEDIATION_NAME, git, split_command
+from .evidence_report import write_repair_evidence
 from .session import VerifyCommand
 from .untrusted import clean_untrusted
 
@@ -691,7 +692,7 @@ def record_verification(
     ci_green_source: str,
     extra: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Store the evidence, refresh the current remediation summary, and append the audit event."""
+    """Store the evidence, refresh the remediation summary and evidence report, and append the audit event."""
 
     store = FileEvidenceStore(artifacts_root)
     decided_at = utc_now()
@@ -745,4 +746,5 @@ def record_verification(
             "checks": audit_checks(report.result),
         },
     )
+    write_repair_evidence(artifacts_root, run_id)
     return summary

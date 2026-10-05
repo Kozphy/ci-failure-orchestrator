@@ -6,6 +6,27 @@ Versioning (plan §5.4) uses two tracks: the Python package keeps semantic versi
 
 ## [Unreleased]
 
+### Commercialization: evidence report, demo, safety controls, metrics, buyer docs
+
+- `ci-orchestrator fix-repo-report <run_id>` writes `fix-repo/evidence-report.md` and `.json` (what broke, why, what changed, which tests ran, what supports the fix, what risk remains) from stored artifacts only; `fix-repo` stages refresh it.
+- `actions-doctor diagnose` is an alias of `analyze`.
+- `examples/demo-repo/`: a small package with a real bug, taken from a failing pytest run through diagnosis, a verified patch, a fix branch and an evidence report by `run_demo.py`; `tests/test_demo_repo.py` runs it. It ends at `POLICY_APPROVED` because no real CI runs.
+- Safety controls (`tests/test_safety_controls.py`):
+  - `fix-repo-apply --dry-run` runs every gate and `git apply --check` on a temporary index, and writes nothing (status `DRY_RUN`, exit 0).
+  - Every apply result lists `rollback` commands (close the PR, delete the remote branch, delete the local branch), only for what was actually written.
+  - `--max-attempts` must be between 1 and 10; values outside are an error instead of a silent clamp.
+  - The git helper returns exit code 124 on timeout instead of raising. A timed-out push or `gh pr create` returns `PARTIAL` with a note that the remote side may already exist.
+- `fix-repo-metrics` adds an `operational` block measured from real (non-benchmark) runs: failures ingested, classified rate, mean time to diagnosis, attempts, retries and compute seconds per failure, escalation rate. `model_cost_per_repair` is `null` and labelled not instrumented. `classification.json` now stores the classification timestamp.
+- Docs: buyer-facing `README.md`; the previous engineering README moved to `docs/ENGINEERING.md` (three examples corrected from `actions-doctor fix-repo…` to `ci-orchestrator fix-repo…`); new `docs/ICP.md`, `docs/COMMERCIAL_ARCHITECTURE.md`, `docs/SAFETY_CONTROLS.md` and `docs/COMMERCIALIZATION_PLAN.md`; `docs/productization-audit.md` gains a commercialization section and corrects its claim that the foundation audit log is hash-chained (it is append-only with sequence checks, no hash chain).
+
+### Classifier: raw `pytest -q` logs are test failures
+
+- A log with no step names and no "pytest" banner (`pytest -q`) fell to `unknown` and escalated. `classify_ci_step` now also recognises the pytest summary block (`short test summary info`, `FAILED path.py::test`). Logs that only say "failed" stay `unknown`, and a missing module still classifies as a dependency failure. Golden benchmark unchanged.
+
+### Fix: patch extraction dropped a trailing blank context line
+
+- `service/patches.py` trimmed a hunk's final blank context line (also when an editor had stripped its leading space), so a valid patch ending in a blank line failed to apply. The line is kept, or restored when the hunk header counts it; regression tests in `tests/test_repo_fix.py`.
+
 ### A green CI run is no longer treated as a correct fix
 
 - Every `fix-repo` run now ends with a `remediation_state` (outcome fields `remediation_state` and `remediation`). The existing `outcome` and workflow states are unchanged. One deterministic function, `foundation/remediation.py: decide_remediation`, makes the decision. Only `is_verified_fix` can return `VERIFIED_FIXED`, and only when every piece of evidence is present and passing. Evidence that was not collected counts as missing, never as a pass.

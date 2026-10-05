@@ -132,6 +132,7 @@ CANONICAL_COMMANDS: frozenset[str] = frozenset(
         "fix-repo-task",
         "fix-repo-verify-ci",
         "fix-repo-metrics",
+        "fix-repo-report",
         "foundation-run",
         "foundation-inspect",
         "foundation-events",

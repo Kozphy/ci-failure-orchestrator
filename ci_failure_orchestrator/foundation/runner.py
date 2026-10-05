@@ -202,6 +202,7 @@ class AgentExecutionFoundation(PolicyGateMixin):
                             "confidence": classification.confidence,
                             "uncertainty": classification.uncertainty,
                             "evidence": list(classification.evidence),
+                            "timestamp": classification.timestamp,
                         },
                         name="classification.json",
                     )

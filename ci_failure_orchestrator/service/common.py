@@ -93,18 +93,25 @@ def git(
     env: dict[str, str] | None = None,
     timeout: int = 120,
 ) -> subprocess.CompletedProcess[str]:
-    """Run a git command in the repo and capture its text output without raising on failure."""
-    return subprocess.run(
-        ["git", *args],
-        cwd=repo,
-        env=env,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        check=False,
-        timeout=timeout,
-    )
+    """Run a git command in the repo and capture its text output without raising on failure.
+
+    A timeout is returned as exit code 124 with the reason in ``stderr``.
+    """
+    try:
+        return subprocess.run(
+            ["git", *args],
+            cwd=repo,
+            env=env,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        verb = args[0] if args else ""
+        return subprocess.CompletedProcess(["git", *args], 124, "", f"git {verb} timed out after {timeout}s")
 
 
 def tail(text: str, limit: int) -> str:

@@ -29,6 +29,7 @@ _DIFF_LINE_PREFIXES = (
     "Binary files",
 )
 _FENCE_RE = re.compile(r"```[A-Za-z0-9_-]*[^\n]*\n(.*?)```", re.DOTALL)
+_HUNK_HEADER_RE = re.compile(r"^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@")
 _DIFF_GIT_RE = re.compile(r"^diff --git a/(.+?) b/(.+)$")
 _MODE_LINE_RE = re.compile(r"^(?:new file mode|deleted file mode|old mode|new mode) (\d{6})\s*$")
 _INDEX_MODE_RE = re.compile(r"^index [0-9a-f]+\.\.[0-9a-f]+ (\d{6})\s*$")
@@ -51,11 +52,37 @@ def _looks_like_diff(text: str) -> bool:
     return ("diff --git " in text or ("--- " in text and "+++ " in text)) and "@@" in text
 
 
+def _last_hunk_shortfall(lines: list[str]) -> int:
+    """Lines the final hunk still needs according to its ``@@ -a,b +c,d @@`` header counts."""
+    for start in range(len(lines) - 1, -1, -1):
+        match = _HUNK_HEADER_RE.match(lines[start])
+        if not match:
+            continue
+        old_needed = int(match.group(1) or 1)
+        new_needed = int(match.group(2) or 1)
+        for line in lines[start + 1 :]:
+            if line.startswith("\\"):
+                continue
+            if not line.startswith("+"):
+                old_needed -= 1
+            if not line.startswith("-"):
+                new_needed -= 1
+        return max(0, min(old_needed, new_needed))
+    return 0
+
+
 def _trim_trailing_non_diff(lines: list[str]) -> list[str]:
     end = len(lines)
     while end > 0 and (not lines[end - 1].strip() or not lines[end - 1].startswith(_DIFF_LINE_PREFIXES)):
         end -= 1
-    return lines[:end]
+    kept = lines[:end]
+    # A blank source line is the context line " "; editors and copy-paste often strip it to "".
+    # Keep as many trailing blank lines as the last hunk's header still counts.
+    for line in lines[end : end + _last_hunk_shortfall(kept)]:
+        if line.strip():
+            break
+        kept.append(" ")
+    return kept
 
 
 def extract_patch(text: str) -> str:

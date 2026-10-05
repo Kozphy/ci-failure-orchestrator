@@ -129,7 +129,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
     analyze = sub.add_parser(
         "analyze",
-        help="Diagnose one failed run or one saved job log (read-only)",
+        aliases=["diagnose"],
+        help="Diagnose one failed run or one saved job log (read-only; alias: diagnose)",
         description="Diagnose one failed run or one saved job log. Never writes to a repository.",
     )
     source = analyze.add_mutually_exclusive_group(required=True)

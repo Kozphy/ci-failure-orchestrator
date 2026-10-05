@@ -1,0 +1,300 @@
+# Engineering documentation
+
+Moved from the README on 2026-10-05 so the README can speak to buyers. Content is unchanged
+except for relative links and three command examples that wrongly used `actions-doctor` for
+`fix-repo` commands (they belong to `ci-orchestrator`).
+
+**Deterministic, policy-gated CI failure control plane**: classify → plan → sandbox → evaluate → retry budget → policy → escalate → durable audit → synthetic evaluation.
+
+Maturity: **M3 (Evaluated System)** with an **M4 human-decision slice**. See [repository-audit.md](repository-audit.md).
+
+## Why this exists
+
+CI auto-repair is unsafe if technical “green” silently becomes permission to change code, workflows, or auth. This repository investigates whether an **explicit control plane** can separate:
+
+```text
+technical evaluation  ≠  policy approval  ≠  primary workspace mutation
+```
+
+Default foundation paths use **scripted/heuristic proposals** and **local sandbox simulation**. They are not a production multi-provider coding agent.
+
+## What this is / is not
+
+| Is | Is not |
+| --- | --- |
+| Tested foundation orchestrator (Phases 2–13) | Live LLM auto-repair in production |
+| Fail-closed policy + finite retry + escalation packages | Proof that APPROVE applies patches to your main tree |
+| Golden synthetic benchmarks + baseline CI gate | Measured fleet SLOs / E5 production evidence |
+| Local durable run artifacts + sample evidence | Cryptographic tamper-proof foundation audit |
+| Adjacent diagnosis / trust / release-predicate libraries | One unified ingest→PRODUCTION_SUCCESS product CLI |
+
+## System model (canonical: foundation)
+
+```text
+FailureEvent
+  → context (sanitized)
+  → classify → plan → tools → proposal
+  → sandbox (temp copy; stub/schedule verification allowed)
+  → evaluate (fail-closed without target verification)
+  → retry budget (finite; fingerprint / no-progress stops)
+  → policy gate (APPROVE | REJECT | ESCALATE; default ≠ APPROVE)
+  → escalate package (local artifacts; no auto-decide)
+  → durable state + append-oriented audit (when artifacts_root set)
+  → metrics / SLI / SLO rebuild (observability never authorizes)
+```
+
+**Policy APPROVE does not apply the patch to the primary workspace.**
+
+Parallel stacks (governed, trust gateway, diagnosis, release predicates) exist as **adjacent libraries**. Portfolio claims should center on `ci_failure_orchestrator/foundation/`. See [control-authority-map.md](control-authority-map.md).
+
+## Sample runs
+
+Committed sample runs (synthetic, E4-simulated — **not E5**):
+
+| Sample | Outcome | Verify |
+| --- | --- | --- |
+| `evidence/sample-runs/01-approve` | APPROVE | `ci-orchestrator foundation-verify sample-approve --artifacts evidence/sample-runs/01-approve` |
+| `evidence/sample-runs/02-reject` | REJECT | `ci-orchestrator foundation-verify sample-reject --artifacts evidence/sample-runs/02-reject` |
+| `evidence/sample-runs/03-escalate` | ESCALATE → AWAITING_HUMAN | `ci-orchestrator foundation-verify sample-escalate --artifacts evidence/sample-runs/03-escalate` |
+| `evidence/sample-runs/04-human-approve` | ESCALATE → human APPROVE (no primary apply) | `ci-orchestrator foundation-verify sample-human-approve --artifacts evidence/sample-runs/04-human-approve` |
+
+Manifest: [evidence/manifest.json](../evidence/manifest.json) · How-to: [evidence/README.md](../evidence/README.md)
+
+Regenerate:
+
+```bash
+python scripts/generate_sample_evidence.py
+```
+
+## Install for development
+
+Requirements: **Python 3.10+**.
+
+```bash
+python -m venv .venv
+# Windows: .\.venv\Scripts\Activate.ps1
+# macOS/Linux: source .venv/bin/activate
+pip install -e ".[dev]"
+ci-orchestrator --help
+```
+
+### CI Doctor demo (offline, about 30 seconds)
+
+Six failures, each in its own throwaway git repository with the CI log it produced:
+dependency drift, flaky test, network failure, timeout, configuration error and environment
+mismatch. For each one the demo prints failure → diagnosis → proposal → verification →
+policy decision → audit evidence. The proposal is a recorded patch (no model is called), it
+is verified in a disposable worktree, and the policy engine decides. No network or token is
+needed; nothing is written outside the work directory.
+
+```bash
+actions-doctor demo --list
+actions-doctor demo dependency-drift       # one scenario
+actions-doctor demo --all                  # all six, with a summary table
+```
+
+| Scenario | Diagnosis | Decision | Why |
+| --- | --- | --- | --- |
+| `dependency-drift` | `dependency_failure` | awaiting human | POL-014 dependency failure, POL-007 `requirements.txt` changed |
+| `flaky-test` | `flaky_failure` | awaiting human | verified over 30 seeds, but the fix changes the test's assertion (POL-019), so a person confirms the old expectation was wrong |
+| `network-failure` | `network_failure` | awaiting human | the reproduction itself fails on the network, so no patch is requested |
+| `timeout` | `timeout_failure` | awaiting human | POL-014: a passing patch cannot show whether the hang or the runner was the cause |
+| `configuration-error` | `configuration_failure` | awaiting human | configuration files are not auto-approved (POL-006) |
+| `environment-mismatch` | `environment_failure` | awaiting human | POL-014, and the fix changes a CI workflow (POL-004) |
+
+The saved logs can be diagnosed on their own, for example
+`actions-doctor analyze --log <work dir>/timeout/ci-job.log --job test --step "Run tests"`.
+Approval only means `fix-repo-apply` may open a draft pull request; nothing merges.
+
+### GitHub Action (diagnosis in the job summary)
+
+Add this workflow to a repository. When the workflow named `ci` fails, CI Doctor reads the
+failed jobs' logs and writes the diagnosis to the job summary. It only reads Actions data and
+never checks out or runs the failed code, so it is safe for pull requests from forks.
+
+```yaml
+name: CI Doctor
+on:
+  workflow_run:
+    workflows: [ci]          # the name of your CI workflow
+    types: [completed]
+permissions:
+  actions: read
+  contents: read
+jobs:
+  diagnose:
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Kozphy/ci-failure-orchestrator@main   # pin to a release tag once one exists
+```
+
+Outputs: `failure-class` (for example `test_failure`, or `none` when no job failed) and
+`diagnosis-file` (path to `diagnosis.json`). Inputs: `run-id`, `repository`, `github-token`,
+`python-version`, all with defaults. `workflow_run` only fires for workflow files on the default
+branch. This repository runs the action on its own failures with
+[`.github/workflows/ci-doctor.yml`](../.github/workflows/ci-doctor.yml).
+
+### Foundation benchmark
+
+```bash
+ci-orchestrator foundation-run \
+  --fixture benchmarks/cases/01_unit_test_failure.json \
+  --artifacts artifacts
+
+ci-orchestrator foundation-benchmark --required-only --compare-baseline
+```
+
+### Fix another repository (`fix-repo`)
+
+`fix-repo` takes a real patch for a local checkout of another git repo and runs it through the foundation:
+
+1. It runs your `--verify` commands in a disposable worktree at `--base-ref`. They must fail there, otherwise the result is `NO_FAILURE` and nothing is proposed.
+2. It gets a patch from `--patch-file` or from `--provider-cmd`, a CLI that reads the prompt on stdin and prints a fenced diff block.
+3. It applies the patch in a fresh worktree and reruns the verify commands. The foundation's evaluation, finite retry, policy and escalation then decide the outcome. The provider sees the previous failure on retry.
+4. The target repo is not modified. On `APPROVED`, `fix-repo-apply` creates a new branch and commit through a temporary index, leaving your working tree, index and current branch alone. It can optionally push and open a PR.
+
+```bash
+# Verify a patch you already have
+ci-orchestrator fix-repo --repo-path ../my-service \
+  --verify "python -m pytest tests/test_calc.py -q" \
+  --patch-file fix.patch
+
+# Let an LLM CLI propose patches, seeded with the failing GitHub Actions run
+ci-orchestrator fix-repo --repo-path ../my-service \
+  --github-repo me/my-service --github-run-id 123456789 \
+  --verify "python -m pytest tests/test_calc.py -q" \
+  --provider-cmd "claude -p" --provider-env ANTHROPIC_API_KEY
+
+# Check what apply would do, then apply (auth/CI/dependency changes escalate: use foundation-decide first)
+ci-orchestrator fix-repo-apply <run_id> --dry-run
+ci-orchestrator fix-repo-apply <run_id> --push --open-pr
+```
+
+Exit codes for `fix-repo` are 0 for `APPROVED` or `NO_FAILURE`, 3 for `AWAITING_HUMAN`, and 2 otherwise. For `fix-repo-apply` they are 0 when the branch is created (or a dry run passes) and 1 when it is blocked or only partly done; every result lists `rollback` commands. `--max-attempts` accepts 1 to 10. The provider CLI runs in an empty temp directory with an environment allowlist and gets the prompt on stdin. Any tool permissions of that CLI are yours to restrict.
+
+### Verified repairs: green CI is not enough
+
+> A green pipeline is necessary evidence, but it is not sufficient evidence of a correct repair.
+
+Deleting the failing test, skipping it, or lowering a coverage threshold also turns CI green. So every `fix-repo` run ends with a `remediation_state`, decided by one deterministic function (`foundation/remediation.py: decide_remediation`), never by a model:
+
+Reproduce → Repair → Targeted Validation → Regression Testing → Quality/Security Validation → Policy Gate → Real CI Verification → `VERIFIED_FIXED`
+
+- **CI_GREEN**: configured CI checks passed.
+- **VERIFIED_FIXED**: the original failure was reproduced and resolved, regression checks passed, verification controls were preserved, policy checks passed, and the real CI environment confirmed the repair.
+
+Other final states: `POLICY_REJECTED` (tests deleted, skipped, renamed out of discovery or weakened; coverage or quality gates lowered; CI steps removed), `NOT_FIXED` (the original failure is still there, or a different error replaced it), `REGRESSION_DETECTED` (a test or gate that passed before the patch fails after it), `HUMAN_REVIEW_REQUIRED` (high-risk diff such as auth, payments, migrations or secrets; policy escalation; or real CI failed), `CI_GREEN_BUT_UNVERIFIED` (real CI passed but some evidence is missing), and `POLICY_APPROVED` (local evidence is in, real CI has not reported yet). Evidence that was not collected never counts as a pass.
+
+```bash
+# Local evidence: exact rerun of the failing tests, regression suite and quality gates before vs after the patch
+ci-orchestrator fix-repo --repo-path ../my-service --verify "python -m pytest tests/test_calc.py -q" \
+  --patch-file fix.patch --verification-config verify.yml
+# Real CI: after fix-repo-apply --push, read the CI result for that commit
+ci-orchestrator fix-repo-verify-ci <run_id> --repository me/my-service --wait 900
+# Evidence report for one repair, and repair metrics across runs
+ci-orchestrator fix-repo-report <run_id>
+ci-orchestrator fix-repo-metrics
+```
+
+```yaml
+# verify.yml: commands come from you, never from the patch
+regression: python -m pytest -q --cov=src --cov-report=term
+lint: ruff check .
+typecheck: mypy src
+security: bandit -q -r src
+invariants:
+  - name: health endpoint
+    command: python -m pytest tests/test_health.py -q
+waive:
+  build: pure Python package, nothing to build   # only unconfigured gates can be waived, each with a reason
+```
+
+`fix-repo-apply` refuses runs whose state is `POLICY_REJECTED`, `REGRESSION_DETECTED` or `NOT_FIXED`. Nothing is ever merged: `LOW` risk may be marked verified automatically, `MEDIUM` needs human approval before merge, and `HIGH` needs human review. The GitHub Actions adapter is tested against recorded API responses, not the live API.
+
+### CI reliability audit (read-only)
+
+`ci-audit-collect` pulls runs, jobs (every attempt) and failed-job logs from the GitHub Actions REST API. It only reads. The export keeps one scrubbed line per failure, never full logs or secrets. `ci-audit-report` turns the export into a Markdown report with 13 sections: executive summary, inventory, failure taxonomy, bottlenecks, flaky indicators, retries, cost and waste, risk ranking, evidence, fixes, quick wins, a 30-day roadmap, and method and limitations.
+
+```bash
+# Token: --token, GITHUB_TOKEN or GH_TOKEN. Needs read access to Actions (public repos work without one, rate-limited).
+ci-orchestrator ci-audit-collect --repo owner/name --days 30 --output ci-audit-export.json
+ci-orchestrator ci-audit-report ci-audit-export.json --output ci-audit-report.md --json ci-audit-analysis.json
+```
+
+Minutes are estimates from job timestamps (rounded up per job; Windows 2x, macOS 10x), not billing data. Failure categories come from the foundation's regex classifier. Findings only fire above minimum sample sizes, and the report marks sections a reviewer must confirm before delivery.
+
+### Diagnosis (example fixtures)
+
+```bash
+ci-orchestrator analyze \
+  --jobs examples/github_jobs.json \
+  --logs examples/github_logs.json
+```
+
+### Governed simulation (dry-run character)
+
+```bash
+ci-orchestrator run --fixture benchmarks/cases/01_unit_test_failure.json
+ci-orchestrator benchmark --cases benchmarks/cases
+```
+
+## Reproduce evaluation
+
+```bash
+pytest tests/test_foundation_phases_2_6.py \
+  tests/test_foundation_phase_7_retry.py \
+  tests/test_foundation_phase_8_policy.py \
+  tests/test_foundation_phase_9_escalation.py \
+  tests/test_foundation_phase_10_persistence.py \
+  tests/test_foundation_phase_12_benchmark.py \
+  tests/test_foundation_phase_13_observability.py -q
+
+ci-orchestrator foundation-benchmark --required-only --compare-baseline
+```
+
+Synthetic benchmarks demonstrate governance behavior. Targets in `config/slo.json` are **EXAMPLE_TARGET / provisional**, not production SLOs.
+
+## Engineering invariants (foundation)
+
+1. Illegal state transitions raise.
+2. Retry budget is finite; identical proposal / no-progress / security boundary stop retries.
+3. Policy default cannot be APPROVE; engine errors → ESCALATE.
+4. Evaluation PASS is technical only; policy is a separate decision.
+5. Observability metrics never authorize orchestration decisions.
+6. Escalation builds a review package and stops; it does not auto-approve.
+7. Human `foundation-decide APPROVE` records durable approval but **still does not** mutate the primary workspace.
+8. `fix-repo` never writes the target repo. `fix-repo-apply` is the only writer: it requires `APPROVED`, checks the verified patch hash, refuses repairs verified as rejected, regressing or not fixed, commits to a new branch, and records audit events.
+9. A successful CI run is never treated as a correct fix on its own. `VERIFIED_FIXED` requires reproduction, targeted and regression evidence, preserved quality gates, policy approval and a real CI pass.
+
+## Reliability & governance (honest scope)
+
+- **Reliability model:** finite retries + fail-closed evaluation + local audit reconstruction.
+- **Governance controls:** path/category policy rules, forbidden-path reject, auth/CI escalation, human package for ESCALATE. Full list: [SAFETY_CONTROLS.md](SAFETY_CONTROLS.md).
+- **Residual risk:** stubbed sandbox verification, scripted proposals, no reviewer notification channel, no E5 production proof.
+
+## Documentation map
+
+| Doc | Purpose |
+| --- | --- |
+| [repository-audit.md](repository-audit.md) | Implementation truth, maturity, credibility gaps |
+| [control-authority-map.md](control-authority-map.md) | Which stack owns policy, execution, audit, success terms |
+| [architecture/current-state.md](architecture/current-state.md) | What exists today |
+| [architecture/agent-execution-foundation.md](architecture/agent-execution-foundation.md) | Foundation design |
+| [adr/](adr/) | ADRs 0001–0007 |
+| [operations/sli-slo.md](operations/sli-slo.md) | Provisional SLI/SLO |
+| [security/threat-model.md](security/threat-model.md) | Threat model |
+
+Adjacent / aspirational modules (tournaments, fleet, canary, REPAIR/RELEASE/PRODUCTION predicates, hash-chained `audit.py`) are documented under deeper `docs/` paths. Treat them as **library capabilities**, not the default executable product path, unless you compose them yourself.
+
+## Limitations
+
+- `foundation-run` proposals are heuristic or scripted. Real proposals come only from `fix-repo` (a patch file or one provider CLI), and they are only as good as the provider and your `--verify` commands.
+- Sandbox may use scheduled/stub target verification in benches.
+- Human escalation is a **local artifact package** plus optional `foundation-decide`; not a notification/approval workflow channel.
+- Foundation durable audit is **append-oriented**, not cryptographically tamper-proof.
+- No production deployment evidence in this repository.
+
+## Research question (working)
+
+Does policy-gated orchestration with a finite retry budget reduce unsafe auto-approvals relative to an ungated / unlimited-retry baseline on the golden synthetic failure suite?

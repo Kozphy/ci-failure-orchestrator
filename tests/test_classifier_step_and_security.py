@@ -99,6 +99,43 @@ def test_scanner_success_lines_are_not_security_findings():
     assert _category("test", "pytest", "AssertionError", log) == "test_failure"
 
 
+RAW_PYTEST_Q_LOG = (
+    "..F.                                                                     [100%]\n"
+    "=================================== FAILURES ===================================\n"
+    "____________________ test_is_newer_handles_double_digit_minor ___________________\n"
+    "E       AssertionError: assert False\n"
+    "=========================== short test summary info ============================\n"
+    "FAILED tests/test_versions.py::test_is_newer_handles_double_digit_minor - Ass...\n"
+    "1 failed, 3 passed in 0.05s\n"
+)
+
+
+def test_raw_pytest_q_log_without_step_names_is_a_test_failure():
+    # ``fix-repo --log-file`` knows neither the job nor the step, and ``-q`` prints no banner.
+    classification = FailureClassifier().classify(
+        _event("ci", "unknown", "FAILED tests/test_versions.py::test_x - Ass...", RAW_PYTEST_Q_LOG)
+    )
+
+    assert classification.category == "test_failure"
+    assert classification.confidence >= 0.6
+
+
+@pytest.mark.parametrize(
+    "log",
+    [
+        "FAILED to fetch index\nerror: process failed\n",
+        "build step failed after 3 attempts\n",
+    ],
+)
+def test_logs_merely_saying_failed_stay_unknown(log):
+    assert _category("ci", "unknown", "process failed", log) == "unknown"
+
+
+def test_raw_pytest_log_with_a_missing_module_stays_a_dependency_failure():
+    log = RAW_PYTEST_Q_LOG.replace("AssertionError: assert False", "ModuleNotFoundError: No module named 'requests'")
+    assert _category("ci", "unknown", "FAILED tests/test_a.py::test_x", log) == "dependency_failure"
+
+
 def test_security_scan_failure_escalates_even_when_the_patch_passes():
     proposal = RepairProposal(
         proposal_id="p",

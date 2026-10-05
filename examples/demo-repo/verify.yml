@@ -1,0 +1,13 @@
+# What "safe to merge" means for this repository. Every command runs before and after the
+# patch in a disposable worktree; a check that was green before and red after is a regression.
+regression:
+  - python -m pytest -q -p no:cacheprovider
+build:
+  - python -m compileall -q releasekit
+invariants:
+  - name: newest release wins
+    command: python -c "from releasekit.versions import latest; assert latest(['1.9.0', '1.10.0']) == '1.10.0'"
+affected_tests:
+  releasekit/versions.py:
+    - tests/test_versions.py
+    - tests/test_next_release.py

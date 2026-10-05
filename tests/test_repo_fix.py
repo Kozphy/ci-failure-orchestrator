@@ -87,6 +87,30 @@ def test_extract_patch_unfenced_trims_trailing_prose() -> None:
     assert extract_patch("no diff here") == ""
 
 
+BLANK_TAIL_PATCH = (
+    "--- a/calc.py\n"
+    "+++ b/calc.py\n"
+    "@@ -1,3 +1,3 @@\n"
+    " def add(a, b):\n"
+    "-    return a - b\n"
+    "+    return a + b\n"
+    " \n"
+)
+
+
+def test_extract_patch_keeps_a_trailing_blank_context_line() -> None:
+    assert extract_patch(BLANK_TAIL_PATCH) == BLANK_TAIL_PATCH
+    # Editors strip the lone space; the hunk header still counts the line.
+    assert extract_patch(BLANK_TAIL_PATCH[:-2] + "\n") == BLANK_TAIL_PATCH
+    assert extract_patch(BLANK_TAIL_PATCH + "\n\n\nRationale: wrong operator\n") == BLANK_TAIL_PATCH
+
+
+def test_patch_ending_in_blank_context_line_is_verified(tmp_path: Path) -> None:
+    repo = _make_repo(tmp_path, {"calc.py": BUGGY + "\n"})
+    outcome = run_fix_repo(_config(repo, tmp_path, patch_file=_write_patch(tmp_path, BLANK_TAIL_PATCH)))
+    assert outcome["technical_status"] == "PASS", outcome.get("feedback")
+
+
 def test_parse_patch_files_handles_new_deleted_and_hunk_dashes() -> None:
     patch = (
         "diff --git a/src/a.py b/src/a.py\n--- a/src/a.py\n+++ b/src/a.py\n@@ -1,2 +1,1 @@\n"
