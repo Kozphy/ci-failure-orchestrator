@@ -1,0 +1,94 @@
+ci_failure_orchestrator/github_client.py
+  s_1bcc52f66974c2::t_461079da94c07b 113,122
+  s_b89a337722f534::t_59b8e86be4fa8a 144
+  s_b89a337722f534::t_5b4fb3c7daab56 99,104
+ci_failure_orchestrator/patch_sandbox.py
+  s_b89a337722f534::t_16d11124e528ab 162-169
+  s_b89a337722f534::t_ad7b72c111b954 19-20,29,35-36
+pyproject.toml
+  s_dd5ec07e8f478a::t_ebedfde622d4f0 33-43
+ci_failure_orchestrator/cli.py
+  s_b89a337722f534::t_f3fa16d93309e4 200
+  s_b89a337722f534::t_7d756cd44379ab 108
+  s_b89a337722f534::t_2d9014fea0408d 538
+  s_b89a337722f534::t_f873fba1f92183 554
+  s_b89a337722f534::t_2414a5993f7abe 594
+  s_b89a337722f534::t_df30f534c3edf9 392
+  s_b89a337722f534::t_dd7ccbc68af02d 515
+  s_b89a337722f534::t_c480552919d483 100
+  s_b89a337722f534::t_79de00eb25d6ee 207
+  s_b89a337722f534::t_415380c4d59c48 570
+  s_b89a337722f534::t_0fb3d3870f4352 219
+  s_b89a337722f534::t_62bca244292033 619
+  s_b89a337722f534::t_174458e9437681 401
+  s_b89a337722f534::t_7a9038f88c526e 544
+  s_b89a337722f534::t_3a6feb1f0ae8d3 89
+  s_b89a337722f534::t_2a1b9f4bbd65f7 466
+  s_b89a337722f534::t_1548ed14aa2efa 924
+  s_b89a337722f534::t_9a023ba8240d6d 115
+  s_b89a337722f534::t_dafd1f4fa001bd 383
+  s_b89a337722f534::t_8c6d5772800a53 418
+  s_b89a337722f534::t_485f37813aaf10 82
+  s_4d92d048379386::t_f45e37ae66852d 449
+ci_failure_orchestrator/classifier.py
+  s_dd5ec07e8f478a::t_2440d149874217 21
+ci_failure_orchestrator/provider_adapters.py
+  s_b89a337722f534::t_2615e38be70f85 28-29,37-41
+  s_b89a337722f534::t_407d2cff52dcc0 71-74
+  s_b89a337722f534::t_d7f443d88eacdd 15-16
+  s_b89a337722f534::t_439e4511eb4775 141-145,152
+ci_failure_orchestrator/module_status.py
+  s_b89a337722f534::t_ed82041b370fa0 165
+  s_b89a337722f534::t_12634e59450c03 173
+tests/test_module_boundaries.py
+  s_dd5ec07e8f478a::t_ec2f5844be6d27 6
+  s_dd5ec07e8f478a::t_43d429002002e1 116-121
+  s_dd5ec07e8f478a::t_f37c396ee70728 122-123
+.github/workflows/ci.yml
+  s_dd5ec07e8f478a::t_45c61d24152631 32-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d8dc4260beb5fe8e41ea376c644431b82c14255c",
+  "prompts": {},
+  "humans": {
+    "h_1d8a7f1e671f32": {
+      "author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_1bcc52f66974c2": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f80a912e-6f57-4055-8d43-4e57c2323dbe",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_4d92d048379386": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "8e28024d-6a14-476e-9d17-05cb32fe0ddd",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_b89a337722f534": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "592c2803-ab3e-40ed-baab-955daa1d2e7c",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
