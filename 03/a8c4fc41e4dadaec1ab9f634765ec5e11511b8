@@ -1,0 +1,175 @@
+ci_failure_orchestrator/foundation/runner.py
+  s_dd5ec07e8f478a::t_d38a50b5200677 205
+examples/demo-repo/project/.github/workflows/ci.yml
+  s_dd5ec07e8f478a::t_18013b67711433 1-21
+examples/demo-repo/README.md
+  s_dd5ec07e8f478a::t_1583d1b6bb398c 1-45
+tests/test_safety_controls.py
+  s_dd5ec07e8f478a::t_5ed1b9d4dda4fd 11
+  s_dd5ec07e8f478a::t_d06fec54576ecb 13
+  s_dd5ec07e8f478a::t_56d39cca180d12 1-10,12,14-143,145,150,152-160
+  s_dd5ec07e8f478a::t_42b3339161e072 144,146-149,151
+ci_failure_orchestrator/cli.py
+  s_dd5ec07e8f478a::t_bafacfbbe3aac4 32
+  s_dd5ec07e8f478a::t_50040440a495c4 543-546
+  s_dd5ec07e8f478a::t_1c780147160db7 574,577-589
+  s_dd5ec07e8f478a::t_7cc15b9391ff9f 38
+  s_dd5ec07e8f478a::t_d150132712204c 41,45
+  s_dd5ec07e8f478a::t_5ffeefaecb40e4 905-913
+  s_dd5ec07e8f478a::t_a22912110540c5 931-933
+  s_dd5ec07e8f478a::t_6ccadf322ae308 561,571,573,576
+examples/demo-repo/run_demo.py
+  s_dd5ec07e8f478a::t_3d3432b3ade0cb 154
+  s_dd5ec07e8f478a::t_4615909a07ef02 82-90
+  s_dd5ec07e8f478a::t_b1b101c851d611 145
+  s_dd5ec07e8f478a::t_966e38b13dcd18 1-50,53-72,91-114,118-125,127-144,146-153,155-208
+  s_dd5ec07e8f478a::t_b7f12563bbc19f 73-81
+  s_dd5ec07e8f478a::t_b8024e60644837 51-52
+  s_dd5ec07e8f478a::t_2ed630fddb3c14 115-117
+  s_dd5ec07e8f478a::t_817c62b8621b2a 126
+docs/ENGINEERING.md
+  s_dd5ec07e8f478a::t_52aa5128c7ba70 1-300
+ci_failure_orchestrator/doctor/cli.py
+  s_dd5ec07e8f478a::t_e4667476606032 132-133
+ci_failure_orchestrator/service/apply.py
+  s_dd5ec07e8f478a::t_8190c261f03d5c 321,323-332,336
+  s_dd5ec07e8f478a::t_f575fafb3c4387 41,50-51,275
+  s_dd5ec07e8f478a::t_0145575b18c24f 88-100
+  s_dd5ec07e8f478a::t_0ad57f5a591fb2 269,271-274,277-290,300,305-306,308
+  s_dd5ec07e8f478a::t_9d1b0e20df6474 195,198,204-218
+  s_dd5ec07e8f478a::t_a5133ef85f9f12 111,116-118
+ci_failure_orchestrator/service/verification.py
+  s_dd5ec07e8f478a::t_f7b09d7345312f 52
+  s_dd5ec07e8f478a::t_8ae39160b31850 695
+  s_dd5ec07e8f478a::t_b55136309fbe52 749
+examples/demo-repo/verify.yml
+  s_dd5ec07e8f478a::t_785d32fe9c0c93 1-13
+tests/test_doctor.py
+  s_dd5ec07e8f478a::t_cee4fb2f1e1886 259-270
+ci_failure_orchestrator/service/__init__.py
+  s_dd5ec07e8f478a::t_740b5706222268 86
+  s_dd5ec07e8f478a::t_19f013b584d55b 92
+  s_dd5ec07e8f478a::t_09768b1f953d0b 71
+  s_dd5ec07e8f478a::t_4faa5e87764040 72
+  s_dd5ec07e8f478a::t_2a3af17cf91a54 21
+  s_dd5ec07e8f478a::t_335761fe398a98 13-14
+  s_dd5ec07e8f478a::t_fef502b298eea8 80
+  s_dd5ec07e8f478a::t_6e1448311e062b 34-39
+ci_failure_orchestrator/service/common.py
+  s_dd5ec07e8f478a::t_99a8977b11c73e 96-114
+examples/demo-repo/project/.gitignore
+  s_dd5ec07e8f478a::t_da2d5c88929761 1-2
+tests/test_operational_metrics.py
+  s_dd5ec07e8f478a::t_9ff5b6ce8f8d6e 1-62
+docs/COMMERCIAL_ARCHITECTURE.md
+  s_dd5ec07e8f478a::t_00507c7d96548e 1-86,91-110
+  s_dd5ec07e8f478a::t_2a009457235553 87-90
+ci_failure_orchestrator/service/evidence_report.py
+  s_dd5ec07e8f478a::t_778eab83abcc37 299-302
+  s_dd5ec07e8f478a::t_989e5f17edb482 311-314
+  s_dd5ec07e8f478a::t_ced41884f04d83 281
+  s_dd5ec07e8f478a::t_85ebc0a953c068 320-323
+  s_dd5ec07e8f478a::t_ccd2530a868e5c 12
+  s_dd5ec07e8f478a::t_042a68a3fb554d 112-120
+  s_dd5ec07e8f478a::t_ec89a6536203f5 238
+  s_dd5ec07e8f478a::t_a2df803fb4cb28 1-11,13-23,26-48,54-55,58,77-111,121-237,239-278,284-285,290-298,303-309,315-319,324-329,331-335,337-353
+  s_dd5ec07e8f478a::t_35c639840ef09c 49-53,56-57,59-76
+  s_dd5ec07e8f478a::t_ecd7b3a9bf24eb 283,330,336
+  s_dd5ec07e8f478a::t_ef7f7a7dfe8705 279-280,282
+  s_dd5ec07e8f478a::t_8cbd3e8bf051f4 310
+  s_dd5ec07e8f478a::t_b1b528d17db97e 286-289
+  s_dd5ec07e8f478a::t_8cf7b87693c132 24-25
+README.md
+  s_dd5ec07e8f478a::t_85cd61abc65706 3,6,8,10-13,15-17,25-41,44-52,55-57,59,61,63,65-73,75-76,78,84-85,88-89,92,95-96,98,103-105,107-109,112-115,117,119-120,122-128,130-132,147,149-151,153-157,159,161-188,190,192-203,205,207,209-213,215,217,219-223,225-227,229,231-233
+  s_dd5ec07e8f478a::t_7e2947ee20bd33 80-81
+  s_dd5ec07e8f478a::t_435415c4206b44 160
+  s_dd5ec07e8f478a::t_28feaf365814b1 152
+  s_dd5ec07e8f478a::t_a6cfef98da5806 134,136-145
+  s_dd5ec07e8f478a::t_0fcfb1f341ab6f 158
+  s_dd5ec07e8f478a::t_2156d9604577b5 19-21
+ci_failure_orchestrator/service/run.py
+  s_dd5ec07e8f478a::t_85f57112de4f68 185-186
+  s_dd5ec07e8f478a::t_b9b5ff5bffb6f1 43-46
+  s_dd5ec07e8f478a::t_fdfebdd775e058 262
+examples/demo-repo/.gitattributes
+  s_dd5ec07e8f478a::t_9e98680c5a5b17 1-2
+examples/demo-repo/project/tests/test_next_release.py
+  s_dd5ec07e8f478a::t_ac530a8a6d972c 1-16
+examples/demo-repo/fix.diff
+  s_dd5ec07e8f478a::t_dc96ad847b54d7 1-8
+tests/test_classifier_step_and_security.py
+  s_dd5ec07e8f478a::t_54c74feb7c9791 102-138
+examples/demo-repo/project/releasekit/versions.py
+  s_dd5ec07e8f478a::t_09f75d1ffabd7f 1-33
+tests/test_demo_repo.py
+  s_dd5ec07e8f478a::t_f1b9e18fbd408f 1-31
+examples/demo-repo/project/releasekit/__init__.py
+  s_dd5ec07e8f478a::t_446354634cd45a 1
+examples/demo-repo/project/tests/test_versions.py
+  s_dd5ec07e8f478a::t_e284b632a91171 1-18
+ci_failure_orchestrator/foundation/classifier.py
+  s_dd5ec07e8f478a::t_402a00795140c5 141
+  s_dd5ec07e8f478a::t_e3f6d17e85136b 125-128
+ci_failure_orchestrator/service/remediation_metrics.py
+  s_dd5ec07e8f478a::t_c50c75f8e0d8b0 41-124
+  s_dd5ec07e8f478a::t_7fc7b3e54e0e8e 165
+docs/SAFETY_CONTROLS.md
+  s_dd5ec07e8f478a::t_7695e9933c33ed 1-64
+ci_failure_orchestrator/module_status.py
+  s_dd5ec07e8f478a::t_257c2151c3f989 135
+docs/ICP.md
+  s_1bcc52f66974c2::t_c7ba2fde3cd26d 1-2,4-102
+  s_dd5ec07e8f478a::t_5b71113f5b30ff 3
+CHANGELOG.md
+  s_dd5ec07e8f478a::t_6eac66b0461451 28
+  s_dd5ec07e8f478a::t_baf924a6352316 9-27,29
+tests/test_evidence_report.py
+  s_dd5ec07e8f478a::t_b3565e992452ef 22-26
+  s_dd5ec07e8f478a::t_dd270f540a4cc3 8
+  s_dd5ec07e8f478a::t_6e43ae6e47e405 103-117
+  s_dd5ec07e8f478a::t_7734300e3271b4 1-7,9-21,27-63,65-102,118-135
+  s_dd5ec07e8f478a::t_631ad3eff608fd 64
+PROJECT_SPEC.md
+  h_1d8a7f1e671f32 1-1079
+tests/test_repo_fix.py
+  s_dd5ec07e8f478a::t_686dc0a6d4de81 90-113
+docs/COMMERCIALIZATION_PLAN.md
+  s_dd5ec07e8f478a::t_4020d1fcb34008 194
+  s_dd5ec07e8f478a::t_ded988d4ca698d 1-135,138-193,195-213
+  s_dd5ec07e8f478a::t_d65f4489e2483e 136-137
+docs/productization-audit.md
+  s_dd5ec07e8f478a::t_c1b8be070f78e9 188-192
+  s_dd5ec07e8f478a::t_d50284a577000d 12-86,88-129
+  s_dd5ec07e8f478a::t_659c8041f487da 87
+ci_failure_orchestrator/service/patches.py
+  s_dd5ec07e8f478a::t_cc468c47299aec 32,55-73,78-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "03a8c4fc41e4dadaec1ab9f634765ec5e11511b8",
+  "prompts": {},
+  "humans": {
+    "h_1d8a7f1e671f32": {
+      "author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_1bcc52f66974c2": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f80a912e-6f57-4055-8d43-4e57c2323dbe",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
