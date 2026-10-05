@@ -1,0 +1,60 @@
+ci_failure_orchestrator/doctor/render.py
+  s_b89a337722f534::t_114f596ad7f5d8 65
+ci_failure_orchestrator/doctor/diagnose.py
+  s_b89a337722f534::t_51633f3d0f2eaa 68,70-72,74-80,85-86
+  s_b89a337722f534::t_ebe568a990ec14 115-116
+  s_b89a337722f534::t_4e07ff480afff5 134
+  s_b89a337722f534::t_7e63891868d607 106-107
+ci_failure_orchestrator/ci_audit/analyze.py
+  s_b89a337722f534::t_421edb53abd893 33
+  s_b89a337722f534::t_792217d944a6b9 201-205
+ci_failure_orchestrator/doctor/action.py
+  s_dd5ec07e8f478a::t_3ffd7ba510a00e 43
+  s_b89a337722f534::t_993e1d4c08a555 50-54
+  s_b89a337722f534::t_7aa1aaa7213e79 38
+ci_failure_orchestrator/doctor/cli.py
+  s_b89a337722f534::t_5d304218cf09ff 90
+  s_b89a337722f534::t_6744d5064d3c2f 52
+  s_b89a337722f534::t_56250af3ecd05d 166
+  s_b89a337722f534::t_50dbb6177c1916 27-34
+  s_b89a337722f534::t_7cabc69d488149 121
+ci_failure_orchestrator/doctor/demo.py
+  s_b89a337722f534::t_0200b218026afd 47-48
+ci_failure_orchestrator/ci_audit/report.py
+  s_b89a337722f534::t_16fbc98cf1c608 29
+ci_failure_orchestrator/doctor/scenarios.py
+  s_b89a337722f534::t_658555e854f371 17-18
+ci_failure_orchestrator/ci_audit/collect.py
+  s_b89a337722f534::t_05c4f10b2f707f 115
+  s_b89a337722f534::t_0c2bf874beaba4 67,69-71,73-79,83
+  s_b89a337722f534::t_cddaf1435757f1 169
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9b52f0cad132b963dc260dcff969b38570170839",
+  "prompts": {},
+  "humans": {
+    "h_1d8a7f1e671f32": {
+      "author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_b89a337722f534": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "592c2803-ab3e-40ed-baab-955daa1d2e7c",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
