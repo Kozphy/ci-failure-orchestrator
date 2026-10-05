@@ -1,0 +1,99 @@
+ci_failure_orchestrator/server/db.py
+  s_be7467d8494cb0::t_e83d6fae3e2478 1-147
+tests/test_durable_store_contract.py
+  s_be7467d8494cb0::t_4c9d37f8a5aec4 1-193
+tests/test_server_worker.py
+  s_be7467d8494cb0::t_2b9e4963972e95 1-221
+Dockerfile
+  s_be7467d8494cb0::t_8d3b13c26de874 9-10
+  s_be7467d8494cb0::t_c5a192c4fa271c 13-17,19
+  s_be7467d8494cb0::t_5905afb383c9b2 1-8,11-12,18,20-32
+docs/module-status.md
+  s_be7467d8494cb0::t_40b6306ec70d31 16
+ci_failure_orchestrator/foundation/persistence.py
+  s_be7467d8494cb0::t_94ffc3f4fc932b 85-89,97-99,102-106
+ci_failure_orchestrator/server/__init__.py
+  s_be7467d8494cb0::t_272f13972de1f0 1-6
+ci_failure_orchestrator/server/sql_store.py
+  s_be7467d8494cb0::t_c29688e0dff42e 1-308
+ci_failure_orchestrator/server/logs.py
+  s_be7467d8494cb0::t_c14d670a6d1cfc 47,53
+  s_be7467d8494cb0::t_0050bdbe7fd48c 1-46,48-52,54-57
+  s_be7467d8494cb0::t_99549174f31b32 58-63
+ci_failure_orchestrator/server/jobs.py
+  s_be7467d8494cb0::t_823c15e4e27ec2 173
+  s_be7467d8494cb0::t_12ab71f8ea479f 1-66,68-172,174-308
+  s_be7467d8494cb0::t_4df796e49cf173 67
+ci_failure_orchestrator/server/app.py
+  s_be7467d8494cb0::t_0ed71b0253c561 153
+  s_be7467d8494cb0::t_a0c75d3ecd7cab 323
+  s_be7467d8494cb0::t_544283c37b801b 1-33,35-152,154-322,324-380
+  s_be7467d8494cb0::t_08534a8cc25fa4 34
+pyproject.toml
+  s_be7467d8494cb0::t_c83ca3f322e439 49
+  s_be7467d8494cb0::t_65a9e22af1935c 14,17-23
+tests/test_server_api.py
+  s_be7467d8494cb0::t_e2a58cfd4eed5b 1-4,7-17,19-53,61,64-75,77-149,173-238
+  s_be7467d8494cb0::t_c2425497d80f14 18
+  s_be7467d8494cb0::t_be8ebf9250534f 5-6
+  s_be7467d8494cb0::t_622ff7ea100370 54-60,62-63
+  s_be7467d8494cb0::t_b1f41f2ddbe03d 76
+  s_be7467d8494cb0::t_a8e2dbca43bd6a 150-172
+ci_failure_orchestrator/server/settings.py
+  s_be7467d8494cb0::t_fed6db88b1dd37 1-86,88-109
+  s_be7467d8494cb0::t_1d7afa81103e15 87
+.env.example
+  s_be7467d8494cb0::t_e277721e0c483e 1-2,4-11
+  s_be7467d8494cb0::t_22e19efdef1d6e 3
+docs/adr/0008-sql-durable-state-and-job-queue.md
+  s_be7467d8494cb0::t_a92f3154a248e5 1-51
+docs/reliability-upgrade-plan.md
+  s_be7467d8494cb0::t_ebe39eae2327c2 89-90
+  s_be7467d8494cb0::t_ad84c88551ecae 84
+  s_be7467d8494cb0::t_e3d47b545852aa 1-83,85-88,91-124
+ci_failure_orchestrator/foundation/runner.py
+  s_be7467d8494cb0::t_f4fdcf0c9abc93 98
+  s_be7467d8494cb0::t_461440aedc22a0 124-129
+CHANGELOG.md
+  s_be7467d8494cb0::t_4a85bf93e83118 9-17
+.dockerignore
+  s_be7467d8494cb0::t_51aa8401193f40 1-23
+ci_failure_orchestrator/foundation/durable.py
+  s_be7467d8494cb0::t_81d0fc75b413a6 74
+  s_be7467d8494cb0::t_32a1249dbb094a 464-472
+ci_failure_orchestrator/module_status.py
+  s_be7467d8494cb0::t_122345fcfd9f95 30-31
+.github/workflows/ci.yml
+  s_be7467d8494cb0::t_74dd86412a56d5 121,123
+  s_be7467d8494cb0::t_790973d734531c 83-120,122,124-132
+  s_be7467d8494cb0::t_268a6ddd89b0ef 18
+ci_failure_orchestrator/server/schemas.py
+  s_be7467d8494cb0::t_3cef0b9dbd345e 59
+  s_be7467d8494cb0::t_823b971c1de934 1-58,60-180
+docker-compose.yml
+  s_be7467d8494cb0::t_806b05abd52a2e 1-59
+ci_failure_orchestrator/server/worker.py
+  s_be7467d8494cb0::t_ba9d692f4d78f4 1-73,75-155,161-262
+  s_be7467d8494cb0::t_d36c02bd898276 74
+  s_be7467d8494cb0::t_cb600f3fbf7aa0 156-160
+README.md
+  s_be7467d8494cb0::t_1c8fa05367989e 6,205,207-208,210-233
+docs/ci-reliability-audit.md
+  s_be7467d8494cb0::t_10521267d0c78b 49-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "eb73f244384336f8bf04073fdda491ffa1534a9c",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
