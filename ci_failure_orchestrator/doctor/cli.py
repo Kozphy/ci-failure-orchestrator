@@ -24,6 +24,14 @@ _RUN_URL_RE = re.compile(r"^https://github\.com/([\w.-]+/[\w.-]+)/actions/runs/(
 
 
 def parse_run_url(url: str) -> tuple[str, int, int | None]:
+    """Parse a GitHub Actions run URL.
+
+    Returns:
+        ``(repository, run_id, attempt)``; attempt is None when the URL names no attempt.
+
+    Raises:
+        ValueError: When the URL is not a github.com Actions run URL.
+    """
     match = _RUN_URL_RE.match(url.strip())
     if not match:
         raise ValueError("expected https://github.com/<owner>/<repo>/actions/runs/<run id>")
@@ -41,6 +49,7 @@ def _emit(diagnosis: Diagnosis, args: argparse.Namespace) -> None:
 
 
 def cmd_analyze(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
+    """Run the analyze command: diagnose one run or saved log; ``EXIT_INPUT`` when it cannot be read."""
     if args.log:
         if args.run or args.attempt:
             parser.error("--run and --attempt apply to --repo or --url, not --log")
@@ -78,6 +87,7 @@ def cmd_analyze(args: argparse.Namespace, parser: argparse.ArgumentParser) -> in
 
 
 def cmd_demo(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
+    """Run the demo command: list or run offline fixture scenarios; ``EXIT_UNEXPECTED`` if any result differs."""
     if args.list:
         for scenario in SCENARIOS.values():
             print(f"{scenario.name:<22}{scenario.title}")
@@ -108,6 +118,7 @@ def cmd_demo(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Build the ``actions-doctor`` argument parser with the analyze and demo subcommands."""
     parser = argparse.ArgumentParser(
         prog="actions-doctor",
         description=(
@@ -152,6 +163,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Parse ``argv`` and run the chosen ``actions-doctor`` subcommand, returning its exit code."""
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(errors="replace")
     parser = build_parser()

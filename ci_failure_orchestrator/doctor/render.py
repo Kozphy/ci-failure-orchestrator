@@ -62,6 +62,7 @@ def _recommended(d: Diagnosis, top: Finding) -> list[str]:
 
 
 def render_text(d: Diagnosis) -> str:
+    """Render a diagnosis as plain text for terminals and CI logs."""
     lines = [_title(d)]
     if d.source == "github":
         lines.append(" | ".join(part for part in (d.workflow, f"commit {d.head_sha[:7]}", d.run_url) if part))

@@ -14,6 +14,8 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Scenario:
+    """Offline demo fixture: repository files, its saved CI log, a recorded fix and the expected outcome."""
+
     name: str
     title: str
     story: str

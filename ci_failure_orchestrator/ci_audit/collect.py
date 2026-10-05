@@ -64,14 +64,23 @@ _RUN_FIELDS = (
 
 
 class ActionsReader(Protocol):
-    def list_workflow_runs(self, repository: str, *, created_since: str, max_runs: int) -> list[dict]: ...
+    """Read-only GitHub Actions API surface the collector depends on."""
 
-    def list_run_jobs(self, repository: str, run_id: int) -> list[dict]: ...
+    def list_workflow_runs(self, repository: str, *, created_since: str, max_runs: int) -> list[dict]:
+        """Return at most ``max_runs`` workflow runs created on or after ``created_since``."""
+        ...
 
-    def job_log(self, repository: str, job_id: int) -> str: ...
+    def list_run_jobs(self, repository: str, run_id: int) -> list[dict]:
+        """Return the jobs of one workflow run."""
+        ...
+
+    def job_log(self, repository: str, job_id: int) -> str:
+        """Return the log text of one job."""
+        ...
 
 
 def runner_os(labels: list[str]) -> str:
+    """Return the runner OS bucket for a job's labels: self-hosted, windows, macos or linux."""
     lowered = [str(label).lower() for label in labels]
     if "self-hosted" in lowered:
         return "self-hosted"
@@ -103,6 +112,7 @@ def _run_record(run: dict) -> dict:
 
 
 def job_record(job: dict) -> dict:
+    """Build the sanitized export record for one job, including its runner OS and first failed step."""
     labels = [str(label) for label in job.get("labels") or []]
     failed_step = next(
         (str(step.get("name") or "") for step in job.get("steps") or [] if step.get("conclusion") in FAILED_CONCLUSIONS),
@@ -156,6 +166,7 @@ def _drop_script_echo(lines: list[str]) -> str:
 
 
 def failure_message(section: str) -> str:
+    """Return the most specific error line in a failing step section, preferring ``##[error]`` annotations."""
     lines = [line.strip() for line in section.splitlines() if line.strip()]
     errors = [line[len(_ERROR_MARK):].strip() for line in lines if line.startswith(_ERROR_MARK)]
     specific = [error for error in errors if not _GENERIC_ERROR_RE.match(error)]

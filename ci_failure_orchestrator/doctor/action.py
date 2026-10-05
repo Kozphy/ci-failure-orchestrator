@@ -35,16 +35,23 @@ def _append(path: str | None, text: str) -> None:
 
 
 def failure_class(diagnosis: Diagnosis) -> str:
+    """Return the top finding's category, or ``"none"`` when there are no findings."""
     return diagnosis.findings[0].category if diagnosis.findings else "none"
 
 
 def summary_markdown(diagnosis: Diagnosis, text: str) -> str:
+    """Build the job-summary Markdown: a heading, the run link and the rendered text in a fence."""
     heading = failure_class(diagnosis) if diagnosis.findings else "nothing to diagnose"
     run = f"[Run {diagnosis.run_id}]({diagnosis.run_url})" if diagnosis.run_url else f"Run {diagnosis.run_id}"
     return f"## CI Doctor: {heading}\n\n{run}\n\n{fenced(text)}\n"
 
 
 def main(environ: Mapping[str, str] | None = None, reader: RunReader | None = None) -> int:
+    """Diagnose the run named by ``CI_DOCTOR_*`` variables and write the summary, outputs and diagnosis.json.
+
+    Returns ``EXIT_USAGE`` for an invalid repository or run id, ``EXIT_INPUT`` when the run cannot be
+    read, and ``EXIT_OK`` otherwise.
+    """
     env = os.environ if environ is None else environ
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(errors="replace")

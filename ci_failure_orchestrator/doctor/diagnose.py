@@ -65,15 +65,25 @@ NEXT_STEPS = {
 
 
 class RunReader(Protocol):
-    def get_run(self, repository: str, run_id: int) -> dict: ...
+    """Read-only GitHub Actions API surface needed to diagnose one run."""
 
-    def list_run_jobs(self, repository: str, run_id: int) -> list[dict]: ...
+    def get_run(self, repository: str, run_id: int) -> dict:
+        """Return one workflow run."""
+        ...
 
-    def job_log(self, repository: str, job_id: int) -> str: ...
+    def list_run_jobs(self, repository: str, run_id: int) -> list[dict]:
+        """Return the jobs of one workflow run."""
+        ...
+
+    def job_log(self, repository: str, job_id: int) -> str:
+        """Return the log text of one job."""
+        ...
 
 
 @dataclass(frozen=True)
 class Finding:
+    """One failed job's diagnosis: category, heuristic confidence, message and its log evidence."""
+
     job: str
     step: str
     conclusion: str
@@ -93,6 +103,8 @@ class Finding:
 
 @dataclass(frozen=True)
 class PolicyPreview:
+    """Pre-patch policy outcome (ESCALATE or ELIGIBLE) with the triggering rule IDs and reasons."""
+
     outcome: str
     rules: tuple[str, ...]
     reasons: tuple[str, ...]
@@ -100,6 +112,8 @@ class PolicyPreview:
 
 @dataclass(frozen=True)
 class Diagnosis:
+    """Read-only diagnosis of one run or saved log: ranked findings, next step and policy preview."""
+
     diagnosis_id: str
     source: str
     repository: str
@@ -117,6 +131,7 @@ class Diagnosis:
     warnings: tuple[str, ...]
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the diagnosis as a plain dict tagged with ``SCHEMA``."""
         return {"schema": SCHEMA, **asdict(self)}
 
 

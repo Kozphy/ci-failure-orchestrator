@@ -44,6 +44,8 @@ _NEXT = {
 
 @dataclass(frozen=True)
 class DemoResult:
+    """Outcome of one demo scenario run and whether it matched the scenario's expectations."""
+
     scenario: str
     category: str
     outcome: str

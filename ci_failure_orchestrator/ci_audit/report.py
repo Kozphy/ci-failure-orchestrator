@@ -26,6 +26,7 @@ def _link(url: object, text: str = "run") -> str:
 
 
 def render_report(a: dict) -> str:
+    """Render an analysis produced by ``analyze_export`` as a Markdown report."""
     t, waste, findings = a["totals"], a["waste"], a["findings"]
     billing = (
         "Public repository: GitHub-hosted minutes are free, so minute figures measure runner time and feedback delay, not spend."

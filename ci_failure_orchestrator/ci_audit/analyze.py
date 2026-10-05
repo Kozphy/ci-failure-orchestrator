@@ -30,6 +30,7 @@ def _minutes_between(start: object, end: object) -> float | None:
 
 
 def percentile(values: list[float], pct: float) -> float:
+    """Return the nearest-rank percentile of values rounded to one decimal, or 0.0 when empty."""
     if not values:
         return 0.0
     ordered = sorted(values)
@@ -197,6 +198,11 @@ def _findings(a: dict) -> list[dict]:
 
 
 def analyze_export(export: dict) -> dict:
+    """Compute totals, minute waste, per-workflow metrics and ranked findings from a ci-audit export.
+
+    Raises:
+        ValueError: When the export's schema is not ``EXPORT_SCHEMA``.
+    """
     if export.get("schema") != EXPORT_SCHEMA:
         raise ValueError(f"unsupported export schema: {export.get('schema')!r}")
     runs, jobs, failures = export["runs"], export["jobs"], export["failures"]
