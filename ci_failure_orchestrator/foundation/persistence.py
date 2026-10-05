@@ -82,7 +82,11 @@ __all__ = [
 
 
 class RunPersistence:
-    """Facade used by the orchestrator: checkpoint state + audit + evidence."""
+    """Facade used by the orchestrator: checkpoint state + audit + evidence.
+
+    Stores default to the filesystem under ``artifacts_root``; any of them can be replaced by
+    another implementation of the same protocol (for example the SQL stores in ``server``).
+    """
 
     def __init__(
         self,
@@ -90,11 +94,16 @@ class RunPersistence:
         *,
         limits: EvidenceLimits | None = None,
         actor: str = "orchestrator",
+        state_store: StateStore | None = None,
+        audit_store: AuditStore | None = None,
+        evidence_store: EvidenceStore | None = None,
     ) -> None:
         self.artifacts_root = Path(artifacts_root)
-        self.state_store = FileStateStore(self.artifacts_root)
-        self.audit_store = FileAuditStore(self.artifacts_root)
-        self.evidence_store = FileEvidenceStore(self.artifacts_root, limits=limits)
+        self.state_store: StateStore = state_store or FileStateStore(self.artifacts_root)
+        self.audit_store: AuditStore = audit_store or FileAuditStore(self.artifacts_root)
+        self.evidence_store: EvidenceStore = evidence_store or FileEvidenceStore(
+            self.artifacts_root, limits=limits
+        )
         self.limits = limits or EvidenceLimits()
         self.actor = actor
         self._durable: DurableRunState | None = None

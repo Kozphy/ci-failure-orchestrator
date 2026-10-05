@@ -95,6 +95,7 @@ class AgentExecutionFoundation(PolicyGateMixin):
         escalation_builder: HumanEscalationBuilder | None = None,
         escalation_writer: EscalationArtifactWriter | None = None,
         enable_persistence: bool | None = None,
+        persistence: RunPersistence | None = None,
         metrics: MetricsRecorder | None = None,
         metrics_source: str = "runtime",
     ) -> None:
@@ -120,9 +121,12 @@ class AgentExecutionFoundation(PolicyGateMixin):
             artifacts_root=self.artifacts_root
         )
         persist = enable_persistence if enable_persistence is not None else self.artifacts_root is not None
-        self.persistence: RunPersistence | None = (
-            RunPersistence(self.artifacts_root) if persist and self.artifacts_root is not None else None
-        )
+        if persistence is not None:
+            self.persistence: RunPersistence | None = persistence
+        else:
+            self.persistence = (
+                RunPersistence(self.artifacts_root) if persist and self.artifacts_root is not None else None
+            )
         # Metrics never authorize; SafeMetricsRecorder absorbs backend failures.
         if metrics is None:
             self.metrics: MetricsRecorder = NullMetricsRecorder()

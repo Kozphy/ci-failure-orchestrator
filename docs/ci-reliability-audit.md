@@ -46,4 +46,8 @@ Public repositories need no access at all.
 
 ## Book
 
-**[Request an audit](https://github.com/Kozphy/ci-failure-orchestrator/issues/new?title=CI%20Reliability%20Audit%20request&body=Repository%3A%20%0ATeam%20size%3A%20%0AMain%20CI%20pain%3A%20)**: open an issue with the repository name, team size and your main CI pain. Don't post tokens or private details in the issue; access is arranged privately after you book.
+1. **[Book a free 15-minute call](https://cal.com/YOUR-HANDLE/ci-audit)** to confirm the fit, or **[pay for the audit directly](https://buy.stripe.com/YOUR-PAYMENT-LINK)**.
+2. Share read-only access as described above. Never post tokens in a GitHub issue or email body; access is arranged privately after you book.
+3. Receive the report within 3 business days.
+
+If the audit contains no finding you can act on, you get a full refund. Questions: [YOUR-EMAIL](mailto:YOUR-EMAIL). Other packages (fix sprint, verified repair setup, monthly care) are listed in the [README](../README.md#pricing-and-booking).

@@ -13,6 +13,7 @@ Source of truth: [`ci_failure_orchestrator/module_status.py`](../ci_failure_orch
 | `provider_adapters.py` | Subprocess provider runner with env allowlist, timeout, output cap |
 | `ci_audit/` | Read-only CI reliability audit: collect a sanitized 30-day export, compute metrics and ranked findings, render the Markdown report |
 | `doctor/` | CI Doctor product CLI (`actions-doctor`). `analyze` diagnoses one failed run or saved log: evidence line, failing command, ranked failed jobs, policy preview from the engine's `PolicyConfig`. Read-only; no model calls |
+| `server/` | FastAPI `/v1` API (health, readiness, run submission and reads) and a lease-based worker that runs the foundation with SQL state and audit stores (PostgreSQL, or SQLite locally). Needs the `server` extra. See `docs/adr/0008-sql-durable-state-and-job-queue.md` |
 | `github_client.py` | GitHub Actions REST client (runs, jobs, logs; read-only, token dropped on cross-host redirects) |
 | `classifier.py` | Pure regex error classifier used by `foundation/classifier.py` |
 | `module_status.py` | This manifest |

@@ -1,0 +1,59 @@
+# Local stack: PostgreSQL + API + worker sharing one artifacts volume.
+#   cp .env.example .env   # then set POSTGRES_PASSWORD
+#   docker compose up --build
+# Secrets come only from .env / the environment; nothing secret is committed here.
+
+x-app-env: &app-env
+  CFO_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-orchestrator}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-orchestrator}
+  CFO_ARTIFACTS_ROOT: /data/artifacts
+  CFO_API_TOKEN: ${CFO_API_TOKEN:-}
+  CFO_LEASE_SECONDS: ${CFO_LEASE_SECONDS:-300}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-orchestrator}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-orchestrator}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  api:
+    build: .
+    environment:
+      <<: *app-env
+    ports:
+      - "8000:8000"
+    volumes:
+      - artifacts:/data/artifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: ["python", "-m", "ci_failure_orchestrator.server.worker"]
+    environment:
+      <<: *app-env
+      CFO_WORKER_ID: worker-1
+    volumes:
+      - artifacts:/data/artifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+    stop_grace_period: 60s
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  artifacts:

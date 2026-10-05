@@ -3,7 +3,7 @@
 **Know why CI failed, get a fix that is proven before it lands, and keep a person in charge of every merge.**
 
 > **GitHub CI Reliability Audit**: fixed price, read-only, one repository, report in 3 business days.
-> Pilot price **US$149** (first 3 clients). **[Book a GitHub CI Reliability Audit →](docs/ci-reliability-audit.md)**
+> Pilot price **US$149** (first 3 clients). **[See pricing and book →](#pricing-and-booking)**
 
 ## Stop fixing CI failures manually
 
@@ -202,15 +202,35 @@ Everything runs locally or in your CI runner; there is no hosted service. Detail
 - Python projects are the tested path; other languages work only through your own verify
   commands.
 
-## Pricing / Commercial use
+## Pricing and booking
 
-The code is [MIT licensed](LICENSE): you can run it yourself for free. Paid work is service:
+The code is [MIT licensed](LICENSE): you can run it yourself for free. If you would rather have
+someone run it, read the results and fix what it finds, these are fixed-price services:
 
-- **CI Reliability Audit**: read-only, one repository, report in 3 business days. Pilot
-  US$149 for the first 3 clients, then US$199. [Details](docs/ci-reliability-audit.md).
-- **Planned tiers** (Starter, Pro, Team/Enterprise) and how they are priced are in
-  [docs/COMMERCIALIZATION_PLAN.md](docs/COMMERCIALIZATION_PLAN.md). There is no billing system
-  yet.
+| Service | What you get | Time | Price |
+| --- | --- | --- | --- |
+| **CI Reliability Audit** | Read-only review of one repository's last 30 days of GitHub Actions: failure causes, flaky tests, wasted minutes, ranked fixes, 30-day plan, 20-minute call. [Details](docs/ci-reliability-audit.md) | 3 business days | **US$149** for the first 3 clients, then US$199 |
+| **CI Fix Sprint** | The audit, plus the top 3 fixes as pull requests for your review, CI Doctor on every failed run, and a re-measurement after 2 weeks | 2 weeks | US$900 |
+| **Verified Repair Setup** | `fix-repo` wired into your repository: fixes from people or AI assistants are verified against the original failure and your tests before a person merges them | 3–4 weeks | from US$3,500 |
+| **Monthly CI Care** | Monthly re-audit, triage of new failure types, policy tuning, one-page report | monthly | from US$400/month |
+
+**Public repository?** Ask for a free CI snapshot: the top 3 findings from your last 30 days,
+no access needed.
+
+### How to book
+
+1. **[Book a free 15-minute call](https://cal.com/YOUR-HANDLE/ci-audit)** to check that the audit
+   fits your repository, or **[pay for the audit directly](https://buy.stripe.com/YOUR-PAYMENT-LINK)**.
+2. Share read-only access: a fine-grained token scoped to the one repository with **Actions:
+   Read-only** and **Metadata: Read-only**, expiring in 7 days. Public repositories need nothing.
+3. Receive the report within 3 business days, then a walkthrough call if you want one.
+
+Card payment through Stripe; invoices on request. If the audit contains no finding you can act
+on, you get a full refund. Questions: [YOUR-EMAIL](mailto:YOUR-EMAIL).
+
+Planned software tiers (Starter, Pro, Team/Enterprise) are described in
+[docs/COMMERCIALIZATION_PLAN.md](docs/COMMERCIALIZATION_PLAN.md); there is no billing system for
+them yet.
 
 ## Roadmap
 

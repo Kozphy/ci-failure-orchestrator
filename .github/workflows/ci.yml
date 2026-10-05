@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-      - run: python -m pip install -e '.[dev]'
+      - run: python -m pip install -e '.[dev,server]'
       - name: Trust control-plane lint
         run: >-
           python -m ruff check
@@ -80,3 +80,53 @@ jobs:
           name: ci-orchestrator-audit
           path: audit.jsonl
           if-no-files-found: ignore
+
+  server-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci-only-ephemeral
+          POSTGRES_DB: orchestrator_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci -d orchestrator_test"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql+psycopg://ci:ci-only-ephemeral@localhost:5432/orchestrator_test
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[dev,server]'
+      - name: Store contract, API and worker tests (SQLite + PostgreSQL)
+        run: python -m pytest tests/test_durable_store_contract.py tests/test_server_api.py tests/test_server_worker.py
+
+  server-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Compose smoke test
+        env:
+          POSTGRES_PASSWORD: ci-only-ephemeral
+        run: |
+          docker compose up --build -d
+          for i in $(seq 1 60); do curl -fsS http://localhost:8000/ready && break; sleep 2; done
+          curl -fsS http://localhost:8000/health
+          python -c 'import json; print(json.dumps({"failure": json.load(open("benchmarks/cases/01_unit_test_failure.json"))["failure"]}))' > body.json
+          run_id=$(curl -fsS -X POST http://localhost:8000/v1/runs -H 'Content-Type: application/json' \
+            --data @body.json | python -c 'import json,sys; print(json.load(sys.stdin)["run_id"])')
+          for i in $(seq 1 60); do
+            status=$(curl -fsS "http://localhost:8000/v1/runs/$run_id" | python -c 'import json,sys; print(json.load(sys.stdin)["job_status"])')
+            [ "$status" != "QUEUED" ] && [ "$status" != "RUNNING" ] && break; sleep 2
+          done
+          echo "job_status=$status"
+          test "$status" = "COMPLETED"
+      - name: Compose logs
+        if: always()
+        run: docker compose logs --no-color

@@ -71,6 +71,7 @@ class AuditEventType(str, Enum):
     RUN_SUCCEEDED = "RUN_SUCCEEDED"
     RUN_FAILED = "RUN_FAILED"
     PERSISTENCE_ERROR = "PERSISTENCE_ERROR"
+    WORKER_LEASE_EXPIRED = "WORKER_LEASE_EXPIRED"
 
 
 class HumanDecisionStatus(str, Enum):
@@ -460,7 +461,15 @@ class EvidenceStore(Protocol):
         """Store a JSON evidence document and return its reference."""
         ...
 
-    def write_text(self, run_id: str, kind: str, content: str, *, name: str | None = None) -> DurableEvidenceRef:
+    def write_text(
+        self,
+        run_id: str,
+        kind: str,
+        content: str,
+        *,
+        name: str | None = None,
+        max_chars: int | None = None,
+    ) -> DurableEvidenceRef:
         """Store a text evidence document and return its reference."""
         ...
 

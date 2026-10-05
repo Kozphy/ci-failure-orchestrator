@@ -6,6 +6,15 @@ Versioning (plan §5.4) uses two tracks: the Python package keeps semantic versi
 
 ## [Unreleased]
 
+### Reliability Phase 1: HTTP API, SQL durable state, lease-based worker
+
+- New canonical `server/` package (needs the `server` extra): FastAPI app with `/health`, `/ready` and `/v1/runs` (submit, list, get, events, evidence), OpenAPI, structured error envelope, request IDs, body-size limit, `Idempotency-Key`, and an optional shared bearer token (`CFO_API_TOKEN`, not RBAC).
+- `SqlStateStore` / `SqlAuditStore` implement the existing `StateStore` / `AuditStore` protocols on PostgreSQL or SQLite; `MirroredEvidenceStore` keeps evidence files and stores the same bytes plus SHA-256 in the database. `RunPersistence` and `AgentExecutionFoundation` accept injected stores; File stores stay the default, so the CLI is unchanged.
+- Worker (`python -m ci_failure_orchestrator.server.worker`) claims jobs atomically, renews its lease with a heartbeat, and is fenced out if its lease was recovered. Expired leases and mid-run persistence failures become `REQUIRES_REVIEW` (never auto re-run); a `WORKER_LEASE_EXPIRED` audit event is appended.
+- `Dockerfile`, `docker-compose.yml` (PostgreSQL, API, worker), `.env.example`; CI jobs `server-postgres` (contract tests on PostgreSQL) and `server-image` (compose smoke test).
+- Tests: `test_durable_store_contract.py` (one contract for File, SQLite and optional PostgreSQL stores), `test_server_api.py`, `test_server_worker.py` (restart durability, crash recovery, fencing, concurrent claims, DB outage, redacted errors).
+- Docs: ADR-0008, `docs/reliability-upgrade-plan.md` (assessment, target architecture, phases, and a separate implementation-status table).
+
 ### Commercialization: evidence report, demo, safety controls, metrics, buyer docs
 
 - `ci-orchestrator fix-repo-report <run_id>` writes `fix-repo/evidence-report.md` and `.json` (what broke, why, what changed, which tests ran, what supports the fix, what risk remains) from stored artifacts only; `fix-repo` stages refresh it.

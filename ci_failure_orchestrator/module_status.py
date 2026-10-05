@@ -27,6 +27,8 @@ CANONICAL: frozenset[str] = frozenset(
         "ci_audit",
         # CI Doctor product CLI (actions-doctor); read-only wrappers over the canonical path.
         "doctor",
+        # HTTP API + worker over the foundation with SQL durable state (requires the server extra).
+        "server",
     }
 )
 
