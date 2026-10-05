@@ -1,0 +1,247 @@
+ci_failure_orchestrator/foundation/benchmark/baseline.py
+  s_98e991bb09cf64::t_49664f22a15f44 46-47,52
+  s_98e991bb09cf64::t_b7286d92c0dc49 16-17
+  s_98e991bb09cf64::t_fdf1b7509d2b98 88
+  s_98e991bb09cf64::t_25cd2ddd0cc5b0 64
+  s_98e991bb09cf64::t_7fceac3904165b 28-29,36
+ci_failure_orchestrator/foundation/benchmark/assertions.py
+  s_98e991bb09cf64::t_d5cae3cdbb5df2 34-37
+ci_failure_orchestrator/foundation/sandbox.py
+  s_c2fcdc66f421dd::t_5aa9405a1f4ec0 16-17,22-23,28-29,36-38
+  s_c2fcdc66f421dd::t_0ecde1508f0b47 60-73
+ci_failure_orchestrator/foundation/observability/recovery_metrics.py
+  s_98e991bb09cf64::t_f5e1420f8dc769 15
+ci_failure_orchestrator/foundation/observability/stats.py
+  s_dd5ec07e8f478a::t_5e639482cc4c18 11-12,20
+  s_98e991bb09cf64::t_f926b5647991e8 51
+ci_failure_orchestrator/foundation/observability/summary.py
+  s_98e991bb09cf64::t_65159a5a3ba432 61,66
+  s_98e991bb09cf64::t_122221b34b1b48 198
+  s_98e991bb09cf64::t_e214e8acfb196f 207
+  s_98e991bb09cf64::t_f38ef1dbec0dac 118-122
+ci_failure_orchestrator/foundation/observability/sli.py
+  s_98e991bb09cf64::t_a58cb1bc4465a8 171
+  s_98e991bb09cf64::t_e570dce349b536 13-14
+  s_98e991bb09cf64::t_3f6a34cfaa7e83 26-27,36
+ci_failure_orchestrator/foundation/tools.py
+  s_1bcc52f66974c2::t_461079da94c07b 15,20,26-27,41-43,45-47,52-53,57-62,69-74,80,84-95,157-158,161-162,174-175,188-189,195-196,208-215,253-254,266-267,287-288,306-311,330-336
+  s_1bcc52f66974c2::t_2cf14f5bb99082 38-39
+ci_failure_orchestrator/foundation/observability/metrics.py
+  s_98e991bb09cf64::t_b80a6f5eeac07a 297
+  s_98e991bb09cf64::t_74fe3eb6938b21 160,167
+  s_98e991bb09cf64::t_be0bebddc8cef7 221
+  s_b89a337722f534::t_115955250c5f59 135
+  s_98e991bb09cf64::t_922de799993141 232
+  s_98e991bb09cf64::t_da3e66280ef7c0 254-255,262,271,280
+  s_98e991bb09cf64::t_3dc4a210dd2be9 243,249
+  s_98e991bb09cf64::t_96c9f126d52e47 61-62,68-70,77-79,86-88
+  s_98e991bb09cf64::t_ea9cb8fc8f22b3 311
+  s_98e991bb09cf64::t_4a36869b5383d9 186
+  s_98e991bb09cf64::t_fe962a264454b0 148
+  s_98e991bb09cf64::t_162387a267d43f 325
+ci_failure_orchestrator/foundation/observability/slo.py
+  s_98e991bb09cf64::t_afb5a98356e6d4 38
+  s_98e991bb09cf64::t_39e36969778c07 56-57,63
+  s_98e991bb09cf64::t_8656d4b1946971 24-25
+  s_98e991bb09cf64::t_2ec97027af229c 191-195
+  s_98e991bb09cf64::t_a2d7e88d2e0791 146
+  s_98e991bb09cf64::t_c623143dadb736 252
+  s_98e991bb09cf64::t_396d1231506981 87
+  s_98e991bb09cf64::t_f1c58437c91c94 73-74
+  s_c2fcdc66f421dd::t_f5ffc71e2f09f5 15-16
+ci_failure_orchestrator/foundation/remediation.py
+  s_1bcc52f66974c2::t_461079da94c07b 24-25,53-54,66,71-72,125,130,135-136,143,148,153,158,163,168-169,186-187,202-203,212,216-217,264-265
+ci_failure_orchestrator/foundation/benchmark/injection.py
+  s_98e991bb09cf64::t_4724f290a30999 125
+  s_98e991bb09cf64::t_4fe2f0e6b36274 100-101
+  s_98e991bb09cf64::t_121f6c9dab15f4 156
+  s_98e991bb09cf64::t_33dcc6fbdf4a2f 51
+  s_98e991bb09cf64::t_8d316d389d2596 168
+  s_98e991bb09cf64::t_0630b2e44f338b 183
+  s_98e991bb09cf64::t_ca3367c81bcb48 175
+ci_failure_orchestrator/foundation/benchmark/metrics.py
+  s_dd5ec07e8f478a::t_3ffd7ba510a00e 53
+  s_98e991bb09cf64::t_3184da8b9710a5 144-147
+  s_dd5ec07e8f478a::t_06fb410356503a 136
+  s_98e991bb09cf64::t_b59b170b1ce808 46
+  s_98e991bb09cf64::t_5ec40c6990300d 61-64
+  s_98e991bb09cf64::t_197008c49fcbe9 222
+  s_98e991bb09cf64::t_a0f86f38731e93 202
+  s_98e991bb09cf64::t_20196df1a98b16 232-235
+  s_98e991bb09cf64::t_349ee3b1422921 91
+  s_98e991bb09cf64::t_acfeaf66bcc9cb 174
+  s_98e991bb09cf64::t_46c54f59879761 99
+  s_98e991bb09cf64::t_aaa967fa0768ab 116
+  s_98e991bb09cf64::t_72e6db8c5faa64 13-14,21
+  s_98e991bb09cf64::t_839cd6ece1d9a4 212
+  s_98e991bb09cf64::t_ba81358f95deaf 128
+  s_1bcc52f66974c2::t_91307ac922bc73 188
+ci_failure_orchestrator/foundation/observability/report.py
+  s_98e991bb09cf64::t_1098f0780bb928 73
+  s_98e991bb09cf64::t_061f239ce83377 16-20
+ci_failure_orchestrator/foundation/benchmark/report.py
+  s_98e991bb09cf64::t_9d976abdf14bb5 87
+  s_98e991bb09cf64::t_1ad9824222498c 21-25
+ci_failure_orchestrator/foundation/runner.py
+  s_c2fcdc66f421dd::t_23e9e0cdd29905 136-140
+ci_failure_orchestrator/foundation/models.py
+  s_1bcc52f66974c2::t_461079da94c07b 19,24,29-30,63-64,74-75,94,99-103,124-125,156-157,167-168,183-184,196-197,212-213,227-228,244-245,253-254,269-270
+ci_failure_orchestrator/foundation/evaluator.py
+  s_c2fcdc66f421dd::t_47f1764a61de65 24-25,30-31,37-39
+  s_c2fcdc66f421dd::t_46027eecf0dee0 51-57
+ci_failure_orchestrator/foundation/durable.py
+  s_1bcc52f66974c2::t_0cf886ecea44cb 441
+  s_1bcc52f66974c2::t_461079da94c07b 32-33,41-42,77-78,87-88,98-99,107-108,123-124,145-150,201-202,228-234,268-269,276-277,284-285,309-310,336,379-384,399-400,423-425,427-433,435-437,443-445,447-453,459-465,469-470,478,482-487,493-498,506-513,527-528,537-538,543-549,580-585,623-624,647,658-672,698-714
+  s_1bcc52f66974c2::t_a2ebbf2f9f412b 421
+  s_1bcc52f66974c2::t_978063a9b01e39 457
+ci_failure_orchestrator/foundation/persistence.py
+  s_c2fcdc66f421dd::t_d7748632c84dce 104
+  s_c2fcdc66f421dd::t_d22abc9acf696f 241
+  s_c2fcdc66f421dd::t_6605d9b9419609 196-208
+  s_c2fcdc66f421dd::t_c8fd7a8959f9f3 230
+  s_c2fcdc66f421dd::t_70cc61b8b5a2fe 137-149
+  s_c2fcdc66f421dd::t_91bca66b081917 110
+ci_failure_orchestrator/foundation/benchmark/schemas.py
+  s_98e991bb09cf64::t_5c9a9f12a9ffb9 346
+  s_98e991bb09cf64::t_d1fa1d56b7308d 193-194
+  s_98e991bb09cf64::t_33af62a6850edb 28-29
+  s_98e991bb09cf64::t_8f632771f005ea 53,58
+  s_98e991bb09cf64::t_07c3e698cbfcde 156
+  s_1bcc52f66974c2::t_7c5abae26c1a54 97,103
+  s_98e991bb09cf64::t_f3763895cadcb6 211
+  s_98e991bb09cf64::t_ed6d1487145725 278-279,287
+  s_98e991bb09cf64::t_aa1a1c03e11213 250-254
+  s_98e991bb09cf64::t_6aa97f70955c2b 133-134
+  s_98e991bb09cf64::t_2c308dfa4da76d 329-330
+  s_98e991bb09cf64::t_3a7bb7d8288c70 14-15
+  s_dd5ec07e8f478a::t_969bf64e73ab05 36-37
+ci_failure_orchestrator/foundation/recovery.py
+  s_c2fcdc66f421dd::t_50703646cf6f1f 61-64
+  s_c2fcdc66f421dd::t_5badafc720dc07 223
+  s_dd5ec07e8f478a::t_06fb410356503a 112-125
+  s_c2fcdc66f421dd::t_cbc79ee371c997 244
+ci_failure_orchestrator/foundation/test_evidence.py
+  s_c2fcdc66f421dd::t_7ac693f65837cb 49-50
+  s_c2fcdc66f421dd::t_6a96e0ac3d9ae9 117-120
+  s_c2fcdc66f421dd::t_037d93e2edda59 219,224
+  s_c2fcdc66f421dd::t_484e83925282a9 206-207
+  s_c2fcdc66f421dd::t_3cd5c97fa80f89 253-257
+  s_c2fcdc66f421dd::t_72b88b742599d4 82,86
+  s_c2fcdc66f421dd::t_c4e54f823bf7c2 161-164
+ci_failure_orchestrator/foundation/escalation.py
+  s_1bcc52f66974c2::t_461079da94c07b 49-50,68-69,77-78,86-87,94-95,115-116,129-130,156-157,189-193,215-216,280-281,309-314,342-347,393-401,629-630,653-657,721-722
+ci_failure_orchestrator/foundation/policy.py
+  s_1bcc52f66974c2::t_461079da94c07b 28-29,45-46,61-62,70-71,80-81,93-94,125-126,278-279,287-288,352-356,375-376,409-410,442-444,454-455,797
+  s_1bcc52f66974c2::t_bda12178b1f0d3 440-441
+ci_failure_orchestrator/foundation/planner.py
+  s_c2fcdc66f421dd::t_4408251708f8aa 47-51
+  s_c2fcdc66f421dd::t_d539e42163b7d6 179
+  s_dd5ec07e8f478a::t_3ffd7ba510a00e 20-21,26-27,33-35
+  s_c2fcdc66f421dd::t_3e8ccc5f49eeca 143
+ci_failure_orchestrator/foundation/retry.py
+  s_1bcc52f66974c2::t_461079da94c07b 20-21,41-42,78-79,86-87,107-108,119-120,151-152,210-211,255-256,287-288,334-338
+ci_failure_orchestrator/foundation/benchmark/runner.py
+  s_98e991bb09cf64::t_8cf54240adfa28 205-222
+  s_98e991bb09cf64::t_4b2842faa6d561 101-104
+  s_98e991bb09cf64::t_aad2d678eaafe5 69
+  s_98e991bb09cf64::t_707557f3c125c8 58-59
+ci_failure_orchestrator/foundation/classifier.py
+  s_c2fcdc66f421dd::t_cf810d1311e69a 148-149
+  s_c2fcdc66f421dd::t_c30785128535ba 143-144,146-147,150
+ci_failure_orchestrator/foundation/context.py
+  s_c2fcdc66f421dd::t_43f872e5a3cbf7 50-65
+  s_c2fcdc66f421dd::t_bb4d356494f65e 22-23
+  s_c2fcdc66f421dd::t_093e330f3e9cb0 13-14
+ci_failure_orchestrator/foundation/observability/aggregator.py
+  s_98e991bb09cf64::t_3ed69aeeb81b7c 34-35
+  s_98e991bb09cf64::t_3fcee84a8a4d96 154-163
+  s_98e991bb09cf64::t_e8fabd0530cd85 22-23,28
+  s_98e991bb09cf64::t_59cfbb92f166a6 55
+  s_98e991bb09cf64::t_481891d43e5493 252
+ci_failure_orchestrator/foundation/proposal_factories.py
+  s_c2fcdc66f421dd::t_2d21bbf1a4c1b9 29-33
+  s_c2fcdc66f421dd::t_9a22e5a99955c1 70-74
+ci_failure_orchestrator/foundation/results.py
+  s_c2fcdc66f421dd::t_67eb0d22985aa3 35
+ci_failure_orchestrator/foundation/benchmark/loader.py
+  s_98e991bb09cf64::t_1611075dac0b10 51
+  s_98e991bb09cf64::t_c858dc37b942d9 12
+  s_98e991bb09cf64::t_5e71984936f225 18-24
+ci_failure_orchestrator/foundation/verification_integrity.py
+  s_c2fcdc66f421dd::t_406e7a2c000b68 247
+  s_c2fcdc66f421dd::t_b5bc6a7f385fe1 92-93,100,105,109
+  s_c2fcdc66f421dd::t_61bbc66d968093 24-25,31-32
+  s_c2fcdc66f421dd::t_2a9f69509be417 229
+  s_4d92d048379386::t_f45e37ae66852d 116-117
+  s_c2fcdc66f421dd::t_e6ecd3b415cb72 576
+ci_failure_orchestrator/foundation/state_machine.py
+  s_c2fcdc66f421dd::t_07755c0225e4af 52-53,59-63
+ci_failure_orchestrator/foundation/sanitization.py
+  s_c2fcdc66f421dd::t_821dcb66783d93 32
+ci_failure_orchestrator/foundation/diff_risk.py
+  s_c2fcdc66f421dd::t_630af1c56ee2f9 78
+  s_c2fcdc66f421dd::t_ed0905bd4ac7ab 60-61
+  s_c2fcdc66f421dd::t_26185cb86e2d85 68
+  s_c2fcdc66f421dd::t_e62ea04d357e76 114-118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "67a1e034a50329bd970c2dbe8ea259bb5f52cc8e",
+  "prompts": {},
+  "humans": {
+    "h_1d8a7f1e671f32": {
+      "author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_1bcc52f66974c2": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f80a912e-6f57-4055-8d43-4e57c2323dbe",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_4d92d048379386": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "8e28024d-6a14-476e-9d17-05cb32fe0ddd",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_98e991bb09cf64": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0ed6b7b4-d828-4bf5-b0f2-4027add2838a",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_b89a337722f534": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "592c2803-ab3e-40ed-baab-955daa1d2e7c",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_c2fcdc66f421dd": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c64483ff-fdf2-4a39-88c5-5a6e4199be24",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
