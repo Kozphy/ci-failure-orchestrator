@@ -1,0 +1,118 @@
+ci_failure_orchestrator/service/untrusted.py
+  s_f02d55c4e0f929::t_366dc85717a9ad 54
+  s_f02d55c4e0f929::t_a1d1bea6e8de55 41
+ci_failure_orchestrator/service/ci_verification.py
+  s_f02d55c4e0f929::t_3e95881a5f859d 98
+  s_f02d55c4e0f929::t_e669853b0a4cc3 103
+  s_f02d55c4e0f929::t_65def182b815ab 127
+  s_f02d55c4e0f929::t_904a5134c5dbd4 44-45,53,58-59,62-64,66-68,70-72,74-76,78-80
+  s_f02d55c4e0f929::t_e7f5cc27e08c86 122
+  s_f02d55c4e0f929::t_d950a67d6091d7 33-34
+  s_f02d55c4e0f929::t_b86ea3acd6e40f 107
+  s_f02d55c4e0f929::t_1dcd7910eefbb4 154-172
+ci_failure_orchestrator/service/records.py
+  s_1bcc52f66974c2::t_7c5abae26c1a54 84
+  s_f02d55c4e0f929::t_28265c54c562eb 96
+  s_f02d55c4e0f929::t_7e1c10080fe626 136
+  s_f02d55c4e0f929::t_9131885684f340 35-36
+  s_f02d55c4e0f929::t_9445824b9699d8 76
+  s_f02d55c4e0f929::t_27f754f571eab2 46-47
+  s_f02d55c4e0f929::t_55da92507ae4e9 58-59
+  s_4d92d048379386::t_f45e37ae66852d 116
+  s_f02d55c4e0f929::t_5928ffdc20f0b8 122-126
+  s_f02d55c4e0f929::t_56672fed94721a 89
+  s_f02d55c4e0f929::t_1c1afc8e799ccf 152
+  s_f02d55c4e0f929::t_cba8672996126b 144
+ci_failure_orchestrator/service/adapters.py
+  s_f02d55c4e0f929::t_b78893dcea22b6 113-116
+  s_f02d55c4e0f929::t_a1621189184f02 46
+ci_failure_orchestrator/service/common.py
+  s_f02d55c4e0f929::t_b6515c73db593d 45
+  s_f02d55c4e0f929::t_7710b445d8e7b9 96
+  s_f02d55c4e0f929::t_c79e9709214c67 111
+ci_failure_orchestrator/service/verification.py
+  s_f02d55c4e0f929::t_778878ca2f8fad 179-183
+  s_f02d55c4e0f929::t_4afffb15aa2956 650-656
+  s_f02d55c4e0f929::t_b68c2b7f82d405 68-69
+  s_f02d55c4e0f929::t_714c8191f6a2dd 211-216
+  s_f02d55c4e0f929::t_f2a72656839a48 76-77
+  s_f02d55c4e0f929::t_eb71e3b7f2af02 91
+  s_f02d55c4e0f929::t_b038243546cb82 192-193
+ci_failure_orchestrator/service/proposals.py
+  s_f02d55c4e0f929::t_67447e9827ba7c 17-18
+  s_f02d55c4e0f929::t_711c7334f70ceb 90
+  s_f02d55c4e0f929::t_d2bfaeaa2b8498 58
+  s_f02d55c4e0f929::t_2cbe643c489ca5 38-39,43-45
+ci_failure_orchestrator/service/ingest.py
+  s_f02d55c4e0f929::t_68d246d48ce989 25
+  s_dd5ec07e8f478a::t_06fb410356503a 87-91
+  s_f02d55c4e0f929::t_c2d7d5d684da67 60
+  s_f02d55c4e0f929::t_cddcfa98623506 121
+  s_f02d55c4e0f929::t_c934ef4333370e 66
+ci_failure_orchestrator/service/apply.py
+  s_f02d55c4e0f929::t_34710144a6d9f5 39-40,52
+ci_failure_orchestrator/service/prompt.py
+  s_dd5ec07e8f478a::t_2440d149874217 29-33
+  s_1bcc52f66974c2::t_461079da94c07b 129
+ci_failure_orchestrator/service/patches.py
+  s_f02d55c4e0f929::t_1662bf53ef39e1 129
+  s_f02d55c4e0f929::t_22bbefeb896b62 41
+  s_f02d55c4e0f929::t_4d4c2ae970c4d9 119
+ci_failure_orchestrator/service/session.py
+  s_f02d55c4e0f929::t_2a1692f4bdceed 23-24
+  s_f02d55c4e0f929::t_c715e9accb51ce 14-15
+ci_failure_orchestrator/service/run.py
+  s_f02d55c4e0f929::t_7b0db38fa2a07e 45-46
+  s_f02d55c4e0f929::t_3f9abd99f17bed 170-174
+ci_failure_orchestrator/service/remediation_metrics.py
+  s_f02d55c4e0f929::t_dfb82593f8ad09 31
+  s_f02d55c4e0f929::t_a8adb4de95e695 49-53
+ci_failure_orchestrator/service/environment.py
+  s_f02d55c4e0f929::t_ca07ca6fed8db2 59-60,67
+  s_f02d55c4e0f929::t_fc5bb957a9833b 107-110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5c8fdbc06b237842142712f69a0f65ed65d7dbf3",
+  "prompts": {},
+  "humans": {
+    "h_1d8a7f1e671f32": {
+      "author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_1bcc52f66974c2": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f80a912e-6f57-4055-8d43-4e57c2323dbe",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_4d92d048379386": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "8e28024d-6a14-476e-9d17-05cb32fe0ddd",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    },
+    "s_f02d55c4e0f929": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "2913f7dc-2b67-48dc-9d79-dfcf9c6608bc",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
