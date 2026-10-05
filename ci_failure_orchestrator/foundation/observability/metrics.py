@@ -58,26 +58,34 @@ FORBIDDEN_LABEL_KEYS: frozenset[str] = frozenset(
 
 
 class MetricsRecorder(Protocol):
+    """Interface for counter, observation and gauge metric backends."""
+
     def increment(
         self,
         metric: str,
         value: int = 1,
         labels: dict[str, str] | None = None,
-    ) -> None: ...
+    ) -> None:
+        """Add value to a counter."""
+        ...
 
     def observe(
         self,
         metric: str,
         value: float,
         labels: dict[str, str] | None = None,
-    ) -> None: ...
+    ) -> None:
+        """Record one observation of a distribution metric."""
+        ...
 
     def gauge(
         self,
         metric: str,
         value: float,
         labels: dict[str, str] | None = None,
-    ) -> None: ...
+    ) -> None:
+        """Set a gauge to value."""
+        ...
 
 
 def sanitize_labels(labels: dict[str, str] | None) -> dict[str, str]:
@@ -124,6 +132,7 @@ class InMemoryMetricsRecorder:
         value: int = 1,
         labels: dict[str, str] | None = None,
     ) -> None:
+        """Add value to the counter for the sanitized label set."""
         labels = sanitize_labels(labels)
         key = _label_key(labels)
         with self._lock:
@@ -136,6 +145,7 @@ class InMemoryMetricsRecorder:
         value: float,
         labels: dict[str, str] | None = None,
     ) -> None:
+        """Append an observation for the sanitized label set."""
         labels = sanitize_labels(labels)
         key = _label_key(labels)
         with self._lock:
@@ -147,12 +157,14 @@ class InMemoryMetricsRecorder:
         value: float,
         labels: dict[str, str] | None = None,
     ) -> None:
+        """Set the gauge for the sanitized label set."""
         labels = sanitize_labels(labels)
         key = _label_key(labels)
         with self._lock:
             self.gauges[metric][key] = float(value)
 
     def snapshot(self) -> dict[str, Any]:
+        """Return a copy of all counters, observations and gauges keyed by metric then label key."""
         with self._lock:
             return {
                 "schema_version": OBSERVABILITY_SCHEMA,
@@ -171,6 +183,7 @@ class InMemoryMetricsRecorder:
             }
 
     def counter_total(self, metric: str) -> float:
+        """Return the counter's sum across all label sets."""
         with self._lock:
             return sum(self.counters.get(metric, {}).values())
 
@@ -205,6 +218,7 @@ class JsonMetricsRecorder:
         value: int = 1,
         labels: dict[str, str] | None = None,
     ) -> None:
+        """Increment the in-memory counter and append a counter record to the JSONL file."""
         clean = sanitize_labels(labels)
         self.inner.increment(metric, value, clean)
         self._append("counter", metric, float(value), clean)
@@ -215,6 +229,7 @@ class JsonMetricsRecorder:
         value: float,
         labels: dict[str, str] | None = None,
     ) -> None:
+        """Record the in-memory observation and append an observation record to the JSONL file."""
         clean = sanitize_labels(labels)
         self.inner.observe(metric, value, clean)
         self._append("observation", metric, float(value), clean)
@@ -225,21 +240,26 @@ class JsonMetricsRecorder:
         value: float,
         labels: dict[str, str] | None = None,
     ) -> None:
+        """Set the in-memory gauge and append a gauge record to the JSONL file."""
         clean = sanitize_labels(labels)
         self.inner.gauge(metric, value, clean)
         self._append("gauge", metric, float(value), clean)
 
     def snapshot(self) -> dict[str, Any]:
+        """Return the in-memory snapshot."""
         return self.inner.snapshot()
 
 
 class NullMetricsRecorder:
+    """Recorder that discards all metrics."""
+
     def increment(
         self,
         metric: str,
         value: int = 1,
         labels: dict[str, str] | None = None,
     ) -> None:
+        """Discard the increment."""
         return None
 
     def observe(
@@ -248,6 +268,7 @@ class NullMetricsRecorder:
         value: float,
         labels: dict[str, str] | None = None,
     ) -> None:
+        """Discard the observation."""
         return None
 
     def gauge(
@@ -256,6 +277,7 @@ class NullMetricsRecorder:
         value: float,
         labels: dict[str, str] | None = None,
     ) -> None:
+        """Discard the gauge value."""
         return None
 
 
@@ -272,6 +294,7 @@ class SafeMetricsRecorder:
         value: int = 1,
         labels: dict[str, str] | None = None,
     ) -> None:
+        """Forward to the inner increment, counting and logging any exception instead of raising."""
         try:
             self._inner.increment(metric, value, labels)
         except Exception as exc:  # noqa: BLE001
@@ -285,6 +308,7 @@ class SafeMetricsRecorder:
         value: float,
         labels: dict[str, str] | None = None,
     ) -> None:
+        """Forward to the inner observe, counting and logging any exception instead of raising."""
         try:
             self._inner.observe(metric, value, labels)
         except Exception as exc:  # noqa: BLE001
@@ -298,6 +322,7 @@ class SafeMetricsRecorder:
         value: float,
         labels: dict[str, str] | None = None,
     ) -> None:
+        """Forward to the inner gauge, counting and logging any exception instead of raising."""
         try:
             self._inner.gauge(metric, value, labels)
         except Exception as exc:  # noqa: BLE001

@@ -21,6 +21,8 @@ from .diff_risk import HIGH, LOW, MEDIUM
 
 
 class RemediationState(str, Enum):
+    """Repair states, from failure received to a terminal verification verdict."""
+
     FAILURE_RECEIVED = "FAILURE_RECEIVED"
     FAILURE_REPRODUCED = "FAILURE_REPRODUCED"
     REPAIR_PROPOSED = "REPAIR_PROPOSED"
@@ -48,6 +50,8 @@ TERMINAL_STATES = frozenset({
 
 
 class GateStatus(str, Enum):
+    """Outcomes of one verification gate."""
+
     PASSED = "PASSED"
     # Passed before the patch and fails after it: the repair broke it.
     FAILED = "FAILED"
@@ -59,10 +63,13 @@ class GateStatus(str, Enum):
 
     @property
     def satisfied(self) -> bool:
+        """Whether the gate passed or was waived."""
         return self in (GateStatus.PASSED, GateStatus.WAIVED)
 
     @property
     def passed(self) -> bool | None:
+        """True if the gate is satisfied, None if it was not run, otherwise False."""
+
         if self.satisfied:
             return True
         if self is GateStatus.NOT_RUN:
@@ -115,40 +122,51 @@ class VerificationResult:
 
     @property
     def affected_tests_passed(self) -> bool | None:
+        """Pass state of the affected-tests gate; None if not run."""
         return self.affected_tests.passed
 
     @property
     def regression_suite_passed(self) -> bool | None:
+        """Pass state of the regression-suite gate; None if not run."""
         return self.regression_suite.passed
 
     @property
     def coverage_regressed(self) -> bool | None:
+        """True if the coverage gate failed, False if it is satisfied, otherwise None."""
+
         if self.coverage is GateStatus.FAILED:
             return True
         return False if self.coverage.satisfied else None
 
     @property
     def lint_passed(self) -> bool | None:
+        """Pass state of the lint gate; None if not run."""
         return self.lint.passed
 
     @property
     def typecheck_passed(self) -> bool | None:
+        """Pass state of the typecheck gate; None if not run."""
         return self.typecheck.passed
 
     @property
     def security_checks_passed(self) -> bool | None:
+        """Pass state of the security gate; None if not run."""
         return self.security.passed
 
     @property
     def build_passed(self) -> bool | None:
+        """Pass state of the build gate; None if not run."""
         return self.build.passed
 
     @property
     def behavioral_invariants_passed(self) -> bool | None:
+        """Pass state of the behavioral-invariants gate; None if not run."""
         return self.behavioral_invariants.passed
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> VerificationResult:
+        """Build a result from a dict, ignoring unknown keys and coercing gate and tuple fields."""
+
         values: dict[str, Any] = {}
         defaults = cls()
         for f in fields(cls):
@@ -165,6 +183,8 @@ class VerificationResult:
         return cls(**values)
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the result as a JSON-compatible dict, including the derived pass properties."""
+
         out: dict[str, Any] = {}
         for f in fields(self):
             value = getattr(self, f.name)
@@ -179,6 +199,8 @@ class VerificationResult:
 
 @dataclass(frozen=True)
 class RemediationDecision:
+    """Final remediation state with its reasons, missing evidence and merge requirement."""
+
     state: RemediationState
     reasons: tuple[str, ...]
     missing_evidence: tuple[str, ...]
@@ -187,9 +209,12 @@ class RemediationDecision:
 
     @property
     def verified(self) -> bool:
+        """Whether the state is VERIFIED_FIXED."""
         return self.state is RemediationState.VERIFIED_FIXED
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the decision as a JSON-compatible dict."""
+
         return {
             "state": self.state.value,
             "verified": self.verified,
@@ -236,6 +261,8 @@ def is_verified_fix(v: VerificationResult) -> bool:
 
 
 def missing_evidence(v: VerificationResult) -> tuple[str, ...]:
+    """Return the evidence items that were not collected or cannot vouch for the repair."""
+
     missing: list[str] = []
     if v.original_failure_reproduced is not True:
         missing.append("original_failure_reproduced")

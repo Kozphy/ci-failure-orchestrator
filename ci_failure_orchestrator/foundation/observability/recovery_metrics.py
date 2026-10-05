@@ -12,6 +12,7 @@ def record_recovery_decision(
     *,
     source: str = "runtime",
 ) -> None:
+    """Increment resume attempt, success, blocked and consistency-failure counters for a recovery decision."""
     src = source if source in {"runtime", "benchmark"} else "runtime"
     metrics.increment(
         "orchestrator_resume_attempts_total",

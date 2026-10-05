@@ -10,6 +10,8 @@ from .summary import RunMetricsSummary
 
 @dataclass(frozen=True)
 class SLIDefinition:
+    """Catalog entry describing one SLI's numerator, denominator, eligibility and limitations."""
+
     sli_id: str
     name: str
     purpose: str
@@ -21,6 +23,8 @@ class SLIDefinition:
 
 @dataclass(frozen=True)
 class SLIResult:
+    """Computed SLI with explicit numerator and denominator; value is None when the ratio is undefined."""
+
     sli_id: str
     name: str
     numerator: int
@@ -29,6 +33,7 @@ class SLIResult:
     insufficient_data: bool
 
     def to_dict(self) -> dict:
+        """Return a JSON-serialisable dict including a ``num/den`` display string."""
         return {
             "sli_id": self.sli_id,
             "name": self.name,
@@ -163,6 +168,7 @@ _BOUNDED_STOPS = frozenset(
 
 
 def compute_slis(summaries: Sequence[RunMetricsSummary]) -> list[SLIResult]:
+    """Compute SLI-001 to SLI-010 over the runtime-source summaries; benchmark summaries are ignored."""
     runtime = _runtime(summaries)
     eligible = [s for s in runtime if s.eligible_repair]
     results: list[SLIResult] = []

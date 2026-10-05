@@ -10,6 +10,8 @@ from .sanitization import is_binary_noise, sanitize_text
 
 @dataclass(frozen=True)
 class ContextBudget:
+    """Character and item limits applied when building a FailureContext."""
+
     max_chars: int = 50_000
     max_log_chars: int = 12_000
     max_diff_chars: int = 15_000
@@ -17,6 +19,8 @@ class ContextBudget:
 
 
 class ContextBuildError(RuntimeError):
+    """Raised when a FailureContext cannot be built from the given event."""
+
     pass
 
 
@@ -43,6 +47,22 @@ class ContextBuilder:
         diff_excerpt: str = "",
         previous_attempts: tuple[dict, ...] = (),
     ) -> FailureContext:
+        """Build a sanitized, budgeted FailureContext for one failure event.
+
+        Binary-looking values are skipped, every value is sanitized, and evidence is
+        truncated to the budget; skips and truncations are recorded as reasons.
+
+        Args:
+            event: The failure event to summarize; its ``run_id`` must be set.
+            diff_excerpt: Optional diff text, truncated to ``max_diff_chars``.
+            previous_attempts: Earlier attempt records; duplicates by ``summary`` are dropped.
+
+        Returns:
+            The assembled FailureContext.
+
+        Raises:
+            ContextBuildError: When ``event.run_id`` is empty.
+        """
         if not event.run_id:
             raise ContextBuildError("FailureEvent.run_id is required")
 

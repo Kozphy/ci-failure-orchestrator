@@ -31,6 +31,10 @@ def evaluate_expectations(
     expected: ExpectedResult,
     observed: ObservedResult,
 ) -> list[BenchmarkAssertionResult]:
+    """Compare observed results to the expected fields that a golden case sets.
+
+    Expected fields left as None or empty are skipped and produce no assertion.
+    """
     results: list[BenchmarkAssertionResult] = []
 
     def _eq(name: str, exp, act) -> None:

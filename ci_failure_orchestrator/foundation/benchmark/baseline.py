@@ -13,6 +13,8 @@ from .schemas import SUITE_VERSION, BenchmarkCaseResult
 
 
 class RegressionLabel(str, Enum):
+    """Classifies how a case's pass state changed relative to the baseline."""
+
     REGRESSED = "REGRESSED"
     IMPROVED = "IMPROVED"
     UNCHANGED_PASS = "UNCHANGED_PASS"
@@ -23,12 +25,15 @@ class RegressionLabel(str, Enum):
 
 @dataclass
 class CaseDelta:
+    """Baseline-versus-current pass state for one benchmark case."""
+
     case_id: str
     label: RegressionLabel
     baseline_passed: bool | None
     current_passed: bool | None
 
     def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serialisable dict of the delta."""
         return {
             "case_id": self.case_id,
             "label": self.label.value,
@@ -38,10 +43,13 @@ class CaseDelta:
 
 
 class BaselineStore:
+    """JSON file store for the reviewed benchmark baseline."""
+
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
 
     def load(self) -> dict[str, Any] | None:
+        """Return the parsed baseline, or None if the file does not exist."""
         if not self.path.is_file():
             return None
         return json.loads(self.path.read_text(encoding="utf-8"))
@@ -53,6 +61,7 @@ class BaselineStore:
         metrics: dict[str, Any] | None = None,
         suite_version: str = SUITE_VERSION,
     ) -> dict[str, Any]:
+        """Write per-case pass state and metrics to the baseline file and return the payload."""
         payload = {
             "suite_version": suite_version,
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -76,6 +85,7 @@ def compare_to_baseline(
     results: list[BenchmarkCaseResult],
     baseline: dict[str, Any] | None,
 ) -> list[CaseDelta]:
+    """Label each case in the current results or the baseline by its pass-state change, sorted by case ID."""
     current = {r.case_id: r.passed for r in results}
     previous = {}
     if baseline and isinstance(baseline.get("cases"), dict):

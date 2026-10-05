@@ -55,6 +55,8 @@ from .schemas import (
 
 @dataclass
 class BenchmarkSuiteResult:
+    """Outcome of one benchmark suite run: case results, metrics, baseline deltas and exit code."""
+
     suite_run_id: str
     results: list[BenchmarkCaseResult]
     metrics: dict[str, Any]
@@ -64,6 +66,7 @@ class BenchmarkSuiteResult:
     harness_errors: int = 0
 
     def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serialisable dict of the suite result, excluding report paths."""
         return {
             "suite_run_id": self.suite_run_id,
             "benchmark_schema_version": BENCHMARK_SCHEMA_VERSION,
@@ -95,6 +98,10 @@ class BenchmarkRunner:
         self.artifacts_root = Path(artifacts_root) if artifacts_root else None
 
     def run_case(self, case: BenchmarkCase) -> BenchmarkCaseResult:
+        """Run one case in a temporary workspace and evaluate its expectations.
+
+        Exceptions raised during the run are caught and reported as a harness error on the result.
+        """
         started = time.perf_counter()
         tmp: tempfile.TemporaryDirectory[str] | None = None
         try:
@@ -195,6 +202,24 @@ class BenchmarkRunner:
         update_baseline: bool = False,
         preserve_artifacts: bool = True,
     ) -> BenchmarkSuiteResult:
+        """Run the filtered cases, compute metrics, compare to the baseline and write reports.
+
+        The result's exit code is 2 if any harness error occurred, 1 if a required case failed or
+        regressed against the baseline, otherwise 0.
+
+        Args:
+            cases: Cases to run; loaded from cases_dir when None.
+            case_id: Only run the case with this ID.
+            category: Only run cases in this category (case-insensitive).
+            tag: Only run cases carrying this tag.
+            required: Only run required (True) or optional (False) cases.
+            compare_baseline: Compare results to the stored baseline when a baseline path is set.
+            update_baseline: Overwrite the stored baseline with these results when a baseline path is set.
+            preserve_artifacts: Write reports under artifacts_root when it is set.
+
+        Raises:
+            BenchmarkInjectionError: If cases is None and no cases_dir was configured.
+        """
         suite_run_id = f"bench-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-{uuid4().hex[:8]}"
         if cases is None:
             if self.cases_dir is None:

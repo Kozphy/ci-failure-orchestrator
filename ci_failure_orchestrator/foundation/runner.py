@@ -133,6 +133,11 @@ class AgentExecutionFoundation(PolicyGateMixin):
         )
 
     def run(self, event: FailureEvent) -> FoundationResult:
+        """Run the classify, plan, propose, sandbox and evaluate loop for one failure event.
+
+        A passing evaluation goes to the policy gate; failures retry until the retry engine
+        stops or the attempt budget runs out. Errors are caught and returned as a FAIL result.
+        """
         self._run_started_perf = time.perf_counter()
         sm = FoundationStateMachine(RunStatus.RECEIVED)
         run_id = event.run_id or new_id("run")

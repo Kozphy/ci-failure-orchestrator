@@ -17,6 +17,8 @@ from .models import EvaluationResult, FailureClassification, FailureEvent, Repai
 
 
 class RetryReason(str, Enum):
+    """Reasons for a retry decision, covering both retry and stop outcomes."""
+
     # RETRY
     RECOVERABLE_FAILURE = "RECOVERABLE_FAILURE"
     PARTIAL_PROGRESS = "PARTIAL_PROGRESS"
@@ -36,6 +38,8 @@ class RetryReason(str, Enum):
 
 
 class FailureDisposition(str, Enum):
+    """Recoverability classes for a failed attempt."""
+
     RECOVERABLE = "RECOVERABLE"
     TRANSIENT = "TRANSIENT"
     UNRECOVERABLE = "UNRECOVERABLE"
@@ -71,12 +75,16 @@ class RetryBudget:
 
 @dataclass(frozen=True)
 class ProgressAssessment:
+    """Whether an attempt improved on the previous one, with the signals observed."""
+
     improved: bool
     signals: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
 class AttemptRecord:
+    """Summary of one repair attempt used for retry decisions."""
+
     attempt_number: int
     plan_goal: str
     proposal_id: str
@@ -96,6 +104,8 @@ class AttemptRecord:
 
 @dataclass(frozen=True)
 class RetryDecision:
+    """Outcome of a retry decision with the remaining attempt budget."""
+
     should_retry: bool
     reason: RetryReason
     next_attempt: int
@@ -106,6 +116,8 @@ class RetryDecision:
 
 @dataclass(frozen=True)
 class RetryContext:
+    """Attempt history, latest evaluation and budget for a retry."""
+
     attempt_number: int
     prior_attempts: tuple[AttemptRecord, ...]
     failed_approaches: tuple[str, ...]
@@ -136,6 +148,8 @@ def normalize_patch(patch: str) -> str:
 
 
 def proposal_fingerprint(proposal: RepairProposal) -> str:
+    """Return a SHA-256 fingerprint of the normalized patch and sorted changed files."""
+
     payload = "\n".join(
         [
             normalize_patch(proposal.patch),
@@ -193,6 +207,8 @@ def assess_progress(
     previous: AttemptRecord | None,
     current: AttemptRecord,
 ) -> ProgressAssessment:
+    """Compare an attempt with the previous one and return objective progress signals."""
+
     if previous is None:
         return ProgressAssessment(improved=False, signals=("first_attempt",))
 
@@ -236,6 +252,8 @@ def classify_disposition(
     evaluation: EvaluationResult,
     sandbox: SandboxResult,
 ) -> FailureDisposition:
+    """Classify a failed attempt as recoverable, transient, unrecoverable or unknown."""
+
     err = (sandbox.error or "").lower()
     if evaluation.forbidden_changes_detected or "forbidden_path" in err:
         return FailureDisposition.UNRECOVERABLE
@@ -266,6 +284,8 @@ def build_attempt_record(
     classification: FailureClassification,
     previous: AttemptRecord | None = None,
 ) -> AttemptRecord:
+    """Build an attempt record with fingerprints, disposition and progress against ``previous``."""
+
     prop_fp = proposal_fingerprint(proposal)
     fail_fp = failure_fingerprint(
         event=event,
@@ -311,6 +331,11 @@ class RetryDecisionEngine:
         attempts: list[AttemptRecord],
         latest_evaluation: EvaluationResult,
     ) -> RetryDecision:
+        """Decide whether to retry, checking success, budget, recoverability, repetition and progress in order.
+
+        Stops when no attempts are recorded or when no retry rule matches.
+        """
+
         if not attempts:
             return RetryDecision(
                 should_retry=False,

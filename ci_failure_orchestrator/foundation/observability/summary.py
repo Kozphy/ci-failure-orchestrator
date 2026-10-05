@@ -58,10 +58,12 @@ class RunMetricsSummary:
     labels: dict[str, str] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the summary as a plain dict."""
         return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> RunMetricsSummary:
+        """Build a summary from a dict, defaulting missing counts to 0 and source to runtime."""
         return cls(
             schema_version=str(data.get("schema_version") or OBSERVABILITY_SCHEMA),
             run_id=str(data.get("run_id") or ""),
@@ -113,6 +115,11 @@ def summarize_foundation_result(
     evaluations: int | None = None,
     evaluation_failures: int = 0,
 ) -> RunMetricsSummary:
+    """Build a per-run metrics summary from a foundation result and caller-supplied counts.
+
+    Runs stopped for SECURITY_BOUNDARY_HIT or INVALID_PROPOSAL, or with forbidden changes, are marked
+    not eligible for repair.
+    """
     from ..models import RunStatus
     from ..policy import PolicyOutcome
 
@@ -188,6 +195,7 @@ def summarize_foundation_result(
 
 
 def write_run_metrics_summary(artifacts_root: Path, summary: RunMetricsSummary) -> Path:
+    """Write the summary to ``runs/<run_id>/metrics-summary.json`` and return its path."""
     root = Path(artifacts_root) / "runs" / summary.run_id
     root.mkdir(parents=True, exist_ok=True)
     path = root / "metrics-summary.json"
@@ -196,4 +204,5 @@ def write_run_metrics_summary(artifacts_root: Path, summary: RunMetricsSummary) 
 
 
 def is_terminal_automation(workflow_status: str | None) -> bool:
+    """Return whether the workflow status is a terminal automation status."""
     return bool(workflow_status and workflow_status in _TERMINAL_AUTOMATION)

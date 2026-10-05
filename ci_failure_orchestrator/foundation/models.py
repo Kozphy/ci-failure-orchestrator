@@ -16,14 +16,18 @@ SCHEMA_VERSION = "foundation.v1"
 
 
 def utc_now() -> str:
+    """Return the current UTC time as an ISO 8601 string."""
     return datetime.now(timezone.utc).isoformat()
 
 
 def new_id(prefix: str) -> str:
+    """Return a new identifier of the form ``<prefix>-<12 hex characters>``."""
     return f"{prefix}-{uuid4().hex[:12]}"
 
 
 class ToolRiskLevel(str, Enum):
+    """Risk levels assigned to tools."""
+
     READ_ONLY = "READ_ONLY"
     SAFE_WRITE = "SAFE_WRITE"
     RESTRICTED = "RESTRICTED"
@@ -56,6 +60,8 @@ class RunStatus(str, Enum):
 
 
 class CheckStatus(str, Enum):
+    """Outcomes of an evaluation check."""
+
     PASSED = "PASSED"
     FAILED = "FAILED"
     NOT_RUN = "NOT_RUN"
@@ -65,6 +71,8 @@ class CheckStatus(str, Enum):
 
 @dataclass(frozen=True)
 class FailureEvent:
+    """CI failure received for repair."""
+
     event_id: str
     run_id: str
     source: str
@@ -83,10 +91,16 @@ class FailureEvent:
     schema_version: str = SCHEMA_VERSION
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the event as a dict."""
         return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any], *, run_id: str | None = None) -> "FailureEvent":
+        """Build an event from a dict, generating IDs and defaults for missing fields.
+
+        A non-empty ``run_id`` argument overrides the dict's run ID.
+        """
+
         return cls(
             event_id=str(data.get("event_id") or new_id("evt")),
             run_id=run_id or str(data.get("run_id") or new_id("run")),
@@ -107,6 +121,8 @@ class FailureEvent:
 
 @dataclass(frozen=True)
 class FailureContext:
+    """Bounded summary and prioritized evidence for one failure."""
+
     run_id: str
     event_id: str
     summary: str
@@ -137,6 +153,8 @@ class FailureClassification:
 
 @dataclass(frozen=True)
 class PlanStep:
+    """One tool invocation in a repair plan."""
+
     step_id: str
     action: str
     tool: str
@@ -146,6 +164,8 @@ class PlanStep:
 
 @dataclass(frozen=True)
 class RepairPlan:
+    """Planned repair steps, verification steps and stop conditions for a run."""
+
     run_id: str
     goal: str
     assumptions: tuple[str, ...]
@@ -160,6 +180,8 @@ class RepairPlan:
 
 @dataclass(frozen=True)
 class ToolCall:
+    """Record of one tool invocation request."""
+
     call_id: str
     run_id: str
     tool_name: str
@@ -171,6 +193,8 @@ class ToolCall:
 
 @dataclass(frozen=True)
 class ToolResult:
+    """Outcome of one tool invocation."""
+
     tool_name: str
     success: bool
     exit_code: int = 0
@@ -185,6 +209,8 @@ class ToolResult:
 
 @dataclass(frozen=True)
 class RepairProposal:
+    """Proposed patch with its rationale and verification plan."""
+
     proposal_id: str
     run_id: str
     files_changed: tuple[str, ...]
@@ -198,6 +224,8 @@ class RepairProposal:
 
 @dataclass(frozen=True)
 class SandboxResult:
+    """Outcome of running a proposal in a sandbox."""
+
     run_id: str
     proposal_id: str
     success: bool
@@ -213,6 +241,8 @@ class SandboxResult:
 
 @dataclass(frozen=True)
 class EvaluationCheck:
+    """Result of one evaluation check."""
+
     name: str
     status: CheckStatus
     detail: str = ""
@@ -220,6 +250,8 @@ class EvaluationCheck:
 
 @dataclass(frozen=True)
 class EvaluationResult:
+    """Technical evaluation of a sandboxed proposal."""
+
     run_id: str
     passed: bool
     patch_applied: bool
@@ -234,6 +266,8 @@ class EvaluationResult:
 
 @dataclass
 class RunState:
+    """Mutable in-memory state of one orchestrator run."""
+
     run_id: str
     status: RunStatus = RunStatus.RECEIVED
     event: FailureEvent | None = None

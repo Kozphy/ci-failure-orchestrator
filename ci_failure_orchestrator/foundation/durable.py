@@ -29,6 +29,8 @@ class UnsupportedSchemaError(ValueError):
 
 
 class RecoveryStatus(str, Enum):
+    """Recovery classifications for a persisted run."""
+
     RESUMABLE = "RESUMABLE"
     TERMINAL = "TERMINAL"
     REQUIRES_REVIEW = "REQUIRES_REVIEW"
@@ -36,6 +38,8 @@ class RecoveryStatus(str, Enum):
 
 
 class AuditEventType(str, Enum):
+    """Event types recorded in a run's audit log."""
+
     RUN_CREATED = "RUN_CREATED"
     RUN_RESUMED = "RUN_RESUMED"
     CONTEXT_BUILT = "CONTEXT_BUILT"
@@ -70,6 +74,8 @@ class AuditEventType(str, Enum):
 
 
 class HumanDecisionStatus(str, Enum):
+    """Outcomes of recording a human reviewer decision."""
+
     APPLIED = "APPLIED"
     RECORDED = "RECORDED"
     BLOCKED = "BLOCKED"
@@ -78,6 +84,8 @@ class HumanDecisionStatus(str, Enum):
 
 @dataclass(frozen=True)
 class EvidenceLimits:
+    """Character limits applied to stored evidence."""
+
     max_stdout_chars: int = 50_000
     max_stderr_chars: int = 50_000
     max_log_chars: int = 100_000
@@ -87,6 +95,8 @@ class EvidenceLimits:
 
 @dataclass(frozen=True)
 class DurableEvidenceRef:
+    """Reference to an evidence file stored under a run root."""
+
     kind: str
     ref: str  # relative to run root
     content_type: str = "application/json"
@@ -94,6 +104,8 @@ class DurableEvidenceRef:
 
 @dataclass(frozen=True)
 class AuditEvent:
+    """One record in a run's append-oriented audit log."""
+
     schema_version: str
     event_id: str
     run_id: str
@@ -108,6 +120,8 @@ class AuditEvent:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the event as a JSON-compatible dict."""
+
         return {
             "schema_version": self.schema_version,
             "event_id": self.event_id,
@@ -128,6 +142,12 @@ class AuditEvent:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "AuditEvent":
+        """Build an event from a dict, filling defaults for optional fields.
+
+        Raises:
+            KeyError: If ``event_id``, ``run_id``, ``sequence`` or ``event_type`` is missing.
+        """
+
         refs = tuple(
             DurableEvidenceRef(
                 kind=str(r.get("kind") or ""),
@@ -178,6 +198,8 @@ class DurableRunState:
     evidence_index: dict[str, str] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the run state as a JSON-compatible dict."""
+
         return {
             "schema_version": self.schema_version,
             "run_id": self.run_id,
@@ -203,6 +225,13 @@ class DurableRunState:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "DurableRunState":
+        """Build a run state from a dict, upgrading the legacy ``1.0`` schema version.
+
+        Raises:
+            UnsupportedSchemaError: If the schema version is not a supported durable schema.
+            KeyError: If ``run_id`` or ``workflow_status`` is missing.
+        """
+
         version = str(data.get("schema_version") or "")
         if version and version not in {DURABLE_SCHEMA, "1.0", SCHEMA_VERSION}:
             # Accept foundation.v1 aliases only for documented durable schema
@@ -236,18 +265,24 @@ class DurableRunState:
 
 @dataclass(frozen=True)
 class ConsistencyIssue:
+    """One problem found by a run consistency check."""
+
     code: str
     message: str
 
 
 @dataclass(frozen=True)
 class ConsistencyReport:
+    """Result of a run consistency check."""
+
     valid: bool
     issues: tuple[ConsistencyIssue, ...] = ()
 
 
 @dataclass(frozen=True)
 class RecoveryDecision:
+    """Recovery classification for a persisted run, with its reason."""
+
     status: RecoveryStatus
     run_id: str
     workflow_status: str
@@ -271,6 +306,8 @@ class HumanDecisionResult:
 
 @dataclass(frozen=True)
 class RunInspection:
+    """Read-only summary of a persisted run."""
+
     run_id: str
     workflow_status: str
     technical_status: str | None
@@ -296,6 +333,7 @@ def _json_default(obj: Any) -> Any:
 
 
 def canonical_json(value: Any) -> str:
+    """Serialize a value as indented, key-sorted JSON with a trailing newline."""
     return json.dumps(value, indent=2, sort_keys=True, default=_json_default) + "\n"
 
 
@@ -338,6 +376,12 @@ def sanitize_text_bounded(
     *,
     max_chars: int,
 ) -> tuple[str, dict[str, Any]]:
+    """Sanitize text and truncate it to fit ``max_chars``.
+
+    Returns:
+        The cleaned text and a dict with ``truncated``, ``original_length`` and ``stored_length``.
+    """
+
     cleaned, _ = sanitize_text(text or "")
     meta: dict[str, Any] = {
         "truncated": False,
@@ -352,6 +396,8 @@ def sanitize_text_bounded(
 
 
 def atomic_write_text(path: Path, content: str) -> None:
+    """Write text through a temporary file and ``os.replace``, creating parent directories."""
+
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp_name = tempfile.mkstemp(prefix=path.name + ".", dir=str(path.parent))
     try:
@@ -372,30 +418,56 @@ def atomic_write_text(path: Path, content: str) -> None:
 
 
 class StateStore(Protocol):
-    def create_run(self, run: DurableRunState) -> None: ...
+    """Storage interface for durable run state."""
 
-    def load_run(self, run_id: str) -> DurableRunState: ...
+    def create_run(self, run: DurableRunState) -> None:
+        """Persist a new run."""
+        ...
 
-    def save_run(self, run: DurableRunState) -> None: ...
+    def load_run(self, run_id: str) -> DurableRunState:
+        """Return the stored state of a run."""
+        ...
 
-    def exists(self, run_id: str) -> bool: ...
+    def save_run(self, run: DurableRunState) -> None:
+        """Persist the current state of a run."""
+        ...
+
+    def exists(self, run_id: str) -> bool:
+        """Return whether state is stored for a run."""
+        ...
 
 
 class AuditStore(Protocol):
-    def append(self, event: AuditEvent) -> None: ...
+    """Storage interface for run audit logs."""
 
-    def read_events(self, run_id: str) -> list[AuditEvent]: ...
+    def append(self, event: AuditEvent) -> None:
+        """Append an event to its run's audit log."""
+        ...
 
-    def latest_sequence(self, run_id: str) -> int: ...
+    def read_events(self, run_id: str) -> list[AuditEvent]:
+        """Return a run's audit events in order."""
+        ...
+
+    def latest_sequence(self, run_id: str) -> int:
+        """Return the sequence number of a run's last event."""
+        ...
 
 
 class EvidenceStore(Protocol):
-    def write_json(self, run_id: str, kind: str, value: object, *, name: str | None = None) -> DurableEvidenceRef: ...
+    """Storage interface for run evidence files."""
 
-    def write_text(self, run_id: str, kind: str, content: str, *, name: str | None = None) -> DurableEvidenceRef: ...
+    def write_json(self, run_id: str, kind: str, value: object, *, name: str | None = None) -> DurableEvidenceRef:
+        """Store a JSON evidence document and return its reference."""
+        ...
+
+    def write_text(self, run_id: str, kind: str, content: str, *, name: str | None = None) -> DurableEvidenceRef:
+        """Store a text evidence document and return its reference."""
+        ...
 
 
 class FileStateStore:
+    """State store that keeps ``runs/<run-id>/state.json`` under an artifacts root."""
+
     def __init__(self, artifacts_root: Path) -> None:
         self.root = Path(artifacts_root)
 
@@ -403,14 +475,27 @@ class FileStateStore:
         return self.root / "runs" / run_id / "state.json"
 
     def exists(self, run_id: str) -> bool:
+        """Return whether ``state.json`` exists for the run."""
         return self._path(run_id).is_file()
 
     def create_run(self, run: DurableRunState) -> None:
+        """Persist a new run.
+
+        Raises:
+            PersistenceError: If the run already exists or the write fails.
+        """
+
         if self.exists(run.run_id):
             raise PersistenceError(f"run already exists: {run.run_id}")
         self.save_run(run)
 
     def save_run(self, run: DurableRunState) -> None:
+        """Stamp ``updated_at`` and atomically write the run state.
+
+        Raises:
+            PersistenceError: If the write fails.
+        """
+
         run.updated_at = utc_now()
         try:
             atomic_write_text(self._path(run.run_id), canonical_json(run.to_dict()))
@@ -418,6 +503,14 @@ class FileStateStore:
             raise PersistenceError(f"failed to save run state: {exc}") from exc
 
     def load_run(self, run_id: str) -> DurableRunState:
+        """Load the run state from ``state.json``.
+
+        Raises:
+            FileNotFoundError: If no state exists for the run.
+            PersistenceError: If ``state.json`` is malformed or not a JSON object.
+            UnsupportedSchemaError: If the stored schema version is not supported.
+        """
+
         path = self._path(run_id)
         if not path.is_file():
             raise FileNotFoundError(f"run not found: {run_id}")
@@ -431,6 +524,8 @@ class FileStateStore:
 
 
 class FileAuditStore:
+    """Audit store that appends to ``runs/<run-id>/events.jsonl`` under an artifacts root."""
+
     def __init__(self, artifacts_root: Path) -> None:
         self.root = Path(artifacts_root)
         self._seen_ids: dict[str, set[str]] = {}
@@ -439,10 +534,19 @@ class FileAuditStore:
         return self.root / "runs" / run_id / "events.jsonl"
 
     def latest_sequence(self, run_id: str) -> int:
+        """Return the sequence number of the run's last readable event, or 0 if there is none."""
+
         events, _ = self._read_raw(run_id)
         return events[-1].sequence if events else 0
 
     def append(self, event: AuditEvent) -> None:
+        """Append an event after checking its schema, event ID uniqueness and sequence order.
+
+        Raises:
+            UnsupportedSchemaError: If the event schema is not the audit schema.
+            PersistenceError: If the event ID is a duplicate, the sequence is not the next one, or the write fails.
+        """
+
         if event.schema_version != AUDIT_SCHEMA:
             raise UnsupportedSchemaError(event.schema_version)
         seen = self._seen_ids.setdefault(event.run_id, set())
@@ -473,6 +577,12 @@ class FileAuditStore:
         seen.add(event.event_id)
 
     def read_events(self, run_id: str) -> list[AuditEvent]:
+        """Return the run's audit events.
+
+        Raises:
+            PersistenceError: If any record, including the last one, is malformed.
+        """
+
         events, trailing_corrupt = self._read_raw(run_id)
         if trailing_corrupt:
             raise PersistenceError(
@@ -510,6 +620,8 @@ class FileAuditStore:
 
 
 class FileEvidenceStore:
+    """Evidence store that writes sanitized files under ``runs/<run-id>/`` in an artifacts root."""
+
     KIND_DIRS = {
         "input": "input",
         "classification": "classification",
@@ -532,6 +644,7 @@ class FileEvidenceStore:
         self.limits = limits or EvidenceLimits()
 
     def run_root(self, run_id: str) -> Path:
+        """Return the directory holding a run's artifacts."""
         return self.root / "runs" / run_id
 
     def write_json(
@@ -542,6 +655,21 @@ class FileEvidenceStore:
         *,
         name: str | None = None,
     ) -> DurableEvidenceRef:
+        """Sanitize a value and atomically write it as JSON evidence.
+
+        Args:
+            run_id: Run whose artifact directory receives the file.
+            kind: Evidence kind; mapped to a subdirectory through ``KIND_DIRS``, otherwise used as-is.
+            value: JSON-compatible value to sanitize and store.
+            name: File name; defaults to ``<kind>.json`` and gains a ``.json`` suffix if missing.
+
+        Returns:
+            Reference to the written file, relative to the run root.
+
+        Raises:
+            PersistenceError: If the write fails.
+        """
+
         rel_dir = self.KIND_DIRS.get(kind, kind)
         filename = name or f"{kind}.json"
         if not filename.endswith(".json"):
@@ -567,6 +695,23 @@ class FileEvidenceStore:
         name: str | None = None,
         max_chars: int | None = None,
     ) -> DurableEvidenceRef:
+        """Sanitize text, bound its length and atomically write it as text evidence.
+
+        Args:
+            run_id: Run whose artifact directory receives the file.
+            kind: Evidence kind; mapped to a subdirectory through ``KIND_DIRS``, otherwise used as-is.
+            content: Text to sanitize and store.
+            name: File name; defaults to ``<kind>.txt``.
+            max_chars: Length bound; defaults to ``limits.max_log_chars``. Truncation writes a
+                ``.truncation.json`` sidecar file.
+
+        Returns:
+            Reference to the written file, with a content type chosen from the file extension.
+
+        Raises:
+            PersistenceError: If a write fails.
+        """
+
         rel_dir = self.KIND_DIRS.get(kind, kind)
         filename = name or f"{kind}.txt"
         rel = f"{rel_dir}/{filename}".replace("\\", "/")

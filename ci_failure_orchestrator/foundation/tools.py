@@ -12,15 +12,19 @@ from .sanitization import sanitize_text
 
 
 class ToolValidationError(ValueError):
+    """Invalid tool registration, lookup or arguments."""
     pass
 
 
 class ToolExecutionError(RuntimeError):
+    """Tool execution failure."""
     pass
 
 
 @dataclass(frozen=True)
 class ToolSpec:
+    """Name, schemas, risk level, side effect and timeout of a tool."""
+
     name: str
     description: str
     input_schema: dict[str, Any]
@@ -31,31 +35,64 @@ class ToolSpec:
 
 
 class Tool(Protocol):
-    @property
-    def spec(self) -> ToolSpec: ...
+    """Interface for a registered tool."""
 
-    def execute(self, arguments: dict[str, Any]) -> ToolResult: ...
+    @property
+    def spec(self) -> ToolSpec:
+        """Static description of the tool."""
+        ...
+
+    def execute(self, arguments: dict[str, Any]) -> ToolResult:
+        """Run the tool with the given arguments."""
+        ...
 
 
 @dataclass
 class ToolRegistry:
+    """Registry of tools keyed by unique name."""
+
     _tools: dict[str, Tool] = field(default_factory=dict)
 
     def register(self, tool: Tool) -> None:
+        """Add a tool to the registry.
+
+        Raises:
+            ToolValidationError: If a tool with the same name is already registered.
+        """
+
         name = tool.spec.name
         if name in self._tools:
             raise ToolValidationError(f"duplicate tool name: {name}")
         self._tools[name] = tool
 
     def get(self, name: str) -> Tool:
+        """Return the named tool.
+
+        Raises:
+            ToolValidationError: If no tool has that name.
+        """
+
         if name not in self._tools:
             raise ToolValidationError(f"unknown tool: {name}")
         return self._tools[name]
 
     def list_tools(self) -> tuple[ToolSpec, ...]:
+        """Return the specs of all registered tools, sorted by name."""
         return tuple(self._tools[n].spec for n in sorted(self._tools))
 
     def invoke(self, run_id: str, tool_name: str, arguments: dict[str, Any]) -> tuple[ToolCall, ToolResult]:
+        """Run a tool and return the call record with a bounded, sanitized result.
+
+        An exception raised by the tool becomes a failed result. A run that exceeds the tool's timeout
+        is reported as failed with exit code 124 after it finishes; it is not interrupted.
+
+        Returns:
+            The ``ToolCall`` record and the ``ToolResult``.
+
+        Raises:
+            ToolValidationError: If the tool is not registered.
+        """
+
         tool = self.get(tool_name)
         call = ToolCall(
             call_id=new_id("call"),
@@ -117,8 +154,12 @@ def _safe_relpath(path: str) -> str:
 
 
 class LogReadTool:
+    """Read-only tool that returns the tail of a sanitized log excerpt."""
+
     @property
     def spec(self) -> ToolSpec:
+        """Spec of the ``log_reader`` tool."""
+
         return ToolSpec(
             name="log_reader",
             description="Read a bounded log excerpt",
@@ -130,6 +171,8 @@ class LogReadTool:
         )
 
     def execute(self, arguments: dict[str, Any]) -> ToolResult:
+        """Return the last 80 sanitized lines of the ``excerpt`` argument."""
+
         excerpt = str(arguments.get("excerpt") or "")
         cleaned, _ = sanitize_text(excerpt)
         lines = cleaned.splitlines()[-80:]
@@ -142,11 +185,15 @@ class LogReadTool:
 
 
 class FileReadTool:
+    """Read-only tool that reads a repository-relative text file under a root directory."""
+
     def __init__(self, root: Path | None = None) -> None:
         self.root = root
 
     @property
     def spec(self) -> ToolSpec:
+        """Spec of the ``file_reader`` tool."""
+
         return ToolSpec(
             name="file_reader",
             description="Read a repository-relative text file",
@@ -158,6 +205,14 @@ class FileReadTool:
         )
 
     def execute(self, arguments: dict[str, Any]) -> ToolResult:
+        """Return up to 20,000 sanitized characters of the file named by the ``path`` argument.
+
+        With no root configured, returns an empty successful result.
+
+        Raises:
+            ToolValidationError: If the path is empty, absolute, contains ``..`` or resolves outside the root.
+        """
+
         rel = _safe_relpath(str(arguments.get("path") or ""))
         if self.root is None:
             return ToolResult(
@@ -195,6 +250,8 @@ class TestRunnerTool:
 
     @property
     def spec(self) -> ToolSpec:
+        """Spec of the ``test_runner`` tool."""
+
         return ToolSpec(
             name="test_runner",
             description="Run an allowlisted verification target",
@@ -206,6 +263,8 @@ class TestRunnerTool:
         )
 
     def execute(self, arguments: dict[str, Any]) -> ToolResult:
+        """Run the ``target`` argument with the injected runner, or return a deterministic stub result."""
+
         target = str(arguments.get("target") or "targeted")
         if self._runner is not None:
             return self._runner(target)
@@ -225,6 +284,8 @@ class PatchApplyTool:
 
     @property
     def spec(self) -> ToolSpec:
+        """Spec of the ``patch_apply`` tool."""
+
         return ToolSpec(
             name="patch_apply",
             description="Validate patch text and file list for sandbox apply",
@@ -242,6 +303,12 @@ class PatchApplyTool:
         )
 
     def execute(self, arguments: dict[str, Any]) -> ToolResult:
+        """Validate the ``patch`` text and ``files`` paths without applying the patch.
+
+        Raises:
+            ToolValidationError: If a listed path is empty, absolute or contains ``..``.
+        """
+
         patch = str(arguments.get("patch") or "")
         files = [str(f) for f in (arguments.get("files") or [])]
         if not patch.strip():
@@ -260,6 +327,13 @@ class PatchApplyTool:
 
 
 def build_default_registry(*, root: Path | None = None, test_runner: Callable[[str], ToolResult] | None = None) -> ToolRegistry:
+    """Return a registry with the log reader, file reader, test runner and patch apply tools.
+
+    Args:
+        root: Root directory for the file reader; with None it returns empty results.
+        test_runner: Runner for the test runner tool; with None it returns a deterministic stub result.
+    """
+
     registry = ToolRegistry()
     registry.register(LogReadTool())
     registry.register(FileReadTool(root=root))

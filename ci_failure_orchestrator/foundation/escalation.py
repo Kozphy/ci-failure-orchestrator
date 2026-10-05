@@ -46,6 +46,8 @@ ESCALATION_SCHEMA = "foundation.escalation.v1"
 
 
 class EscalationReasonCode(str, Enum):
+    """Reasons a proposal was escalated for human review."""
+
     SECURITY_SENSITIVE_CHANGE = "SECURITY_SENSITIVE_CHANGE"
     AUTHORIZATION_CHANGE = "AUTHORIZATION_CHANGE"
     CI_WORKFLOW_CHANGE = "CI_WORKFLOW_CHANGE"
@@ -63,6 +65,8 @@ class EscalationReasonCode(str, Enum):
 
 
 class ReviewerAction(str, Enum):
+    """Actions available to a human reviewer."""
+
     APPROVE = "APPROVE"
     REJECT = "REJECT"
     REQUEST_CHANGES = "REQUEST_CHANGES"
@@ -70,6 +74,8 @@ class ReviewerAction(str, Enum):
 
 
 class EvidenceCompletenessStatus(str, Enum):
+    """Completeness levels of the evidence behind an escalation."""
+
     COMPLETE = "COMPLETE"
     PARTIAL = "PARTIAL"
     INCOMPLETE = "INCOMPLETE"
@@ -77,12 +83,16 @@ class EvidenceCompletenessStatus(str, Enum):
 
 @dataclass(frozen=True)
 class EvidenceRef:
+    """Reference to one piece of evidence in an escalation package."""
+
     kind: str
     ref: str
 
 
 @dataclass(frozen=True)
 class EvidenceCompleteness:
+    """Evidence completeness status with the names of missing items."""
+
     status: EvidenceCompletenessStatus
     missing: tuple[str, ...] = ()
 
@@ -102,6 +112,8 @@ class ReviewerDecision:
     timestamp: str = field(default_factory=utc_now)
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the decision as a dict; ``primary_workspace_mutated`` is always False."""
+
         return {
             "escalation_id": self.escalation_id,
             "action": self.action.value,
@@ -114,6 +126,8 @@ class ReviewerDecision:
 
 @dataclass(frozen=True)
 class HumanEscalation:
+    """Evidence package for a human reviewer of an escalated proposal."""
+
     escalation_id: str
     run_id: str
     reason_codes: tuple[EscalationReasonCode, ...]
@@ -139,6 +153,8 @@ class HumanEscalation:
     schema_version: str = ESCALATION_SCHEMA
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the package as a JSON-compatible dict."""
+
         data = asdict(self)
         data["reason_codes"] = [c.value for c in self.reason_codes]
         data["risk_level"] = self.risk_level.value
@@ -170,6 +186,11 @@ def map_reason_codes(
     policy_decision: PolicyDecision,
     categories: tuple[FileCategory, ...],
 ) -> tuple[EscalationReasonCode, ...]:
+    """Map matched policy rules and file categories to escalation reason codes.
+
+    Falls back to ``OTHER_POLICY_ESCALATION`` when nothing else matches.
+    """
+
     codes: list[EscalationReasonCode] = []
     for rule in policy_decision.matched_rules:
         code = _RULE_TO_REASON.get(rule)
@@ -191,6 +212,8 @@ def map_reason_codes(
 
 
 def build_checklist(reason_codes: tuple[EscalationReasonCode, ...]) -> tuple[str, ...]:
+    """Return the reviewer checklist items for the given reason codes."""
+
     items: list[str] = []
 
     def add(text: str) -> None:
@@ -254,6 +277,8 @@ def build_unresolved_questions(
     reason_codes: tuple[EscalationReasonCode, ...],
     evaluation: EvaluationResult,
 ) -> tuple[str, ...]:
+    """Return up to six open questions from the reason codes and the first unrun evaluation check."""
+
     qs: list[str] = []
     codes = set(reason_codes)
     if EscalationReasonCode.AUTHORIZATION_CHANGE in codes or EscalationReasonCode.SECURITY_SENSITIVE_CHANGE in codes:
@@ -281,6 +306,12 @@ def build_unresolved_questions(
 
 
 def patch_line_stats(patch: str) -> dict[str, int]:
+    """Count added and removed lines in a unified diff, ignoring header lines.
+
+    Returns:
+        Dict with ``added``, ``removed`` and ``files_touched_estimate`` (always 0 here).
+    """
+
     added = 0
     removed = 0
     for line in (patch or "").splitlines():
@@ -308,6 +339,12 @@ def validate_escalation_inputs(
     evaluation: EvaluationResult | None,
     affected_files: tuple[str, ...] | None,
 ) -> EvidenceCompleteness:
+    """Assess whether the inputs for an escalation package are complete.
+
+    Missing inputs or a non-ESCALATE policy outcome give INCOMPLETE; an empty patch or no
+    evaluation checks give PARTIAL.
+    """
+
     missing: list[str] = []
     if not run_id:
         missing.append("run_id")
@@ -353,6 +390,15 @@ class HumanEscalationBuilder:
         policy_context_categories: tuple[FileCategory, ...] | None = None,
         policy_context_scope: ChangeScope | None = None,
     ) -> HumanEscalation:
+        """Assemble a human escalation package from policy, proposal, evaluation and attempt evidence.
+
+        ``policy_context_categories`` and ``policy_context_scope`` override the values otherwise
+        derived from the proposal's changed files.
+
+        Raises:
+            ValueError: If the policy outcome is not ESCALATE.
+        """
+
         if policy_decision.outcome is not PolicyOutcome.ESCALATE:
             raise ValueError("HumanEscalationBuilder requires PolicyOutcome.ESCALATE")
 
@@ -580,6 +626,8 @@ class HumanEscalationBuilder:
 
 @dataclass(frozen=True)
 class EscalationArtifacts:
+    """Paths of the files written for one escalation."""
+
     root: Path
     summary_json: Path
     summary_md: Path
@@ -602,6 +650,11 @@ class EscalationArtifactWriter:
         proposal: RepairProposal,
         evaluation: EvaluationResult,
     ) -> EscalationArtifacts:
+        """Write the summary, evidence index, sanitized patch and evaluation summary files.
+
+        The patch is truncated to ``max_patch_chars``.
+        """
+
         root = self.artifacts_root / "runs" / escalation.run_id / "escalation"
         root.mkdir(parents=True, exist_ok=True)
 
@@ -665,6 +718,8 @@ class EscalationArtifactWriter:
 
 
 def render_escalation_markdown(escalation: HumanEscalation) -> str:
+    """Render an escalation package as a Markdown review document."""
+
     files = "\n".join(f"- {f}" for f in escalation.affected_files)
     reasons = "\n".join(f"- {c.value}" for c in escalation.reason_codes)
     rules = "\n".join(f"- {r}" for r in escalation.matched_policy_rules) or "- (none)"

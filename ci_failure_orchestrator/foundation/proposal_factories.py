@@ -26,6 +26,11 @@ class ScriptedProposalFactory:
         paths: tuple[str, ...],
         force_forbidden_path: bool,
     ) -> RepairProposal:
+        """Return a proposal built from the next scripted item, repeating the last one when exhausted.
+
+        Raises:
+            RuntimeError: When the factory was created with no items.
+        """
         if not self._items:
             raise RuntimeError("ScriptedProposalFactory has no items")
         idx = min(self._index, len(self._items) - 1)
@@ -62,6 +67,11 @@ def default_proposal_factory(
     paths: tuple[str, ...],
     force_forbidden_path: bool,
 ) -> RepairProposal:
+    """Return a placeholder proposal whose patch only adds a comment line to the first path.
+
+    ``force_forbidden_path`` replaces the paths with ``secrets/token``; with no paths the
+    patch targets ``src/module.py``.
+    """
     use_paths = (
         ("secrets/token",)
         if force_forbidden_path

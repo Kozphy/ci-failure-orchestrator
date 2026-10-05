@@ -12,6 +12,8 @@ from .sli import SLIResult
 
 
 class SLOStatus(str, Enum):
+    """Classifies an SLO evaluation as met, missed or lacking sufficient data."""
+
     MET = "MET"
     MISSED = "MISSED"
     INSUFFICIENT_DATA = "INSUFFICIENT_DATA"
@@ -19,6 +21,8 @@ class SLOStatus(str, Enum):
 
 @dataclass(frozen=True)
 class SLODefinition:
+    """Provisional SLO target for one SLI, with comparison operator and minimum sample count."""
+
     slo_id: str
     sli_id: str
     target: float
@@ -31,6 +35,7 @@ class SLODefinition:
     supports_error_budget: bool = True
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the definition as a dict marked with ``target_kind`` EXAMPLE_TARGET."""
         return {
             "slo_id": self.slo_id,
             "sli_id": self.sli_id,
@@ -48,11 +53,14 @@ class SLODefinition:
 
 @dataclass
 class ErrorBudget:
+    """Allowed, observed and remaining bad-event counts for a ratio SLO."""
+
     allowed_bad_events: float
     observed_bad_events: float
     remaining_budget: float
 
     def to_dict(self) -> dict[str, float]:
+        """Return the error budget as a plain dict."""
         return {
             "allowed_bad_events": self.allowed_bad_events,
             "observed_bad_events": self.observed_bad_events,
@@ -62,6 +70,8 @@ class ErrorBudget:
 
 @dataclass
 class SLOResult:
+    """Outcome of evaluating one SLO against its SLI result."""
+
     slo_id: str
     sli_id: str
     status: SLOStatus
@@ -74,6 +84,7 @@ class SLOResult:
     detail: str = ""
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the result as a JSON-serialisable dict marked with ``target_kind`` EXAMPLE_TARGET."""
         return {
             "slo_id": self.slo_id,
             "sli_id": self.sli_id,
@@ -132,6 +143,7 @@ def default_slo_definitions() -> list[SLODefinition]:
 
 
 def load_slo_config(path: Path | None) -> list[SLODefinition]:
+    """Load SLO definitions from a JSON file, falling back to the defaults if path is None or not a file."""
     if path is None or not Path(path).is_file():
         return default_slo_definitions()
     data = json.loads(Path(path).read_text(encoding="utf-8"))
@@ -176,6 +188,11 @@ def evaluate_error_budget(
 
 
 def evaluate_slo(slo: SLODefinition, sli: SLIResult) -> SLOResult:
+    """Evaluate one SLO against its SLI result.
+
+    Returns INSUFFICIENT_DATA when samples are below the minimum, the ratio is undefined, or the
+    comparison is unsupported. An error budget is attached only for ``>=`` SLOs that support one.
+    """
     if sli.denominator < slo.minimum_samples or sli.insufficient_data or sli.value is None:
         return SLOResult(
             slo_id=slo.slo_id,
@@ -232,6 +249,7 @@ def evaluate_slos(
     definitions: Sequence[SLODefinition],
     sli_results: Sequence[SLIResult],
 ) -> list[SLOResult]:
+    """Evaluate each SLO definition, marking it INSUFFICIENT_DATA when its SLI result is missing."""
     by_id = {s.sli_id: s for s in sli_results}
     out: list[SLOResult] = []
     for slo in definitions:

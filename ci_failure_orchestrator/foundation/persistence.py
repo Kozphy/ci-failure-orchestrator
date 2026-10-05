@@ -101,11 +101,13 @@ class RunPersistence:
 
     @property
     def durable(self) -> DurableRunState:
+        """Durable state of the current run; raises PersistenceError before ``start_run``."""
         if self._durable is None:
             raise PersistenceError("durable run not initialized")
         return self._durable
 
     def start_run(self, run_id: str, workflow_status: str = RunStatus.RECEIVED.value) -> DurableRunState:
+        """Create and store durable state for a new run and emit its RUN_CREATED audit event."""
         durable = DurableRunState(
             schema_version=DURABLE_SCHEMA,
             run_id=run_id,
@@ -132,6 +134,19 @@ class RunPersistence:
         metadata: dict[str, Any] | None = None,
         component: str = "foundation",
     ) -> AuditEvent:
+        """Append a sanitized audit event to the current run and save the updated run state.
+
+        Args:
+            event_type: Audit event type, as an enum member or its string value.
+            state_before: Workflow status before the event; defaults to the current status.
+            state_after: Workflow status after the event; when given, it becomes the run's status.
+            evidence_refs: Evidence records referenced by the event.
+            metadata: Extra event data, sanitized before it is stored.
+            component: Name of the component emitting the event.
+
+        Returns:
+            The appended audit event.
+        """
         durable = self.durable
         seq = durable.last_event_sequence + 1
         et = event_type.value if isinstance(event_type, AuditEventType) else event_type
@@ -178,6 +193,19 @@ class RunPersistence:
         stop_reason: str | None = None,
         **refs: str | None,
     ) -> None:
+        """Update the given fields of the current run's durable state and save it.
+
+        Fields left as None are unchanged.
+
+        Args:
+            workflow_status: New workflow status.
+            technical_status: New technical status.
+            policy_outcome: New policy outcome.
+            current_attempt: New attempt number.
+            stop_reason: Reason the run stopped.
+            **refs: Evidence references; each one naming an existing state attribute is set on the
+                state and recorded in its evidence index, others are ignored.
+        """
         durable = self.durable
         if workflow_status is not None:
             durable.workflow_status = workflow_status
@@ -199,6 +227,7 @@ class RunPersistence:
         self.state_store.save_run(durable)
 
     def write_json(self, kind: str, value: object, *, name: str | None = None) -> DurableEvidenceRef:
+        """Write a JSON evidence record for the current run and return its reference."""
         return self.evidence_store.write_json(self.durable.run_id, kind, value, name=name)
 
     def write_text(
@@ -209,6 +238,7 @@ class RunPersistence:
         name: str | None = None,
         max_chars: int | None = None,
     ) -> DurableEvidenceRef:
+        """Write a text evidence record for the current run and return its reference."""
         return self.evidence_store.write_text(
             self.durable.run_id,
             kind,

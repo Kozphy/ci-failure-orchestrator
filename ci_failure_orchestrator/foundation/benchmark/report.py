@@ -18,6 +18,11 @@ def write_reports(
     metrics: dict[str, Any],
     comparison: list[CaseDelta] | None = None,
 ) -> dict[str, Path]:
+    """Write summary.json, per-case JSON, comparison.json and report.md under output_dir.
+
+    Returns:
+        Paths keyed by ``summary``, ``report`` and ``comparison``.
+    """
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     cases_dir = output_dir / "cases"
@@ -79,6 +84,7 @@ def render_markdown(
     results: list[BenchmarkCaseResult],
     comparison: list[CaseDelta],
 ) -> str:
+    """Render the Markdown benchmark report from a summary dict, case results and baseline deltas."""
     lines: list[str] = []
     lines.append("# Benchmark Summary")
     lines.append("")

@@ -11,6 +11,8 @@ SUITE_VERSION = "1.0.0"
 
 
 class BenchmarkCategory(str, Enum):
+    """Classifies golden cases by the foundation behaviour they exercise."""
+
     CLASSIFICATION = "CLASSIFICATION"
     REPAIR = "REPAIR"
     RETRY = "RETRY"
@@ -23,12 +25,16 @@ class BenchmarkCategory(str, Enum):
 
 
 class BenchmarkTier(str, Enum):
+    """Classifies golden cases as deterministic, integration or model tier."""
+
     TIER1_DETERMINISTIC = "tier1"
     TIER2_INTEGRATION = "tier2"
     TIER3_MODEL = "tier3"
 
 
 class BenchmarkMode(str, Enum):
+    """Classifies which execution path the runner uses for a case."""
+
     ORCHESTRATOR = "orchestrator"
     CLASSIFY = "classify"
     TOOL = "tool"
@@ -44,10 +50,12 @@ class FailureInjectionSpec:
     occurrence: int = 1
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the spec as a plain dict."""
         return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any] | None) -> FailureInjectionSpec | None:
+        """Build a spec from a dict, or return None if data is empty."""
         if not data:
             return None
         return cls(
@@ -86,11 +94,13 @@ class ExpectedResult:
     populations: tuple[str, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the expectations as a plain dict."""
         d = asdict(self)
         return d
 
     @classmethod
     def from_dict(cls, data: dict[str, Any] | None) -> ExpectedResult:
+        """Build expectations from a dict; missing keys use the field defaults."""
         data = data or {}
         return cls(
             classification=data.get("classification"),
@@ -120,6 +130,8 @@ class ExpectedResult:
 
 @dataclass(frozen=True)
 class CaseFixture:
+    """Synthetic inputs for one golden case: failure event, workspace files, proposals and run settings."""
+
     event: dict[str, Any] = field(default_factory=dict)
     workspace_files: dict[str, str] = field(default_factory=dict)
     proposals: tuple[dict[str, Any], ...] = ()
@@ -141,6 +153,7 @@ class CaseFixture:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any] | None) -> CaseFixture:
+        """Build a fixture from a dict; missing keys use the field defaults."""
         data = data or {}
         schedule = data.get("target_pass_schedule")
         return cls(
@@ -177,6 +190,8 @@ class CaseFixture:
 
 @dataclass(frozen=True)
 class BenchmarkCase:
+    """Schema for one golden benchmark case."""
+
     case_id: str
     version: int
     title: str
@@ -193,6 +208,7 @@ class BenchmarkCase:
     source: str = "synthetic"
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the case as a JSON-serialisable dict."""
         return {
             "case_id": self.case_id,
             "version": self.version,
@@ -231,6 +247,11 @@ class BenchmarkCase:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> BenchmarkCase:
+        """Build a case from a dict.
+
+        Raises:
+            ValueError: If case_id is missing or blank.
+        """
         case_id = str(data.get("case_id") or "").strip()
         if not case_id:
             raise ValueError("BenchmarkCase requires stable case_id")
@@ -254,6 +275,8 @@ class BenchmarkCase:
 
 @dataclass
 class BenchmarkAssertionResult:
+    """Result of one expected-versus-actual assertion for a case."""
+
     name: str
     passed: bool
     expected: Any = None
@@ -261,6 +284,7 @@ class BenchmarkAssertionResult:
     detail: str = ""
 
     def to_dict(self) -> dict[str, Any]:
+        """Return a dict with expected and actual values redacted and truncated for reports."""
         return {
             "name": self.name,
             "passed": self.passed,
@@ -302,6 +326,8 @@ class ObservedResult:
 
 @dataclass
 class BenchmarkCaseResult:
+    """Outcome of running one golden case, including assertions and observed values."""
+
     case_id: str
     passed: bool
     duration_ms: float
@@ -317,6 +343,7 @@ class BenchmarkCaseResult:
     populations: tuple[str, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the case result as a JSON-serialisable dict."""
         return {
             "case_id": self.case_id,
             "passed": self.passed,

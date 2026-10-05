@@ -29,6 +29,7 @@ _HIGH_CONFIDENCE = frozenset({"github_token", "aws_key", "private_key"})
 
 
 def contains_high_confidence_secret(text: str) -> bool:
+    """Return True when the text matches a GitHub token, AWS access key or private key pattern."""
     return bool(text) and any(
         pattern.search(text) for name, pattern in _PATTERNS if name in _HIGH_CONFIDENCE
     )

@@ -9,11 +9,19 @@ from .schemas import BenchmarkCase
 
 
 def load_case(path: Path) -> BenchmarkCase:
+    """Load one golden case from a JSON file."""
     data = json.loads(Path(path).read_text(encoding="utf-8"))
     return BenchmarkCase.from_dict(data)
 
 
 def load_suite(cases_dir: Path) -> list[BenchmarkCase]:
+    """Load all golden cases under cases_dir, sorted by path.
+
+    Files whose name starts with an underscore and files under a ``baselines`` directory are skipped.
+
+    Raises:
+        ValueError: If two cases share a case_id.
+    """
     root = Path(cases_dir)
     files = sorted(root.rglob("*.json"))
     cases: list[BenchmarkCase] = []
@@ -40,6 +48,7 @@ def filter_cases(
     tag: str | None = None,
     required: bool | None = None,
 ) -> list[BenchmarkCase]:
+    """Return the cases matching every filter that is set; category matching is case-insensitive."""
     out = list(cases)
     if case_id:
         out = [c for c in out if c.case_id == case_id]

@@ -19,15 +19,20 @@ from .summary import RunMetricsSummary
 
 @dataclass
 class ConsistencyIssue:
+    """Inconsistency detected in one run's metrics summary."""
+
     run_id: str
     message: str
 
     def to_dict(self) -> dict[str, str]:
+        """Return the issue as a plain dict."""
         return {"run_id": self.run_id, "message": self.message}
 
 
 @dataclass
 class OperationalSnapshot:
+    """Operational metrics, SLIs and SLO results rebuilt from retained local run artifacts."""
+
     schema_version: str
     population: str
     source_filter: str
@@ -47,6 +52,7 @@ class OperationalSnapshot:
     limitations: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the snapshot as a JSON-serialisable dict."""
         return {
             "schema_version": self.schema_version,
             "population": self.population,
@@ -145,6 +151,16 @@ def build_metrics_from_runs(
     source: str = "runtime",
     limit: int | None = None,
 ) -> tuple[list[RunMetricsSummary], InMemoryMetricsRecorder, list[ConsistencyIssue]]:
+    """Load run summaries, re-emit derived counters into a fresh recorder and flag inconsistencies.
+
+    Args:
+        artifacts_root: Artifacts directory containing ``runs/``.
+        source: Keep only summaries with this source; an empty string keeps all.
+        limit: Keep only the last ``limit`` run directories by name; None keeps all.
+
+    Returns:
+        A tuple of (summaries, recorder holding the derived metrics, consistency issues).
+    """
     summaries = load_run_summaries(artifacts_root, source=source, limit=limit)
     recorder = InMemoryMetricsRecorder()
     issues: list[ConsistencyIssue] = []
@@ -233,6 +249,7 @@ def build_snapshot(
     limit: int | None = None,
     slo_config: Path | None = None,
 ) -> OperationalSnapshot:
+    """Build an operational snapshot of retained local runs, evaluating SLOs from slo_config or the defaults."""
     summaries, recorder, issues = build_metrics_from_runs(
         artifacts_root, source=source, limit=limit
     )

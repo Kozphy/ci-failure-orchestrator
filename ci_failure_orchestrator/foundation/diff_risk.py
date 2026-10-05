@@ -57,12 +57,15 @@ _TOKEN_SPLIT = re.compile(r"[/_.\-\s]+")
 
 @dataclass(frozen=True)
 class DiffRisk:
+    """Immutable risk score, level, reasons and contributing factors for one diff."""
+
     score: int
     risk_level: str
     reasons: tuple[str, ...]
     factors: dict[str, Any]
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the risk as a JSON-friendly dict."""
         return {
             "risk_score": self.score,
             "risk_level": self.risk_level,
@@ -72,6 +75,7 @@ class DiffRisk:
 
 
 def max_level(*levels: str | None) -> str:
+    """Return the highest known risk level, or HIGH when none of the levels is known."""
     known = [lvl for lvl in levels if lvl in _LEVEL_ORDER]
     return max(known, key=_LEVEL_ORDER.__getitem__) if known else HIGH
 
@@ -107,6 +111,11 @@ def _is_infra(path: str) -> bool:
 
 
 def score_diff_risk(patch: str) -> DiffRisk:
+    """Score a unified diff by size and the kinds of paths and lines it touches.
+
+    Authentication, authorization, payment, migration and secrets changes force HIGH
+    regardless of the score.
+    """
     files = [f for f in parse_unified_diff(patch) if f.path]
     lines_changed = sum(len(f.added) + len(f.removed) for f in files)
     score = 0

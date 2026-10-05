@@ -49,11 +49,18 @@ class InvalidStateTransition(ValueError):
 
 
 class FoundationStateMachine:
+    """Run status tracker that only allows transitions listed in ALLOWED_TRANSITIONS."""
+
     def __init__(self, initial: RunStatus = RunStatus.RECEIVED) -> None:
         self.status = initial
         self.history: list[tuple[RunStatus, RunStatus, str]] = []
 
     def transition(self, to_status: RunStatus, reason: str) -> RunStatus:
+        """Move to ``to_status``, record the transition with its reason, and return the new status.
+
+        Raises:
+            InvalidStateTransition: When the transition is not allowed from the current status.
+        """
         allowed = ALLOWED_TRANSITIONS[self.status]
         if to_status not in allowed:
             raise InvalidStateTransition(

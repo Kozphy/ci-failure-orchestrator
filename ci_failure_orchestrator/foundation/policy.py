@@ -25,6 +25,8 @@ POLICY_VERSION = "2026.10.1"
 
 
 class PolicyOutcome(str, Enum):
+    """Outcomes of a policy gate decision."""
+
     APPROVE = "APPROVE"
     REJECT = "REJECT"
     ESCALATE = "ESCALATE"
@@ -40,6 +42,8 @@ class GovernanceRiskLevel(str, Enum):
 
 
 class FileCategory(str, Enum):
+    """Categories assigned to changed file paths."""
+
     SOURCE = "SOURCE"
     TEST = "TEST"
     DOCUMENTATION = "DOCUMENTATION"
@@ -54,6 +58,8 @@ class FileCategory(str, Enum):
 
 
 class ChangeScope(str, Enum):
+    """Size classes for the set of changed files."""
+
     SMALL = "SMALL"
     MODERATE = "MODERATE"
     BROAD = "BROAD"
@@ -61,6 +67,8 @@ class ChangeScope(str, Enum):
 
 @dataclass(frozen=True)
 class PolicyViolation:
+    """One rule violation found by the policy gate."""
+
     rule_id: str
     severity: str
     message: str
@@ -69,6 +77,8 @@ class PolicyViolation:
 
 @dataclass(frozen=True)
 class PolicyDecision:
+    """Policy gate outcome with the rules, violations and evidence behind it."""
+
     outcome: PolicyOutcome
     reasons: tuple[str, ...]
     matched_rules: tuple[str, ...]
@@ -80,6 +90,8 @@ class PolicyDecision:
     policy_version: str = POLICY_VERSION
 
     def explain(self) -> str:
+        """Return the stored explanation, or render one from the rules, evidence, reasons and violations."""
+
         if self.explanation:
             return self.explanation
         rule_lines = [f"- {r}" for r in self.matched_rules] or ["- (none)"]
@@ -110,6 +122,8 @@ class PolicyDecision:
 
 @dataclass(frozen=True)
 class PolicyContext:
+    """Inputs the policy gate evaluates for one proposal."""
+
     proposal: RepairProposal
     evaluation: EvaluationResult
     classification: FailureClassification | None
@@ -261,6 +275,8 @@ DEPENDENCY_BASENAMES = frozenset(
 
 
 def normalize_path(path: str) -> str:
+    """Return the path with forward slashes, no leading ``./`` and in lowercase."""
+
     p = path.replace("\\", "/")
     while p.startswith("./"):
         p = p[2:]
@@ -268,6 +284,8 @@ def normalize_path(path: str) -> str:
 
 
 def classify_file(path: str) -> FileCategory:
+    """Return the category of a changed path from its location and file name."""
+
     p = normalize_path(path)
     base = p.rsplit("/", 1)[-1]
     if base in DEPENDENCY_BASENAMES or base.endswith(".lock"):
@@ -331,6 +349,11 @@ def classify_scope(
     small_max: int = 3,
     moderate_max: int = 8,
 ) -> ChangeScope:
+    """Classify the change scope from the file count and the number of distinct directories.
+
+    An empty file list is classified BROAD.
+    """
+
     n = len(files)
     if n == 0:
         return ChangeScope.BROAD
@@ -349,6 +372,8 @@ def classify_risk(
     tool_risks: tuple[ToolRiskLevel, ...],
     files: tuple[str, ...],
 ) -> GovernanceRiskLevel:
+    """Return the governance risk level for the changed categories, scope, tool risks and paths."""
+
     cats = set(categories)
     if FileCategory.SECURITY in cats:
         return GovernanceRiskLevel.CRITICAL
@@ -381,6 +406,8 @@ def build_policy_context(
     attempt_count: int = 1,
     config: PolicyConfig | None = None,
 ) -> PolicyContext:
+    """Build a policy context, deriving file categories, scope and risk from the proposal's files."""
+
     cfg = config or PolicyConfig()
     files = tuple(proposal.files_changed)
     categories = tuple(classify_file(f) for f in files)
@@ -410,7 +437,11 @@ def build_policy_context(
 
 
 class PolicyEngine(Protocol):
-    def evaluate(self, context: PolicyContext) -> PolicyDecision: ...
+    """Interface for engines that turn a policy context into a decision."""
+
+    def evaluate(self, context: PolicyContext) -> PolicyDecision:
+        """Return the policy decision for a context."""
+        ...
 
 
 class StaticPolicyEngine:
@@ -420,6 +451,8 @@ class StaticPolicyEngine:
         self.config = config or PolicyConfig()
 
     def evaluate(self, context: PolicyContext) -> PolicyDecision:
+        """Return the policy decision; an unexpected engine error yields ESCALATE, never APPROVE."""
+
         try:
             return self._evaluate(context)
         except Exception as exc:  # noqa: BLE001 — fail closed
@@ -761,4 +794,5 @@ _RISK_ORDER = {
 
 
 def max_risk(a: GovernanceRiskLevel, b: GovernanceRiskLevel) -> GovernanceRiskLevel:
+    """Return the higher of two risk levels."""
     return a if _RISK_ORDER[a] >= _RISK_ORDER[b] else b

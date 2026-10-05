@@ -10,12 +10,15 @@ from .schemas import BenchmarkCaseResult
 
 @dataclass
 class MetricResult:
+    """Named benchmark metric with explicit numerator and denominator; value is None when the denominator is 0."""
+
     name: str
     numerator: int
     denominator: int
     value: float | None
 
     def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serialisable dict including a ``num/den`` display string."""
         return {
             "name": self.name,
             "numerator": self.numerator,
@@ -40,12 +43,14 @@ def _in_pop(result: BenchmarkCaseResult, name: str) -> bool:
 
 
 def case_pass_rate(results: list[BenchmarkCaseResult]) -> MetricResult:
+    """Return passed cases over all cases."""
     den = len(results)
     num = sum(1 for r in results if r.passed)
     return MetricResult("case_pass_rate", num, den, _ratio(num, den))
 
 
 def required_pass_rate(results: list[BenchmarkCaseResult]) -> MetricResult:
+    """Return passed required cases over required cases."""
     subset = [r for r in results if r.required]
     den = len(subset)
     num = sum(1 for r in subset if r.passed)
@@ -53,6 +58,10 @@ def required_pass_rate(results: list[BenchmarkCaseResult]) -> MetricResult:
 
 
 def classification_accuracy(results: list[BenchmarkCaseResult]) -> MetricResult:
+    """Return correct classifications over the classification population.
+
+    A case without a classification assertion counts as correct if the case passed.
+    """
     subset = [r for r in results if _in_pop(r, "classification")]
     den = len(subset)
     num = 0
@@ -79,6 +88,7 @@ def repair_success_rate(results: list[BenchmarkCaseResult]) -> MetricResult:
 
 
 def retry_rate(results: list[BenchmarkCaseResult]) -> MetricResult:
+    """Return cases with at least one retry over the retry population."""
     subset = [r for r in results if _in_pop(r, "retry")]
     den = len(subset)
     num = sum(1 for r in subset if int(r.observed.get("retries") or 0) > 0)
@@ -86,6 +96,7 @@ def retry_rate(results: list[BenchmarkCaseResult]) -> MetricResult:
 
 
 def mean_attempts(results: list[BenchmarkCaseResult]) -> MetricResult:
+    """Return total attempts over cases that recorded an attempt count."""
     vals = [
         int(r.observed.get("attempts") or 0)
         for r in results
@@ -102,6 +113,7 @@ def mean_attempts(results: list[BenchmarkCaseResult]) -> MetricResult:
 
 
 def policy_outcome_accuracy(results: list[BenchmarkCaseResult]) -> MetricResult:
+    """Return passed policy_outcome assertions over the policy population."""
     subset = [r for r in results if _in_pop(r, "policy")]
     den = len(subset)
     num = 0
@@ -113,6 +125,7 @@ def policy_outcome_accuracy(results: list[BenchmarkCaseResult]) -> MetricResult:
 
 
 def security_control_success_rate(results: list[BenchmarkCaseResult]) -> MetricResult:
+    """Return passed cases over the security population."""
     subset = [r for r in results if _in_pop(r, "security")]
     den = len(subset)
     num = sum(1 for r in subset if r.passed)
@@ -120,6 +133,7 @@ def security_control_success_rate(results: list[BenchmarkCaseResult]) -> MetricR
 
 
 def escalation_accuracy(results: list[BenchmarkCaseResult]) -> MetricResult:
+    """Return passed cases over the escalation population."""
     subset = [r for r in results if _in_pop(r, "escalation")]
     den = len(subset)
     num = sum(1 for r in subset if r.passed)
@@ -127,6 +141,10 @@ def escalation_accuracy(results: list[BenchmarkCaseResult]) -> MetricResult:
 
 
 def audit_completeness_rate(results: list[BenchmarkCaseResult]) -> MetricResult:
+    """Return audit-complete cases over the audit population.
+
+    A case without an audit_completeness assertion counts if its observed audit_complete is True.
+    """
     subset = [r for r in results if _in_pop(r, "audit")]
     den = len(subset)
     num = 0
@@ -153,6 +171,7 @@ def false_remediation_count(results: list[BenchmarkCaseResult]) -> MetricResult:
 
 
 def policy_confusion(results: list[BenchmarkCaseResult]) -> dict[str, int]:
+    """Count expected-to-actual policy outcome pairs in the policy population."""
     counts: dict[str, int] = {}
     for r in results:
         if not _in_pop(r, "policy"):
@@ -166,6 +185,7 @@ def policy_confusion(results: list[BenchmarkCaseResult]) -> dict[str, int]:
 
 
 def classification_confusion(results: list[BenchmarkCaseResult]) -> dict[str, int]:
+    """Count expected-to-actual classification pairs in the classification population."""
     counts: dict[str, int] = {}
     for r in results:
         if not _in_pop(r, "classification"):
@@ -179,6 +199,7 @@ def classification_confusion(results: list[BenchmarkCaseResult]) -> dict[str, in
 
 
 def failure_taxonomy_coverage(results: list[BenchmarkCaseResult]) -> dict[str, int]:
+    """Count cases per observed classification."""
     counts: dict[str, int] = {}
     for r in results:
         cat = r.observed.get("classification")
@@ -188,6 +209,7 @@ def failure_taxonomy_coverage(results: list[BenchmarkCaseResult]) -> dict[str, i
 
 
 def policy_outcome_coverage(results: list[BenchmarkCaseResult]) -> dict[str, int]:
+    """Count cases per observed policy outcome."""
     counts: dict[str, int] = {}
     for r in results:
         outcome = r.observed.get("policy_outcome")
@@ -197,6 +219,7 @@ def policy_outcome_coverage(results: list[BenchmarkCaseResult]) -> dict[str, int
 
 
 def retry_stop_reason_counts(results: list[BenchmarkCaseResult]) -> dict[str, int]:
+    """Count cases per observed stop reason."""
     counts: dict[str, int] = {}
     for r in results:
         reason = r.observed.get("stop_reason")
@@ -206,6 +229,10 @@ def retry_stop_reason_counts(results: list[BenchmarkCaseResult]) -> dict[str, in
 
 
 def compute_suite_metrics(results: list[BenchmarkCaseResult]) -> dict[str, Any]:
+    """Compute all suite metrics, confusion and coverage counts, and local timing.
+
+    Timing is local benchmark wall time only, not production latency.
+    """
     metrics = [
         case_pass_rate(results),
         required_pass_rate(results),

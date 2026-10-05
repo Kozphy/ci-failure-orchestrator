@@ -8,6 +8,8 @@ from typing import Sequence
 
 @dataclass(frozen=True)
 class DistributionSummary:
+    """Count, min, nearest-rank median and p95, and max of a sample; stats are None when empty."""
+
     count: int
     min: float | None
     median: float | None
@@ -15,6 +17,7 @@ class DistributionSummary:
     max: float | None
 
     def to_dict(self) -> dict[str, float | int | None]:
+        """Return the summary as a plain dict."""
         return {
             "count": self.count,
             "min": self.min,
@@ -45,6 +48,7 @@ def percentile(sorted_values: Sequence[float], p: float) -> float | None:
 
 
 def summarize_distribution(values: Sequence[float]) -> DistributionSummary:
+    """Return a distribution summary of values using nearest-rank percentiles."""
     if not values:
         return DistributionSummary(0, None, None, None, None)
     ordered = sorted(float(v) for v in values)

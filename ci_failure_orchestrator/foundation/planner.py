@@ -17,16 +17,22 @@ from .retry import RetryContext
 
 
 class PlannerError(RuntimeError):
+    """Raised when a repair plan cannot be produced."""
+
     pass
 
 
 class Planner(Protocol):
+    """Interface for producing a RepairPlan from a failure context and classification."""
+
     def plan(
         self,
         context: FailureContext,
         classification: FailureClassification,
         retry_context: RetryContext | None = None,
-    ) -> RepairPlan: ...
+    ) -> RepairPlan:
+        """Return a repair plan for the failure, optionally informed by earlier attempts."""
+        ...
 
 
 class DeterministicPlanner:
@@ -38,6 +44,11 @@ class DeterministicPlanner:
         classification: FailureClassification,
         retry_context: RetryContext | None = None,
     ) -> RepairPlan:
+        """Build a fixed plan whose steps and risk level depend on the classification category.
+
+        Raises:
+            PlannerError: When ``context.run_id`` is empty.
+        """
         if not context.run_id:
             raise PlannerError("context.run_id required")
         steps: list[PlanStep] = [
@@ -129,6 +140,7 @@ class ScriptedPlanner:
         classification: FailureClassification,
         retry_context: RetryContext | None = None,
     ) -> RepairPlan:
+        """Return the next scripted plan bound to the context's run ID, or a deterministic plan if none."""
         if not self._plans:
             return self._fallback.plan(context, classification, retry_context)
         idx = min(self._index, len(self._plans) - 1)
@@ -164,4 +176,5 @@ class OptionalModelPlannerAdapter:
         classification: FailureClassification,
         retry_context: RetryContext | None = None,
     ) -> RepairPlan:
+        """Return the plan produced by the delegate planner."""
         return self._delegate.plan(context, classification, retry_context)

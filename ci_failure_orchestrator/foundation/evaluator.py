@@ -21,16 +21,22 @@ FORBIDDEN_MARKERS = (
 
 
 class EvaluationError(RuntimeError):
+    """Raised when a proposal cannot be evaluated."""
+
     pass
 
 
 class Evaluator(Protocol):
+    """Interface for turning a sandbox result into an evaluation of a repair proposal."""
+
     def evaluate(
         self,
         *,
         proposal: RepairProposal,
         sandbox: SandboxResult,
-    ) -> EvaluationResult: ...
+    ) -> EvaluationResult:
+        """Evaluate the sandbox result for one repair proposal."""
+        ...
 
 
 class LocalEvaluator:
@@ -42,6 +48,13 @@ class LocalEvaluator:
         proposal: RepairProposal,
         sandbox: SandboxResult,
     ) -> EvaluationResult:
+        """Check patch application, target and relevant tests, forbidden files, lint and type results.
+
+        A missing test-runner result fails closed: the evaluation does not pass.
+
+        Raises:
+            EvaluationError: When ``proposal.run_id`` is empty.
+        """
         if not proposal.run_id:
             raise EvaluationError("proposal.run_id required")
 

@@ -46,6 +46,8 @@ _COUNT_KEYS = {
 
 @dataclass(frozen=True)
 class TestFailure:
+    """Immutable record of one failed or erroring test and its exception, when known."""
+
     __test__ = False
 
     nodeid: str
@@ -77,9 +79,11 @@ class TestRunSummary:
 
     @property
     def failed_ids(self) -> frozenset[str]:
+        """Node IDs of the failed and erroring tests named in the output."""
         return frozenset(f.nodeid for f in self.failures)
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the counts, sorted failed test IDs and coverage as a JSON-friendly dict."""
         return {
             "parsed": self.parsed,
             "total": self.total,
@@ -110,6 +114,10 @@ def _exception_of(detail: str) -> tuple[str, str]:
 
 
 def parse_test_output(text: str) -> TestRunSummary:
+    """Parse pytest output into result counts, failed tests and pytest-cov total coverage.
+
+    Failures without their own detail take the exception from the first ``E`` line.
+    """
     lines = _lines(text)
     counts: dict[str, int] = {}
     parsed = False
@@ -150,6 +158,10 @@ def parse_test_output(text: str) -> TestRunSummary:
 
 
 def combine_summaries(summaries: Iterable[TestRunSummary]) -> TestRunSummary:
+    """Merge several run summaries: counts are summed, failures deduplicated by node ID.
+
+    The result is parsed only if every input was, and keeps the last known coverage.
+    """
     items = list(summaries)
     if not items:
         return TestRunSummary()
@@ -191,6 +203,8 @@ def normalize_message(text: str, *, limit: int = 80) -> str:
 
 @dataclass(frozen=True)
 class FailureFingerprint:
+    """Immutable identity of a verification failure, used to tell repeated failures apart."""
+
     failure_class: str
     job: str = ""
     test: str = ""
@@ -202,10 +216,12 @@ class FailureFingerprint:
 
     @property
     def fingerprint(self) -> str:
+        """Pipe-joined class, subject (test, frame or job), exception type and message."""
         subject = self.test or self.frame or self.job or "-"
         return "|".join((self.failure_class, subject, self.exception_type or "-", self.message or "-"))
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the fingerprint and its fields as a JSON-friendly dict."""
         return {
             "failure_class": self.failure_class,
             "fingerprint": self.fingerprint,
@@ -234,6 +250,11 @@ def _failure_class(summary: TestRunSummary, exit_code: int | None, text: str) ->
 
 
 def fingerprint_failure(text: str, *, exit_code: int | None = None, job: str = "") -> FailureFingerprint:
+    """Build a failure fingerprint from test-runner output and its exit code.
+
+    Exit code 124 maps to TIMEOUT and 127 to COMMAND_NOT_FOUND. The message is normalized
+    and the frame keeps only the file name.
+    """
     summary = parse_test_output(text)
     lines = _lines(text)
     first = summary.failures[0] if summary.failures else None

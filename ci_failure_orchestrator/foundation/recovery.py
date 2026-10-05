@@ -58,6 +58,10 @@ _UNSAFE = frozenset(
 
 
 def assess_recovery(state: DurableRunState) -> RecoveryDecision:
+    """Classify a run's workflow status as terminal, resumable or requiring review.
+
+    Steps interrupted mid side effect and unknown statuses require review; nothing is resumed here.
+    """
     status = state.workflow_status
     if status in _TERMINAL:
         extra = ""
@@ -105,6 +109,20 @@ def verify_run_consistency(
     state: DurableRunState | None = None,
     events: list[AuditEvent] | None = None,
 ) -> ConsistencyReport:
+    """Check a run's stored state, audit events and referenced artifacts against each other.
+
+    Reports sequence gaps, a corrupt trailing event, a state/event sequence mismatch, missing
+    artifacts, a missing escalation summary and a missing evaluation event.
+
+    Args:
+        artifacts_root: Root directory that holds the ``runs`` tree.
+        run_id: Run to check.
+        state: Already-loaded run state; loaded from disk when None.
+        events: Already-read audit events; read from disk when None.
+
+    Returns:
+        A report that is valid only when no issue was found.
+    """
     root = Path(artifacts_root) / "runs" / run_id
     issues: list[ConsistencyIssue] = []
     state_store = FileStateStore(artifacts_root)
@@ -202,6 +220,7 @@ def verify_run_consistency(
 
 
 def inspect_run(artifacts_root: Path, run_id: str) -> RunInspection:
+    """Return a read-only summary of a run's stored state and its last audit event."""
     store = FileStateStore(artifacts_root)
     audit = FileAuditStore(artifacts_root)
     state = store.load_run(run_id)
@@ -222,6 +241,7 @@ def inspect_run(artifacts_root: Path, run_id: str) -> RunInspection:
 
 
 def replay_events(artifacts_root: Path, run_id: str) -> list[str]:
+    """Return one ``#<sequence> <event_type>`` line per audit event, marking a corrupt trailing record."""
     events, trailing = FileAuditStore(artifacts_root).read_events_tolerant(run_id)
     lines = [f"#{e.sequence} {e.event_type}" for e in events]
     if trailing:

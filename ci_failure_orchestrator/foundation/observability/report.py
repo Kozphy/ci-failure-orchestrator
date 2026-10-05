@@ -13,6 +13,11 @@ def write_operations_report(
     snapshot: OperationalSnapshot,
     output_dir: Path,
 ) -> dict[str, Path]:
+    """Write metrics.json, sli-report.json, slo-report.json and operations-report.md under output_dir.
+
+    Returns:
+        Paths keyed by ``metrics``, ``sli``, ``slo`` and ``report``.
+    """
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -65,6 +70,7 @@ def write_operations_report(
 
 
 def render_operations_markdown(snapshot: OperationalSnapshot) -> str:
+    """Render the Markdown operations report for a snapshot."""
     lines: list[str] = []
     lines.append("# Operational Observability Report")
     lines.append("")

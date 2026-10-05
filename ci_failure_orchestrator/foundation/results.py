@@ -32,6 +32,7 @@ class FoundationResult:
     artifact_refs: dict[str, str] = field(default_factory=dict)
 
     def explain(self) -> str:
+        """Return the retry and policy traces plus any escalation summary, or the status if all are empty."""
         parts = list(self.run.retry_trace)
         parts.extend(self.run.policy_trace)
         if self.escalation is not None:

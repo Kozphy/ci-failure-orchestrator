@@ -48,6 +48,7 @@ class InjectingSandbox:
         *,
         target_should_pass: bool = True,
     ) -> SandboxResult:
+        """Return the injected failure on the configured occurrence, otherwise delegate to the inner sandbox."""
         self._hits += 1
         if self._hits == self._spec.occurrence:
             if self._spec.failure == "timeout":
@@ -96,6 +97,8 @@ class InjectingSandbox:
 
 
 class InjectingEvaluator:
+    """Wraps an evaluator and injects a single deterministic failure."""
+
     def __init__(
         self,
         inner: Evaluator,
@@ -119,6 +122,7 @@ class InjectingEvaluator:
         proposal: RepairProposal,
         sandbox: SandboxResult,
     ) -> EvaluationResult:
+        """Return a failed evaluation on the configured occurrence, otherwise delegate to the inner evaluator."""
         self._hits += 1
         if self._hits == self._spec.occurrence and self._spec.failure in {
             "error",
@@ -149,6 +153,7 @@ def maybe_wrap_sandbox(
     *,
     benchmark_mode: bool,
 ) -> SandboxExecutor:
+    """Return the sandbox wrapped in an InjectingSandbox if the injection targets the sandbox."""
     if injection is None or injection.target != "sandbox":
         return sandbox
     return InjectingSandbox(sandbox, spec=injection, benchmark_mode=benchmark_mode)
@@ -160,12 +165,14 @@ def maybe_wrap_evaluator(
     *,
     benchmark_mode: bool,
 ) -> Evaluator:
+    """Return the evaluator wrapped in an InjectingEvaluator if the injection targets the evaluator."""
     if injection is None or injection.target != "evaluator":
         return evaluator
     return InjectingEvaluator(evaluator, spec=injection, benchmark_mode=benchmark_mode)
 
 
 def assert_benchmark_only(benchmark_mode: bool) -> None:
+    """Raise BenchmarkInjectionError unless benchmark_mode is true."""
     if not benchmark_mode:
         raise BenchmarkInjectionError(
             "benchmark fault injection is TEST/BENCHMARK ONLY"
@@ -173,6 +180,7 @@ def assert_benchmark_only(benchmark_mode: bool) -> None:
 
 
 def write_fixture_workspace(root: Path, files: dict[str, str]) -> None:
+    """Write fixture files, keyed by path relative to root, creating parent directories."""
     for rel, content in files.items():
         path = root / rel
         path.parent.mkdir(parents=True, exist_ok=True)

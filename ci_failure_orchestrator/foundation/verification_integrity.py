@@ -21,11 +21,15 @@ from .sanitization import sanitize_text
 
 
 class IntegritySeverity(str, Enum):
+    """Policy consequence of an integrity finding: reject the patch or escalate it to a person."""
+
     REJECT = "REJECT"
     ESCALATE = "ESCALATE"
 
 
 class IntegrityCode(str, Enum):
+    """Kinds of verification weakening a patch can introduce."""
+
     TEST_FILE_DELETED = "TEST_FILE_DELETED"
     TEST_FILE_RENAMED_OUT_OF_DISCOVERY = "TEST_FILE_RENAMED_OUT_OF_DISCOVERY"
     TEST_CASE_REMOVED = "TEST_CASE_REMOVED"
@@ -85,25 +89,32 @@ _MAX_EVIDENCE_CHARS = 160
 
 @dataclass(frozen=True)
 class IntegrityFinding:
+    """Immutable record of one verification weakening detected in one file of a patch."""
+
     code: IntegrityCode
     path: str
     evidence: str = ""
 
     @property
     def severity(self) -> IntegritySeverity:
+        """Severity assigned to this finding's code."""
         return _SEVERITY[self.code]
 
     @property
     def message(self) -> str:
+        """Human-readable description of this finding's code."""
         return _MESSAGES[self.code]
 
     def describe(self) -> str:
+        """Return the code, path and any evidence as one line."""
         suffix = f": {self.evidence}" if self.evidence else ""
         return f"{self.code.value} {self.path}{suffix}"
 
 
 @dataclass
 class FileDiff:
+    """Added and removed lines, plus delete and rename markers, for one file in a unified diff."""
+
     path: str
     deleted: bool = False
     renamed_from: str = ""
@@ -215,6 +226,7 @@ _TEST_DIRS = ("tests", "test", "__tests__", "spec", "testing")
 
 
 def is_test_path(path: str) -> bool:
+    """Return True when the file name looks like a test file or the path is under a test directory."""
     p = _norm(path)
     segments = p.split("/")
     return bool(_TEST_BASENAME_RE.match(segments[-1])) or any(s in _TEST_DIRS for s in segments[:-1])
@@ -232,6 +244,7 @@ _CI_BASENAMES = frozenset(
 
 
 def is_ci_path(path: str) -> bool:
+    """Return True for GitHub Actions or CircleCI files and known CI configuration file names."""
     p = _norm(path)
     return (
         p.startswith((".github/workflows/", ".circleci/"))
@@ -560,6 +573,7 @@ def _analyze_file(diff: FileDiff) -> list[IntegrityFinding]:
 
 
 def analyze_patch(patch: str) -> tuple[IntegrityFinding, ...]:
+    """Return the verification-weakening findings for every file in a unified diff."""
     findings: list[IntegrityFinding] = []
     for diff in parse_unified_diff(patch):
         findings.extend(_analyze_file(diff))

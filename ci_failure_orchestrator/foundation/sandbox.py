@@ -13,21 +13,29 @@ from .tools import ToolValidationError, _safe_relpath
 
 
 class SandboxSetupError(RuntimeError):
+    """Raised when the sandbox workspace cannot be set up."""
+
     pass
 
 
 class PatchApplyError(RuntimeError):
+    """Raised when a proposal's patch is rejected or cannot be applied in the sandbox."""
+
     pass
 
 
 class SandboxExecutor(Protocol):
+    """Interface for validating a repair proposal outside the primary workspace."""
+
     def execute(
         self,
         proposal: RepairProposal,
         verification_steps: tuple[str, ...],
         *,
         target_should_pass: bool = True,
-    ) -> SandboxResult: ...
+    ) -> SandboxResult:
+        """Apply the proposal in a sandbox, run the verification steps and return the result."""
+        ...
 
 
 class TempCopySandboxExecutor:
@@ -49,6 +57,20 @@ class TempCopySandboxExecutor:
         *,
         target_should_pass: bool = True,
     ) -> SandboxResult:
+        """Apply proposal markers in a temporary directory and record stub verification results.
+
+        Errors are returned as an unsuccessful SandboxResult rather than raised, and the
+        temporary directory is always removed.
+
+        Args:
+            proposal: Proposal whose changed files and patch are applied.
+            verification_steps: Step names; ``target_verification`` and ``scope_check`` are stubbed,
+                any other step is recorded as skipped.
+            target_should_pass: Outcome reported by the stubbed ``target_verification`` step.
+
+        Returns:
+            The sandbox result, with ``patch_applied`` False when the patch was rejected.
+        """
         started = time.perf_counter()
         tmp: tempfile.TemporaryDirectory[str] | None = None
         commands: list[ToolResult] = []

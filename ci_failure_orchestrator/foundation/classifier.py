@@ -140,7 +140,14 @@ def classify_ci_step(workflow: str, job: str, failed_step: str, log_excerpt: str
 
 
 class FailureClassifier:
+    """Heuristic, uncalibrated classifier that maps a failure event to a failure category."""
+
     def classify(self, event: FailureEvent) -> FailureClassification:
+        """Classify a failure event from its message, log excerpt and Actions workflow, job and step names.
+
+        Security scanner signals outrank every other signal. An unknown category recommends
+        escalation.
+        """
         msg_class, msg_conf = classify_text(event.message or event.log_excerpt)
         log_class, log_conf = classify_text(event.log_excerpt) if event.message else (msg_class, msg_conf)
         step_class = classify_ci_step(
