@@ -43,7 +43,8 @@ class GitHubActionsClient:
     """Minimal GitHub REST client for workflow-run evidence collection.
 
     Authentication uses a bearer token supplied explicitly or via GITHUB_TOKEN.
-    The client intentionally performs read-only requests.
+    Every request is read-only except ``rerun_workflow_run``, which an operator invokes
+    explicitly to re-run CI for a candidate fix.
     """
 
     def __init__(self, token: str | None = None, api_url: str = "https://api.github.com", timeout: float = 30.0):
@@ -51,7 +52,7 @@ class GitHubActionsClient:
         self.api_url = api_url.rstrip("/")
         self.timeout = timeout
 
-    def _request(self, path: str, *, accept: str = "application/vnd.github+json") -> bytes:
+    def _request(self, path: str, *, accept: str = "application/vnd.github+json", method: str = "GET") -> bytes:
         headers = {
             "Accept": accept,
             "User-Agent": "ci-failure-orchestrator",
@@ -59,7 +60,8 @@ class GitHubActionsClient:
         }
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
-        request = Request(f"{self.api_url}{path}", headers=headers, method="GET")
+        data = b"" if method == "POST" else None
+        request = Request(f"{self.api_url}{path}", headers=headers, method=method, data=data)
         try:
             with _OPENER.open(request, timeout=self.timeout) as response:
                 return response.read()
@@ -96,6 +98,26 @@ class GitHubActionsClient:
     def get_run(self, repository: str, run_id: int) -> dict:
         _check_repository(repository)
         return self._get_json(f"/repos/{repository}/actions/runs/{run_id}")
+
+    def list_runs_for_commit(self, repository: str, head_sha: str) -> list[dict]:
+        _check_repository(repository)
+        payload = self._get_json(f"/repos/{repository}/actions/runs?head_sha={head_sha}&per_page=100")
+        runs = payload.get("workflow_runs", [])
+        if not isinstance(runs, list):
+            raise GitHubAPIError("GitHub runs response did not contain a workflow_runs list")
+        return runs
+
+    def list_latest_jobs(self, repository: str, run_id: int) -> list[dict]:
+        _check_repository(repository)
+        payload = self._get_json(f"/repos/{repository}/actions/runs/{run_id}/jobs?filter=latest&per_page=100")
+        jobs = payload.get("jobs", [])
+        if not isinstance(jobs, list):
+            raise GitHubAPIError("GitHub jobs response did not contain a jobs list")
+        return jobs
+
+    def rerun_workflow_run(self, repository: str, run_id: int) -> None:
+        _check_repository(repository)
+        self._request(f"/repos/{repository}/actions/runs/{run_id}/rerun", method="POST")
 
     def list_run_jobs(self, repository: str, run_id: int) -> list[dict]:
         """Jobs from every attempt of a run (``filter=all``), so reruns stay visible."""

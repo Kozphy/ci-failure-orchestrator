@@ -27,12 +27,18 @@ from .provenance import DependencyProvenanceEvaluator
 from .ranker import RootCauseRanker
 from .service import (
     FixRepoConfig,
+    GitHubActionsCIProvider,
     apply_fix,
+    compute_remediation_metrics,
     failure_from_fixture,
     failure_from_github,
     failure_from_log_file,
+    load_remediation_records,
+    load_verification_config,
+    read_verification_config_file,
     run_fix_repo,
     task_summary,
+    verify_real_ci,
 )
 from .trust import ProviderRegistry, TrustContextBuilder
 from .trust_gateway import (
@@ -462,6 +468,12 @@ def cmd_fix_repo(args):
     except Exception as exc:  # noqa: BLE001 - surface ingestion errors as structured output
         _dump({"outcome": "ERROR", "message": f"failure ingestion failed: {exc}", "primary_workspace_mutated": False})
         return 2
+    try:
+        raw = read_verification_config_file(Path(args.verification_config)) if args.verification_config else {}
+        verification = load_verification_config(raw, regression=args.regression or ())
+    except (OSError, ValueError, yaml.YAMLError) as exc:
+        _dump({"outcome": "ERROR", "message": f"invalid verification config: {exc}", "primary_workspace_mutated": False})
+        return 2
 
     outcome = run_fix_repo(
         FixRepoConfig(
@@ -478,10 +490,38 @@ def cmd_fix_repo(args):
             artifacts_root=Path(args.artifacts),
             failure=failure,
             task_id=args.task_id,
+            verification=verification,
         )
     )
     _dump(outcome)
     return _FIX_REPO_EXIT.get(outcome.get("outcome"), 2)
+
+
+def cmd_fix_repo_verify_ci(args):
+    token = args.github_token or os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN")
+    try:
+        provider = GitHubActionsCIProvider(
+            args.repository, GitHubActionsClient(token=token, api_url=args.github_api_url, timeout=args.timeout)
+        )
+    except ValueError as exc:
+        _dump({"outcome": "ERROR", "message": str(exc)})
+        return 2
+    outcome = verify_real_ci(
+        Path(args.artifacts),
+        args.run_id,
+        provider,
+        ci_run_ids=[str(r) for r in args.ci_run_id or ()],
+        rerun=args.rerun,
+        wait_seconds=args.wait,
+        poll_seconds=args.poll_interval,
+    )
+    _dump(outcome)
+    return {"VERIFIED_FIXED": 0, "PENDING": 3, "ERROR": 2}.get(outcome.get("outcome"), 1)
+
+
+def cmd_fix_repo_metrics(args):
+    _dump(compute_remediation_metrics(load_remediation_records(Path(args.artifacts))))
+    return 0
 
 
 def cmd_fix_repo_task(args):
@@ -781,8 +821,42 @@ def build_parser():
     fix.add_argument("--base-ref", default="HEAD", help="Commit the patch must apply to")
     fix.add_argument("--max-attempts", type=int, default=3)
     fix.add_argument("--task-id", help="Record this run under an existing task (default: create a new task)")
+    fix.add_argument(
+        "--regression",
+        action="append",
+        metavar="CMD",
+        help="Regression suite command run before and after the patch (repeatable; required for VERIFIED_FIXED)",
+    )
+    fix.add_argument(
+        "--verification-config",
+        metavar="FILE",
+        help="YAML with regression, lint, typecheck, security, build, invariants, waive, affected_tests",
+    )
     fix.add_argument("--artifacts", default="artifacts")
     fix.set_defaults(func=cmd_fix_repo)
+
+    fixv = sub.add_parser(
+        "fix-repo-verify-ci",
+        help="Record the real CI result for an applied fix-repo candidate and decide whether it is VERIFIED_FIXED",
+    )
+    fixv.add_argument("run_id")
+    fixv.add_argument("--repository", required=True, help="owner/name on GitHub")
+    fixv.add_argument("--ci-run-id", action="append", help="Workflow run ID(s); default: runs for the applied commit")
+    fixv.add_argument("--rerun", action="store_true", help="Request a rerun of the given --ci-run-id runs first")
+    fixv.add_argument("--wait", type=int, default=0, help="Seconds to wait for runs to finish")
+    fixv.add_argument("--poll-interval", type=int, default=15)
+    fixv.add_argument("--github-token", help="GitHub token; defaults to GITHUB_TOKEN or GH_TOKEN")
+    fixv.add_argument("--github-api-url", default="https://api.github.com")
+    fixv.add_argument("--timeout", type=float, default=30.0)
+    fixv.add_argument("--artifacts", default="artifacts")
+    fixv.set_defaults(func=cmd_fix_repo_verify_ci)
+
+    fixm = sub.add_parser(
+        "fix-repo-metrics",
+        help="Repair outcome metrics; Verified Repair Rate is primary, CI Green Rate is shown for comparison",
+    )
+    fixm.add_argument("--artifacts", default="artifacts")
+    fixm.set_defaults(func=cmd_fix_repo_metrics)
 
     fixt = sub.add_parser("fix-repo-task", help="Show a task with its runs and per-attempt records (read-only)")
     fixt.add_argument("task_id")

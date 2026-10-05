@@ -103,9 +103,20 @@ terminal state: APPROVED | REJECTED | AWAITING_HUMAN | ESCALATION_ERROR | FAILED
    ▼
 artifacts/<run_id>/ (state.json, events.jsonl, metadata.json with patch sha256, escalation packet)
    ▼
-fix-repo-apply (separate, operator-invoked): status == APPROVED, patch hash matches
-metadata.json, target is not a protected branch, temporary index, new branch or draft PR only.
+repair verification (service/verification.py): base + patched worktrees run the exact failing
+   tests, affected tests, regression suite, quality gates and invariants ──► decide_remediation
+   ──► fix-repo/verification.json, fix-repo/remediation.json, REPAIR_VERIFICATION_COMPLETED event
+   ▼
+fix-repo-apply (separate, operator-invoked): status == APPROVED, remediation state not
+POLICY_REJECTED / REGRESSION_DETECTED / NOT_FIXED, patch hash matches metadata.json, target is
+not a protected branch, temporary index, new branch or draft PR only.
+   ▼
+fix-repo-verify-ci (separate): real CI result for the applied commit ──► decide_remediation
+   with real_ci_passed ──► VERIFIED_FIXED only when every piece of evidence passed.
 ```
+
+The remediation state sits beside the workflow status and never changes it. A workflow
+`APPROVED` run can still end `CI_GREEN_BUT_UNVERIFIED` or `REGRESSION_DETECTED`.
 
 ### 3.2 `foundation-run` (simulation)
 

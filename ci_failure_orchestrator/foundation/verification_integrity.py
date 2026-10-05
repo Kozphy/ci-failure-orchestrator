@@ -27,6 +27,7 @@ class IntegritySeverity(str, Enum):
 
 class IntegrityCode(str, Enum):
     TEST_FILE_DELETED = "TEST_FILE_DELETED"
+    TEST_FILE_RENAMED_OUT_OF_DISCOVERY = "TEST_FILE_RENAMED_OUT_OF_DISCOVERY"
     TEST_CASE_REMOVED = "TEST_CASE_REMOVED"
     TEST_SKIPPED = "TEST_SKIPPED"
     TEST_FOCUSED = "TEST_FOCUSED"
@@ -58,6 +59,7 @@ _SEVERITY: dict[IntegrityCode, IntegritySeverity] = {
 
 _MESSAGES: dict[IntegrityCode, str] = {
     IntegrityCode.TEST_FILE_DELETED: "test file deleted",
+    IntegrityCode.TEST_FILE_RENAMED_OUT_OF_DISCOVERY: "test file renamed so the test runner no longer finds it",
     IntegrityCode.TEST_CASE_REMOVED: "test cases removed",
     IntegrityCode.TEST_SKIPPED: "test skip or xfail marker added",
     IntegrityCode.TEST_FOCUSED: "focused test (.only) added; other tests stop running",
@@ -104,6 +106,7 @@ class IntegrityFinding:
 class FileDiff:
     path: str
     deleted: bool = False
+    renamed_from: str = ""
     added: list[str] = field(default_factory=list)
     removed: list[str] = field(default_factory=list)
     # Hunk lines in order as (marker, text) so multi-line constructs can be inspected.
@@ -166,6 +169,10 @@ def parse_unified_diff(patch: str) -> list[FileDiff]:
             git_header = True
         elif raw.startswith("deleted file mode") and current is not None:
             current.deleted = True
+        elif raw.startswith("rename from ") and current is not None:
+            current.renamed_from = raw[len("rename from "):].strip()
+        elif raw.startswith("rename to ") and current is not None:
+            current.path = raw[len("rename to "):].strip()
         elif raw.startswith("--- "):
             pending_old = _strip_prefix(raw[4:])
         elif raw.startswith("+++ "):
@@ -211,6 +218,12 @@ def is_test_path(path: str) -> bool:
     p = _norm(path)
     segments = p.split("/")
     return bool(_TEST_BASENAME_RE.match(segments[-1])) or any(s in _TEST_DIRS for s in segments[:-1])
+
+
+def _is_discoverable_test(path: str) -> bool:
+    # Runners collect by file name, so a helper module under tests/ is not a collected test.
+    name = _norm(path).rsplit("/", 1)[-1]
+    return name != "conftest.py" and bool(_TEST_BASENAME_RE.match(name))
 
 
 _CI_BASENAMES = frozenset(
@@ -461,6 +474,8 @@ def _analyze_file(diff: FileDiff) -> list[IntegrityFinding]:
     if diff.deleted and test_file:
         flag(IntegrityCode.TEST_FILE_DELETED)
         return out
+    if diff.renamed_from and _is_discoverable_test(diff.renamed_from) and not _is_discoverable_test(path):
+        flag(IntegrityCode.TEST_FILE_RENAMED_OUT_OF_DISCOVERY, f"{diff.renamed_from} -> {path}")
     if diff.deleted and ci_file:
         flag(IntegrityCode.CI_CONFIG_DELETED)
         return out

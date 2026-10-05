@@ -26,9 +26,10 @@ from ..foundation.persistence import (
     append_operator_event,
     verify_run_consistency,
 )
-from .common import FINAL_PATCH_NAME, FIX_DIR, METADATA_NAME, git
+from .common import FINAL_PATCH_NAME, FIX_DIR, METADATA_NAME, REMEDIATION_NAME, git
 from .patches import parse_patch_files, patch_violation
 from .untrusted import clean_untrusted
+from .verification import BLOCKING_REMEDIATION_STATES
 
 ALWAYS_PROTECTED_BRANCHES = frozenset({"main", "master"})
 
@@ -120,6 +121,14 @@ def apply_fix(
     patch_file = fix_root / FINAL_PATCH_NAME
     if not metadata_path.is_file() or not patch_file.is_file():
         return blocked("not a fix-repo run (fix-repo/metadata.json or final.patch missing)")
+    remediation_path = fix_root / REMEDIATION_NAME
+    if remediation_path.is_file():
+        remediation = json.loads(remediation_path.read_text(encoding="utf-8"))
+        if remediation.get("state") in BLOCKING_REMEDIATION_STATES:
+            return blocked(
+                f"repair verification decided {remediation.get('state')}: "
+                + ", ".join(remediation.get("reasons") or [])
+            )
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     patch_bytes = patch_file.read_bytes()
     if sha256(patch_bytes).hexdigest() != metadata.get("patch_sha256"):

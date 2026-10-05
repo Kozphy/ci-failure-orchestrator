@@ -20,6 +20,13 @@ patches to the primary workspace.
 
 Tests passing is **necessary but not sufficient** for `APPROVE`.
 
+`APPROVE` is in turn necessary but not sufficient for a verified repair. In `fix-repo`, the
+remediation decision (`foundation/remediation.py`) combines the policy outcome with reproduction,
+targeted, regression, quality-gate and real-CI evidence. `REJECT` always maps to
+`POLICY_REJECTED`. `ESCALATE` without a recorded human approval maps to `HUMAN_REVIEW_REQUIRED`.
+A HIGH diff risk (auth, payments, migrations, secrets) also needs human approval before the repair
+can be `VERIFIED_FIXED`.
+
 ## Outcomes
 
 ```text

@@ -55,11 +55,14 @@ class WorktreePatchVerifier:
         timeout_seconds: int = 180,
         max_output_chars: int = 20_000,
         env_allowlist: Sequence[str] = ("PATH", "HOME", "USERPROFILE", "TMP", "TEMP", "SYSTEMROOT"),
+        stop_on_failure: bool = True,
     ) -> None:
         self.commands = tuple((name, tuple(argv)) for name, argv in commands)
         self.timeout_seconds = timeout_seconds
         self.max_output_chars = max_output_chars
         self.env_allowlist = tuple(env_allowlist)
+        # False runs every command so before/after evidence covers all checks, not just the first failure.
+        self.stop_on_failure = stop_on_failure
 
     def _env(self, extra_env: Mapping[str, str] | None) -> dict[str, str]:
         env = {key: os.environ[key] for key in self.env_allowlist if key in os.environ}
@@ -96,7 +99,7 @@ class WorktreePatchVerifier:
                 latency_ms = (perf_counter() - started) * 1000.0
                 step = VerificationStep(name, 127, "", f"command_not_runnable: {exc}", latency_ms)
             steps.append(step)
-            if not step.passed:
+            if not step.passed and self.stop_on_failure:
                 break
         return steps
 

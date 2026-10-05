@@ -20,6 +20,7 @@ from .common import (
     FINAL_PATCH_NAME,
     FIX_DIR,
     METADATA_NAME,
+    VERIFICATION_NAME,
     blocked_env_names,
     git,
     split_command,
@@ -30,6 +31,13 @@ from .patches import parse_patch_files
 from .proposals import PatchFileSource, ProposalSource, ProviderCommandSource
 from .records import Task, TaskStore
 from .session import FixSession, VerifyCommand
+from .verification import (
+    BLOCKING_REMEDIATION_STATES,
+    VerificationConfig,
+    collect_verification,
+    record_verification,
+    static_verification,
+)
 
 
 @dataclass
@@ -47,6 +55,7 @@ class FixRepoConfig:
     artifacts_root: Path = Path("artifacts")
     failure: dict[str, Any] | None = None
     task_id: str | None = None
+    verification: VerificationConfig | None = None
 
 
 def _outcome(**values: Any) -> dict[str, Any]:
@@ -289,9 +298,61 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
             name=METADATA_NAME,
         )
 
+    technical_passed = result.technical_status == "PASS" and proposal is not None
+    policy_risk = result.policy_decision.risk_level.value if result.policy_decision else None
+    ci_log = str(failure.get("log_excerpt") or "") if config.failure else None
+    common = {
+        "baseline": baseline,
+        "commands": commands,
+        "ci_failure_log": ci_log or None,
+        "policy_outcome": policy_outcome,
+        "policy_risk": policy_risk,
+    }
+    if technical_passed and policy_outcome != "REJECT":
+        report = collect_verification(
+            repo=repo,
+            base_commit=base_commit,
+            patch=proposal.patch,
+            config=config.verification or VerificationConfig(),
+            timeout=config.verify_timeout,
+            env_allowlist=DEFAULT_ENV_ALLOWLIST + tuple(config.verify_env),
+            **common,
+        )
+    else:
+        report = static_verification(
+            patch=proposal.patch if proposal is not None else "",
+            repair_proposed=proposal is not None,
+            technical_passed=technical_passed,
+            **common,
+        )
+    remediation = record_verification(
+        artifacts_root,
+        run_id,
+        report,
+        stage="local",
+        record_name=VERIFICATION_NAME,
+        repair_attempt=result.attempts,
+        failure_received_at=started_at,
+        ci_green=technical_passed,
+        ci_green_source="sandbox",
+        extra={"verification_config": (config.verification or VerificationConfig()).to_dict()},
+    )
+    state = report.decision.state.value
+
     next_steps: list[str] = []
-    if workflow == RunStatus.APPROVED.value:
-        next_steps.append(f"python -m ci_failure_orchestrator.cli fix-repo-apply {run_id} --artifacts {config.artifacts_root}")
+    if state in BLOCKING_REMEDIATION_STATES:
+        next_steps.append(
+            f"Repair verification: {state} ({', '.join(report.decision.reasons)}). fix-repo-apply will refuse this run."
+        )
+        next_steps.append(f"Inspect artifacts under {artifacts_root / 'runs' / run_id}")
+    elif workflow == RunStatus.APPROVED.value:
+        next_steps.append(
+            f"python -m ci_failure_orchestrator.cli fix-repo-apply {run_id} --open-pr --artifacts {config.artifacts_root}"
+        )
+        next_steps.append(
+            f"python -m ci_failure_orchestrator.cli fix-repo-verify-ci {run_id} --repository <owner/name> "
+            f"--artifacts {config.artifacts_root}  # VERIFIED_FIXED needs the real CI run to pass"
+        )
     elif workflow == RunStatus.AWAITING_HUMAN.value:
         next_steps.append(f"Review {patch_path} and the escalation package, then:")
         next_steps.append(
@@ -318,6 +379,8 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
         files_changed=list(files_changed),
         patch_path=str(patch_path) if patch_path else None,
         feedback=session.feedback,
+        remediation_state=state,
+        remediation=remediation,
         artifacts=str(artifacts_root / "runs" / run_id),
         next_steps=next_steps,
     )

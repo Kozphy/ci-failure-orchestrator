@@ -58,6 +58,9 @@ FIX_DIR = "fix-repo"
 METADATA_NAME = "metadata.json"
 FINAL_PATCH_NAME = "final.patch"
 ESCALATION_NAME = "environment-escalation.json"
+VERIFICATION_NAME = "verification.json"
+CI_VERIFICATION_NAME = "ci-verification.json"
+REMEDIATION_NAME = "remediation.json"
 
 MAX_LOG_CHARS = 12_000
 MAX_FEEDBACK_CHARS = 4_000

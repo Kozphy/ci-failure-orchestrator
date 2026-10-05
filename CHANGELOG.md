@@ -6,6 +6,49 @@ Versioning (plan §5.4) uses two tracks: the Python package keeps semantic versi
 
 ## [Unreleased]
 
+### A green CI run is no longer treated as a correct fix
+
+- Every `fix-repo` run now ends with a `remediation_state` (outcome fields `remediation_state` and `remediation`). The existing `outcome` and workflow states are unchanged. One deterministic function, `foundation/remediation.py: decide_remediation`, makes the decision. Only `is_verified_fix` can return `VERIFIED_FIXED`, and only when every piece of evidence is present and passing. Evidence that was not collected counts as missing, never as a pass.
+- New final states:
+  - `POLICY_REJECTED`: verification was weakened, the target test went missing, the test count dropped or skips increased.
+  - `NOT_FIXED`: the original failure is still there, or a different error replaced it.
+  - `REGRESSION_DETECTED`: a test or gate that passed before the patch fails after it.
+  - `HUMAN_REVIEW_REQUIRED`: HIGH-risk diff, policy escalation, or real CI failed.
+  - `CI_GREEN_BUT_UNVERIFIED` and `POLICY_APPROVED` (awaiting real CI) cover partial evidence.
+- Evidence collected in two disposable worktrees (base and patched; `service/verification.py`):
+  - Reproduction: failure fingerprint, compared with the CI log when one is supplied.
+  - Exact rerun of the originally failing pytest node IDs.
+  - Affected tests mapped from the changed files.
+  - Regression suite: test count, skips and coverage before vs after; new failures by node ID.
+  - Lint, typecheck, security and build commands, plus behavioral invariants.
+  - Diff risk score (`foundation/diff_risk.py`), combined with the policy risk level.
+- Configuration:
+  - `fix-repo --regression CMD` and `--verification-config FILE` (YAML; unknown keys are errors).
+  - Only unconfigured gates can be waived, and each waiver needs a reason. The regression suite cannot be waived.
+  - Commands come from the operator config, never from the patch.
+- New commands:
+  - `fix-repo-verify-ci` reads the real CI result for the applied commit through a `CIProvider` (GitHub Actions adapter) and re-runs the decision. It can request a rerun, but never merges.
+  - `fix-repo-metrics` reports Verified Repair Rate as the primary metric, alongside CI Green Rate, False Repair Rate, Regression Rate, Policy Rejection Rate, Human Escalation Rate and mean time to verified repair.
+- `fix-repo-apply` refuses runs decided as `POLICY_REJECTED`, `REGRESSION_DETECTED` or `NOT_FIXED`. Runs recorded before this change, which have no `remediation.json`, are still allowed.
+- Audit: each decision appends `REPAIR_VERIFICATION_COMPLETED` with the run, the repair attempt, the result and its per-check status. Run consistency still verifies.
+- Integrity: `TEST_FILE_RENAMED_OUT_OF_DISCOVERY` (REJECT) flags a test file renamed so that runners stop collecting it (for example `tests/test_calc.py` → `tests/calc_cases.py`).
+- Sandbox: `WorktreePatchVerifier(stop_on_failure=False)` runs every command, so before/after gates are all measured.
+- Evidence:
+  - `tests/test_repair_verification.py` has 77 tests: the seven adversarial cases at decision level, partial outcomes, parsing of real pytest output, diff risk, config validation, the GitHub adapter against recorded response shapes, metrics and the CLI.
+  - End-to-end `fix-repo` runs in real git worktrees cover:
+    - skip, xfail and file-deletion cheats, all `POLICY_REJECTED`;
+    - a real fix with regression, coverage, lint and invariant evidence, which stays `POLICY_APPROVED` until a fake CI provider reports success and then becomes `VERIFIED_FIXED`;
+    - the same fix without a regression suite, which ends `CI_GREEN_BUT_UNVERIFIED`;
+    - a hidden regression, which ends `REGRESSION_DETECTED` and is refused by apply;
+    - an `auth.py` change, which ends `HUMAN_REVIEW_REQUIRED`.
+  - Full suite: 747 passed. Benchmark compare: 26 `UNCHANGED_PASS`, 12 `NEW_CASE`; baseline not updated.
+- Limits:
+  - The GitHub Actions adapter is not verified against the live API, and GitHub has no generic test-results API, so per-test evidence comes from the local worktrees.
+  - The exact rerun and test counts need pytest output. Other runners only get command-level gates.
+  - When a CI log is supplied that cannot be compared with the local reproduction, the repair cannot become `VERIFIED_FIXED`.
+  - Not detected: a production change that hard-codes a test's expected value (unless it checks for the test runner), and code that is no longer exercised.
+  - Each run with verification adds two worktrees and the configured commands to `fix-repo` runtime.
+
 ### Reject repairs that make CI green by weakening verification
 
 - New `foundation/verification_integrity.py`: deterministic, line-based analysis of the proposed diff. The policy engine runs it on every evaluation; it does not depend on an LLM.
