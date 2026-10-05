@@ -30,6 +30,8 @@ from .verification import VerificationReport, record_verification
 
 
 class CIRunState(str, Enum):
+    """Normalized state of one real CI run."""
+
     PENDING = "PENDING"
     SUCCESS = "SUCCESS"
     FAILURE = "FAILURE"
@@ -39,6 +41,8 @@ class CIRunState(str, Enum):
 
 @dataclass(frozen=True)
 class CIRunStatus:
+    """Immutable snapshot of one real CI run's status."""
+
     run_id: str
     state: CIRunState
     conclusion: str = ""
@@ -46,21 +50,34 @@ class CIRunStatus:
     url: str = ""
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the status as a JSON-ready dict with the state as its string value."""
         return {**asdict(self), "state": self.state.value}
 
 
 class CIProvider(Protocol):
+    """Read-mostly interface to a real CI provider; rerun is its only write."""
+
     name: str
 
-    def find_runs(self, commit_sha: str) -> list[str]: ...
+    def find_runs(self, commit_sha: str) -> list[str]:
+        """Return the ids of CI runs for a commit."""
+        ...
 
-    def rerun(self, run_id: str) -> None: ...
+    def rerun(self, run_id: str) -> None:
+        """Request a rerun of a CI run."""
+        ...
 
-    def get_status(self, run_id: str) -> CIRunStatus: ...
+    def get_status(self, run_id: str) -> CIRunStatus:
+        """Return the current status of a CI run."""
+        ...
 
-    def get_failed_jobs(self, run_id: str) -> list[str]: ...
+    def get_failed_jobs(self, run_id: str) -> list[str]:
+        """Return the names of failed jobs in a CI run."""
+        ...
 
-    def get_test_results(self, run_id: str) -> TestRunSummary | None: ...
+    def get_test_results(self, run_id: str) -> TestRunSummary | None:
+        """Return per-test results for a CI run, or None when the provider has none."""
+        ...
 
 
 _GITHUB_FAILED = frozenset({"failure", "timed_out", "cancelled", "action_required", "startup_failure", "stale"})
@@ -78,13 +95,16 @@ class GitHubActionsCIProvider:
         self.client = client or GitHubActionsClient()
 
     def find_runs(self, commit_sha: str) -> list[str]:
+        """Return the ids of workflow runs whose head SHA matches the commit."""
         runs = self.client.list_runs_for_commit(self.repository, commit_sha)
         return [str(run["id"]) for run in runs if run.get("id") and run.get("head_sha", commit_sha) == commit_sha]
 
     def rerun(self, run_id: str) -> None:
+        """Request a rerun of a workflow run."""
         self.client.rerun_workflow_run(self.repository, int(run_id))
 
     def get_status(self, run_id: str) -> CIRunStatus:
+        """Map a workflow run's status and conclusion to a CIRunStatus."""
         run = self.client.get_run(self.repository, int(run_id))
         status = str(run.get("status") or "")
         conclusion = str(run.get("conclusion") or "")
@@ -99,10 +119,12 @@ class GitHubActionsCIProvider:
         return CIRunStatus(str(run_id), state, conclusion, str(run.get("name") or ""), str(run.get("html_url") or ""))
 
     def get_failed_jobs(self, run_id: str) -> list[str]:
+        """Return the names of the latest jobs that concluded as failed."""
         jobs = self.client.list_latest_jobs(self.repository, int(run_id))
         return [str(j.get("name") or j.get("id")) for j in jobs if j.get("conclusion") in _GITHUB_FAILED]
 
     def get_test_results(self, run_id: str) -> TestRunSummary | None:
+        """Return None; GitHub Actions results carry no per-test evidence here."""
         # GitHub Actions has no generic test-results API; per-test evidence stays with local verification.
         return None
 
@@ -129,6 +151,25 @@ def verify_real_ci(
     poll_seconds: int = 15,
     sleep: Callable[[float], None] = time.sleep,
 ) -> dict[str, Any]:
+    """Read real CI results for an applied candidate and re-run the remediation decision.
+
+    Nothing is recorded while CI is pending or inconclusive. Provider errors are returned as an
+    ``ERROR`` outcome rather than raised.
+
+    Args:
+        artifacts_root: Root directory of the orchestrator's run artifacts.
+        run_id: Orchestrator run whose candidate is being verified.
+        provider: CI provider used to look up and optionally rerun CI runs.
+        ci_run_ids: Explicit CI run ids; when empty, runs are found by the applied commit.
+        rerun: Request a rerun of each id in ``ci_run_ids`` before polling.
+        wait_seconds: Maximum time to keep polling for a conclusive result.
+        poll_seconds: Delay between polls, in seconds.
+        sleep: Sleep function used between polls.
+
+    Returns:
+        A dict with an ``outcome`` key (``ERROR``, ``PENDING`` or the remediation state) plus the
+        run id, provider, commit, CI run statuses and, when recorded, the remediation summary.
+    """
     artifacts_root = Path(artifacts_root)
     fix_root = artifacts_root / "runs" / run_id / FIX_DIR
     local_path = fix_root / VERIFICATION_NAME

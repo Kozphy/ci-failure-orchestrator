@@ -42,6 +42,8 @@ from .verification import (
 
 @dataclass
 class FixRepoConfig:
+    """Operator settings for one fix-repo run."""
+
     repo_path: Path
     verify_commands: Sequence[str]
     patch_file: Path | None = None
@@ -165,6 +167,11 @@ def _escalate_environment(
 
 
 def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
+    """Reproduce the failure, propose and verify patches in worktrees, and record the decision.
+
+    Runs that fail to reproduce, or that fail for an environment reason, stop before any
+    proposal is requested. Invalid configuration is returned as an ``ERROR`` outcome.
+    """
     repo = Path(config.repo_path).resolve()
     artifacts_root = Path(config.artifacts_root).resolve()
     if not (repo / ".git").exists():

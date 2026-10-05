@@ -14,6 +14,8 @@ from .patches import decode_patch_bytes
 
 @dataclass(frozen=True)
 class GeneratedText:
+    """Raw output of a proposal source, with an error code and detail on failure."""
+
     text: str
     error: str | None = None
     detail: str = ""
@@ -33,10 +35,14 @@ def agent_label(argv: Sequence[str]) -> str:
 
 
 class ProposalSource(Protocol):
+    """Interface for anything that turns a repair prompt into candidate patch text."""
+
     name: str
     agent: str
 
-    def generate(self, prompt: str, attempt_number: int) -> GeneratedText: ...
+    def generate(self, prompt: str, attempt_number: int) -> GeneratedText:
+        """Return the source's response to the prompt for the given attempt."""
+        ...
 
 
 class PatchFileSource:
@@ -49,6 +55,7 @@ class PatchFileSource:
         self.path = Path(path)
 
     def generate(self, prompt: str, attempt_number: int) -> GeneratedText:
+        """Return the decoded patch file, or a ``provider_failed`` result when it cannot be read."""
         try:
             return GeneratedText(decode_patch_bytes(self.path.read_bytes()))
         except OSError as exc:
@@ -80,6 +87,7 @@ class ProviderCommandSource:
         self.runner = SandboxRunner(env_allowlist=DEFAULT_ENV_ALLOWLIST + tuple(env_passthrough))
 
     def generate(self, prompt: str, attempt_number: int) -> GeneratedText:
+        """Run the provider CLI with the prompt on stdin; a non-zero exit yields ``provider_failed``."""
         run = self.runner.run(self.spec, prompt=prompt)
         if run.returncode != 0:
             return GeneratedText(run.stdout, "provider_failed", tail(run.stderr, 2_000))

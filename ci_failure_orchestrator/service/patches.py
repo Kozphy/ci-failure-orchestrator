@@ -38,6 +38,7 @@ _SUBMODULE_MODE = "160000"
 
 
 def decode_patch_bytes(raw: bytes) -> str:
+    """Decode patch bytes as UTF-16 when a UTF-16 BOM is present, otherwise as UTF-8 without BOM."""
     # PowerShell 5 redirection (`git diff > fix.patch`) writes UTF-16 with a BOM.
     if raw.startswith((b"\xff\xfe", b"\xfe\xff")):
         return raw.decode("utf-16", errors="replace")
@@ -115,6 +116,7 @@ def parse_patch_files(patch: str) -> tuple[str, ...]:
 
 
 def added_files(patch: str) -> tuple[str, ...]:
+    """Return the paths of files the diff creates (old side ``/dev/null``)."""
     out: list[str] = []
     lines = patch.split("\n")
     for idx, line in enumerate(lines):
@@ -124,6 +126,7 @@ def added_files(patch: str) -> tuple[str, ...]:
 
 
 def is_unsafe_path(path: str) -> bool:
+    """Return True for empty, absolute, drive-qualified or ``..``-containing paths."""
     p = path.replace("\\", "/")
     return not p or p.startswith("/") or re.match(r"^[A-Za-z]:", p) is not None or ".." in p.split("/")
 

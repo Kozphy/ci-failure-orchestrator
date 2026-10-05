@@ -28,6 +28,7 @@ _FALSE_REPAIR_STATES = frozenset({
 
 
 def load_remediation_records(artifacts_root: Path) -> list[dict[str, Any]]:
+    """Load every stored remediation record, skipping unreadable or malformed files."""
     records: list[dict[str, Any]] = []
     for path in sorted((Path(artifacts_root) / "runs").glob(f"*/{FIX_DIR}/{REMEDIATION_NAME}")):
         try:
@@ -45,6 +46,11 @@ def _seconds(start: str, end: str) -> float | None:
 
 
 def compute_remediation_metrics(records: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    """Compute repair outcome rates over the records that attempted a repair.
+
+    Each rate is None when its denominator is zero. The returned dict includes a
+    ``definitions`` entry describing every metric.
+    """
     attempted = [r for r in records if r.get("repair_attempted")]
     total = len(attempted)
     states = Counter(str(r.get("state")) for r in attempted)

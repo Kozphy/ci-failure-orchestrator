@@ -36,6 +36,8 @@ ALWAYS_PROTECTED_BRANCHES = frozenset({"main", "master"})
 
 @dataclass
 class ApplyResult:
+    """Outcome of one fix-repo-apply invocation."""
+
     status: str  # APPLIED | BLOCKED | PARTIAL
     run_id: str
     message: str
@@ -47,6 +49,7 @@ class ApplyResult:
     next_steps: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the result as a plain dict."""
         return asdict(self)
 
 

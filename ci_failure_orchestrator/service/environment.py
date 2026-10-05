@@ -56,12 +56,15 @@ _KILLED_RETURN_CODES = frozenset({137, -9})
 
 @dataclass(frozen=True)
 class EnvironmentFinding:
+    """Immutable record of an environment failure detected in the unpatched reproduction."""
+
     kind: str
     step: str
     command: str
     evidence: str
 
     def to_dict(self) -> dict[str, str]:
+        """Return the finding as a plain dict."""
         return {"kind": self.kind, "step": self.step, "command": self.command, "evidence": self.evidence}
 
 
@@ -101,6 +104,10 @@ def detect_environment_failure(
     commands: Iterable[VerifyCommand],
     tracked_files: Iterable[str],
 ) -> EnvironmentFinding | None:
+    """Return the first environment failure among the failed baseline steps, or None.
+
+    Missing modules that match a directory or module name in the tracked tree are not reported.
+    """
     displays = {c.name: c.display for c in commands}
     repo_modules = repository_module_names(tracked_files)
     for step in baseline:

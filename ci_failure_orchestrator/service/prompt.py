@@ -26,6 +26,11 @@ def _read_base_file(session: FixSession, path: str) -> str | None:
 
 
 def build_prompt(session: FixSession, *, attempt_number: int, changed_paths: Sequence[str]) -> str:
+    """Build the sanitized provider prompt for one repair attempt.
+
+    Untrusted CI output is fenced, security-category files are never included, and the
+    assembled prompt is passed through secret sanitization before it is returned.
+    """
     failure = session.failure
     parts: list[str] = [
         "You are fixing a failing CI check in a git repository.",
@@ -121,6 +126,7 @@ def build_prompt(session: FixSession, *, attempt_number: int, changed_paths: Seq
 
 
 def extract_rationale(text: str) -> str:
+    """Return the text of the last ``Rationale:`` line (at most 500 characters), or ""."""
     for line in reversed(text.replace("\r\n", "\n").split("\n")):
         stripped = line.strip()
         if stripped.lower().startswith("rationale:"):

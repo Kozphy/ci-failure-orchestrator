@@ -42,6 +42,7 @@ BLOCKED_ENV_PREFIXES = ("ACTIONS_", "GIT_CONFIG")
 
 
 def blocked_env_names(names: Sequence[str]) -> tuple[str, ...]:
+    """Return the names that match the blocked credential names, prefixes or token suffixes."""
     blocked: list[str] = []
     for name in names:
         upper = name.strip().upper()
@@ -92,6 +93,7 @@ def git(
     env: dict[str, str] | None = None,
     timeout: int = 120,
 ) -> subprocess.CompletedProcess[str]:
+    """Run a git command in the repo and capture its text output without raising on failure."""
     return subprocess.run(
         ["git", *args],
         cwd=repo,
@@ -106,4 +108,5 @@ def git(
 
 
 def tail(text: str, limit: int) -> str:
+    """Return at most the last ``limit`` characters of the text."""
     return text if len(text) <= limit else text[-limit:]

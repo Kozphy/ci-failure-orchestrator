@@ -43,6 +43,7 @@ class RepoFixProposalFactory:
         paths: tuple[str, ...],
         force_forbidden_path: bool,
     ) -> RepairProposal:
+        """Generate one proposal from the source and wrap its extracted patch as a RepairProposal."""
         self.session.attempt_started_at = utc_now()
         self.session.attempt_started_clock = time.monotonic()
         prompt = build_prompt(self.session, attempt_number=attempt_number, changed_paths=paths)
@@ -109,6 +110,10 @@ class WorktreeSandbox:
         *,
         target_should_pass: bool = True,
     ) -> SandboxResult:
+        """Verify the proposal's patch in a disposable worktree and record the attempt.
+
+        Empty or policy-violating patches are refused before any worktree is created.
+        """
         self.attempt += 1
         if not proposal.patch.strip():
             error = self.session.last_error or "no_patch_extracted"

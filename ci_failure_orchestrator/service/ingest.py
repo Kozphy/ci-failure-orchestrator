@@ -22,6 +22,7 @@ _SOURCE_PATH_RE = re.compile(
 
 
 def summarize_failure_message(log: str) -> str:
+    """Return the last error-like log line (or the last line), truncated to 300 characters."""
     lines = [line.strip() for line in log.splitlines() if line.strip()]
     hits = [line for line in lines if _MESSAGE_RE.search(line)]
     chosen = hits[-1] if hits else (lines[-1] if lines else "")
@@ -56,11 +57,13 @@ def clean_failure(failure: dict[str, Any]) -> dict[str, Any]:
 
 
 def failure_from_fixture(path: str | Path) -> dict[str, Any]:
+    """Load a failure record from a JSON fixture, using its ``failure`` key when present."""
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
     return clean_failure(dict(raw.get("failure", raw)))
 
 
 def failure_from_log_file(path: str | Path) -> dict[str, Any]:
+    """Build a failure record from the tail of a CI log file."""
     text = Path(path).read_text(encoding="utf-8", errors="replace")
     log = tail(clean_untrusted(text), MAX_LOG_CHARS)
     return clean_failure({
@@ -81,6 +84,11 @@ def failure_from_github(
     api_url: str = "https://api.github.com",
     timeout: float = 30.0,
 ) -> dict[str, Any]:
+    """Build a failure record from the first failed job of a GitHub Actions run.
+
+    Raises:
+        ValueError: When the run has no failed job.
+    """
     evidence = GitHubActionsClient(token=token, api_url=api_url, timeout=timeout).collect_run(
         repository, run_id, include_logs=True
     )
@@ -110,6 +118,7 @@ def failure_from_github(
 
 
 def failure_from_reproduction(steps: Sequence[VerificationStep], commands: Sequence[VerifyCommand]) -> dict[str, Any]:
+    """Build a failure record from the first failing local reproduction step (or the last step)."""
     failing = next((s for s in steps if not s.passed), steps[-1])
     display = next((c.display for c in commands if c.name == failing.name), failing.name)
     output = tail(clean_untrusted(f"{failing.stdout}\n{failing.stderr}".strip()), MAX_LOG_CHARS)

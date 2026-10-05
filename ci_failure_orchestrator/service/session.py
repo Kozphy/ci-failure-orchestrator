@@ -11,6 +11,8 @@ from ..patch_sandbox import VerificationStep
 
 @dataclass(frozen=True)
 class VerifyCommand:
+    """Immutable verification command: a step name, its display string and its argv."""
+
     name: str
     display: str
     argv: tuple[str, ...]
@@ -18,6 +20,8 @@ class VerifyCommand:
 
 @dataclass
 class FixSession:
+    """Mutable state of one fix-repo run, including feedback from earlier attempts."""
+
     repo: Path
     base_commit: str
     commands: tuple[VerifyCommand, ...]

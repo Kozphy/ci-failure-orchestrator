@@ -38,6 +38,7 @@ def neutralize(text: str) -> str:
 
 
 def clean_untrusted(text: str) -> str:
+    """Neutralize untrusted text and redact secrets from it."""
     return sanitize_text(neutralize(text))[0]
 
 
@@ -50,4 +51,5 @@ def fenced(text: str, *, info: str = "text") -> str:
 
 
 def untrusted_block(title: str, text: str, *, info: str = "text") -> str:
+    """Return the text as a fenced block under an ``UNTRUSTED`` heading."""
     return f"## UNTRUSTED: {title}\n{fenced(text, info=info)}"

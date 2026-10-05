@@ -65,12 +65,16 @@ VERIFICATION_SCHEMA = "repair-verification/v1"
 
 @dataclass(frozen=True)
 class Invariant:
+    """Named behavioral invariant command declared in the verification config."""
+
     name: str
     command: str
 
 
 @dataclass(frozen=True)
 class VerificationConfig:
+    """Validated operator verification config: gate commands, invariants, waivers and test mapping."""
+
     regression: tuple[str, ...] = ()
     lint: tuple[str, ...] = ()
     typecheck: tuple[str, ...] = ()
@@ -84,6 +88,7 @@ class VerificationConfig:
     test_command: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the config in the mapping shape accepted by ``load_verification_config``."""
         return {
             "regression": list(self.regression),
             **{gate: list(getattr(self, gate)) for gate in QUALITY_GATES},
@@ -171,6 +176,11 @@ def load_verification_config(
 
 
 def read_verification_config_file(path: Path) -> dict[str, Any]:
+    """Read a YAML verification config file; an empty file yields an empty mapping.
+
+    Raises:
+        VerificationConfigError: When the file does not contain a YAML mapping.
+    """
     data = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
     if not isinstance(data, dict):
         raise VerificationConfigError(f"{path} must contain a YAML mapping")
@@ -179,6 +189,8 @@ def read_verification_config_file(path: Path) -> dict[str, Any]:
 
 @dataclass(frozen=True)
 class VerificationReport:
+    """Verification result, the remediation decision derived from it, and the supporting evidence."""
+
     result: VerificationResult
     decision: RemediationDecision
     evidence: dict[str, Any]
@@ -196,6 +208,12 @@ def pytest_prefix(argv: Sequence[str]) -> tuple[str, ...] | None:
 
 
 def affected_test_candidates(changed: Sequence[str], explicit: Mapping[str, Sequence[str]]) -> list[str]:
+    """Return deduplicated candidate test paths for the changed files.
+
+    Includes explicitly mapped tests, changed test files themselves, and conventional
+    ``test_<stem>.py`` / ``<stem>_test.py`` locations for changed Python sources. Candidates
+    are not checked for existence.
+    """
     out: list[str] = []
     for path in changed:
         posix = PurePosixPath(path.replace("\\", "/"))
@@ -629,6 +647,13 @@ def collect_verification(
 
 
 def audit_checks(result: VerificationResult) -> dict[str, Any]:
+    """Summarize a verification result as per-check statuses for the audit trail.
+
+    Returns:
+        A dict with ``original_failure_reproduced``, ``targeted_validation``,
+        ``regression_validation``, ``quality_gate_preserved``, ``security_validation`` and
+        ``real_ci_validation`` entries.
+    """
     if result.targeted_test_passed is False or result.original_failure_resolved is False or result.target_test_missing:
         targeted = "FAILED"
     elif result.targeted_test_passed and result.original_failure_resolved:

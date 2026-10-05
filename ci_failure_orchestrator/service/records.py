@@ -32,6 +32,8 @@ _ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 
 
 class AttemptStatus(str, Enum):
+    """Outcome of checking one proposal in a worktree."""
+
     NO_PATCH = "NO_PATCH"
     REFUSED = "REFUSED"
     PATCH_REJECTED = "PATCH_REJECTED"
@@ -41,6 +43,8 @@ class AttemptStatus(str, Enum):
 
 @dataclass(frozen=True)
 class Task:
+    """Immutable objective: one CI failure in one repository."""
+
     task_id: str
     repository: str
     trigger: str
@@ -51,6 +55,8 @@ class Task:
 
 @dataclass(frozen=True)
 class Attempt:
+    """Immutable record of one proposal checked in a worktree, attributed to its agent."""
+
     attempt_id: str
     task_id: str
     run_id: str
@@ -67,6 +73,7 @@ class Attempt:
     schema_version: str = ATTEMPT_SCHEMA
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the attempt as a JSON-ready dict."""
         data = asdict(self)
         data["status"] = self.status.value
         data["files_changed"] = list(self.files_changed)
@@ -74,16 +81,19 @@ class Attempt:
 
 
 def attempt_name(number: int) -> str:
+    """Return the evidence file name for an attempt number."""
     return f"attempt-{number:03d}.json"
 
 
 def write_attempt(artifacts_root: Path, attempt: Attempt) -> None:
+    """Write the attempt record into its run's fix-repo evidence directory."""
     FileEvidenceStore(artifacts_root).write_json(
         attempt.run_id, FIX_DIR, attempt.to_dict(), name=attempt_name(attempt.number)
     )
 
 
 def read_attempts(artifacts_root: Path, run_id: str) -> list[dict[str, Any]]:
+    """Return a run's attempt records in attempt-number order."""
     fix_root = Path(artifacts_root) / "runs" / run_id / FIX_DIR
     return [
         json.loads(path.read_text(encoding="utf-8"))
@@ -103,11 +113,17 @@ class TaskStore:
         return self.root / task_id
 
     def create(self, *, repository: str, trigger: str, objective: str) -> Task:
+        """Create a task with a new id and write its sanitized ``task.json``."""
         task = Task(task_id=new_id("task"), repository=repository, trigger=trigger, objective=objective)
         atomic_write_text(self._dir(task.task_id) / "task.json", canonical_json(sanitize_value(asdict(task))))
         return task
 
     def load(self, task_id: str) -> Task:
+        """Load a stored task.
+
+        Raises:
+            ValueError: When the task id is invalid, the task is unknown or its schema is unsupported.
+        """
         path = self._dir(task_id) / "task.json"
         if not path.is_file():
             raise ValueError(f"unknown task: {task_id}")
@@ -117,6 +133,7 @@ class TaskStore:
         return Task(**data)
 
     def append_run(self, task_id: str, entry: dict[str, Any]) -> None:
+        """Append a sanitized run entry as one line of the task's ``runs.jsonl``."""
         path = self._dir(task_id) / "runs.jsonl"
         path.parent.mkdir(parents=True, exist_ok=True)
         line = json.dumps(sanitize_value(entry), sort_keys=True, ensure_ascii=False)
@@ -124,6 +141,7 @@ class TaskStore:
             handle.write(line + "\n")
 
     def runs(self, task_id: str) -> list[dict[str, Any]]:
+        """Return the task's run entries, or an empty list when none were recorded."""
         path = self._dir(task_id) / "runs.jsonl"
         if not path.is_file():
             return []
@@ -131,6 +149,7 @@ class TaskStore:
 
 
 def task_summary(artifacts_root: Path, task_id: str) -> dict[str, Any]:
+    """Return the task with each of its runs and that run's attempt records."""
     store = TaskStore(artifacts_root)
     task = store.load(task_id)
     runs = [
