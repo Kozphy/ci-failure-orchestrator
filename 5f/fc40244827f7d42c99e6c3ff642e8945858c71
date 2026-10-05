@@ -1,0 +1,113 @@
+ci_failure_orchestrator/patch_sandbox.py
+  s_dd5ec07e8f478a::t_05f5ad1cf58770 58,64-65
+  s_dd5ec07e8f478a::t_c154e897e22a65 102
+ci_failure_orchestrator/service/ci_verification.py
+  s_dd5ec07e8f478a::t_4b41f9958c4a5c 102
+  s_dd5ec07e8f478a::t_fa19c0fa67dbf9 1-26,29-80,82-84,86-101,103-137,139-214
+  s_dd5ec07e8f478a::t_a831f92a4cb156 81,85
+  s_dd5ec07e8f478a::t_c38c34b4ce8cb9 138
+  s_dd5ec07e8f478a::t_fbfe59ee54d685 27-28
+ci_failure_orchestrator/foundation/durable.py
+  s_dd5ec07e8f478a::t_949edd89e6ef19 66
+ci_failure_orchestrator/foundation/remediation.py
+  s_dd5ec07e8f478a::t_66198e69017316 150-166
+  s_dd5ec07e8f478a::t_04255441d3c54d 1-149,167-338
+ci_failure_orchestrator/foundation/verification_integrity.py
+  s_dd5ec07e8f478a::t_067d587f4a3348 30
+  s_dd5ec07e8f478a::t_15cb93ee866278 109
+  s_dd5ec07e8f478a::t_fc6367c71456cf 223-228
+  s_dd5ec07e8f478a::t_85bc01c3e07fe4 477
+  s_dd5ec07e8f478a::t_51a7216a3fd6c2 62
+  s_dd5ec07e8f478a::t_947371c2b2cb2a 172-175
+  s_dd5ec07e8f478a::t_b13d0488ebffce 478
+ci_failure_orchestrator/github_client.py
+  s_dd5ec07e8f478a::t_99e21cf1126745 46-47
+  s_dd5ec07e8f478a::t_6e59f64fc849a2 55,63-64
+  s_dd5ec07e8f478a::t_b6aea3de5c8da2 102-121
+CHANGELOG.md
+  s_dd5ec07e8f478a::t_5ff497b26b2d73 37
+  s_dd5ec07e8f478a::t_17eee395e4b1be 9-36,38-51
+ci_failure_orchestrator/service/__init__.py
+  s_dd5ec07e8f478a::t_d80c0a467fef9c 11-13,18
+  s_dd5ec07e8f478a::t_cbb84758784aea 51
+  s_dd5ec07e8f478a::t_8347c183c6e830 70-71,74,80
+  s_dd5ec07e8f478a::t_66285339e572c8 32,35,45-47
+  s_dd5ec07e8f478a::t_346751306c0d73 58,64
+ci_failure_orchestrator/service/verification.py
+  s_dd5ec07e8f478a::t_a462c9f3827161 1-58,61-97,102-107,109-119,121-124,126-129,131,133-136,138-140,142,144-147,149-150,155-156,158-175,177-448,450-723
+  s_dd5ec07e8f478a::t_7cd4b3d1163965 120,125,130,132,137,141,143,148,151-154,157
+  s_dd5ec07e8f478a::t_3bea36a732abed 59-60
+  s_dd5ec07e8f478a::t_68f3144cb23030 449
+  s_dd5ec07e8f478a::t_ca9d6b0b0b1089 98-101,108
+  s_dd5ec07e8f478a::t_8e93f0d24e5d3a 176
+ci_failure_orchestrator/module_status.py
+  s_dd5ec07e8f478a::t_fe4bcc9cc48762 133-134
+docs/architecture/current-state.md
+  s_dd5ec07e8f478a::t_fe3bb38709511d 106-115,118-120
+ci_failure_orchestrator/foundation/diff_risk.py
+  s_dd5ec07e8f478a::t_046c81fdad079f 1-170
+docs/architecture/policy-gate.md
+  s_dd5ec07e8f478a::t_3e46eb2e44a9b7 23-29
+README.md
+  s_dd5ec07e8f478a::t_9be5255bcaa66e 40
+  s_dd5ec07e8f478a::t_7581e9300ec9a7 224-261
+  s_dd5ec07e8f478a::t_ec15517a53a302 314-315
+ci_failure_orchestrator/cli.py
+  s_dd5ec07e8f478a::t_49e639697ab828 848-849
+  s_dd5ec07e8f478a::t_4b744fba276ca0 501,504
+  s_dd5ec07e8f478a::t_d1087a95f73357 493,500,502-503,505-524
+  s_dd5ec07e8f478a::t_5a77e80803d42d 30,32,36-38,41,525-526,860
+  s_dd5ec07e8f478a::t_ad1e1135e0b850 824-834,838-847,850-859
+  s_dd5ec07e8f478a::t_0532f4c58cbd6c 471-476
+tests/test_repair_verification.py
+  s_dd5ec07e8f478a::t_dbc513432c11b7 573-580
+  s_dd5ec07e8f478a::t_ccdec9fd580483 547
+  s_dd5ec07e8f478a::t_c770044b420eb6 786
+  s_dd5ec07e8f478a::t_7f88bad27dd12f 774-781,784-785,788,794-797,800
+  s_dd5ec07e8f478a::t_d05c070e2b298f 19
+  s_dd5ec07e8f478a::t_5799bd58b5cbcd 669-679,682,685
+  s_dd5ec07e8f478a::t_79908c5fff8f87 601-607,613
+  s_dd5ec07e8f478a::t_bfb8960ff5f9ba 1-18,20-546,548-572,581-600,608-612,614-668,680-681,683-684,686-766,772-773,805-818
+  s_dd5ec07e8f478a::t_69bb963540dc51 767-771
+  s_dd5ec07e8f478a::t_614988d2ffe656 782-783,787,789-793,798-799,801-804
+ci_failure_orchestrator/foundation/test_evidence.py
+  s_dd5ec07e8f478a::t_880630b2d508ad 1-23,25-48,51-59,62-280
+  s_dd5ec07e8f478a::t_18a2dc74f58780 24
+  s_dd5ec07e8f478a::t_fa4b041d190337 49-50
+  s_dd5ec07e8f478a::t_b79113cb5bfc80 60-61
+ci_failure_orchestrator/service/apply.py
+  s_dd5ec07e8f478a::t_093359c364ed09 124-131
+  s_dd5ec07e8f478a::t_308ce6dcb8b2b7 29,32
+ci_failure_orchestrator/service/remediation_metrics.py
+  s_dd5ec07e8f478a::t_4f9f0f1c28f233 1-82
+ci_failure_orchestrator/service/common.py
+  s_dd5ec07e8f478a::t_7dde8a0708743f 61-63
+ci_failure_orchestrator/service/run.py
+  s_dd5ec07e8f478a::t_892c9f1dc3efa1 304-310
+  s_dd5ec07e8f478a::t_5eb14122a86a33 301-303,311-341,343-355
+  s_dd5ec07e8f478a::t_433d022116a2d2 23
+  s_dd5ec07e8f478a::t_eab173a20191f2 34-40
+  s_dd5ec07e8f478a::t_56b812135fcf94 382-383
+  s_dd5ec07e8f478a::t_299b122794f12f 58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5ffc40244827f7d42c99e6c3ff642e8945858c71",
+  "prompts": {},
+  "humans": {
+    "h_1d8a7f1e671f32": {
+      "author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_dd5ec07e8f478a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e9ae43bc-aa93-43c5-b1a3-9f3353d013f9",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
