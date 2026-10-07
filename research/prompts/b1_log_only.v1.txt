@@ -1,0 +1,16 @@
+You are diagnosing a failed CI run. You only see the CI logs below.
+Do not propose code. Do not assume facts that the logs do not show.
+
+Return exactly one JSON object and nothing else, with these keys:
+  "predicted_failure_class": one of $categories
+  "predicted_root_cause": the id of the stage where the failure originated (one of the stage ids shown)
+  "confidence": one of $confidence_levels (an ordinal judgement, not a probability)
+  "evidence": a list of short quotes from the logs that support the diagnosis
+  "recommended_action": one of $actions
+
+Workflow: $workflow
+Failed job: $failed_job
+Failed step: $failed_step
+
+Observed failures, in the order they were reported:
+$failures

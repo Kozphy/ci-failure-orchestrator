@@ -62,6 +62,8 @@ class FixRepoConfig:
     failure: dict[str, Any] | None = None
     task_id: str | None = None
     verification: VerificationConfig | None = None
+    # Programmatic proposal source (the research harness uses it); excludes patch_file and provider_cmd.
+    source: ProposalSource | None = None
 
 
 def _outcome(**values: Any) -> dict[str, Any]:
@@ -81,6 +83,10 @@ def _build_commands(raw: Sequence[str]) -> tuple[VerifyCommand, ...]:
 
 
 def _build_source(config: FixRepoConfig) -> ProposalSource:
+    if config.source is not None:
+        if config.patch_file or config.provider_cmd:
+            raise ValueError("a programmatic source cannot be combined with --patch-file or --provider-cmd")
+        return config.source
     if bool(config.patch_file) == bool(config.provider_cmd):
         raise ValueError("exactly one of --patch-file or --provider-cmd is required")
     if config.patch_file:
