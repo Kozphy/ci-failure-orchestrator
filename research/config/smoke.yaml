@@ -1,0 +1,38 @@
+# Smoke experiment: three development cases, mock provider, no network, no credentials.
+# It checks that the pipeline runs end to end. Its numbers are not results: the development split was
+# visible while the system was built, and the mock provider is a keyword heuristic, not a model.
+experiment:
+  name: smoke
+  seed: 7
+  bootstrap_resamples: 200
+
+dataset:
+  root: research/datasets
+  lock: research/datasets/dataset.lock.json
+  splits: [development]
+  allow_holdout: false
+  case_ids: [dev-bench-class-003, dev-cascade-type-error-cascade, dev-repair-addition]
+
+diagnosis:
+  enabled: true
+  systems: [B0, B1, B2, B3, B4]
+  context_policy: ctx-v1
+
+repair:
+  enabled: true
+  systems: [R-GREEN-1, R-GREEN-k, P, P-composed, P-no-policy, P-no-verification, P-no-retry]
+  retry_budget: 3
+  candidate_order_seed: 7
+  timeout_seconds: 300
+  require_real_ci: false
+
+model:
+  provider: mock
+  name: mock-keyword-heuristic
+  version: "1"
+  temperature: 0
+
+output:
+  raw_dir: research/results/smoke
+  processed_dir: research/results/smoke/processed
+  update_processed: true

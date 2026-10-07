@@ -1,0 +1,42 @@
+# Default experiment: frozen test split, every implemented system, no paid API.
+# B1, B2 and B4 are reported NOT RUN with provider "none". To run them, use provider "command" with
+# CI_ORCHESTRATOR_RESEARCH_LLM_CMD set (and record_to for replay), or "recorded" with a recording file,
+# and fill in model.name and model.version so the manifest identifies the model.
+experiment:
+  name: rq1-rq2-test
+  seed: 20261007
+  bootstrap_resamples: 2000
+
+dataset:
+  root: research/datasets
+  lock: research/datasets/dataset.lock.json
+  splits: [test]
+  allow_holdout: false
+
+diagnosis:
+  enabled: true
+  systems: [B0, B1, B2, B3, B4]
+  context_policy: ctx-v1
+
+repair:
+  enabled: true
+  systems: [R-GREEN-1, R-GREEN-k, P, P-composed, P-no-policy, P-no-verification, P-no-retry]
+  retry_budget: 3
+  candidate_order_seed: 20261007
+  timeout_seconds: 300
+  # Fixture repositories have no real CI; VERIFIED_FIXED's real-CI requirement is reported as not applicable.
+  require_real_ci: false
+
+model:
+  provider: none        # none | mock | recorded | command
+  name: null
+  version: null
+  temperature: 0
+  # recording: research/results/recordings/<file>.jsonl     (provider: recorded)
+  # record_to: research/results/recordings/<file>.jsonl     (provider: command)
+  # env_passthrough: [NAME_OF_API_KEY_VARIABLE]             (names only; values are never recorded)
+
+output:
+  raw_dir: research/results/raw
+  processed_dir: research/results/processed
+  update_processed: true
