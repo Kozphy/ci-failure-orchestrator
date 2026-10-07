@@ -1,0 +1,39 @@
+research/metrics.py
+  s_be7467d8494cb0::t_2fae3cd0eefbf3 164-166
+  s_be7467d8494cb0::t_19252c5d045f50 1-163,167-286
+research/stats.py
+  s_be7467d8494cb0::t_5f870bf1d4566f 1-118
+research/manifest.py
+  s_be7467d8494cb0::t_24dcd5f900a012 1-58,60-154
+  s_be7467d8494cb0::t_968d2f07fd14ff 59
+research/report.py
+  s_be7467d8494cb0::t_6c2996bdf64e46 1-318
+research/config/smoke.yaml
+  s_be7467d8494cb0::t_80f37af2046ec2 1-38
+research/analysis.py
+  s_be7467d8494cb0::t_bebd452a799fba 34
+  s_be7467d8494cb0::t_915e8f2d7be016 56-79,82-113,123-126
+  s_be7467d8494cb0::t_219a3d9897a230 1-33,35-55,80-81,114-122,127-146
+research/run.py
+  s_be7467d8494cb0::t_f7fb9a32cb6f74 1-37,39-191,193-358
+  s_be7467d8494cb0::t_5f10c05ce1567f 192
+  s_be7467d8494cb0::t_a65fd270b75dcf 38
+research/config/default.yaml
+  s_be7467d8494cb0::t_596d42caa7b55e 1-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5648187b3d366dc23d7561c992798f59e62bf832",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
