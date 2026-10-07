@@ -53,6 +53,9 @@ tmp/
 temp/
 *.log
 
+# Research smoke runs are scratch output; official runs under research/results/raw/ are committed
+research/results/smoke/
+
 # Ephemeral SQLite DBs from governed benchmark runs
 benchmarks/cases/*.db
 *.db-journal

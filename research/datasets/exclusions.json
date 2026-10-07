@@ -1,0 +1,8 @@
+[
+  {
+    "case_id": "dev-governed-01-unit-test-failure",
+    "detail": "identical normalised failure signature; first source kept",
+    "duplicate_of": "dev-bench-class-001",
+    "reason": "exact_duplicate"
+  }
+]
