@@ -292,6 +292,8 @@ def _case_semantics(case: Mapping[str, Any]) -> list[str]:
             if overlap:
                 problems.append(f"hidden oracle files collide with visible files: {sorted(overlap)}")
     prov = case.get("provenance") or {}
+    if case.get("schema_version") == "1.1" and not str(prov.get("content_digest") or "").startswith("sha256:"):
+        problems.append("schema 1.1 case needs provenance.content_digest (sha256:...)")
     source = case.get("source_type")
     if source in _REAL_SOURCES:
         if not str(prov.get("source_uri", "")).startswith("https://"):

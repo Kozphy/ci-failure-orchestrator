@@ -107,14 +107,18 @@ def build_manifest(
     provider: Mapping[str, Any],
     command: Sequence[str],
     extra: Mapping[str, Any] | None = None,
+    git: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Assemble the manifest. Every field is derived from inputs; nothing is measured here."""
+    """Assemble the manifest. Every field is derived from inputs; nothing is measured here.
+
+    ``git`` should be captured when the run starts, so edits made while it runs are not attributed to it.
+    """
     repair = config.get("repair") or {}
     manifest = {
         "schema": MANIFEST_SCHEMA,
         "experiment_id": experiment_id,
         "timestamp": timestamp,
-        **git_state(),
+        **(dict(git) if git is not None else git_state()),
         "dataset_version": lock.get("dataset_version"),
         "dataset_sha256": lock.get("dataset_sha256"),
         "split_sha256": {name: (lock.get("splits") or {}).get(name, {}).get("sha256") for name in splits},
@@ -144,7 +148,7 @@ def build_manifest(
             "network": "not required; the command provider may use it if the operator's command does",
         },
         "environment": environment(),
-        "command": " ".join(command),
+        "command": scrub(" ".join(command)),
         "config_path": config_path,
         "config_sha256": config_digest(config),
         "config": scrub(dict(config)),

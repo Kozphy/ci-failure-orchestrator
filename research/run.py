@@ -23,7 +23,7 @@ import yaml
 from .analysis import diagnosis_errors, repair_errors, taxonomy_table
 from .dataset import load_dataset, read_lock, validate_dataset
 from .diagnosis import CONTEXT_POLICY, DIAGNOSIS_SYSTEMS, MODEL_SYSTEMS, DiagnosisPrediction, load_prompt, run_diagnosis
-from .manifest import build_manifest, config_digest, contains_secret_shape, utc_timestamp
+from .manifest import build_manifest, config_digest, contains_secret_shape, git_state, utc_timestamp
 from .metrics import (
     annotation_summary,
     candidate_gate_metrics,
@@ -218,10 +218,13 @@ def run_experiment(
     """Run the configured experiment and return the raw output directory."""
     log = log or (lambda msg: print(msg, file=sys.stderr, flush=True))
     now = now or datetime.now(timezone.utc)
+    git_at_start = git_state()
     exp = config.get("experiment") or {}
     seed = int(exp.get("seed", 0))
     resamples = int(exp.get("bootstrap_resamples", 2000))
     splits, cases, lock = select_cases(config, confirm_holdout=confirm_holdout)
+    if (config.get("repair") or {}).get("require_real_ci"):
+        raise ExperimentError("require_real_ci is true but fixture repositories have no real CI to confirm repairs")
 
     experiment_id = experiment_id_for(config, now)
     raw_root = raw_root or _resolve((config.get("output") or {}).get("raw_dir", RAW_DIR))
@@ -243,8 +246,6 @@ def run_experiment(
     budget = int(rep_cfg.get("retry_budget", 3))
     order_seed = int(rep_cfg.get("candidate_order_seed", seed))
     timeout = int(rep_cfg.get("timeout_seconds", 300))
-    if rep_cfg.get("require_real_ci"):
-        raise ExperimentError("require_real_ci is true but fixture repositories have no real CI to confirm repairs")
     runs: list[CaseRun] = []
     for idx, case in enumerate(rep_cases if rep_systems else [], start=1):
         log(f"[{experiment_id}] repair {idx}/{len(rep_cases)}: {case['case_id']}")
@@ -296,6 +297,7 @@ def run_experiment(
         command=command,
         extra={"context_policy": CONTEXT_POLICY,
                "exclusions": {"diagnosis_not_run": sum(p.status == "not_run" for p in predictions)}},
+        git=git_at_start,
     )
     texts = {
         "manifest.json": json.dumps(manifest, indent=2, sort_keys=True) + "\n",

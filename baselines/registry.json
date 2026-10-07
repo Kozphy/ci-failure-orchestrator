@@ -1,72 +1,124 @@
 {
-  "schema_version": "1.1",
-  "research_question": "RQ1",
+  "schema_version": "1.2",
+  "research_question": "RQ1 and RQ2 (see research/RESEARCH_PLAN.md)",
   "baselines": [
     {
       "id": "B0",
+      "version": "b0-latest-visible/v1",
       "name": "latest_visible_failure",
-      "description": "Deterministic heuristic that predicts the deepest/latest visible failed stage. No LLM and no memory.",
+      "description": "Deterministic heuristic that predicts the deepest/latest visible failed stage; failure class from FailureClassifier on that stage's log. No LLM and no memory.",
+      "track": "diagnosis",
       "uses_llm": false,
       "uses_repo_context": false,
       "uses_dependency_graph": false,
       "uses_memory": false,
       "uses_independent_verification": false,
-      "status": "implemented_executable"
+      "status": "implemented_executable",
+      "research_entrypoint": "research.diagnosis (system B0)"
     },
     {
       "id": "B1",
+      "version": "b1-llm-log-only/v1",
       "name": "llm_log_only",
-      "description": "LLM receives bounded failure-log evidence only.",
+      "description": "Model receives bounded failure-log evidence only (prompt research/prompts/b1_log_only.v1.txt); strict JSON output schema.",
+      "track": "diagnosis",
       "uses_llm": true,
       "uses_repo_context": false,
       "uses_dependency_graph": false,
       "uses_memory": false,
       "uses_independent_verification": false,
-      "status": "contract_defined_not_implemented"
+      "status": "implemented_research_harness_not_yet_run_with_a_real_model",
+      "research_entrypoint": "research.diagnosis (system B1) via research.providers",
+      "note": "The legacy corpus-level ci_failure_orchestrator.baselines.run_baseline still rejects B1 (fail closed). Results count only with a claim-eligible provider (recorded or command); the mock provider is a pipeline check."
     },
     {
       "id": "B2",
+      "version": "b2-llm-context/v1",
       "name": "llm_repo_context",
-      "description": "LLM receives failure logs plus bounded repository context.",
+      "description": "Model receives failure logs plus bounded failure-time repository context (context policy ctx-v1; prompt research/prompts/b2_context.v1.txt).",
+      "track": "diagnosis",
       "uses_llm": true,
       "uses_repo_context": true,
       "uses_dependency_graph": false,
       "uses_memory": false,
       "uses_independent_verification": false,
-      "status": "contract_defined_not_implemented"
+      "status": "implemented_research_harness_not_yet_run_with_a_real_model",
+      "research_entrypoint": "research.diagnosis (system B2) via research.providers"
     },
     {
       "id": "B3",
+      "version": "b3-dependency-graph/v1",
       "name": "dependency_graph_only",
-      "description": "Dependency-aware root-cause ranking without memory or LLM reasoning.",
+      "description": "Dependency-aware root-cause ranking (RootCauseRanker) without memory or LLM reasoning; failure class from FailureClassifier on the top-ranked stage's log.",
+      "track": "diagnosis",
       "uses_llm": false,
-      "uses_repo_context": true,
+      "uses_repo_context": false,
       "uses_dependency_graph": true,
       "uses_memory": false,
       "uses_independent_verification": false,
-      "status": "implemented_executable"
+      "status": "implemented_executable",
+      "research_entrypoint": "research.diagnosis (system B3)"
     },
     {
       "id": "B4",
+      "version": "b4-graph-llm/v1",
       "name": "dependency_graph_llm",
-      "description": "Dependency-aware diagnosis combined with LLM reasoning, without persistent failure memory.",
+      "description": "Model receives logs, bounded context, the dependency graph and the B3 ranking (prompt research/prompts/b4_graph_context.v1.txt), without persistent failure memory.",
+      "track": "diagnosis",
       "uses_llm": true,
       "uses_repo_context": true,
       "uses_dependency_graph": true,
       "uses_memory": false,
       "uses_independent_verification": false,
-      "status": "contract_defined_not_implemented"
+      "status": "implemented_research_harness_not_yet_run_with_a_real_model",
+      "research_entrypoint": "research.diagnosis (system B4) via research.providers"
+    },
+    {
+      "id": "R-GREEN-1",
+      "version": "r-green/v1 budget=1",
+      "name": "ci_green_acceptance_single_attempt",
+      "description": "Repair-track comparator: accept the first scripted candidate that turns the visible CI command green; one attempt; no policy, no verification.",
+      "track": "repair",
+      "uses_llm": false,
+      "uses_repo_context": false,
+      "uses_dependency_graph": false,
+      "uses_memory": false,
+      "uses_independent_verification": false,
+      "status": "implemented_executable",
+      "research_entrypoint": "research.repair (system R-GREEN-1)"
+    },
+    {
+      "id": "R-GREEN-k",
+      "version": "r-green/v1 budget=k",
+      "name": "ci_green_acceptance_k_attempts",
+      "description": "As R-GREEN-1 with the same retry budget k as P.",
+      "track": "repair",
+      "uses_llm": false,
+      "uses_repo_context": false,
+      "uses_dependency_graph": false,
+      "uses_memory": false,
+      "uses_independent_verification": false,
+      "status": "implemented_executable",
+      "research_entrypoint": "research.repair (system R-GREEN-k)"
     },
     {
       "id": "P",
+      "version": "run_fix_repo at the manifest git_commit",
       "name": "proposed_full_system",
-      "description": "Dependency graph, failure memory, bounded repair agent, candidate policy, and independent verification.",
-      "uses_llm": true,
-      "uses_repo_context": true,
+      "description": "Repair track: the real run_fix_repo loop (retry engine, policy gate, forbidden-diff detection, independent verification) driven by scripted candidates. Diagnosis track: identical to B3, because failure memory is not exercised by the research harness.",
+      "track": "repair and diagnosis",
+      "uses_llm": false,
+      "uses_repo_context": false,
       "uses_dependency_graph": true,
-      "uses_memory": true,
+      "uses_memory": false,
       "uses_independent_verification": true,
-      "status": "implemented_components_require_research_validation"
+      "status": "partially_evaluated_on_synthetic_fixtures",
+      "research_entrypoint": "research.repair (system P); ablations P-no-policy, P-no-verification, P-no-retry",
+      "not_evaluated": [
+        "failure memory",
+        "model-generated repair proposals",
+        "real CI confirmation (require_real_ci is refused on fixtures)"
+      ]
     }
   ],
   "required_run_metadata": [
@@ -79,6 +131,9 @@
     "context_policy",
     "tool_permissions",
     "random_seed"
+  ],
+  "registry_changes": [
+    "1.2: B1, B2 and B4 implemented in the research harness; repair-track comparators R-GREEN-1/R-GREEN-k added; B3 uses_repo_context corrected to false and P's flags corrected to what the harness exercises (no LLM, no memory)."
   ],
   "rule": "No baseline may be silently improved after test-set evaluation. Material changes require a new baseline version. Unimplemented baselines fail closed."
 }
