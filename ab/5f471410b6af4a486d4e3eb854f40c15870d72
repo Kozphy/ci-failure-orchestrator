@@ -1,0 +1,48 @@
+tests/_research_factories.py
+  s_be7467d8494cb0::t_5dc00725bd879d 1-55
+tests/test_duplicate_case_detection.py
+  s_be7467d8494cb0::t_c667c3bbf29141 1-31,33-46
+  s_be7467d8494cb0::t_8c734fd7973272 32
+tests/test_research_case_schema.py
+  s_be7467d8494cb0::t_a1d5eb677aa01e 17-22,24-25
+  s_be7467d8494cb0::t_8f44bca451e9cd 1-16,23,26-52
+tests/test_experiment_manifest.py
+  s_be7467d8494cb0::t_39abaee9e34e38 45
+  s_be7467d8494cb0::t_c330f78d51bcb7 1-44
+tests/test_result_immutability.py
+  s_be7467d8494cb0::t_bf12094821b5e7 45
+  s_be7467d8494cb0::t_065c5b94e5ce2d 1-44
+tests/test_metric_calculation.py
+  s_be7467d8494cb0::t_c3b40c90c027e0 63-67
+  s_be7467d8494cb0::t_740670ad08380c 1-62
+tests/test_smoke_experiment.py
+  s_be7467d8494cb0::t_9c01bb34a2e995 1-30
+tests/test_bootstrap_reproducibility.py
+  s_be7467d8494cb0::t_fcd8386a4fccf5 17-19,21
+  s_be7467d8494cb0::t_f99ae37a6d3af5 1-16,20,22-45
+tests/test_baseline_registry.py
+  s_be7467d8494cb0::t_8604e38af21709 63-64
+  s_be7467d8494cb0::t_11946b29eb075d 1-62,65-76
+tests/test_dataset_split_leakage.py
+  s_be7467d8494cb0::t_ae2b057e880939 1-53
+tests/test_green_but_wrong_detection.py
+  s_be7467d8494cb0::t_306571da4e0c81 1-52
+tests/test_verified_repair_definition.py
+  s_be7467d8494cb0::t_34eb0eda931c40 1-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ab5f471410b6af4a486d4e3eb854f40c15870d72",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
