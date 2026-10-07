@@ -1,0 +1,37 @@
+research/prompts/b2_context.v1.txt
+  s_be7467d8494cb0::t_ac6ce1bda7d8dc 1-20
+research/prompts/b1_log_only.v1.txt
+  s_be7467d8494cb0::t_81217ef67345cc 1-16
+ci_failure_orchestrator/service/run.py
+  s_be7467d8494cb0::t_b303368162f344 65-66
+  s_be7467d8494cb0::t_4d280959d77e79 86-89
+research/fixture_qa.py
+  s_be7467d8494cb0::t_5f8eb8ced91359 1-65
+research/providers.py
+  s_be7467d8494cb0::t_2ca2be6c33c857 1-185,187-291
+  s_be7467d8494cb0::t_968d2f07fd14ff 186
+research/prompts/b4_graph_context.v1.txt
+  s_be7467d8494cb0::t_37961f588d089c 1-27
+research/repair.py
+  s_be7467d8494cb0::t_57aa3930af9deb 22
+  s_be7467d8494cb0::t_968d2f07fd14ff 262,550
+  s_be7467d8494cb0::t_e40db2b8c0f1e4 1-21,23-261,263-549,551-611
+research/diagnosis.py
+  s_be7467d8494cb0::t_71facff0251880 1-299
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "34de21ea470a21268c7c61fe92c46c72e149bfcb",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
