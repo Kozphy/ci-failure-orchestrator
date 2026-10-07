@@ -1,0 +1,33 @@
+research/manifest.py
+  s_be7467d8494cb0::t_378738fa5ba4ee 110,112-115,121
+  s_be7467d8494cb0::t_cfd055a248e1e7 151
+research/compare_runs.py
+  s_be7467d8494cb0::t_8669388750b713 1-74
+research/run.py
+  s_be7467d8494cb0::t_40454a7aad8fb0 300
+  s_be7467d8494cb0::t_828a8528e98b57 26
+  s_be7467d8494cb0::t_62ad8e09127328 221
+  s_be7467d8494cb0::t_9deb6ee6d2d783 226-227
+baselines/registry.json
+  s_be7467d8494cb0::t_0ae46f7546959e 2-3,7,9-10,16-17,21,23-24,30-32,36,38-39,45-46,50,52-53,55,59-60,64,66-67,73-102,106,108-111,113,115-121,135-137
+pyproject.toml
+  s_be7467d8494cb0::t_96b8cfa836b008 36
+research/dataset.py
+  s_be7467d8494cb0::t_8a9b89e7d1b0d6 295-296
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7ce37a358799db96398f7311bc51dab8192c5a07",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
