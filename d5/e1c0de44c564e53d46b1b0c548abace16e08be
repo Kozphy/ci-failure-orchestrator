@@ -1,0 +1,50 @@
+research/authored_cases.py
+  s_be7467d8494cb0::t_49d244777cb521 1-816
+benchmark/research_case.schema.json
+  s_be7467d8494cb0::t_c9e28613d90ed9 5,19-20,25-30,49,61-62,64-67,72-112,122,124-127,139-144,152-153,156-216
+research/schema.py
+  s_be7467d8494cb0::t_cfbd8eb0474c7e 1-94
+research/dataset.py
+  s_be7467d8494cb0::t_2a1ead8109eab0 1-381
+research/datasets/test/cases.jsonl
+  s_be7467d8494cb0::t_d7153f343c9c1a 1-26
+research/datasets/exclusions.json
+  s_be7467d8494cb0::t_d7153f343c9c1a 1-8
+research/datasets/development/cases.jsonl
+  s_be7467d8494cb0::t_d7153f343c9c1a 1-40
+research/validate_dataset.py
+  s_be7467d8494cb0::t_38df8fcc8d3ab3 1-48
+research/__init__.py
+  s_be7467d8494cb0::t_3dc3c5a3f358a0 1-5
+research/paths.py
+  s_be7467d8494cb0::t_87e682a7de5eb3 1-22
+.gitignore
+  s_be7467d8494cb0::t_d84b1e0737a31f 56-58
+research/RESEARCH_PLAN.md
+  s_be7467d8494cb0::t_587628b6e6a1dd 1-121
+research/taxonomy.py
+  s_be7467d8494cb0::t_3a0061e344aaca 5-17
+  s_be7467d8494cb0::t_eda58b72da3e5b 18
+  s_be7467d8494cb0::t_1c53ada0322324 1-4,19-106
+research/datasets/dataset.lock.json
+  s_be7467d8494cb0::t_d7153f343c9c1a 1-91
+research/build_dataset.py
+  s_be7467d8494cb0::t_a3020e8ddafe37 1-49,54-340
+  s_be7467d8494cb0::t_486453011ca525 50-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d5e1c0de44c564e53d46b1b0c548abace16e08be",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
