@@ -17,7 +17,7 @@
 | Coverage of `ci_audit/` from focused tests alone | 92% combined |
 | ci.yml lint / docstring / mypy / trust tests / smoke | all pass (ruff, ruff D-rules, mypy 6 files, 23 trust tests, `rank` smoke) |
 | Public audit (unauthenticated, read-only) | `COLLECTED`: 30 runs, 40 jobs, 2 failed jobs, 1 warning (job logs need admin → HTTP 403) |
-| Upstream CI at this exact SHA (from the public audit) | `ci` run 37332637994 **failed** in job `server-image` (Compose smoke test); `test` and `server-postgres` jobs passed |
+| Upstream CI at this exact SHA (from the public audit) | `ci` run 37332637994 **failed** in job `server-image`; `test` and `server-postgres` jobs passed. Root cause found later (see [server-image root cause](#server-image-root-cause-update)): the smoke test passes and only the `Compose logs` step fails, because `POSTGRES_PASSWORD` is missing in that step |
 
 ## Environment
 
@@ -189,13 +189,31 @@ Main results ([full generated report](2026-10-11-evidence/public-audit-report.md
   - run `37332637994`, push, `head_sha` **`f7b6cf2e65b3d2ef3f15cecb4fc1c65874c3f56f` (the audited revision)**, 2026-10-05 15:24 UTC (23:24 Taipei);
   - run `37330654005`, pull_request, `head_sha` `8f6c8188…`, 2026-10-05 15:10 UTC.
   - The `test` and `server-postgres` jobs in both runs **passed**.
-- Classification is `unknown` and the recorded step is `Compose logs` (an `if: always()` step), because the failed-job logs could not be downloaded: `GitHub API returned HTTP 403: {"message":"Must have admin rights to Repository." ...}`. The real root cause of the `server-image` failure is **not determined** by this audit.
+- Classification is `unknown` and the recorded step is `Compose logs` (an `if: always()` step), because the failed-job logs could not be downloaded: `GitHub API returned HTTP 403: {"message":"Must have admin rights to Repository." ...}`. The unauthenticated audit could not determine the root cause. It was found later with an authenticated, read-only log read; see [server-image root cause](#server-image-root-cause-update).
 
 The raw export (`public-audit-export.json`, ≈37 KB of run metadata) was not committed; the generated analysis JSON and report are.
 
+## server-image root cause (update)
+
+Added after PR #10 was opened. The evidence comes from reading the GitHub Actions job logs with an authenticated, **read-only** `gh` call (`gh api repos/Kozphy/ci-failure-orchestrator/actions/jobs/<job_id>/logs`). Excerpts are in [`server-image-compose-logs-excerpt.log`](2026-10-11-evidence/server-image-compose-logs-excerpt.log).
+
+| Run | Job | Head | Event | `Compose smoke test` | `Compose logs` |
+|---|---|---|---|---|---|
+| 37332637994 | 111839326078 | `f7b6cf2` (audited revision) | push | success | **failure** |
+| 38126825665 | 114432817083 | `0aa6de3` (this PR) | push | success | **failure** |
+| 38126842121 | 114432864094 | `0aa6de3` (this PR) | pull_request | success | **failure** |
+
+- **The smoke test passes in all three runs.** Each log shows `{"status":"ready","checks":{"database":"ok","artifacts":"ok"}}{"status":"ok","version":"1.2.0"}job_status=COMPLETED`, so `/ready` and `/health` were OK and the queued run reached `COMPLETED`.
+- **The `Compose logs` step (`docker compose logs --no-color`, `if: always()`) fails in all three runs** with exit code 1:
+  - runs 37332637994 and 38126825665: `error while interpolating x-app-env.CFO_DATABASE_URL: required variable POSTGRES_PASSWORD is missing a value: set POSTGRES_PASSWORD in .env`
+  - run 38126842121: `error while interpolating services.postgres.environment.POSTGRES_PASSWORD: required variable POSTGRES_PASSWORD is missing a value: set POSTGRES_PASSWORD in .env` (same missing variable, reported at a different reference)
+- **Why:** in `.github/workflows/ci.yml` the `server-image` job sets `POSTGRES_PASSWORD: ci-only-ephemeral` under `env:` of the `Compose smoke test` step only. `docker-compose.yml` requires that variable via `${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}` (in `x-app-env.CFO_DATABASE_URL` and `services.postgres.environment`), so `docker compose logs` in the next step cannot load the compose file.
+- **Confirmed for the original failing run at `f7b6cf2`:** run 37332637994 shows the same smoke-test pass and the same `x-app-env.CFO_DATABASE_URL` interpolation error.
+- **Consequence:** the red `server-image` status at `f7b6cf2` (and on this PR) is a CI workflow configuration bug. The API, worker and database smoke path work. The likely fix is to make `POSTGRES_PASSWORD` available to the whole job (job-level `env:`). That fix is a separate change and is not part of this documentation-only PR.
+
 ## Failures, gaps and limitations
 
-1. **Upstream CI is red at the audited SHA.** The `ci` workflow's `server-image` job (Docker Compose smoke test against PostgreSQL + API + worker) failed for `f7b6cf2`. It was **not reproduced locally** (no Docker on the audit machine), and its logs need admin rights, so the cause is unknown.
+1. **Upstream CI is red at the audited SHA.** The `ci` workflow's `server-image` job failed for `f7b6cf2`. It was **not reproduced locally** (no Docker on the audit machine). The cause is a CI workflow configuration bug, not an application failure: the Compose smoke test itself passes, and only the `if: always()` `Compose logs` step fails because `POSTGRES_PASSWORD` is not set for it. See [server-image root cause](#server-image-root-cause-update).
 2. **PostgreSQL contract tests not run.** `tests/test_durable_store_contract.py` only adds the `postgres` backend when `TEST_DATABASE_URL` is set. It was unset, so only the `file` and `sqlite` backends ran. These are left out at collection time, so they **do not show as skips**; the "0 skipped" count does not mean PostgreSQL was covered.
 3. **Tests assume a `python` executable.** 3 tests fail with exit 127 where only `python3` exists (run 1). They pass with the venv on `PATH`.
 4. **No lockfile.** Dependencies resolve to the newest versions allowed by the lower bounds, so results may differ on another day. The exact versions used are in `pip-freeze.txt`.
@@ -208,4 +226,4 @@ The raw export (`public-audit-export.json`, ≈37 KB of run metadata) was not co
 
 - `docs/audit/2026-10-11-audit-report.md`: this report
 - `docs/audit/reproduce-audit.sh`: reruns the commands above (existing tests and read-only commands only)
-- `docs/audit/2026-10-11-evidence/`: raw logs (`focused-ci-audit.log`, `full-suite-run1-python-not-on-path.log`, `full-suite-run2-venv-on-path.log`, `repeat-run-2.log`, `ci-static-checks.log`, `public-audit-collect.log`, `public-audit-report.log`), `public-audit-report.md`, `public-audit-analysis.json`, `pip-freeze.txt`
+- `docs/audit/2026-10-11-evidence/`: `server-image-compose-logs-excerpt.log` (added in the follow-up commit), raw logs (`focused-ci-audit.log`, `full-suite-run1-python-not-on-path.log`, `full-suite-run2-venv-on-path.log`, `repeat-run-2.log`, `ci-static-checks.log`, `public-audit-collect.log`, `public-audit-report.log`), `public-audit-report.md`, `public-audit-analysis.json`, `pip-freeze.txt`
