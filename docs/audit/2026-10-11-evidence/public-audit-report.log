@@ -1,0 +1,7 @@
+{
+  "outcome": "REPORTED",
+  "output": "public-audit-report.md",
+  "findings": [
+    "F-DUP Medium: push and pull_request both run on the same commits (7% of minutes)"
+  ]
+}

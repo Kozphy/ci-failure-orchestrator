@@ -1,0 +1,30 @@
+ruff 0.17.0
+All checks passed!
+ruff-trust exit=0
+All checks passed!
+ruff-docstrings exit=0
+mypy 2.4.0 (compiled: yes)
+Success: no issues found in 6 source files
+mypy exit=0
+.......................                                                  [100%]
+23 passed in 0.43s
+trust-tests exit=0
+smoke exit=0
+[
+  {
+    "failure": {
+      "stage": "typecheck",
+      "error_type": "TYPE_ERROR",
+      "message": "Argument 1 has incompatible type",
+      "severity": 0.6,
+      "confidence": 0.95,
+      "metadata": {}
+    },
+    "score": 0.8658,
+    "downstream_count": 5,
+    "depth": 1,
+    "causal_matches": 2,
+    "reasons": [
+      "affects 5 downstream stage(s)",
+      "depth=1",
+      "classifier confi

@@ -1,0 +1,303 @@
+{
+  "repository": "Kozphy/ci-failure-orchestrator",
+  "private": false,
+  "since": "2026-09-11",
+  "collected_at": "2026-10-11T08:45:48+00:00",
+  "window_days": 30,
+  "monthly_scale": 1.0,
+  "totals": {
+    "runs": 30,
+    "completed": 30,
+    "in_progress": 0,
+    "succeeded": 28,
+    "failed": 2,
+    "cancelled": 0,
+    "failure_rate": 0.067,
+    "rerun_runs": 0,
+    "rerun_rate": 0.0,
+    "flaky_groups": 0,
+    "failed_jobs": 2,
+    "raw_minutes": 45,
+    "billed_minutes": 45,
+    "monthly_billed_minutes": 45
+  },
+  "os_minutes": {
+    "linux": 45
+  },
+  "waste": {
+    "duplicate_runs": 3,
+    "duplicate_minutes": 3,
+    "rerun_minutes": 0,
+    "cancelled_minutes": 0,
+    "failed_minutes": 2,
+    "total_minutes": 3,
+    "share": 0.067,
+    "monthly_minutes": 3
+  },
+  "workflows": [
+    {
+      "name": "ci",
+      "runs": 2,
+      "failure_rate": 1.0,
+      "reruns": 0,
+      "p50_minutes": 1.6,
+      "p90_minutes": 2.4,
+      "queue_p50_minutes": 0.0,
+      "billed_minutes": 8,
+      "share": 0.178
+    },
+    {
+      "name": "CI Doctor",
+      "runs": 5,
+      "failure_rate": 0.0,
+      "reruns": 0,
+      "p50_minutes": 0.4,
+      "p90_minutes": 0.4,
+      "queue_p50_minutes": 0.0,
+      "billed_minutes": 5,
+      "share": 0.111
+    },
+    {
+      "name": "Production Proof",
+      "runs": 2,
+      "failure_rate": 0.0,
+      "reruns": 0,
+      "p50_minutes": 1.2,
+      "p90_minutes": 1.6,
+      "queue_p50_minutes": 0.0,
+      "billed_minutes": 4,
+      "share": 0.089
+    },
+    {
+      "name": "dependabot-updates (dynamic)",
+      "runs": 2,
+      "failure_rate": 0.0,
+      "reruns": 0,
+      "p50_minutes": 1.1,
+      "p90_minutes": 1.9,
+      "queue_p50_minutes": 0.0,
+      "billed_minutes": 4,
+      "share": 0.089
+    },
+    {
+      "name": "repair-execution",
+      "runs": 2,
+      "failure_rate": 0.0,
+      "reruns": 0,
+      "p50_minutes": 1.2,
+      "p90_minutes": 1.8,
+      "queue_p50_minutes": 0.0,
+      "billed_minutes": 4,
+      "share": 0.089
+    },
+    {
+      "name": "security",
+      "runs": 2,
+      "failure_rate": 0.0,
+      "reruns": 0,
+      "p50_minutes": 1.1,
+      "p90_minutes": 1.5,
+      "queue_p50_minutes": 0.0,
+      "billed_minutes": 4,
+      "share": 0.089
+    },
+    {
+      "name": "promotion",
+      "runs": 2,
+      "failure_rate": 0.0,
+      "reruns": 0,
+      "p50_minutes": 1.3,
+      "p90_minutes": 1.6,
+      "queue_p50_minutes": 0.0,
+      "billed_minutes": 3,
+      "share": 0.067
+    },
+    {
+      "name": "provider-contract",
+      "runs": 3,
+      "failure_rate": 0.0,
+      "reruns": 0,
+      "p50_minutes": 0.8,
+      "p90_minutes": 0.9,
+      "queue_p50_minutes": 0.0,
+      "billed_minutes": 3,
+      "share": 0.067
+    },
+    {
+      "name": "ct",
+      "runs": 2,
+      "failure_rate": 0.0,
+      "reruns": 0,
+      "p50_minutes": 1.1,
+      "p90_minutes": 1.5,
+      "queue_p50_minutes": 0.0,
+      "billed_minutes": 2,
+      "share": 0.044
+    },
+    {
+      "name": "foundation-benchmark",
+      "runs": 2,
+      "failure_rate": 0.0,
+      "reruns": 0,
+      "p50_minutes": 0.5,
+      "p90_minutes": 1.1,
+      "queue_p50_minutes": 0.0,
+      "billed_minutes": 2,
+      "share": 0.044
+    },
+    {
+      "name": "patch-sandbox",
+      "runs": 2,
+      "failure_rate": 0.0,
+      "reruns": 0,
+      "p50_minutes": 0.4,
+      "p90_minutes": 0.9,
+      "queue_p50_minutes": 0.0,
+      "billed_minutes": 2,
+      "share": 0.044
+    },
+    {
+      "name": "repair-benchmark",
+      "runs": 2,
+      "failure_rate": 0.0,
+      "reruns": 0,
+      "p50_minutes": 0.5,
+      "p90_minutes": 1.0,
+      "queue_p50_minutes": 0.0,
+      "billed_minutes": 2,
+      "share": 0.044
+    },
+    {
+      "name": "research-evidence",
+      "runs": 2,
+      "failure_rate": 0.0,
+      "reruns": 0,
+      "p50_minutes": 0.7,
+      "p90_minutes": 1.2,
+      "queue_p50_minutes": 0.0,
+      "billed_minutes": 2,
+      "share": 0.044
+    }
+  ],
+  "taxonomy": [
+    {
+      "category": "unknown",
+      "count": 2,
+      "share": 1.0,
+      "example_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/37332637994/job/111839326078",
+      "example_message": "server-image failed"
+    }
+  ],
+  "top_failing_jobs": [
+    {
+      "workflow": "ci",
+      "job": "server-image",
+      "count": 2,
+      "share": 1.0,
+      "example_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/37332637994/job/111839326078"
+    }
+  ],
+  "failing_steps": [
+    {
+      "workflow": "ci",
+      "job": "server-image",
+      "step": "Compose logs",
+      "count": 2
+    }
+  ],
+  "slowest_jobs": [
+    {
+      "workflow": "dependabot-updates (dynamic)",
+      "job": "Dependabot",
+      "runs": 2,
+      "p50_minutes": 2.0,
+      "p90_minutes": 2.0
+    },
+    {
+      "workflow": "ci",
+      "job": "test",
+      "runs": 2,
+      "p50_minutes": 2.0,
+      "p90_minutes": 2.0
+    },
+    {
+      "workflow": "promotion",
+      "job": "canary",
+      "runs": 1,
+      "p50_minutes": 2.0,
+      "p90_minutes": 2.0
+    },
+    {
+      "workflow": "Production Proof",
+      "job": "test-and-gate",
+      "runs": 2,
+      "p50_minutes": 2.0,
+      "p90_minutes": 2.0
+    },
+    {
+      "workflow": "repair-execution",
+      "job": "repair-execution",
+      "runs": 2,
+      "p50_minutes": 2.0,
+      "p90_minutes": 2.0
+    },
+    {
+      "workflow": "CI Doctor",
+      "job": "diagnose",
+      "runs": 5,
+      "p50_minutes": 1.0,
+      "p90_minutes": 1.0
+    },
+    {
+      "workflow": "patch-sandbox",
+      "job": "verify",
+      "runs": 2,
+      "p50_minutes": 1.0,
+      "p90_minutes": 1.0
+    },
+    {
+      "workflow": "provider-contract",
+      "job": "provider-contract",
+      "runs": 3,
+      "p50_minutes": 1.0,
+      "p90_minutes": 1.0
+    },
+    {
+      "workflow": "repair-benchmark",
+      "job": "benchmark",
+      "runs": 2,
+      "p50_minutes": 1.0,
+      "p90_minutes": 1.0
+    },
+    {
+      "workflow": "ct",
+      "job": "continuous-testing",
+      "runs": 2,
+      "p50_minutes": 1.0,
+      "p90_minutes": 1.0
+    }
+  ],
+  "flaky": [],
+  "logs_missing": 2,
+  "logs_read": 0,
+  "logs_read_unknown": 0,
+  "warnings": [
+    "2 failed-job logs could not be downloaded; first error: GitHub API returned HTTP 403: {\"message\":\"Must have admin rights to Repository.\",\"documentation_url\":\"https://docs.github.com/rest/actions/workflow-jobs#download-job-logs-for-a-workflow-run\",\"status\":"
+  ],
+  "limits": {
+    "max_runs": 30,
+    "max_logs": 5,
+    "runs_truncated": true
+  },
+  "findings": [
+    {
+      "id": "F-DUP",
+      "severity": "Medium",
+      "title": "push and pull_request both run on the same commits (7% of minutes)",
+      "evidence": "3 duplicate runs, 3 billed minutes.",
+      "recommendation": "Limit push triggers to protected branches so PR branches build once via pull_request.",
+      "effort": "Low",
+      "monthly_minutes_at_stake": 3
+    }
+  ]
+}
