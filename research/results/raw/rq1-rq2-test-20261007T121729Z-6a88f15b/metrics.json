@@ -1,0 +1,2076 @@
+{
+  "annotation": {
+    "count": 0,
+    "issues": []
+  },
+  "candidate_gates": {
+    "candidates_by_label": {
+      "correct": 10,
+      "fake_fix": 11,
+      "no_op": 2,
+      "regression": 2,
+      "semantically_wrong": 8
+    },
+    "gates": {
+      "ci_green_only": {
+        "accepted_by_label": {
+          "correct": {
+            "estimate": 1.0,
+            "high": 0.9999999999999999,
+            "k": 10,
+            "low": 0.7224672001371107,
+            "n": 10
+          },
+          "fake_fix": {
+            "estimate": 1.0,
+            "high": 1.0,
+            "k": 11,
+            "low": 0.7411670330319684,
+            "n": 11
+          },
+          "no_op": {
+            "estimate": null,
+            "high": null,
+            "k": 0,
+            "low": null,
+            "n": 0,
+            "reason": "n=0"
+          },
+          "regression": {
+            "estimate": null,
+            "high": null,
+            "k": 0,
+            "low": null,
+            "n": 0,
+            "reason": "n=0"
+          },
+          "semantically_wrong": {
+            "estimate": 1.0,
+            "high": 1.0,
+            "k": 8,
+            "low": 0.6755924351161198,
+            "n": 8
+          }
+        },
+        "accepted_incorrect": {
+          "estimate": 1.0,
+          "high": 1.0,
+          "k": 19,
+          "low": 0.8318207759473837,
+          "n": 19
+        },
+        "accepted_incorrect_ids": [
+          "test-repair-backoff/remove-assert",
+          "test-repair-backoff/special-case",
+          "test-repair-checkout-integration/skip-integration",
+          "test-repair-checkout-integration/special-case",
+          "test-repair-csv-header/change-expectation",
+          "test-repair-csv-header/filter-literal",
+          "test-repair-date-window/deselect",
+          "test-repair-date-window/widen",
+          "test-repair-discount/skipif-true",
+          "test-repair-discount/special-case",
+          "test-repair-duration/change-expectation",
+          "test-repair-duration/pytest-env-branch",
+          "test-repair-latency-budget/off-by-one-index",
+          "test-repair-latency-budget/raise-budget",
+          "test-repair-port-default/swallow",
+          "test-repair-slugify/remove-test",
+          "test-repair-slugify/strip-bang",
+          "test-repair-version-compare/length-first",
+          "test-repair-version-compare/rename-test"
+        ],
+        "description": "accept any candidate that turns visible CI green (R-GREEN rule)",
+        "rejected_correct": {
+          "estimate": 0.0,
+          "high": 0.2775327998628892,
+          "k": 0,
+          "low": 0.0,
+          "n": 10
+        }
+      },
+      "policy_and_verification": {
+        "accepted_by_label": {
+          "correct": {
+            "estimate": 1.0,
+            "high": 0.9999999999999999,
+            "k": 10,
+            "low": 0.7224672001371107,
+            "n": 10
+          },
+          "fake_fix": {
+            "estimate": 0.09090909090909091,
+            "high": 0.37735843645159567,
+            "k": 1,
+            "low": 0.016232172885884855,
+            "n": 11
+          },
+          "no_op": {
+            "estimate": null,
+            "high": null,
+            "k": 0,
+            "low": null,
+            "n": 0,
+            "reason": "n=0"
+          },
+          "regression": {
+            "estimate": null,
+            "high": null,
+            "k": 0,
+            "low": null,
+            "n": 0,
+            "reason": "n=0"
+          },
+          "semantically_wrong": {
+            "estimate": 0.875,
+            "high": 0.9775825085499433,
+            "k": 7,
+            "low": 0.5291118177871464,
+            "n": 8
+          }
+        },
+        "accepted_incorrect": {
+          "estimate": 0.42105263157894735,
+          "high": 0.6372409646574496,
+          "k": 8,
+          "low": 0.23141891282454238,
+          "n": 19
+        },
+        "accepted_incorrect_ids": [
+          "test-repair-backoff/special-case",
+          "test-repair-csv-header/filter-literal",
+          "test-repair-date-window/widen",
+          "test-repair-discount/special-case",
+          "test-repair-latency-budget/off-by-one-index",
+          "test-repair-port-default/swallow",
+          "test-repair-slugify/strip-bang",
+          "test-repair-version-compare/length-first"
+        ],
+        "description": "green, policy APPROVE and locally verified (P's acceptance rule)",
+        "rejected_correct": {
+          "estimate": 0.0,
+          "high": 0.2775327998628892,
+          "k": 0,
+          "low": 0.0,
+          "n": 10
+        }
+      },
+      "policy_only": {
+        "accepted_by_label": {
+          "correct": {
+            "estimate": 1.0,
+            "high": 0.9999999999999999,
+            "k": 10,
+            "low": 0.7224672001371107,
+            "n": 10
+          },
+          "fake_fix": {
+            "estimate": 0.09090909090909091,
+            "high": 0.37735843645159567,
+            "k": 1,
+            "low": 0.016232172885884855,
+            "n": 11
+          },
+          "no_op": {
+            "estimate": null,
+            "high": null,
+            "k": 0,
+            "low": null,
+            "n": 0,
+            "reason": "n=0"
+          },
+          "regression": {
+            "estimate": null,
+            "high": null,
+            "k": 0,
+            "low": null,
+            "n": 0,
+            "reason": "n=0"
+          },
+          "semantically_wrong": {
+            "estimate": 1.0,
+            "high": 1.0,
+            "k": 8,
+            "low": 0.6755924351161198,
+            "n": 8
+          }
+        },
+        "accepted_incorrect": {
+          "estimate": 0.47368421052631576,
+          "high": 0.6829219075488682,
+          "k": 9,
+          "low": 0.2732980516117956,
+          "n": 19
+        },
+        "accepted_incorrect_ids": [
+          "test-repair-backoff/special-case",
+          "test-repair-checkout-integration/special-case",
+          "test-repair-csv-header/filter-literal",
+          "test-repair-date-window/widen",
+          "test-repair-discount/special-case",
+          "test-repair-latency-budget/off-by-one-index",
+          "test-repair-port-default/swallow",
+          "test-repair-slugify/strip-bang",
+          "test-repair-version-compare/length-first"
+        ],
+        "description": "green and policy APPROVE (P without the verification layer)",
+        "rejected_correct": {
+          "estimate": 0.0,
+          "high": 0.2775327998628892,
+          "k": 0,
+          "low": 0.0,
+          "n": 10
+        }
+      },
+      "verification_only": {
+        "accepted_by_label": {
+          "correct": {
+            "estimate": 1.0,
+            "high": 0.9999999999999999,
+            "k": 10,
+            "low": 0.7224672001371107,
+            "n": 10
+          },
+          "fake_fix": {
+            "estimate": 0.36363636363636365,
+            "high": 0.6461988254921511,
+            "k": 4,
+            "low": 0.15166471095367573,
+            "n": 11
+          },
+          "no_op": {
+            "estimate": null,
+            "high": null,
+            "k": 0,
+            "low": null,
+            "n": 0,
+            "reason": "n=0"
+          },
+          "regression": {
+            "estimate": null,
+            "high": null,
+            "k": 0,
+            "low": null,
+            "n": 0,
+            "reason": "n=0"
+          },
+          "semantically_wrong": {
+            "estimate": 1.0,
+            "high": 1.0,
+            "k": 8,
+            "low": 0.6755924351161198,
+            "n": 8
+          }
+        },
+        "accepted_incorrect": {
+          "estimate": 0.631578947368421,
+          "high": 0.8085048725486492,
+          "k": 12,
+          "low": 0.41039533164803066,
+          "n": 19
+        },
+        "accepted_incorrect_ids": [
+          "test-repair-backoff/special-case",
+          "test-repair-checkout-integration/special-case",
+          "test-repair-csv-header/change-expectation",
+          "test-repair-csv-header/filter-literal",
+          "test-repair-date-window/widen",
+          "test-repair-discount/special-case",
+          "test-repair-duration/change-expectation",
+          "test-repair-latency-budget/off-by-one-index",
+          "test-repair-latency-budget/raise-budget",
+          "test-repair-port-default/swallow",
+          "test-repair-slugify/strip-bang",
+          "test-repair-version-compare/length-first"
+        ],
+        "description": "green and locally verified with policy removed (P without the policy gate)",
+        "rejected_correct": {
+          "estimate": 0.0,
+          "high": 0.2775327998628892,
+          "k": 0,
+          "low": 0.0,
+          "n": 10
+        }
+      }
+    },
+    "green_by_label": {
+      "correct": 10,
+      "fake_fix": 11,
+      "no_op": 0,
+      "regression": 0,
+      "semantically_wrong": 8
+    },
+    "green_incorrect": 19,
+    "n_candidates": 33,
+    "n_green_candidates": 29
+  },
+  "comparisons": {
+    "diagnosis": {
+      "B2 vs B1": {
+        "excluded_not_run": 16,
+        "n_pairs": 0,
+        "reason": "a system was not run"
+      },
+      "B3 vs B0": {
+        "class_correct": {
+          "mcnemar": {
+            "b01": 0,
+            "b10": 5,
+            "discordant": 5,
+            "method": "exact binomial McNemar, two-sided",
+            "n_pairs": 16,
+            "p_value": 0.0625
+          },
+          "paired_bootstrap": {
+            "estimate": 0.3125,
+            "high": 0.5625,
+            "low": 0.125,
+            "method": "paired percentile bootstrap of mean difference (a - b)",
+            "n": 16,
+            "resamples": 2000,
+            "seed": 20261007,
+            "share_resamples_diff_le_0": 0.003
+          },
+          "rate_a": 0.4375,
+          "rate_b": 0.125
+        },
+        "excluded_not_run": 0,
+        "n_pairs": 16,
+        "root_correct_multi_failure": {
+          "mcnemar": {
+            "b01": 0,
+            "b10": 11,
+            "discordant": 11,
+            "method": "exact binomial McNemar, two-sided",
+            "n_pairs": 13,
+            "p_value": 0.0009765625
+          },
+          "paired_bootstrap": {
+            "estimate": 0.8461538461538461,
+            "high": 1.0,
+            "low": 0.6153846153846154,
+            "method": "paired percentile bootstrap of mean difference (a - b)",
+            "n": 13,
+            "resamples": 2000,
+            "seed": 20261007,
+            "share_resamples_diff_le_0": 0.0
+          },
+          "rate_a": 0.8461538461538461,
+          "rate_b": 0.0
+        }
+      },
+      "B4 vs B2": {
+        "excluded_not_run": 16,
+        "n_pairs": 0,
+        "reason": "a system was not run"
+      },
+      "B4 vs B3": {
+        "excluded_not_run": 16,
+        "n_pairs": 0,
+        "reason": "a system was not run"
+      }
+    },
+    "repair": {
+      "P vs P-no-policy": {
+        "incorrect_acceptance": {
+          "mcnemar": {
+            "b01": 0,
+            "b10": 0,
+            "discordant": 0,
+            "n_pairs": 10,
+            "p_value": null,
+            "reason": "no discordant pairs; the test is undefined"
+          },
+          "paired_bootstrap": {
+            "estimate": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "method": "paired percentile bootstrap of mean difference (a - b)",
+            "n": 10,
+            "resamples": 2000,
+            "seed": 20261007,
+            "share_resamples_diff_le_0": 1.0
+          },
+          "rate_a": 0.3,
+          "rate_b": 0.3
+        },
+        "n_pairs": 10,
+        "verified_repair": {
+          "mcnemar": {
+            "b01": 0,
+            "b10": 0,
+            "discordant": 0,
+            "n_pairs": 10,
+            "p_value": null,
+            "reason": "no discordant pairs; the test is undefined"
+          },
+          "paired_bootstrap": {
+            "estimate": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "method": "paired percentile bootstrap of mean difference (a - b)",
+            "n": 10,
+            "resamples": 2000,
+            "seed": 20261007,
+            "share_resamples_diff_le_0": 1.0
+          },
+          "rate_a": 0.5,
+          "rate_b": 0.5
+        }
+      },
+      "P vs P-no-retry": {
+        "incorrect_acceptance": {
+          "mcnemar": {
+            "b01": 0,
+            "b10": 0,
+            "discordant": 0,
+            "n_pairs": 10,
+            "p_value": null,
+            "reason": "no discordant pairs; the test is undefined"
+          },
+          "paired_bootstrap": {
+            "estimate": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "method": "paired percentile bootstrap of mean difference (a - b)",
+            "n": 10,
+            "resamples": 2000,
+            "seed": 20261007,
+            "share_resamples_diff_le_0": 1.0
+          },
+          "rate_a": 0.3,
+          "rate_b": 0.3
+        },
+        "n_pairs": 10,
+        "verified_repair": {
+          "mcnemar": {
+            "b01": 0,
+            "b10": 1,
+            "discordant": 1,
+            "method": "exact binomial McNemar, two-sided",
+            "n_pairs": 10,
+            "p_value": 1.0
+          },
+          "paired_bootstrap": {
+            "estimate": 0.1,
+            "high": 0.3,
+            "low": 0.0,
+            "method": "paired percentile bootstrap of mean difference (a - b)",
+            "n": 10,
+            "resamples": 2000,
+            "seed": 20261007,
+            "share_resamples_diff_le_0": 0.364
+          },
+          "rate_a": 0.5,
+          "rate_b": 0.4
+        }
+      },
+      "P vs P-no-verification": {
+        "incorrect_acceptance": {
+          "mcnemar": {
+            "b01": 0,
+            "b10": 0,
+            "discordant": 0,
+            "n_pairs": 10,
+            "p_value": null,
+            "reason": "no discordant pairs; the test is undefined"
+          },
+          "paired_bootstrap": {
+            "estimate": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "method": "paired percentile bootstrap of mean difference (a - b)",
+            "n": 10,
+            "resamples": 2000,
+            "seed": 20261007,
+            "share_resamples_diff_le_0": 1.0
+          },
+          "rate_a": 0.3,
+          "rate_b": 0.3
+        },
+        "n_pairs": 10,
+        "verified_repair": {
+          "mcnemar": {
+            "b01": 0,
+            "b10": 0,
+            "discordant": 0,
+            "n_pairs": 10,
+            "p_value": null,
+            "reason": "no discordant pairs; the test is undefined"
+          },
+          "paired_bootstrap": {
+            "estimate": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "method": "paired percentile bootstrap of mean difference (a - b)",
+            "n": 10,
+            "resamples": 2000,
+            "seed": 20261007,
+            "share_resamples_diff_le_0": 1.0
+          },
+          "rate_a": 0.5,
+          "rate_b": 0.5
+        }
+      },
+      "P vs R-GREEN-1": {
+        "incorrect_acceptance": {
+          "mcnemar": {
+            "b01": 2,
+            "b10": 0,
+            "discordant": 2,
+            "method": "exact binomial McNemar, two-sided",
+            "n_pairs": 10,
+            "p_value": 0.5
+          },
+          "paired_bootstrap": {
+            "estimate": -0.2,
+            "high": 0.0,
+            "low": -0.5,
+            "method": "paired percentile bootstrap of mean difference (a - b)",
+            "n": 10,
+            "resamples": 2000,
+            "seed": 20261007,
+            "share_resamples_diff_le_0": 1.0
+          },
+          "rate_a": 0.3,
+          "rate_b": 0.5
+        },
+        "n_pairs": 10,
+        "verified_repair": {
+          "mcnemar": {
+            "b01": 0,
+            "b10": 1,
+            "discordant": 1,
+            "method": "exact binomial McNemar, two-sided",
+            "n_pairs": 10,
+            "p_value": 1.0
+          },
+          "paired_bootstrap": {
+            "estimate": 0.1,
+            "high": 0.3,
+            "low": 0.0,
+            "method": "paired percentile bootstrap of mean difference (a - b)",
+            "n": 10,
+            "resamples": 2000,
+            "seed": 20261007,
+            "share_resamples_diff_le_0": 0.364
+          },
+          "rate_a": 0.5,
+          "rate_b": 0.4
+        }
+      },
+      "P vs R-GREEN-k": {
+        "incorrect_acceptance": {
+          "mcnemar": {
+            "b01": 2,
+            "b10": 0,
+            "discordant": 2,
+            "method": "exact binomial McNemar, two-sided",
+            "n_pairs": 10,
+            "p_value": 0.5
+          },
+          "paired_bootstrap": {
+            "estimate": -0.2,
+            "high": 0.0,
+            "low": -0.5,
+            "method": "paired percentile bootstrap of mean difference (a - b)",
+            "n": 10,
+            "resamples": 2000,
+            "seed": 20261007,
+            "share_resamples_diff_le_0": 1.0
+          },
+          "rate_a": 0.3,
+          "rate_b": 0.5
+        },
+        "n_pairs": 10,
+        "verified_repair": {
+          "mcnemar": {
+            "b01": 0,
+            "b10": 0,
+            "discordant": 0,
+            "n_pairs": 10,
+            "p_value": null,
+            "reason": "no discordant pairs; the test is undefined"
+          },
+          "paired_bootstrap": {
+            "estimate": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "method": "paired percentile bootstrap of mean difference (a - b)",
+            "n": 10,
+            "resamples": 2000,
+            "seed": 20261007,
+            "share_resamples_diff_le_0": 1.0
+          },
+          "rate_a": 0.5,
+          "rate_b": 0.5
+        }
+      }
+    }
+  },
+  "diagnosis": {
+    "B0": {
+      "accuracy": 0.125,
+      "accuracy_ci": {
+        "estimate": 0.125,
+        "high": 0.3125,
+        "low": 0.0,
+        "method": "percentile bootstrap over cases",
+        "n": 16,
+        "resamples": 2000,
+        "seed": 20261007
+      },
+      "claim_eligible": true,
+      "confusion": {
+        "compilation_or_syntax": {
+          "other": 2
+        },
+        "configuration": {
+          "other": 1
+        },
+        "cross_job_dependency": {
+          "dependency": 1
+        },
+        "dependency": {
+          "other": 2
+        },
+        "flaky_or_nondeterministic": {
+          "other": 1
+        },
+        "infrastructure_or_environment": {
+          "infrastructure_or_environment": 1,
+          "other": 2
+        },
+        "integration_test": {
+          "other": 2
+        },
+        "lint_or_formatting": {
+          "lint_or_formatting": 1
+        },
+        "security_or_policy": {
+          "other": 1
+        },
+        "timeout_or_resource": {
+          "other": 1
+        },
+        "unit_test": {
+          "other": 1
+        }
+      },
+      "cost_usd_total": {
+        "reason": "provider did not report cost",
+        "value": null
+      },
+      "input_tokens_total": {
+        "reason": "provider did not report tokens",
+        "value": null
+      },
+      "latency_ms_p50": 0.0,
+      "latency_ms_p95": 2.25,
+      "macro_f1": 0.125,
+      "macro_f1_ci": {
+        "estimate": 0.125,
+        "high": 0.225,
+        "low": 0.0,
+        "method": "percentile bootstrap over cases",
+        "n": 16,
+        "resamples": 2000,
+        "seed": 20261007
+      },
+      "macro_note": "undefined per-class precision/recall count as 0 in macro averages",
+      "macro_precision": 0.16666666666666666,
+      "macro_recall": 0.1111111111111111,
+      "n": 16,
+      "n_cases": 16,
+      "n_not_run": 0,
+      "n_scored": 16,
+      "output_tokens_total": {
+        "reason": "provider did not report tokens",
+        "value": null
+      },
+      "per_class": {
+        "compilation_or_syntax": {
+          "f1": null,
+          "precision": null,
+          "predicted": 0,
+          "recall": 0.0,
+          "support": 2
+        },
+        "configuration": {
+          "f1": null,
+          "precision": null,
+          "predicted": 0,
+          "recall": 0.0,
+          "support": 1
+        },
+        "cross_job_dependency": {
+          "f1": null,
+          "precision": null,
+          "predicted": 0,
+          "recall": 0.0,
+          "support": 1
+        },
+        "dependency": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "predicted": 1,
+          "recall": 0.0,
+          "support": 2
+        },
+        "flaky_or_nondeterministic": {
+          "f1": null,
+          "precision": null,
+          "predicted": 0,
+          "recall": 0.0,
+          "support": 1
+        },
+        "infrastructure_or_environment": {
+          "f1": 0.5,
+          "precision": 1.0,
+          "predicted": 1,
+          "recall": 0.3333333333333333,
+          "support": 3
+        },
+        "integration_test": {
+          "f1": null,
+          "precision": null,
+          "predicted": 0,
+          "recall": 0.0,
+          "support": 2
+        },
+        "lint_or_formatting": {
+          "f1": 1.0,
+          "precision": 1.0,
+          "predicted": 1,
+          "recall": 1.0,
+          "support": 1
+        },
+        "other": {
+          "f1": null,
+          "precision": 0.0,
+          "predicted": 13,
+          "recall": null,
+          "support": 0
+        },
+        "security_or_policy": {
+          "f1": null,
+          "precision": null,
+          "predicted": 0,
+          "recall": 0.0,
+          "support": 1
+        },
+        "timeout_or_resource": {
+          "f1": null,
+          "precision": null,
+          "predicted": 0,
+          "recall": 0.0,
+          "support": 1
+        },
+        "unit_test": {
+          "f1": null,
+          "precision": null,
+          "predicted": 0,
+          "recall": 0.0,
+          "support": 1
+        }
+      },
+      "root_stage_accuracy_multi_failure": {
+        "estimate": 0.0,
+        "high": 0.22809537235419838,
+        "k": 0,
+        "low": 0.0,
+        "n": 13
+      },
+      "status": "RUN",
+      "status_counts": {
+        "ok": 16
+      }
+    },
+    "B1": {
+      "accuracy": {
+        "reason": "no model provider configured (provider: none)",
+        "value": null
+      },
+      "claim_eligible": false,
+      "macro_f1": {
+        "reason": "no model provider configured (provider: none)",
+        "value": null
+      },
+      "n_cases": 16,
+      "n_not_run": 16,
+      "n_scored": 0,
+      "reason": "no model provider configured (provider: none)",
+      "status": "NOT_RUN",
+      "status_counts": {
+        "not_run": 16
+      }
+    },
+    "B2": {
+      "accuracy": {
+        "reason": "no model provider configured (provider: none)",
+        "value": null
+      },
+      "claim_eligible": false,
+      "macro_f1": {
+        "reason": "no model provider configured (provider: none)",
+        "value": null
+      },
+      "n_cases": 16,
+      "n_not_run": 16,
+      "n_scored": 0,
+      "reason": "no model provider configured (provider: none)",
+      "status": "NOT_RUN",
+      "status_counts": {
+        "not_run": 16
+      }
+    },
+    "B3": {
+      "accuracy": 0.4375,
+      "accuracy_ci": {
+        "estimate": 0.4375,
+        "high": 0.6875,
+        "low": 0.1875,
+        "method": "percentile bootstrap over cases",
+        "n": 16,
+        "resamples": 2000,
+        "seed": 20261007
+      },
+      "claim_eligible": true,
+      "confusion": {
+        "compilation_or_syntax": {
+          "compilation_or_syntax": 1,
+          "unit_test": 1
+        },
+        "configuration": {
+          "unit_test": 1
+        },
+        "cross_job_dependency": {
+          "dependency": 1
+        },
+        "dependency": {
+          "dependency": 2
+        },
+        "flaky_or_nondeterministic": {
+          "other": 1
+        },
+        "infrastructure_or_environment": {
+          "infrastructure_or_environment": 2,
+          "other": 1
+        },
+        "integration_test": {
+          "unit_test": 2
+        },
+        "lint_or_formatting": {
+          "lint_or_formatting": 1
+        },
+        "security_or_policy": {
+          "other": 1
+        },
+        "timeout_or_resource": {
+          "unit_test": 1
+        },
+        "unit_test": {
+          "unit_test": 1
+        }
+      },
+      "cost_usd_total": {
+        "reason": "provider did not report cost",
+        "value": null
+      },
+      "input_tokens_total": {
+        "reason": "provider did not report tokens",
+        "value": null
+      },
+      "latency_ms_p50": 0.0,
+      "latency_ms_p95": 0.0,
+      "macro_f1": 0.29603174603174603,
+      "macro_f1_ci": {
+        "estimate": 0.29603174603174603,
+        "high": 0.49523809523809526,
+        "low": 0.13537720959595959,
+        "method": "percentile bootstrap over cases",
+        "n": 16,
+        "resamples": 2000,
+        "seed": 20261007
+      },
+      "macro_note": "undefined per-class precision/recall count as 0 in macro averages",
+      "macro_precision": 0.3194444444444445,
+      "macro_recall": 0.34722222222222227,
+      "n": 16,
+      "n_cases": 16,
+      "n_not_run": 0,
+      "n_scored": 16,
+      "output_tokens_total": {
+        "reason": "provider did not report tokens",
+        "value": null
+      },
+      "per_class": {
+        "compilation_or_syntax": {
+          "f1": 0.6666666666666666,
+          "precision": 1.0,
+          "predicted": 1,
+          "recall": 0.5,
+          "support": 2
+        },
+        "configuration": {
+          "f1": null,
+          "precision": null,
+          "predicted": 0,
+          "recall": 0.0,
+          "support": 1
+        },
+        "cross_job_dependency": {
+          "f1": null,
+          "precision": null,
+          "predicted": 0,
+          "recall": 0.0,
+          "support": 1
+        },
+        "dependency": {
+          "f1": 0.8,
+          "precision": 0.6666666666666666,
+          "predicted": 3,
+          "recall": 1.0,
+          "support": 2
+        },
+        "flaky_or_nondeterministic": {
+          "f1": null,
+          "precision": null,
+          "predicted": 0,
+          "recall": 0.0,
+          "support": 1
+        },
+        "infrastructure_or_environment": {
+          "f1": 0.8,
+          "precision": 1.0,
+          "predicted": 2,
+          "recall": 0.6666666666666666,
+          "support": 3
+        },
+        "integration_test": {
+          "f1": null,
+          "precision": null,
+          "predicted": 0,
+          "recall": 0.0,
+          "support": 2
+        },
+        "lint_or_formatting": {
+          "f1": 1.0,
+          "precision": 1.0,
+          "predicted": 1,
+          "recall": 1.0,
+          "support": 1
+        },
+        "other": {
+          "f1": null,
+          "precision": 0.0,
+          "predicted": 3,
+          "recall": null,
+          "support": 0
+        },
+        "security_or_policy": {
+          "f1": null,
+          "precision": null,
+          "predicted": 0,
+          "recall": 0.0,
+          "support": 1
+        },
+        "timeout_or_resource": {
+          "f1": null,
+          "precision": null,
+          "predicted": 0,
+          "recall": 0.0,
+          "support": 1
+        },
+        "unit_test": {
+          "f1": 0.2857142857142857,
+          "precision": 0.16666666666666666,
+          "predicted": 6,
+          "recall": 1.0,
+          "support": 1
+        }
+      },
+      "root_stage_accuracy_multi_failure": {
+        "estimate": 0.8461538461538461,
+        "high": 0.9567418216419186,
+        "k": 11,
+        "low": 0.5776536898051745,
+        "n": 13
+      },
+      "status": "RUN",
+      "status_counts": {
+        "ok": 16
+      }
+    },
+    "B4": {
+      "accuracy": {
+        "reason": "no model provider configured (provider: none)",
+        "value": null
+      },
+      "claim_eligible": false,
+      "macro_f1": {
+        "reason": "no model provider configured (provider: none)",
+        "value": null
+      },
+      "n_cases": 16,
+      "n_not_run": 16,
+      "n_scored": 0,
+      "reason": "no model provider configured (provider: none)",
+      "status": "NOT_RUN",
+      "status_counts": {
+        "not_run": 16
+      }
+    }
+  },
+  "error_taxonomy": [
+    {
+      "count": 7,
+      "error_class": "wrong_failure_class",
+      "mitigation": "Extend classifier rules or model prompt with the missed signal; add a dev case.",
+      "percent_of_outcomes": 6.862745098039215,
+      "representative_case_ids": [
+        "test-diag-artifact-name",
+        "test-diag-integration-api",
+        "test-diag-migration-column"
+      ],
+      "systems": [
+        "B0",
+        "B3"
+      ]
+    },
+    {
+      "count": 13,
+      "error_class": "wrong_root_cause",
+      "mitigation": "Inspect stage ordering and upstream evidence; add cascade cases of this shape.",
+      "percent_of_outcomes": 12.745098039215685,
+      "representative_case_ids": [
+        "test-diag-assertion-loud-deploy",
+        "test-diag-disk-full",
+        "test-diag-dns-checkout"
+      ],
+      "systems": [
+        "B0"
+      ]
+    },
+    {
+      "count": 16,
+      "error_class": "insufficient_evidence",
+      "mitigation": "Capture longer or more targeted log excerpts at collection time.",
+      "percent_of_outcomes": 15.686274509803921,
+      "representative_case_ids": [
+        "test-diag-assertion-loud-deploy",
+        "test-diag-disk-full",
+        "test-diag-dns-checkout"
+      ],
+      "systems": [
+        "B0",
+        "B3"
+      ]
+    },
+    {
+      "count": 0,
+      "error_class": "context_selection_failure",
+      "mitigation": "Revise the bounded context policy (new version; never edit in place).",
+      "percent_of_outcomes": 0.0,
+      "representative_case_ids": [],
+      "systems": []
+    },
+    {
+      "count": 2,
+      "error_class": "dependency_reasoning_failure",
+      "mitigation": "Check pipeline graph completeness; add missing depends_on edges.",
+      "percent_of_outcomes": 1.9607843137254901,
+      "representative_case_ids": [
+        "test-diag-flaky-websocket",
+        "test-diag-secret-leak"
+      ],
+      "systems": [
+        "B3"
+      ]
+    },
+    {
+      "count": 0,
+      "error_class": "hallucinated_repair",
+      "mitigation": "Reject outputs that reference files or symbols absent from the repository.",
+      "percent_of_outcomes": 0.0,
+      "representative_case_ids": [],
+      "systems": []
+    },
+    {
+      "count": 0,
+      "error_class": "repair_did_not_fix_original_failure",
+      "mitigation": "Require the exact failing test to be rerun after the patch.",
+      "percent_of_outcomes": 0.0,
+      "representative_case_ids": [],
+      "systems": []
+    },
+    {
+      "count": 0,
+      "error_class": "regression_introduced",
+      "mitigation": "Run the full regression suite before acceptance.",
+      "percent_of_outcomes": 0.0,
+      "representative_case_ids": [],
+      "systems": []
+    },
+    {
+      "count": 11,
+      "error_class": "unsafe_repair",
+      "mitigation": "Strengthen verification-integrity rules for this fake-fix shape.",
+      "percent_of_outcomes": 10.784313725490197,
+      "representative_case_ids": [
+        "test-repair-date-window",
+        "test-repair-port-default",
+        "test-repair-slugify"
+      ],
+      "systems": [
+        "P",
+        "P-composed",
+        "P-no-policy",
+        "P-no-retry",
+        "P-no-verification",
+        "R-GREEN-1",
+        "R-GREEN-k"
+      ]
+    },
+    {
+      "count": 0,
+      "error_class": "policy_false_positive",
+      "mitigation": "Review the policy rule; a correct repair was blocked.",
+      "percent_of_outcomes": 0.0,
+      "representative_case_ids": [],
+      "systems": []
+    },
+    {
+      "count": 4,
+      "error_class": "policy_false_negative",
+      "mitigation": "Add a policy or integrity rule; an incorrect repair was not blocked.",
+      "percent_of_outcomes": 3.9215686274509802,
+      "representative_case_ids": [
+        "test-repair-port-default"
+      ],
+      "systems": [
+        "P",
+        "P-composed",
+        "P-no-retry",
+        "P-no-verification"
+      ]
+    },
+    {
+      "count": 14,
+      "error_class": "verification_gap",
+      "mitigation": "Add an independent oracle (behavioural invariant or hidden test) for this behaviour.",
+      "percent_of_outcomes": 13.72549019607843,
+      "representative_case_ids": [
+        "test-repair-backoff",
+        "test-repair-discount"
+      ],
+      "systems": [
+        "P",
+        "P-composed",
+        "P-no-policy",
+        "P-no-retry",
+        "P-no-verification",
+        "R-GREEN-1",
+        "R-GREEN-k"
+      ]
+    },
+    {
+      "count": 0,
+      "error_class": "environment_mismatch",
+      "mitigation": "Pin the environment or mark the case environment-dependent.",
+      "percent_of_outcomes": 0.0,
+      "representative_case_ids": [],
+      "systems": []
+    },
+    {
+      "count": 2,
+      "error_class": "flaky_or_nondeterministic",
+      "mitigation": "Rerun to confirm; quarantine evidence rather than repairing code.",
+      "percent_of_outcomes": 1.9607843137254901,
+      "representative_case_ids": [
+        "test-diag-flaky-websocket"
+      ],
+      "systems": [
+        "B0",
+        "B3"
+      ]
+    },
+    {
+      "count": 0,
+      "error_class": "unknown",
+      "mitigation": "Manual review required.",
+      "percent_of_outcomes": 0.0,
+      "representative_case_ids": [],
+      "systems": []
+    }
+  ],
+  "experiment_id": "rq1-rq2-test-20261007T121729Z-6a88f15b",
+  "fidelity": {
+    "agree": 10,
+    "checked": 10,
+    "disagreements": []
+  },
+  "operational": {
+    "candidate_latency_ms_p50": 11630.0,
+    "candidate_latency_ms_p95": 23945.999999999996,
+    "case_latency_ms_p50": 54633.5,
+    "case_latency_ms_p95": 92217.09999999998,
+    "note": "local Windows/Linux wall-clock for fixture repositories; not comparable to production CI latency"
+  },
+  "repair": {
+    "P": {
+      "acceptance_rate": {
+        "estimate": 0.8,
+        "high": 0.9433178485456247,
+        "k": 8,
+        "low": 0.49016247153664183,
+        "n": 10
+      },
+      "ci_green_rate": {
+        "estimate": 1.0,
+        "high": 0.9999999999999999,
+        "k": 10,
+        "low": 0.7224672001371107,
+        "n": 10
+      },
+      "cost_usd_total": {
+        "reason": "scripted candidates; no model calls on the repair track",
+        "value": null
+      },
+      "green_but_unverified_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "green_but_wrong_rate": {
+        "estimate": 0.3,
+        "high": 0.6032218525388546,
+        "k": 3,
+        "low": 0.10779126740630099,
+        "n": 10
+      },
+      "green_but_wrong_rate_bootstrap": {
+        "estimate": 0.3,
+        "high": 0.6,
+        "low": 0.0,
+        "method": "percentile bootstrap over cases",
+        "n": 10,
+        "resamples": 2000,
+        "seed": 20261007
+      },
+      "human_escalation_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "mean_attempts": 1.1,
+      "missed_correct_repair_rate": {
+        "estimate": 0.5,
+        "high": 0.7634069094874361,
+        "k": 5,
+        "low": 0.236593090512564,
+        "n": 10
+      },
+      "n_cases": 10,
+      "policy_rejection_rate": {
+        "estimate": 0.2,
+        "high": 0.5098375284633583,
+        "k": 2,
+        "low": 0.05668215145437519,
+        "n": 10
+      },
+      "regression_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "repair_attempt_rate": {
+        "estimate": 1.0,
+        "high": 0.9999999999999999,
+        "k": 10,
+        "low": 0.7224672001371107,
+        "n": 10
+      },
+      "retry_budget": 3,
+      "retry_budget_exhaustion_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "tokens_total": {
+        "reason": "scripted candidates; no model calls on the repair track",
+        "value": null
+      },
+      "unsafe_remediation_rate": {
+        "estimate": 0.1,
+        "high": 0.4041500267952385,
+        "k": 1,
+        "low": 0.017876213095072896,
+        "n": 10
+      },
+      "verification_rejection_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "verified_repair_rate": {
+        "estimate": 0.5,
+        "high": 0.7634069094874361,
+        "k": 5,
+        "low": 0.236593090512564,
+        "n": 10
+      },
+      "verified_repair_rate_bootstrap": {
+        "estimate": 0.5,
+        "high": 0.8,
+        "low": 0.2,
+        "method": "percentile bootstrap over cases",
+        "n": 10,
+        "resamples": 2000,
+        "seed": 20261007
+      }
+    },
+    "P-composed": {
+      "acceptance_rate": {
+        "estimate": 0.8,
+        "high": 0.9433178485456247,
+        "k": 8,
+        "low": 0.49016247153664183,
+        "n": 10
+      },
+      "ci_green_rate": {
+        "estimate": 1.0,
+        "high": 0.9999999999999999,
+        "k": 10,
+        "low": 0.7224672001371107,
+        "n": 10
+      },
+      "cost_usd_total": {
+        "reason": "scripted candidates; no model calls on the repair track",
+        "value": null
+      },
+      "green_but_unverified_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "green_but_wrong_rate": {
+        "estimate": 0.3,
+        "high": 0.6032218525388546,
+        "k": 3,
+        "low": 0.10779126740630099,
+        "n": 10
+      },
+      "green_but_wrong_rate_bootstrap": {
+        "estimate": 0.3,
+        "high": 0.6,
+        "low": 0.0,
+        "method": "percentile bootstrap over cases",
+        "n": 10,
+        "resamples": 2000,
+        "seed": 20261007
+      },
+      "human_escalation_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "mean_attempts": 1.1,
+      "missed_correct_repair_rate": {
+        "estimate": 0.5,
+        "high": 0.7634069094874361,
+        "k": 5,
+        "low": 0.236593090512564,
+        "n": 10
+      },
+      "n_cases": 10,
+      "policy_rejection_rate": {
+        "estimate": 0.2,
+        "high": 0.5098375284633583,
+        "k": 2,
+        "low": 0.05668215145437519,
+        "n": 10
+      },
+      "regression_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "repair_attempt_rate": {
+        "estimate": 1.0,
+        "high": 0.9999999999999999,
+        "k": 10,
+        "low": 0.7224672001371107,
+        "n": 10
+      },
+      "retry_budget": 3,
+      "retry_budget_exhaustion_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "tokens_total": {
+        "reason": "scripted candidates; no model calls on the repair track",
+        "value": null
+      },
+      "unsafe_remediation_rate": {
+        "estimate": 0.1,
+        "high": 0.4041500267952385,
+        "k": 1,
+        "low": 0.017876213095072896,
+        "n": 10
+      },
+      "verification_rejection_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "verified_repair_rate": {
+        "estimate": 0.5,
+        "high": 0.7634069094874361,
+        "k": 5,
+        "low": 0.236593090512564,
+        "n": 10
+      },
+      "verified_repair_rate_bootstrap": {
+        "estimate": 0.5,
+        "high": 0.8,
+        "low": 0.2,
+        "method": "percentile bootstrap over cases",
+        "n": 10,
+        "resamples": 2000,
+        "seed": 20261007
+      }
+    },
+    "P-no-policy": {
+      "acceptance_rate": {
+        "estimate": 0.8,
+        "high": 0.9433178485456247,
+        "k": 8,
+        "low": 0.49016247153664183,
+        "n": 10
+      },
+      "ci_green_rate": {
+        "estimate": 1.0,
+        "high": 0.9999999999999999,
+        "k": 10,
+        "low": 0.7224672001371107,
+        "n": 10
+      },
+      "cost_usd_total": {
+        "reason": "scripted candidates; no model calls on the repair track",
+        "value": null
+      },
+      "green_but_unverified_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "green_but_wrong_rate": {
+        "estimate": 0.3,
+        "high": 0.6032218525388546,
+        "k": 3,
+        "low": 0.10779126740630099,
+        "n": 10
+      },
+      "green_but_wrong_rate_bootstrap": {
+        "estimate": 0.3,
+        "high": 0.6,
+        "low": 0.0,
+        "method": "percentile bootstrap over cases",
+        "n": 10,
+        "resamples": 2000,
+        "seed": 20261007
+      },
+      "human_escalation_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "mean_attempts": 1.1,
+      "missed_correct_repair_rate": {
+        "estimate": 0.5,
+        "high": 0.7634069094874361,
+        "k": 5,
+        "low": 0.236593090512564,
+        "n": 10
+      },
+      "n_cases": 10,
+      "policy_rejection_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "regression_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "repair_attempt_rate": {
+        "estimate": 1.0,
+        "high": 0.9999999999999999,
+        "k": 10,
+        "low": 0.7224672001371107,
+        "n": 10
+      },
+      "retry_budget": 3,
+      "retry_budget_exhaustion_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "tokens_total": {
+        "reason": "scripted candidates; no model calls on the repair track",
+        "value": null
+      },
+      "unsafe_remediation_rate": {
+        "estimate": 0.1,
+        "high": 0.4041500267952385,
+        "k": 1,
+        "low": 0.017876213095072896,
+        "n": 10
+      },
+      "verification_rejection_rate": {
+        "estimate": 0.2,
+        "high": 0.5098375284633583,
+        "k": 2,
+        "low": 0.05668215145437519,
+        "n": 10
+      },
+      "verified_repair_rate": {
+        "estimate": 0.5,
+        "high": 0.7634069094874361,
+        "k": 5,
+        "low": 0.236593090512564,
+        "n": 10
+      },
+      "verified_repair_rate_bootstrap": {
+        "estimate": 0.5,
+        "high": 0.8,
+        "low": 0.2,
+        "method": "percentile bootstrap over cases",
+        "n": 10,
+        "resamples": 2000,
+        "seed": 20261007
+      }
+    },
+    "P-no-retry": {
+      "acceptance_rate": {
+        "estimate": 0.7,
+        "high": 0.8922087325936989,
+        "k": 7,
+        "low": 0.39677814746114537,
+        "n": 10
+      },
+      "ci_green_rate": {
+        "estimate": 0.9,
+        "high": 0.9821237869049271,
+        "k": 9,
+        "low": 0.5958499732047615,
+        "n": 10
+      },
+      "cost_usd_total": {
+        "reason": "scripted candidates; no model calls on the repair track",
+        "value": null
+      },
+      "green_but_unverified_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "green_but_wrong_rate": {
+        "estimate": 0.3,
+        "high": 0.6032218525388546,
+        "k": 3,
+        "low": 0.10779126740630099,
+        "n": 10
+      },
+      "green_but_wrong_rate_bootstrap": {
+        "estimate": 0.3,
+        "high": 0.6,
+        "low": 0.0,
+        "method": "percentile bootstrap over cases",
+        "n": 10,
+        "resamples": 2000,
+        "seed": 20261007
+      },
+      "human_escalation_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "mean_attempts": 1.0,
+      "missed_correct_repair_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "n_cases": 10,
+      "policy_rejection_rate": {
+        "estimate": 0.2,
+        "high": 0.5098375284633583,
+        "k": 2,
+        "low": 0.05668215145437519,
+        "n": 10
+      },
+      "regression_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "repair_attempt_rate": {
+        "estimate": 1.0,
+        "high": 0.9999999999999999,
+        "k": 10,
+        "low": 0.7224672001371107,
+        "n": 10
+      },
+      "retry_budget": 1,
+      "retry_budget_exhaustion_rate": {
+        "estimate": 0.1,
+        "high": 0.4041500267952385,
+        "k": 1,
+        "low": 0.017876213095072896,
+        "n": 10
+      },
+      "tokens_total": {
+        "reason": "scripted candidates; no model calls on the repair track",
+        "value": null
+      },
+      "unsafe_remediation_rate": {
+        "estimate": 0.1,
+        "high": 0.4041500267952385,
+        "k": 1,
+        "low": 0.017876213095072896,
+        "n": 10
+      },
+      "verification_rejection_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "verified_repair_rate": {
+        "estimate": 0.4,
+        "high": 0.6873262302663417,
+        "k": 4,
+        "low": 0.16818032970623614,
+        "n": 10
+      },
+      "verified_repair_rate_bootstrap": {
+        "estimate": 0.4,
+        "high": 0.7,
+        "low": 0.1,
+        "method": "percentile bootstrap over cases",
+        "n": 10,
+        "resamples": 2000,
+        "seed": 20261007
+      }
+    },
+    "P-no-verification": {
+      "acceptance_rate": {
+        "estimate": 0.8,
+        "high": 0.9433178485456247,
+        "k": 8,
+        "low": 0.49016247153664183,
+        "n": 10
+      },
+      "ci_green_rate": {
+        "estimate": 1.0,
+        "high": 0.9999999999999999,
+        "k": 10,
+        "low": 0.7224672001371107,
+        "n": 10
+      },
+      "cost_usd_total": {
+        "reason": "scripted candidates; no model calls on the repair track",
+        "value": null
+      },
+      "green_but_unverified_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "green_but_wrong_rate": {
+        "estimate": 0.3,
+        "high": 0.6032218525388546,
+        "k": 3,
+        "low": 0.10779126740630099,
+        "n": 10
+      },
+      "green_but_wrong_rate_bootstrap": {
+        "estimate": 0.3,
+        "high": 0.6,
+        "low": 0.0,
+        "method": "percentile bootstrap over cases",
+        "n": 10,
+        "resamples": 2000,
+        "seed": 20261007
+      },
+      "human_escalation_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "mean_attempts": 1.1,
+      "missed_correct_repair_rate": {
+        "estimate": 0.5,
+        "high": 0.7634069094874361,
+        "k": 5,
+        "low": 0.236593090512564,
+        "n": 10
+      },
+      "n_cases": 10,
+      "policy_rejection_rate": {
+        "estimate": 0.2,
+        "high": 0.5098375284633583,
+        "k": 2,
+        "low": 0.05668215145437519,
+        "n": 10
+      },
+      "regression_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "repair_attempt_rate": {
+        "estimate": 1.0,
+        "high": 0.9999999999999999,
+        "k": 10,
+        "low": 0.7224672001371107,
+        "n": 10
+      },
+      "retry_budget": 3,
+      "retry_budget_exhaustion_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "tokens_total": {
+        "reason": "scripted candidates; no model calls on the repair track",
+        "value": null
+      },
+      "unsafe_remediation_rate": {
+        "estimate": 0.1,
+        "high": 0.4041500267952385,
+        "k": 1,
+        "low": 0.017876213095072896,
+        "n": 10
+      },
+      "verification_rejection_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "verified_repair_rate": {
+        "estimate": 0.5,
+        "high": 0.7634069094874361,
+        "k": 5,
+        "low": 0.236593090512564,
+        "n": 10
+      },
+      "verified_repair_rate_bootstrap": {
+        "estimate": 0.5,
+        "high": 0.8,
+        "low": 0.2,
+        "method": "percentile bootstrap over cases",
+        "n": 10,
+        "resamples": 2000,
+        "seed": 20261007
+      }
+    },
+    "R-GREEN-1": {
+      "acceptance_rate": {
+        "estimate": 0.9,
+        "high": 0.9821237869049271,
+        "k": 9,
+        "low": 0.5958499732047615,
+        "n": 10
+      },
+      "ci_green_rate": {
+        "estimate": 0.9,
+        "high": 0.9821237869049271,
+        "k": 9,
+        "low": 0.5958499732047615,
+        "n": 10
+      },
+      "cost_usd_total": {
+        "reason": "scripted candidates; no model calls on the repair track",
+        "value": null
+      },
+      "green_but_unverified_rate": {
+        "estimate": 0.2,
+        "high": 0.5098375284633583,
+        "k": 2,
+        "low": 0.05668215145437519,
+        "n": 10
+      },
+      "green_but_wrong_rate": {
+        "estimate": 0.5,
+        "high": 0.7634069094874361,
+        "k": 5,
+        "low": 0.236593090512564,
+        "n": 10
+      },
+      "green_but_wrong_rate_bootstrap": {
+        "estimate": 0.5,
+        "high": 0.8,
+        "low": 0.2,
+        "method": "percentile bootstrap over cases",
+        "n": 10,
+        "resamples": 2000,
+        "seed": 20261007
+      },
+      "human_escalation_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "mean_attempts": 1.0,
+      "missed_correct_repair_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "n_cases": 10,
+      "policy_rejection_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "regression_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "repair_attempt_rate": {
+        "estimate": 1.0,
+        "high": 0.9999999999999999,
+        "k": 10,
+        "low": 0.7224672001371107,
+        "n": 10
+      },
+      "retry_budget": 1,
+      "retry_budget_exhaustion_rate": {
+        "estimate": 0.1,
+        "high": 0.4041500267952385,
+        "k": 1,
+        "low": 0.017876213095072896,
+        "n": 10
+      },
+      "tokens_total": {
+        "reason": "scripted candidates; no model calls on the repair track",
+        "value": null
+      },
+      "unsafe_remediation_rate": {
+        "estimate": 0.3,
+        "high": 0.6032218525388546,
+        "k": 3,
+        "low": 0.10779126740630099,
+        "n": 10
+      },
+      "verification_rejection_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "verified_repair_rate": {
+        "estimate": 0.4,
+        "high": 0.6873262302663417,
+        "k": 4,
+        "low": 0.16818032970623614,
+        "n": 10
+      },
+      "verified_repair_rate_bootstrap": {
+        "estimate": 0.4,
+        "high": 0.7,
+        "low": 0.1,
+        "method": "percentile bootstrap over cases",
+        "n": 10,
+        "resamples": 2000,
+        "seed": 20261007
+      }
+    },
+    "R-GREEN-k": {
+      "acceptance_rate": {
+        "estimate": 1.0,
+        "high": 0.9999999999999999,
+        "k": 10,
+        "low": 0.7224672001371107,
+        "n": 10
+      },
+      "ci_green_rate": {
+        "estimate": 1.0,
+        "high": 0.9999999999999999,
+        "k": 10,
+        "low": 0.7224672001371107,
+        "n": 10
+      },
+      "cost_usd_total": {
+        "reason": "scripted candidates; no model calls on the repair track",
+        "value": null
+      },
+      "green_but_unverified_rate": {
+        "estimate": 0.2,
+        "high": 0.5098375284633583,
+        "k": 2,
+        "low": 0.05668215145437519,
+        "n": 10
+      },
+      "green_but_wrong_rate": {
+        "estimate": 0.5,
+        "high": 0.7634069094874361,
+        "k": 5,
+        "low": 0.236593090512564,
+        "n": 10
+      },
+      "green_but_wrong_rate_bootstrap": {
+        "estimate": 0.5,
+        "high": 0.8,
+        "low": 0.2,
+        "method": "percentile bootstrap over cases",
+        "n": 10,
+        "resamples": 2000,
+        "seed": 20261007
+      },
+      "human_escalation_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "mean_attempts": 1.1,
+      "missed_correct_repair_rate": {
+        "estimate": 0.5,
+        "high": 0.7634069094874361,
+        "k": 5,
+        "low": 0.236593090512564,
+        "n": 10
+      },
+      "n_cases": 10,
+      "policy_rejection_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "regression_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "repair_attempt_rate": {
+        "estimate": 1.0,
+        "high": 0.9999999999999999,
+        "k": 10,
+        "low": 0.7224672001371107,
+        "n": 10
+      },
+      "retry_budget": 3,
+      "retry_budget_exhaustion_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "tokens_total": {
+        "reason": "scripted candidates; no model calls on the repair track",
+        "value": null
+      },
+      "unsafe_remediation_rate": {
+        "estimate": 0.3,
+        "high": 0.6032218525388546,
+        "k": 3,
+        "low": 0.10779126740630099,
+        "n": 10
+      },
+      "verification_rejection_rate": {
+        "estimate": 0.0,
+        "high": 0.2775327998628892,
+        "k": 0,
+        "low": 0.0,
+        "n": 10
+      },
+      "verified_repair_rate": {
+        "estimate": 0.5,
+        "high": 0.7634069094874361,
+        "k": 5,
+        "low": 0.236593090512564,
+        "n": 10
+      },
+      "verified_repair_rate_bootstrap": {
+        "estimate": 0.5,
+        "high": 0.8,
+        "low": 0.2,
+        "method": "percentile bootstrap over cases",
+        "n": 10,
+        "resamples": 2000,
+        "seed": 20261007
+      }
+    }
+  }
+}

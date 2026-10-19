@@ -1,0 +1,4 @@
+ablation,removed_component,apparent_repair_rate,apparent_repair_rate_P,green_but_wrong_rate,green_but_wrong_rate_P,unsafe_remediation_rate,verified_repair_rate,verified_repair_rate_P,diff_incorrect_P_minus_ablation,diff_low,diff_high,mcnemar_p,n_pairs
+P-no-policy,policy gate,0.8,0.8,0.3,0.3,0.1,0.5,0.5,0.0,0.0,0.0,,10
+P-no-verification,verification layer,0.8,0.8,0.3,0.3,0.1,0.5,0.5,0.0,0.0,0.0,,10
+P-no-retry,retry budget (k=1),0.7,0.8,0.3,0.3,0.1,0.4,0.5,0.0,0.0,0.0,,10

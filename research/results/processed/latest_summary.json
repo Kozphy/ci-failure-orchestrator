@@ -1,0 +1,106 @@
+{
+  "annotation_issues": 0,
+  "caveats": [
+    "All evaluated cases are synthetic or fixture cases authored by the system developer.",
+    "Repair candidates are scripted, not model-generated.",
+    "Local verification only; no real CI run confirms fixture repairs.",
+    "External validation level: E0/E1 (see research/EXTERNAL_VALIDATION.md)."
+  ],
+  "dataset_sha256": "946551d03a26167963f095fd4126dc177f5c2331223c66e140515aa554acb34e",
+  "dataset_version": "1.0.0",
+  "diagnosis": {
+    "B0": {
+      "accuracy": 0.125,
+      "macro_f1": 0.125,
+      "root_stage_accuracy_multi": 0.0,
+      "status": "RUN"
+    },
+    "B1": {
+      "accuracy": null,
+      "macro_f1": null,
+      "root_stage_accuracy_multi": null,
+      "status": "NOT_RUN"
+    },
+    "B2": {
+      "accuracy": null,
+      "macro_f1": null,
+      "root_stage_accuracy_multi": null,
+      "status": "NOT_RUN"
+    },
+    "B3": {
+      "accuracy": 0.4375,
+      "macro_f1": 0.29603174603174603,
+      "root_stage_accuracy_multi": 0.8461538461538461,
+      "status": "RUN"
+    },
+    "B4": {
+      "accuracy": null,
+      "macro_f1": null,
+      "root_stage_accuracy_multi": null,
+      "status": "NOT_RUN"
+    }
+  },
+  "experiment_id": "rq1-rq2-test-20261007T123008Z-6a88f15b",
+  "fidelity": {
+    "agree": 10,
+    "checked": 10,
+    "disagreements": []
+  },
+  "git_commit": "ab5f471410b6af4a486d4e3eb854f40c15870d72",
+  "git_dirty": false,
+  "model_claim_eligible": false,
+  "model_provider": "none",
+  "n_cases": {
+    "diagnosis": 16,
+    "repair": 10
+  },
+  "raw_results": "research/results/raw/rq1-rq2-test-20261007T123008Z-6a88f15b",
+  "repair": {
+    "P": {
+      "acceptance_rate": 0.8,
+      "green_but_wrong_rate": 0.3,
+      "human_escalation_rate": 0.0,
+      "verified_repair_rate": 0.5
+    },
+    "P-composed": {
+      "acceptance_rate": 0.8,
+      "green_but_wrong_rate": 0.3,
+      "human_escalation_rate": 0.0,
+      "verified_repair_rate": 0.5
+    },
+    "P-no-policy": {
+      "acceptance_rate": 0.8,
+      "green_but_wrong_rate": 0.3,
+      "human_escalation_rate": 0.0,
+      "verified_repair_rate": 0.5
+    },
+    "P-no-retry": {
+      "acceptance_rate": 0.7,
+      "green_but_wrong_rate": 0.3,
+      "human_escalation_rate": 0.0,
+      "verified_repair_rate": 0.4
+    },
+    "P-no-verification": {
+      "acceptance_rate": 0.8,
+      "green_but_wrong_rate": 0.3,
+      "human_escalation_rate": 0.0,
+      "verified_repair_rate": 0.5
+    },
+    "R-GREEN-1": {
+      "acceptance_rate": 0.9,
+      "green_but_wrong_rate": 0.5,
+      "human_escalation_rate": 0.0,
+      "verified_repair_rate": 0.4
+    },
+    "R-GREEN-k": {
+      "acceptance_rate": 1.0,
+      "green_but_wrong_rate": 0.5,
+      "human_escalation_rate": 0.0,
+      "verified_repair_rate": 0.5
+    }
+  },
+  "splits_evaluated": [
+    "test"
+  ],
+  "timestamp": "2026-10-07T12:35:00+00:00"
+}

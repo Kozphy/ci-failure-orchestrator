@@ -1,0 +1,173 @@
+{
+  "baseline_versions": {
+    "B0": "b0-latest-visible/v1 (ci_failure_orchestrator.baselines rule on research cases)",
+    "B1": "b1-llm-log-only/v1 (prompt b1_log_only.v1)",
+    "B2": "b2-llm-context/v1 (prompt b2_context.v1, context ctx-v1)",
+    "B3": "b3-dependency-graph/v1 (RootCauseRanker + FailureClassifier)",
+    "B4": "b4-graph-llm/v1 (prompt b4_graph_context.v1, context ctx-v1)",
+    "P": "run_fix_repo at manifest git_commit",
+    "P-composed": "p-composed/v1",
+    "P-no-policy": "ablation/v1",
+    "P-no-retry": "ablation/v1",
+    "P-no-verification": "ablation/v1",
+    "R-GREEN-1": "r-green/v1 budget=1",
+    "R-GREEN-k": "r-green/v1 budget=k"
+  },
+  "candidate_order_seed": 20261007,
+  "case_ids": {
+    "diagnosis": [
+      "test-diag-artifact-name",
+      "test-diag-assertion-loud-deploy",
+      "test-diag-disk-full",
+      "test-diag-dns-checkout",
+      "test-diag-flaky-websocket",
+      "test-diag-format-only",
+      "test-diag-helm-timeout",
+      "test-diag-integration-api",
+      "test-diag-markupsafe",
+      "test-diag-migration-column",
+      "test-diag-missing-setting",
+      "test-diag-oom-matrix",
+      "test-diag-secret-leak",
+      "test-diag-setup-resolution",
+      "test-diag-syntax-py310",
+      "test-diag-typecheck-cascade"
+    ],
+    "repair": [
+      "test-repair-backoff",
+      "test-repair-checkout-integration",
+      "test-repair-csv-header",
+      "test-repair-date-window",
+      "test-repair-discount",
+      "test-repair-duration",
+      "test-repair-latency-budget",
+      "test-repair-port-default",
+      "test-repair-slugify",
+      "test-repair-version-compare"
+    ]
+  },
+  "command": "python -m research.run --config research/config/default.yaml",
+  "config": {
+    "dataset": {
+      "allow_holdout": false,
+      "lock": "research/datasets/dataset.lock.json",
+      "root": "research/datasets",
+      "splits": [
+        "test"
+      ]
+    },
+    "diagnosis": {
+      "context_policy": "ctx-v1",
+      "enabled": true,
+      "systems": [
+        "B0",
+        "B1",
+        "B2",
+        "B3",
+        "B4"
+      ]
+    },
+    "experiment": {
+      "bootstrap_resamples": 2000,
+      "name": "rq1-rq2-test",
+      "seed": 20261007
+    },
+    "model": {
+      "name": null,
+      "provider": "none",
+      "temperature": 0,
+      "version": null
+    },
+    "output": {
+      "processed_dir": "research/results/processed",
+      "raw_dir": "research/results/raw",
+      "update_processed": true
+    },
+    "repair": {
+      "candidate_order_seed": 20261007,
+      "enabled": true,
+      "require_real_ci": false,
+      "retry_budget": 3,
+      "systems": [
+        "R-GREEN-1",
+        "R-GREEN-k",
+        "P",
+        "P-composed",
+        "P-no-policy",
+        "P-no-verification",
+        "P-no-retry"
+      ],
+      "timeout_seconds": 300
+    }
+  },
+  "config_path": "research/config/default.yaml",
+  "config_sha256": "6a88f15b61abafea0867d6689335bd0cb17cf42cb62b8546e51289cf6753b8a3",
+  "context_policy": "ctx-v1",
+  "dataset_sha256": "946551d03a26167963f095fd4126dc177f5c2331223c66e140515aa554acb34e",
+  "dataset_version": "1.0.0",
+  "environment": {
+    "implementation": "CPython",
+    "packages": {
+      "PyYAML": "6.0.3",
+      "ci-failure-orchestrator": "1.2.0",
+      "pytest": "8.4.2"
+    },
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.14.6"
+  },
+  "exclusions": {
+    "diagnosis_not_run": 48
+  },
+  "experiment_id": "rq1-rq2-test-20261007T123008Z-6a88f15b",
+  "git_commit": "ab5f471410b6af4a486d4e3eb854f40c15870d72",
+  "git_dirty": false,
+  "holdout_used": false,
+  "model": {
+    "claim_eligible": false,
+    "env_passthrough_names": [],
+    "name": null,
+    "provider": "none",
+    "temperature": 0,
+    "version": null
+  },
+  "prompt_versions": {
+    "b1_log_only.v1": "092318c415535906c987beed66dc3954ef09fefc288958026ca3082059805a2e",
+    "b2_context.v1": "cbedd018b3f0f2164463226bf0b9eb4413dd9680d496f7d3f708764d44e68c79",
+    "b4_graph_context.v1": "20352af146619093ba28ac9b7b9bdf2776dcaca94d57830a80c62a000385c765"
+  },
+  "require_real_ci": false,
+  "retry_budget": 3,
+  "schema": "research-experiment-manifest/v1",
+  "seed": 20261007,
+  "split_sha256": {
+    "test": "4b470d781a55f598ace367912587970856b668fec3ea657b6f2b68cea85131b1"
+  },
+  "splits_evaluated": [
+    "test"
+  ],
+  "systems": {
+    "diagnosis": [
+      "B0",
+      "B1",
+      "B2",
+      "B3",
+      "B4"
+    ],
+    "repair": [
+      "R-GREEN-1",
+      "R-GREEN-k",
+      "P",
+      "P-composed",
+      "P-no-policy",
+      "P-no-verification",
+      "P-no-retry"
+    ]
+  },
+  "timestamp": "2026-10-07T12:35:00+00:00",
+  "tool_permissions": {
+    "model_outputs": "parsed as JSON data; never executed",
+    "network": "not required; the command provider may use it if the operator's command does",
+    "product_execution": "run_fix_repo: disposable git worktrees, allowlisted environment, no shell",
+    "repair_candidates": "scripted from the frozen dataset; no model generates patches"
+  }
+}

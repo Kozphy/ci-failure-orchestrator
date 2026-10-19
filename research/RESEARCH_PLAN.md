@@ -61,9 +61,10 @@ None of these is supported until `research/CLAIMS.md` says so with a linked expe
 - `benchmarks/cases/01..08` repeat `BENCH-CLASS-*` fixtures almost verbatim.
 
 Decision: both directories stay where they are, because existing tests and scripts read them. The
-new research dataset lives in `research/datasets/` and is built from them by a deterministic
-importer (`python -m research.import_legacy`). The importer removes duplicates and records every
-exclusion. See `research/README.md` for the directory map.
+new research dataset lives in `research/datasets/` and is built from them, plus the authored cases
+in `research/authored_cases.py`, by a deterministic builder (`python -m research.build_dataset`). The
+builder removes duplicates and records every exclusion in `research/datasets/exclusions.json`. See
+`research/README.md` for the directory map.
 
 ### Inconsistencies
 
@@ -107,15 +108,38 @@ No new services, databases, control planes or runtime dependencies.
 4. Manuscript, claims registry, reproducibility guide, README evidence section.
 5. Public OSS collector, maintainer validation pack, pilot protocol, external-validation registry.
 
+## Deviations log
+
+Every departure from this plan is recorded here, including ones that weaken the evidence.
+
+| Date | Deviation | Effect | Response |
+| --- | --- | --- | --- |
+| 2026-10-07 | While smoke-testing the diagnosis code, the developer saw B0, B3 and the mock provider's class and root-stage results on the **test** split before the dataset was frozen. | The test split is no longer fully unseen for diagnosis. Prompts, rules and cases could in principle have been tuned to it. | Nothing was changed in response: no prompt, rule, classifier or case was edited after the exposure. The exposure is listed in `THREATS_TO_VALIDITY.md`. The holdout split is empty and will be the first unseen evaluation. |
+| 2026-10-07 | The first default run (`rq1-rq2-test-20261007T121729Z-6a88f15b`) recorded `git_dirty: true` because git state was read at the end of the run, after unrelated edits made while it ran. | Its manifest does not prove which tracked files were loaded. The process imported code at start from commit `5648187`. | The runner now records git state at start. The run was repeated from a clean commit; both raw directories are kept, and `research.compare_runs` checks that they agree. |
+| 2026-10-07 | Target case counts (40 synthetic, 30 own-repository, 50 public OSS, 30 holdout) were not met. | Only synthetic and fixture cases exist: 40 development, 26 test, 0 holdout, 0 real-world. | No cases were invented. Real-world collection is future work (`research/collect_oss.py`, `research/EXTERNAL_VALIDATION.md`). |
+
 ## Definition of done (research)
 
-- [ ] `python -m research.validate_dataset` passes on the committed dataset and lock file.
-- [ ] `python -m research.run --config research/config/smoke.yaml` passes without credentials.
-- [ ] `python -m research.run --config research/config/default.yaml` produces a manifest, raw
+- [x] `python -m research.validate_dataset` passes on the committed dataset and lock file.
+- [x] `python -m research.run --config research/config/smoke.yaml` passes without credentials.
+- [x] `python -m research.run --config research/config/default.yaml` produces a manifest, raw
       outputs and processed tables, with every case ID recorded.
-- [ ] Every metric in `research/METRICS.md` is either computed or reported as `null` with a reason.
-- [ ] Every row in `research/CLAIMS.md` that says SUPPORTED cites an experiment ID whose raw
-      outputs are committed or reproducible from the recorded command.
-- [ ] The holdout split has not been read by any tuning step (enforced by the runner).
-- [ ] Limitations are stated in the README, the manuscript and the dataset card.
+- [x] Every metric in `research/METRICS.md` is either computed or reported as `null` with a reason.
+- [x] Every row in `research/CLAIMS.md` that says SUPPORTED cites an experiment ID whose raw
+      outputs are committed (checked by `python -m research.claims`).
+- [x] The holdout split has not been read by any tuning step (it is empty; the runner refuses it
+      without `allow_holdout` and `--confirm-holdout`).
+- [x] Limitations are stated in the README, the manuscript and the dataset card.
+- [ ] B1, B2 and B4 run with a claim-eligible model provider. **Not done.**
+- [ ] Real-world cases (own repository and public OSS) labelled and frozen. **Not done.**
 - [ ] At least one external-validation event at E2 or above is recorded. **Not done.**
+
+## External-phase checklist
+
+- [ ] Collect public OSS failure candidates with `python -m research.collect_oss` (unlabelled queue).
+- [ ] Label them with `research/ANNOTATION_PROTOCOL.md`; second annotator on at least 20%.
+- [ ] Freeze a new dataset version with a non-empty holdout split.
+- [ ] Run B1, B2 and B4 with a recorded model provider; commit the recordings.
+- [ ] Send maintainer packs (`research/maintainer_pack/`) only after a human decides to; never automatically.
+- [ ] Record each external event in `research/external_validation_registry.json`.
+- [ ] Re-run the default experiment on the new version, then evaluate the holdout split once.

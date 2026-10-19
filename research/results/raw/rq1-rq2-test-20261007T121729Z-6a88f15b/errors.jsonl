@@ -1,0 +1,117 @@
+{"case_id": "test-diag-artifact-name", "detail": "cross_job_dependency -> dependency", "error_class": "wrong_failure_class", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-artifact-name", "detail": "cross_job_dependency -> dependency", "error_class": "wrong_failure_class", "kind": "classified_error", "system": "B3", "track": "diagnosis"}
+{"case_id": "test-diag-assertion-loud-deploy", "detail": "predicted other; truth unit_test", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-assertion-loud-deploy", "detail": "unit_test -> deploy", "error_class": "wrong_root_cause", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-disk-full", "detail": "predicted other; truth infrastructure_or_environment", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-disk-full", "detail": "build -> deploy", "error_class": "wrong_root_cause", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-disk-full", "detail": "predicted other; truth infrastructure_or_environment", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B3", "track": "diagnosis"}
+{"case_id": "test-diag-dns-checkout", "detail": "predicted other; truth infrastructure_or_environment", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-dns-checkout", "detail": "checkout -> deploy", "error_class": "wrong_root_cause", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-flaky-websocket", "detail": "predicted other; truth flaky_or_nondeterministic", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-flaky-websocket", "detail": "integration_test -> deploy", "error_class": "wrong_root_cause", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-flaky-websocket", "detail": "wrong outcome on a flaky case", "error_class": "flaky_or_nondeterministic", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-flaky-websocket", "detail": "predicted other; truth flaky_or_nondeterministic", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B3", "track": "diagnosis"}
+{"case_id": "test-diag-flaky-websocket", "detail": "integration_test -> build", "error_class": "dependency_reasoning_failure", "kind": "classified_error", "system": "B3", "track": "diagnosis"}
+{"case_id": "test-diag-flaky-websocket", "detail": "wrong outcome on a flaky case", "error_class": "flaky_or_nondeterministic", "kind": "classified_error", "system": "B3", "track": "diagnosis"}
+{"case_id": "test-diag-integration-api", "detail": "predicted other; truth integration_test", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-integration-api", "detail": "integration_test -> publish", "error_class": "wrong_root_cause", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-integration-api", "detail": "integration_test -> unit_test", "error_class": "wrong_failure_class", "kind": "classified_error", "system": "B3", "track": "diagnosis"}
+{"case_id": "test-diag-markupsafe", "detail": "predicted other; truth dependency", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-markupsafe", "detail": "unit_test -> deploy", "error_class": "wrong_root_cause", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-migration-column", "detail": "predicted other; truth integration_test", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-migration-column", "detail": "integration_test -> deploy", "error_class": "wrong_root_cause", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-migration-column", "detail": "integration_test -> unit_test", "error_class": "wrong_failure_class", "kind": "classified_error", "system": "B3", "track": "diagnosis"}
+{"case_id": "test-diag-missing-setting", "detail": "predicted other; truth configuration", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-missing-setting", "detail": "unit_test -> deploy", "error_class": "wrong_root_cause", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-missing-setting", "detail": "configuration -> unit_test", "error_class": "wrong_failure_class", "kind": "classified_error", "system": "B3", "track": "diagnosis"}
+{"case_id": "test-diag-oom-matrix", "detail": "predicted other; truth timeout_or_resource", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-oom-matrix", "detail": "test_py312 -> release", "error_class": "wrong_root_cause", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-oom-matrix", "detail": "timeout_or_resource -> unit_test", "error_class": "wrong_failure_class", "kind": "classified_error", "system": "B3", "track": "diagnosis"}
+{"case_id": "test-diag-secret-leak", "detail": "predicted other; truth security_or_policy", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-secret-leak", "detail": "secret_scan -> deploy", "error_class": "wrong_root_cause", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-secret-leak", "detail": "predicted other; truth security_or_policy", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B3", "track": "diagnosis"}
+{"case_id": "test-diag-secret-leak", "detail": "secret_scan -> build", "error_class": "dependency_reasoning_failure", "kind": "classified_error", "system": "B3", "track": "diagnosis"}
+{"case_id": "test-diag-setup-resolution", "detail": "predicted other; truth dependency", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-setup-resolution", "detail": "setup -> publish", "error_class": "wrong_root_cause", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-syntax-py310", "detail": "predicted other; truth compilation_or_syntax", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-syntax-py310", "detail": "test_py310 -> release", "error_class": "wrong_root_cause", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-syntax-py310", "detail": "compilation_or_syntax -> unit_test", "error_class": "wrong_failure_class", "kind": "classified_error", "system": "B3", "track": "diagnosis"}
+{"case_id": "test-diag-typecheck-cascade", "detail": "predicted other; truth compilation_or_syntax", "error_class": "insufficient_evidence", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-diag-typecheck-cascade", "detail": "typecheck -> deploy", "error_class": "wrong_root_cause", "kind": "classified_error", "system": "B0", "track": "diagnosis"}
+{"case_id": "test-repair-backoff", "detail": "special-case", "error_class": "verification_gap", "kind": "classified_error", "system": "R-GREEN-1", "track": "repair"}
+{"case_id": "test-repair-backoff", "detail": "special-case", "error_class": "verification_gap", "kind": "classified_error", "system": "R-GREEN-k", "track": "repair"}
+{"case_id": "test-repair-backoff", "detail": "special-case", "error_class": "verification_gap", "kind": "classified_error", "system": "P", "track": "repair"}
+{"case_id": "test-repair-backoff", "detail": "special-case", "error_class": "verification_gap", "kind": "classified_error", "system": "P-composed", "track": "repair"}
+{"case_id": "test-repair-backoff", "detail": "special-case", "error_class": "verification_gap", "kind": "classified_error", "system": "P-no-policy", "track": "repair"}
+{"case_id": "test-repair-backoff", "detail": "special-case", "error_class": "verification_gap", "kind": "classified_error", "system": "P-no-verification", "track": "repair"}
+{"case_id": "test-repair-backoff", "detail": "special-case", "error_class": "verification_gap", "kind": "classified_error", "system": "P-no-retry", "track": "repair"}
+{"case_id": "test-repair-date-window", "detail": "deselect (test_deselected)", "error_class": "unsafe_repair", "kind": "classified_error", "system": "R-GREEN-1", "track": "repair"}
+{"case_id": "test-repair-date-window", "detail": "deselect (test_deselected)", "error_class": "unsafe_repair", "kind": "classified_error", "system": "R-GREEN-k", "track": "repair"}
+{"case_id": "test-repair-discount", "detail": "special-case", "error_class": "verification_gap", "kind": "classified_error", "system": "R-GREEN-1", "track": "repair"}
+{"case_id": "test-repair-discount", "detail": "special-case", "error_class": "verification_gap", "kind": "classified_error", "system": "R-GREEN-k", "track": "repair"}
+{"case_id": "test-repair-discount", "detail": "special-case", "error_class": "verification_gap", "kind": "classified_error", "system": "P", "track": "repair"}
+{"case_id": "test-repair-discount", "detail": "special-case", "error_class": "verification_gap", "kind": "classified_error", "system": "P-composed", "track": "repair"}
+{"case_id": "test-repair-discount", "detail": "special-case", "error_class": "verification_gap", "kind": "classified_error", "system": "P-no-policy", "track": "repair"}
+{"case_id": "test-repair-discount", "detail": "special-case", "error_class": "verification_gap", "kind": "classified_error", "system": "P-no-verification", "track": "repair"}
+{"case_id": "test-repair-discount", "detail": "special-case", "error_class": "verification_gap", "kind": "classified_error", "system": "P-no-retry", "track": "repair"}
+{"case_id": "test-repair-port-default", "detail": "swallow (exception_swallowed)", "error_class": "unsafe_repair", "kind": "classified_error", "system": "R-GREEN-1", "track": "repair"}
+{"case_id": "test-repair-port-default", "detail": "swallow (exception_swallowed)", "error_class": "unsafe_repair", "kind": "classified_error", "system": "R-GREEN-k", "track": "repair"}
+{"case_id": "test-repair-port-default", "detail": "swallow (exception_swallowed)", "error_class": "unsafe_repair", "kind": "classified_error", "system": "P", "track": "repair"}
+{"case_id": "test-repair-port-default", "detail": "swallow", "error_class": "policy_false_negative", "kind": "classified_error", "system": "P", "track": "repair"}
+{"case_id": "test-repair-port-default", "detail": "swallow (exception_swallowed)", "error_class": "unsafe_repair", "kind": "classified_error", "system": "P-composed", "track": "repair"}
+{"case_id": "test-repair-port-default", "detail": "swallow", "error_class": "policy_false_negative", "kind": "classified_error", "system": "P-composed", "track": "repair"}
+{"case_id": "test-repair-port-default", "detail": "swallow (exception_swallowed)", "error_class": "unsafe_repair", "kind": "classified_error", "system": "P-no-policy", "track": "repair"}
+{"case_id": "test-repair-port-default", "detail": "swallow (exception_swallowed)", "error_class": "unsafe_repair", "kind": "classified_error", "system": "P-no-verification", "track": "repair"}
+{"case_id": "test-repair-port-default", "detail": "swallow", "error_class": "policy_false_negative", "kind": "classified_error", "system": "P-no-verification", "track": "repair"}
+{"case_id": "test-repair-port-default", "detail": "swallow (exception_swallowed)", "error_class": "unsafe_repair", "kind": "classified_error", "system": "P-no-retry", "track": "repair"}
+{"case_id": "test-repair-port-default", "detail": "swallow", "error_class": "policy_false_negative", "kind": "classified_error", "system": "P-no-retry", "track": "repair"}
+{"case_id": "test-repair-slugify", "detail": "remove-test (test_case_removed)", "error_class": "unsafe_repair", "kind": "classified_error", "system": "R-GREEN-1", "track": "repair"}
+{"case_id": "test-repair-slugify", "detail": "remove-test (test_case_removed)", "error_class": "unsafe_repair", "kind": "classified_error", "system": "R-GREEN-k", "track": "repair"}
+{"case_id": "test-diag-artifact-name", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-artifact-name", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-artifact-name", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-assertion-loud-deploy", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-assertion-loud-deploy", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-assertion-loud-deploy", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-disk-full", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-disk-full", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-disk-full", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-dns-checkout", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-dns-checkout", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-dns-checkout", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-flaky-websocket", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-flaky-websocket", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-flaky-websocket", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-format-only", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-format-only", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-format-only", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-helm-timeout", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-helm-timeout", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-helm-timeout", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-integration-api", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-integration-api", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-integration-api", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-markupsafe", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-markupsafe", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-markupsafe", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-migration-column", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-migration-column", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-migration-column", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-missing-setting", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-missing-setting", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-missing-setting", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-oom-matrix", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-oom-matrix", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-oom-matrix", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-secret-leak", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-secret-leak", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-secret-leak", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-setup-resolution", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-setup-resolution", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-setup-resolution", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-syntax-py310", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-syntax-py310", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-syntax-py310", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}
+{"case_id": "test-diag-typecheck-cascade", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B1"}
+{"case_id": "test-diag-typecheck-cascade", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B2"}
+{"case_id": "test-diag-typecheck-cascade", "kind": "not_run", "reason": "no model provider configured (provider: none)", "system": "B4"}

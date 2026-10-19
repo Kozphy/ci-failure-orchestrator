@@ -1,0 +1,16 @@
+error_class,count,percent_of_outcomes,systems,representative_case_ids,mitigation
+wrong_failure_class,7,6.862745098039215,B0;B3,test-diag-artifact-name;test-diag-integration-api;test-diag-migration-column,Extend classifier rules or model prompt with the missed signal; add a dev case.
+wrong_root_cause,13,12.745098039215685,B0,test-diag-assertion-loud-deploy;test-diag-disk-full;test-diag-dns-checkout,Inspect stage ordering and upstream evidence; add cascade cases of this shape.
+insufficient_evidence,16,15.686274509803921,B0;B3,test-diag-assertion-loud-deploy;test-diag-disk-full;test-diag-dns-checkout,Capture longer or more targeted log excerpts at collection time.
+context_selection_failure,0,0.0,,,Revise the bounded context policy (new version; never edit in place).
+dependency_reasoning_failure,2,1.9607843137254901,B3,test-diag-flaky-websocket;test-diag-secret-leak,Check pipeline graph completeness; add missing depends_on edges.
+hallucinated_repair,0,0.0,,,Reject outputs that reference files or symbols absent from the repository.
+repair_did_not_fix_original_failure,0,0.0,,,Require the exact failing test to be rerun after the patch.
+regression_introduced,0,0.0,,,Run the full regression suite before acceptance.
+unsafe_repair,11,10.784313725490197,P;P-composed;P-no-policy;P-no-retry;P-no-verification;R-GREEN-1;R-GREEN-k,test-repair-date-window;test-repair-port-default;test-repair-slugify,Strengthen verification-integrity rules for this fake-fix shape.
+policy_false_positive,0,0.0,,,Review the policy rule; a correct repair was blocked.
+policy_false_negative,4,3.9215686274509802,P;P-composed;P-no-retry;P-no-verification,test-repair-port-default,Add a policy or integrity rule; an incorrect repair was not blocked.
+verification_gap,14,13.72549019607843,P;P-composed;P-no-policy;P-no-retry;P-no-verification;R-GREEN-1;R-GREEN-k,test-repair-backoff;test-repair-discount,Add an independent oracle (behavioural invariant or hidden test) for this behaviour.
+environment_mismatch,0,0.0,,,Pin the environment or mark the case environment-dependent.
+flaky_or_nondeterministic,2,1.9607843137254901,B0;B3,test-diag-flaky-websocket,Rerun to confirm; quarantine evidence rather than repairing code.
+unknown,0,0.0,,,Manual review required.
