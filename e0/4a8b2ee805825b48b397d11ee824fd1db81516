@@ -1,0 +1,38 @@
+.github/workflows/benchmark-offline.yml
+  s_be7467d8494cb0::t_0f8bc558396777 1-62
+docs/benchmark/REPRODUCE.md
+  s_be7467d8494cb0::t_cc87e258aebf29 1-59
+docs/benchmark/README.md
+  s_be7467d8494cb0::t_2f31d91c697c86 1-14
+docs/benchmark/GAP_ANALYSIS.md
+  s_be7467d8494cb0::t_742a5f1dddfbe5 1-93
+scripts/run_offline_benchmark.py
+  s_be7467d8494cb0::t_119468101c425b 62-65,70
+  s_be7467d8494cb0::t_6fbf54d5a4cca6 1-61,66-69,71-186
+benchmark/external_cases.v0.json
+  s_be7467d8494cb0::t_6bdd54b2ec2b42 1-160
+tests/test_offline_benchmark_evidence.py
+  s_be7467d8494cb0::t_e411e1d363a4b0 1-86
+docs/benchmark/LIMITATIONS.md
+  s_be7467d8494cb0::t_815a8ef43941c8 1-17
+benchmark/evidence.schema.json
+  s_be7467d8494cb0::t_997854500d6a36 1-71
+docs/benchmark/METHODOLOGY.md
+  s_be7467d8494cb0::t_63322d5fa9ee9d 1-62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e04a8b2ee805825b48b397d11ee824fd1db81516",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
