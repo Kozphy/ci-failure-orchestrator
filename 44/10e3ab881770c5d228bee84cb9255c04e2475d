@@ -1,0 +1,68 @@
+research/RESEARCH_PLAN.md
+  s_be7467d8494cb0::t_f45de560811db9 111-120,123-125,127-134,136-145
+  s_be7467d8494cb0::t_c914069c505f00 64-67
+research/claims.py
+  s_be7467d8494cb0::t_743387fcab95cd 1-12,15-39,41-238
+  s_be7467d8494cb0::t_ce6c72baf3ec3f 40
+  s_be7467d8494cb0::t_2c16ddbb2cd3af 13-14
+research/CLAIMS.md
+  s_be7467d8494cb0::t_e2804dae059bad 1-52
+research/results/processed/ablation_results.csv
+  s_be7467d8494cb0::t_5502b570efe11b 1-4
+research/results/processed/diagnosis_metrics.csv
+  s_be7467d8494cb0::t_c49f2ba6925935 1-6
+research/results/processed/error_taxonomy.csv
+  s_be7467d8494cb0::t_bd2bceb8ec3a4a 1-16
+research/results/processed/latest_summary.json
+  s_be7467d8494cb0::t_f17469eb48518a 1-106
+research/results/processed/repair_metrics.csv
+  s_be7467d8494cb0::t_a68737fb47ec60 1-8
+research/results/processed/results_table.csv
+  s_be7467d8494cb0::t_9a6d9e390975eb 1-107
+research/results/processed/tables.md
+  s_be7467d8494cb0::t_70bc6a1662c57f 1-63
+research/results/raw/rq1-rq2-test-20261007T121729Z-6a88f15b/confidence_intervals.json
+  s_be7467d8494cb0::t_11c597d909b132 1-1145
+research/results/raw/rq1-rq2-test-20261007T121729Z-6a88f15b/errors.jsonl
+  s_be7467d8494cb0::t_c73dca0bded7ee 1-117
+research/results/raw/rq1-rq2-test-20261007T121729Z-6a88f15b/evidence.jsonl
+  s_be7467d8494cb0::t_c6211cc0d33d3e 1-43
+research/results/raw/rq1-rq2-test-20261007T121729Z-6a88f15b/manifest.json
+  s_be7467d8494cb0::t_06535e1c9e745e 1-173
+research/results/raw/rq1-rq2-test-20261007T121729Z-6a88f15b/metrics.json
+  s_be7467d8494cb0::t_50b34609d322bd 1-2076
+research/results/raw/rq1-rq2-test-20261007T121729Z-6a88f15b/predictions.jsonl
+  s_be7467d8494cb0::t_b4b9d010b22acd 1-80
+research/results/raw/rq1-rq2-test-20261007T121729Z-6a88f15b/repairs.jsonl
+  s_be7467d8494cb0::t_8c6aed880f2a9b 1-70
+research/results/raw/rq1-rq2-test-20261007T123008Z-6a88f15b/confidence_intervals.json
+  s_be7467d8494cb0::t_6e6d3a66fa4801 1-1145
+research/results/raw/rq1-rq2-test-20261007T123008Z-6a88f15b/errors.jsonl
+  s_be7467d8494cb0::t_e6a4272460fa7c 1-117
+research/results/raw/rq1-rq2-test-20261007T123008Z-6a88f15b/evidence.jsonl
+  s_be7467d8494cb0::t_fa943a504d2ad7 1-43
+research/results/raw/rq1-rq2-test-20261007T123008Z-6a88f15b/manifest.json
+  s_be7467d8494cb0::t_76a122f49b2818 1-173
+research/results/raw/rq1-rq2-test-20261007T123008Z-6a88f15b/metrics.json
+  s_be7467d8494cb0::t_44eef4fd544760 1-2076
+research/results/raw/rq1-rq2-test-20261007T123008Z-6a88f15b/predictions.jsonl
+  s_be7467d8494cb0::t_4ac2452bc2ffaa 1-80
+research/results/raw/rq1-rq2-test-20261007T123008Z-6a88f15b/repairs.jsonl
+  s_be7467d8494cb0::t_0ba1943429d4f5 1-70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4410e3ab881770c5d228bee84cb9255c04e2475d",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
