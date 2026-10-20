@@ -1,0 +1,30 @@
+scripts/run_offline_benchmark.py
+  s_be7467d8494cb0::t_fae23d94fe6dcc 173
+  s_be7467d8494cb0::t_7f6ec68f71ff5e 31,35-43
+docs/benchmark/GAP_ANALYSIS.md
+  s_be7467d8494cb0::t_d5154f1b09ad20 37,39-42
+docs/benchmark/LIMITATIONS.md
+  s_be7467d8494cb0::t_7115bd929d4ff6 12
+docs/benchmark/METHODOLOGY.md
+  s_be7467d8494cb0::t_b3635a79e6f6cb 50
+tests/test_offline_benchmark_evidence.py
+  s_be7467d8494cb0::t_f4569dd52485de 10,12-13
+  s_be7467d8494cb0::t_edd902038d77fb 30
+  s_be7467d8494cb0::t_c125906f416b0e 83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a2a8cbff235242c4d772f0a60cacf4352a5c0035",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
