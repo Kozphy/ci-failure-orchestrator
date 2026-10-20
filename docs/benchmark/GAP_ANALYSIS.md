@@ -34,10 +34,12 @@ CI workflows for these benchmarks request Python 3.11 (`research-evidence.yml`) 
 
 ## Corpus checksums
 
-| File | Cases | Byte SHA-256 |
+| File | Cases | LF SHA-256 (git blob bytes) |
 | --- | --- | --- |
-| `benchmark/ci_failure_corpus.v1.json` | 8 | `1897b663e92c8420ff545f44aa05ee70b5be7aa3b463b21d3302bb5d62bb2f05` |
-| `benchmark/repair_fixture_corpus.v1.json` | 4 | `71a2fe09ec7338013bfaa9d5d6918e7fb8e86811fb0faa4ddaba7d6a4c93a93b` |
+| `benchmark/ci_failure_corpus.v1.json` | 8 | `a8e6c2e2ba19574a3e3b9faa4327a58c03be30d11e39b790430da96413dadf22` |
+| `benchmark/repair_fixture_corpus.v1.json` | 4 | `0a6f1ff41327c9869faad9aa2ca5e23974d3449f5b88e57f790f050f7604211a` |
+
+The 2026-10-19 audit machine had `core.autocrlf=true`, so a raw hash of the working tree was the CRLF hash `1897b663e92c8420ff545f44aa05ee70b5be7aa3b463b21d3302bb5d62bb2f05` for the diagnosis corpus and `71a2fe09ec7338013bfaa9d5d6918e7fb8e86811fb0faa4ddaba7d6a4c93a93b` for the repair fixtures. Ubuntu CI checks out LF and recorded `a8e6c2e2…`. The envelope and the integrity test use the LF digest.
 
 `run_research_rq1.py` records a different digest, the canonical JSON digest `8c9cc089c51b58d1076e4a025d9c5f10117d95368b647df9c634b923724b94d1`. Both are real. They hash different byte strings. A reader cannot treat them as the same identifier.
 

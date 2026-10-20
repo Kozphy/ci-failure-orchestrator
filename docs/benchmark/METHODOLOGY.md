@@ -47,7 +47,7 @@ A timed-out or crashed attempt is an unsuccessful attempt. It remains in both de
 
 ## Versioning
 
-- Corpus version is the `version` field plus the byte SHA-256 published in `docs/benchmark/GAP_ANALYSIS.md`.
+- Corpus version is the `version` field plus the LF SHA-256 published in `docs/benchmark/GAP_ANALYSIS.md`. CRLF in a working tree is normalized before that hash.
 - A corpus change that alters a case, a label, or a file hash requires a new version string. Checksums in `tests/test_offline_benchmark_evidence.py` must be updated in the same change.
 - Baseline code changes do not rewrite old result files under `artifacts/`. Those files are gitignored local outputs.
 

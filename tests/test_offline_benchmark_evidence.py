@@ -7,9 +7,10 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# SHA-256 of the git blob bytes (LF). A CRLF working tree must not change these.
 CORPUS_SHA256 = {
-    "benchmark/ci_failure_corpus.v1.json": "1897b663e92c8420ff545f44aa05ee70b5be7aa3b463b21d3302bb5d62bb2f05",
-    "benchmark/repair_fixture_corpus.v1.json": "71a2fe09ec7338013bfaa9d5d6918e7fb8e86811fb0faa4ddaba7d6a4c93a93b",
+    "benchmark/ci_failure_corpus.v1.json": "a8e6c2e2ba19574a3e3b9faa4327a58c03be30d11e39b790430da96413dadf22",
+    "benchmark/repair_fixture_corpus.v1.json": "0a6f1ff41327c9869faad9aa2ca5e23974d3449f5b88e57f790f050f7604211a",
 }
 ALLOWED_LICENSES = {"MIT", "Apache-2.0", "BSD-3-Clause"}
 
@@ -26,7 +27,7 @@ def _runner():
 def test_corpus_bytes_match_the_recorded_checksums():
     runner = _runner()
     for relative, expected in CORPUS_SHA256.items():
-        assert runner.file_sha256(ROOT / relative) == expected
+        assert runner.canonical_text_sha256(ROOT / relative) == expected
 
 
 def test_nonzero_exit_is_not_success():
@@ -79,7 +80,7 @@ def test_offline_runner_writes_a_passing_envelope(tmp_path: Path):
     assert evidence["failed_steps"] == []
     assert evidence["measurements"]["independently_labelled_cases"] == 0
     assert evidence["measurements"]["evidence_class"] == "synthetic_fixture"
-    assert {row["path"] for row in evidence["corpora"]} == set(CORPUS_SHA256)
+    assert {row["path"]: row["sha256"] for row in evidence["corpora"]} == CORPUS_SHA256
     for step in evidence["steps"]:
         assert step["exit_code"] == 0
         assert step["output_present"] is True

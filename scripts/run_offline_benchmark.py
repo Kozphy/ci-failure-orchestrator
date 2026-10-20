@@ -28,8 +28,17 @@ CORPORA = (
 
 
 def file_sha256(path: Path) -> str:
-    """SHA-256 of the file bytes."""
+    """SHA-256 of the file bytes as written."""
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def canonical_text_sha256(path: Path) -> str:
+    """SHA-256 of the file with CRLF normalized to LF.
+
+    Git stores the corpora as LF. A Windows checkout with ``core.autocrlf=true`` rewrites the
+    working tree to CRLF, so a raw byte hash is not the same value CI records.
+    """
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def git_head(root: Path) -> str:
@@ -161,7 +170,7 @@ def build_evidence(root: Path, output_dir: Path) -> dict[str, Any]:
         "platform": platform.platform(),
         "credentials": "none",
         "corpora": [
-            {"path": rel, "sha256": file_sha256(root / rel)} for rel in CORPORA
+            {"path": rel, "sha256": canonical_text_sha256(root / rel)} for rel in CORPORA
         ],
         "steps": steps,
         "measurements": measurements(output_dir),
