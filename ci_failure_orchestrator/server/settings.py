@@ -64,6 +64,8 @@ class ServerSettings:
         lease_seconds: How long a worker owns a claimed job without renewing its lease.
         poll_seconds: Worker sleep between empty polls.
         worker_id: Identifier recorded as the lease owner and audit actor.
+        execution_mode: ``foundation`` (default repair runner) or ``diagnosis_graph``
+            (LangGraph diagnosis flow). Existing ``POST /v1/runs`` shape is unchanged.
     """
 
     database_url: str = DEFAULT_DATABASE_URL
@@ -73,6 +75,7 @@ class ServerSettings:
     lease_seconds: int = 300
     poll_seconds: float = 2.0
     worker_id: str = "worker-local"
+    execution_mode: str = "foundation"
 
     def __repr__(self) -> str:
         """Return a representation with the database password and API token redacted."""
@@ -80,7 +83,8 @@ class ServerSettings:
             f"ServerSettings(database_url={redact_database_url(self.database_url)!r}, "
             f"artifacts_root={str(self.artifacts_root)!r}, api_token={'***' if self.api_token else None}, "
             f"max_body_bytes={self.max_body_bytes}, lease_seconds={self.lease_seconds}, "
-            f"poll_seconds={self.poll_seconds}, worker_id={self.worker_id!r})"
+            f"poll_seconds={self.poll_seconds}, worker_id={self.worker_id!r}, "
+            f"execution_mode={self.execution_mode!r})"
         )
 
     @classmethod
@@ -98,6 +102,9 @@ class ServerSettings:
         """
         source = dict(os.environ if env is None else env)
         token = (source.get("CFO_API_TOKEN") or "").strip() or None
+        mode = (source.get("CFO_EXECUTION_MODE") or "foundation").strip().lower()
+        if mode not in {"foundation", "diagnosis_graph"}:
+            raise ValueError("CFO_EXECUTION_MODE must be 'foundation' or 'diagnosis_graph'")
         return cls(
             database_url=source.get("CFO_DATABASE_URL") or DEFAULT_DATABASE_URL,
             artifacts_root=Path(source.get("CFO_ARTIFACTS_ROOT") or "artifacts"),
@@ -106,4 +113,5 @@ class ServerSettings:
             lease_seconds=_int_env(source, "CFO_LEASE_SECONDS", 300, 5),
             poll_seconds=_float_env(source, "CFO_POLL_SECONDS", 2.0, 0.05),
             worker_id=source.get("CFO_WORKER_ID") or f"worker-{os.getpid()}",
+            execution_mode=mode,
         )

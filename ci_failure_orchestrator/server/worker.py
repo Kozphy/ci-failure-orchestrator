@@ -51,7 +51,18 @@ class TickOutcome(str, Enum):
 
 
 def default_foundation_factory(persistence: RunPersistence, settings: ServerSettings) -> AgentExecutionFoundation:
-    """Build the same foundation ``foundation-run`` uses, wired to the given persistence."""
+    """Build the runner selected by ``settings.execution_mode``.
+
+    Default ``foundation`` preserves the existing repair path. ``diagnosis_graph`` selects the
+    LangGraph diagnosis flow (optional ``langgraph`` extra). ``POST /v1/runs`` is unchanged.
+    """
+    if settings.execution_mode == "diagnosis_graph":
+        from ..diagnosis_graph import DiagnosisGraphRunner
+
+        return DiagnosisGraphRunner(  # type: ignore[return-value]
+            artifacts_root=settings.artifacts_root,
+            persistence=persistence,
+        )
     return AgentExecutionFoundation(artifacts_root=settings.artifacts_root, persistence=persistence)
 
 

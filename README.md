@@ -165,7 +165,7 @@ no cost budget, and the audit log is append-only but not tamper-evident. Full li
 
 ## Architecture
 
-A Python package with two CLIs over one deterministic core:
+A Python package with two CLIs over one deterministic core, plus an optional local API:
 
 - `ci_failure_orchestrator/foundation/`: classifier, planner, sandbox, evaluator, retry
   budget, policy engine, escalation, durable state and audit events.
@@ -174,10 +174,25 @@ A Python package with two CLIs over one deterministic core:
 - `ci_failure_orchestrator/doctor/`: `actions-doctor` diagnosis, the offline demo and the
   GitHub Action.
 - `ci_failure_orchestrator/ci_audit/`: the read-only reliability audit.
+- `ci_failure_orchestrator/server/`: optional local FastAPI (`/health`, `/ready`, `/v1/runs`)
+  and a lease-based SQL worker. Not a hosted SaaS product.
+- `ci_failure_orchestrator/diagnosis_graph/`: optional LangGraph diagnosis flow
+  (classify → mock hypothesize → deterministic verify → single emit), selected with
+  `CFO_EXECUTION_MODE=diagnosis_graph`. Requires `pip install -e ".[diagnosis]"`.
+  Details: [docs/diagnosis-graph.md](docs/diagnosis-graph.md).
 
-Everything runs locally or in your CI runner; there is no hosted service. Details:
+CLIs and the default worker mode run locally or in your CI runner. There is no
+multi-tenant hosted service. Details:
 [docs/COMMERCIAL_ARCHITECTURE.md](docs/COMMERCIAL_ARCHITECTURE.md) and
 [docs/ENGINEERING.md](docs/ENGINEERING.md).
+
+### Implemented vs measured vs remaining
+
+| Kind | What |
+| --- | --- |
+| **Implemented** | Diagnose/verify/policy CLIs; local API + worker; durable evidence; optional LangGraph diagnosis graph with mock provider; offline demo |
+| **Measured locally** | Pytest suites (including `tests/test_diagnosis_graph.py`); demo scenario; synthetic corpora when the offline benchmark path is present. Numbers are fixture or single-repo results, not customer SLAs |
+| **Remaining** | Production users; GitLab CI native adapter; containerized verify; cost metering; tamper-evident audit; shared (cross-process) LangGraph checkpointer; dependency lockfile on `main` |
 
 ## Supported CI providers
 
@@ -193,7 +208,8 @@ Everything runs locally or in your CI runner; there is no hosted service. Detail
   our own repositories, synthetic benchmarks and the demo. None of it is a production success
   rate.
 - Patch quality depends on the patch source. With `--provider-cmd`, the model writes the patch;
-  this project only verifies it.
+  this project only verifies it. The diagnosis graph’s hypothesis is likewise advisory until
+  the deterministic verifier agrees.
 - Verify commands run on your machine or runner without container isolation.
 - Model token usage and cost are not measured; `fix-repo-metrics` reports them as not
   instrumented.
@@ -201,6 +217,8 @@ Everything runs locally or in your CI runner; there is no hosted service. Detail
 - The audit log is append-only, not cryptographically tamper-evident.
 - Python projects are the tested path; other languages work only through your own verify
   commands.
+- The LangGraph checkpointer used by `diagnosis_graph` is in-process (`MemorySaver`); it is
+  not a shared cluster store.
 
 ## Pricing and booking
 

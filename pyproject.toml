@@ -21,6 +21,7 @@ server = [
     "pydantic>=2.6",
     "psycopg[binary]>=3.1",
 ]
+diagnosis = ["langgraph>=1.2"]
 
 [project.scripts]
 ci-orchestrator = "ci_failure_orchestrator.cli:main"
