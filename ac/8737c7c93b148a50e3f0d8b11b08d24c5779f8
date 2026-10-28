@@ -1,0 +1,52 @@
+pyproject.toml
+  s_be7467d8494cb0::t_403338cc34d9fe 24
+docs/diagnosis-graph.md
+  s_be7467d8494cb0::t_beca0305f26216 1-88
+scripts/demo_diagnosis_graph.py
+  s_be7467d8494cb0::t_a087867d1f69e0 1-51
+ci_failure_orchestrator/diagnosis_graph/providers.py
+  s_be7467d8494cb0::t_c977c48d3a48e0 1-75
+ci_failure_orchestrator/diagnosis_graph/graph.py
+  s_be7467d8494cb0::t_2b5354e69e152d 91-93
+  s_be7467d8494cb0::t_cf2c831f430010 127-128,157,176,188,192
+  s_be7467d8494cb0::t_2367d6dd60ce4b 226-230,235,237-241
+  s_be7467d8494cb0::t_2a7dfa85734841 204
+  s_be7467d8494cb0::t_54c28a8713059b 1-90,94-126,129-147,149-156,158-175,177-187,189-191,193-203,205-225,231-234,236,242-290
+  s_be7467d8494cb0::t_5df863ab742e8b 148
+README.md
+  s_be7467d8494cb0::t_e08bbb568daa73 211-212,220-221
+  s_be7467d8494cb0::t_5f8dd0bb93937c 168,177-185,189-196
+AGENTS.md
+  s_be7467d8494cb0::t_ab8b3ef06fd432 1-37
+ci_failure_orchestrator/diagnosis_graph/runner.py
+  s_be7467d8494cb0::t_ed7c94581045e0 1-100,115-165
+  s_be7467d8494cb0::t_726c663d075e7c 101-114
+ci_failure_orchestrator/diagnosis_graph/__init__.py
+  s_be7467d8494cb0::t_432dae8499f034 1-11
+ci_failure_orchestrator/server/settings.py
+  s_be7467d8494cb0::t_c41d0095616fc2 105-107,116
+  s_be7467d8494cb0::t_3bc5095ba46e70 67-68,78,86-87
+tests/test_diagnosis_graph.py
+  s_be7467d8494cb0::t_37b446d6236fc1 1-10,12-14,16-18,23-141
+  s_be7467d8494cb0::t_2a7dfa85734841 11,15,19-22
+ci_failure_orchestrator/server/worker.py
+  s_be7467d8494cb0::t_f123ca91f942c9 54-65
+docs/agent-foundations-gap.md
+  s_be7467d8494cb0::t_f6f874f9c435dd 1-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ac8737c7c93b148a50e3f0d8b11b08d24c5779f8",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
