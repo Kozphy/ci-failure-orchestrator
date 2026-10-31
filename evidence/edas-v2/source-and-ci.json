@@ -1,0 +1,392 @@
+{
+  "observed_at": "2026-10-31T15:47:57.021847+00:00",
+  "base_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+  "source_tree_sha": "166b3348aad681f295171219fa33933c701ed87a",
+  "recovery": "Authenticated GitHub connector; 537 UTF-8 blobs matched Git SHA-1 object hashes; complete tree and original signed commit object SHA matched. Local history is shallow.",
+  "history_scope": "10 most recent commits from default branch API, not a full history audit",
+  "history": [
+    {
+      "sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "message": "ci: provide POSTGRES_PASSWORD to all server-image compose steps\n\nMove the CI-only PostgreSQL password to job scope so all Compose steps can interpolate the config.",
+      "url": "https://github.com/Kozphy/ci-failure-orchestrator/commit/69ba500f53a4f492c876dd26636b9222d7e140ce"
+    },
+    {
+      "sha": "f7b6cf2e65b3d2ef3f15cecb4fc1c65874c3f56f",
+      "message": "docs: add AI agent production roadmap and upgrade prompt",
+      "url": "https://github.com/Kozphy/ci-failure-orchestrator/commit/f7b6cf2e65b3d2ef3f15cecb4fc1c65874c3f56f"
+    },
+    {
+      "sha": "eb73f244384336f8bf04073fdda491ffa1534a9c",
+      "message": "Reliability Phase 1: add an HTTP API (FastAPI /health, /ready, /v1/runs with idempotency, structured errors, request IDs and an optional shared token), SQL durable state (SQLAlchemy stores for PostgreSQL or SQLite behind the existing StateStore/AuditStore protocols, evidence mirrored with SHA-256) and a lease-based worker that sends expired leases and mid-run storage failures to REQUIRES_REVIEW and fences stale workers; keep File stores as the default, add Dockerfile, docker-compose (PostgreSQL, API, worker), CI jobs for PostgreSQL contract tests and a compose smoke test, ADR-0008 and the reliability upgrade plan; add the README pricing and booking section.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>",
+      "url": "https://github.com/Kozphy/ci-failure-orchestrator/commit/eb73f244384336f8bf04073fdda491ffa1534a9c"
+    },
+    {
+      "sha": "03a8c4fc41e4dadaec1ab9f634765ec5e11511b8",
+      "message": "Make the project buyable: add a per-repair evidence report (fix-repo-report), an end-to-end demo repository, apply safety controls (dry run, rollback commands, bounded attempts, timeouts reported as PARTIAL) and operational metrics, rewrite the README for buyers with the engineering detail moved to docs/ENGINEERING.md plus ICP, commercial architecture, safety controls and commercialization docs; classify raw pytest -q logs as test failures and keep a hunk's trailing blank context line during patch extraction.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>",
+      "url": "https://github.com/Kozphy/ci-failure-orchestrator/commit/03a8c4fc41e4dadaec1ab9f634765ec5e11511b8"
+    },
+    {
+      "sha": "d8dc4260beb5fe8e41ea376c644431b82c14255c",
+      "message": "Document the canonical root modules and CLI with Google-style docstrings and enforce public docstrings on the canonical path: ruff pydocstyle (google convention, D101/D102/D103/D106/D417/D419) scoped to module_status.CANONICAL plus the CLI, a CI step running the same codes, and a test that keeps the ruff scope in sync with the canonical manifest.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>",
+      "url": "https://github.com/Kozphy/ci-failure-orchestrator/commit/d8dc4260beb5fe8e41ea376c644431b82c14255c"
+    },
+    {
+      "sha": "9b52f0cad132b963dc260dcff969b38570170839",
+      "message": "Document the public ci_audit and doctor (CI Doctor) APIs with Google-style docstrings; docstring-only, no code changes.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>",
+      "url": "https://github.com/Kozphy/ci-failure-orchestrator/commit/9b52f0cad132b963dc260dcff969b38570170839"
+    },
+    {
+      "sha": "67a1e034a50329bd970c2dbe8ea259bb5f52cc8e",
+      "message": "Document the public foundation core API (classifier, planner, evaluator, retry, policy, remediation, state machine, evidence store and models) with Google-style docstrings; docstring-only, no code changes.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>",
+      "url": "https://github.com/Kozphy/ci-failure-orchestrator/commit/67a1e034a50329bd970c2dbe8ea259bb5f52cc8e"
+    },
+    {
+      "sha": "5c8fdbc06b237842142712f69a0f65ed65d7dbf3",
+      "message": "Document the public service API with Google-style docstrings (Args, Returns and Raises where the behavior is not obvious); docstring-only, no code changes.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>",
+      "url": "https://github.com/Kozphy/ci-failure-orchestrator/commit/5c8fdbc06b237842142712f69a0f65ed65d7dbf3"
+    },
+    {
+      "sha": "5ffc40244827f7d42c99e6c3ff642e8945858c71",
+      "message": "Stop treating a green CI rerun as a correct fix: fix-repo now collects targeted, affected-test, regression, coverage, lint and invariant evidence in isolated worktrees, scores diff risk, and derives a remediation state in which VERIFIED_FIXED requires complete evidence plus a real CI run on the applied change; CI green without that evidence is reported as CI_GREEN_BUT_UNVERIFIED. fix-repo-apply refuses rejected, regressing or not-fixed candidates, fix-repo-verify-ci records real CI results through a provider interface (GitHub Actions adapter tested against recorded responses, not live), and fix-repo-metrics reports the verified repair rate.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>",
+      "url": "https://github.com/Kozphy/ci-failure-orchestrator/commit/5ffc40244827f7d42c99e6c3ff642e8945858c71"
+    },
+    {
+      "sha": "7f507029bc8931ef14c0a0b42aad62a95b6322a2",
+      "message": "Reject repairs that turn CI green by weakening verification: a deterministic diff analyser feeds a new hard-reject rule (POL-018) for deleted, skipped or deselected tests, removed or weakened assertions, lowered coverage, CI steps removed or allowed to fail, disabled checks, swallowed exceptions and test-runner detection, and an escalation rule (POL-019) for changed test expectations and inline suppressions. Policy decisions now record a policy_version. An end-to-end fix-repo test shows a test-deleting patch that the previous gate approved is now rejected while a real code fix is still approved.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>",
+      "url": "https://github.com/Kozphy/ci-failure-orchestrator/commit/7f507029bc8931ef14c0a0b42aad62a95b6322a2"
+    }
+  ],
+  "ci_query": "https://api.github.com/repos/Kozphy/ci-failure-orchestrator/actions/runs?head_sha=69ba500f53a4f492c876dd26636b9222d7e140ce&per_page=100",
+  "ci_total": 19,
+  "workflow_runs": [
+    {
+      "id": 41185520810,
+      "name": "CI Doctor",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "skipped",
+      "event": "workflow_run",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41185520810"
+    },
+    {
+      "id": 41185163410,
+      "name": "CI Doctor",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "skipped",
+      "event": "workflow_run",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41185163410"
+    },
+    {
+      "id": 41179971255,
+      "name": "CI Doctor",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "skipped",
+      "event": "workflow_run",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41179971255"
+    },
+    {
+      "id": 41179958689,
+      "name": "CI Doctor",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "skipped",
+      "event": "workflow_run",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41179958689"
+    },
+    {
+      "id": 41179938202,
+      "name": "CI Doctor",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "skipped",
+      "event": "workflow_run",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41179938202"
+    },
+    {
+      "id": 41179836447,
+      "name": "provider-contract",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41179836447"
+    },
+    {
+      "id": 41179836459,
+      "name": "repair-execution",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41179836459"
+    },
+    {
+      "id": 41179836420,
+      "name": "ci",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41179836420"
+    },
+    {
+      "id": 41015421761,
+      "name": "CI Doctor",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "workflow_run",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41015421761"
+    },
+    {
+      "id": 41015237247,
+      "name": "CI Doctor",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "skipped",
+      "event": "workflow_run",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41015237247"
+    },
+    {
+      "id": 41015114837,
+      "name": "provider-contract",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41015114837"
+    },
+    {
+      "id": 41015114901,
+      "name": "patch-sandbox",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41015114901"
+    },
+    {
+      "id": 41015114865,
+      "name": "repair-benchmark",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41015114865"
+    },
+    {
+      "id": 41015114877,
+      "name": "repair-execution",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41015114877"
+    },
+    {
+      "id": 41015114894,
+      "name": "ct",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41015114894"
+    },
+    {
+      "id": 41015114935,
+      "name": "promotion",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41015114935"
+    },
+    {
+      "id": 41015114891,
+      "name": "security",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41015114891"
+    },
+    {
+      "id": 41015114871,
+      "name": "ci",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41015114871"
+    },
+    {
+      "id": 41015114884,
+      "name": "Production Proof",
+      "head_sha": "69ba500f53a4f492c876dd26636b9222d7e140ce",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41015114884"
+    }
+  ],
+  "base_ci_jobs": [
+    {
+      "id": 124474809343,
+      "name": "server-postgres",
+      "conclusion": "success",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41179836420/job/124474809343",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Initialize containers",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python -m pip install -e '.[dev,server]'",
+          "conclusion": "success"
+        },
+        {
+          "name": "Store contract, API and worker tests (SQLite + PostgreSQL)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Stop containers",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 124474809529,
+      "name": "server-image",
+      "conclusion": "success",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41179836420/job/124474809529",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Compose smoke test",
+          "conclusion": "success"
+        },
+        {
+          "name": "Compose logs",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 124474809543,
+      "name": "test",
+      "conclusion": "success",
+      "html_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41179836420/job/124474809543",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python -m pip install -e '.[dev,server]'",
+          "conclusion": "success"
+        },
+        {
+          "name": "Trust control-plane lint",
+          "conclusion": "success"
+        },
+        {
+          "name": "Canonical public docstrings",
+          "conclusion": "success"
+        },
+        {
+          "name": "Trust control-plane type check",
+          "conclusion": "success"
+        },
+        {
+          "name": "Trust control-plane integration tests",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests with coverage",
+          "conclusion": "success"
+        },
+        {
+          "name": "Emit test evidence fragment",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload CI DoD evidence",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload coverage to Codecov",
+          "conclusion": "success"
+        },
+        {
+          "name": "Orchestrator smoke test",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload audit evidence",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}

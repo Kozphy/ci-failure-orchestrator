@@ -1,0 +1,32 @@
+
+STDERR:
+test_audit_mutation_reorder_and_truncation_detected_against_tip (test_edas_reference.EDASAdversarialTests.test_audit_mutation_reorder_and_truncation_detected_against_tip) ... ok
+test_authored_evaluation_cases (test_edas_reference.EDASAdversarialTests.test_authored_evaluation_cases) ... ok
+test_authority_label_does_not_replace_independent_sources (test_edas_reference.EDASAdversarialTests.test_authority_label_does_not_replace_independent_sources) ... ok
+test_bayesian_example_and_impossible_observation (test_edas_reference.EDASAdversarialTests.test_bayesian_example_and_impossible_observation) ... ok
+test_bounded_exhaustive_ready_requires_all_controls (test_edas_reference.EDASAdversarialTests.test_bounded_exhaustive_ready_requires_all_controls) ... ok
+test_confirmation_bias_requires_alternatives_and_falsifier (test_edas_reference.EDASAdversarialTests.test_confirmation_bias_requires_alternatives_and_falsifier) ... ok
+test_contradiction_requires_review (test_edas_reference.EDASAdversarialTests.test_contradiction_requires_review) ... ok
+test_correlated_copies_count_as_one_group (test_edas_reference.EDASAdversarialTests.test_correlated_copies_count_as_one_group) ... ok
+test_deadline_boundary_and_missing_evidence_never_pass (test_edas_reference.EDASAdversarialTests.test_deadline_boundary_and_missing_evidence_never_pass) ... ok
+test_evidence_tampering_detected (test_edas_reference.EDASAdversarialTests.test_evidence_tampering_detected) ... ok
+test_excessive_cost_defers_without_spending (test_edas_reference.EDASAdversarialTests.test_excessive_cost_defers_without_spending) ... ok
+test_extreme_and_nonfinite_probability_inputs_rejected (test_edas_reference.EDASAdversarialTests.test_extreme_and_nonfinite_probability_inputs_rejected) ... ok
+test_fabricated_unattested_evidence_does_not_qualify (test_edas_reference.EDASAdversarialTests.test_fabricated_unattested_evidence_does_not_qualify) ... ok
+test_high_stakes_accusation_never_automatically_authorized (test_edas_reference.EDASAdversarialTests.test_high_stakes_accusation_never_automatically_authorized) ... ok
+test_immediate_safety_action_does_not_require_proof (test_edas_reference.EDASAdversarialTests.test_immediate_safety_action_does_not_require_proof) ... ok
+test_low_risk_positive_control_avoids_unnecessary_escalation (test_edas_reference.EDASAdversarialTests.test_low_risk_positive_control_avoids_unnecessary_escalation) ... ok
+test_missing_evidence_is_unknown_not_wrongdoing (test_edas_reference.EDASAdversarialTests.test_missing_evidence_is_unknown_not_wrongdoing) ... ok
+test_new_contradiction_invalidates_decision (test_edas_reference.EDASAdversarialTests.test_new_contradiction_invalidates_decision) ... ok
+test_non_synthetic_and_secret_shaped_payloads_refused (test_edas_reference.EDASAdversarialTests.test_non_synthetic_and_secret_shaped_payloads_refused) ... ok
+test_public_audit_contains_no_claim_or_payload_text (test_edas_reference.EDASAdversarialTests.test_public_audit_contains_no_claim_or_payload_text) ... ok
+test_rejected_mutations_do_not_append_audit_or_change_revision (test_edas_reference.EDASAdversarialTests.test_rejected_mutations_do_not_append_audit_or_change_revision) ... ok
+test_retry_exhaustion_defers (test_edas_reference.EDASAdversarialTests.test_retry_exhaustion_defers) ... ok
+test_stale_future_and_backward_clock_inputs_refused (test_edas_reference.EDASAdversarialTests.test_stale_future_and_backward_clock_inputs_refused) ... ok
+test_stale_or_self_approval_refused (test_edas_reference.EDASAdversarialTests.test_stale_or_self_approval_refused) ... ok
+test_unsupported_likelihood_provenance_rejected (test_edas_reference.EDASAdversarialTests.test_unsupported_likelihood_provenance_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.011s
+
+OK

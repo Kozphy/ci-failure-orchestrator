@@ -226,7 +226,7 @@ class RemediationDecision:
 
 
 def _policy_satisfied(v: VerificationResult) -> bool:
-    return v.policy_outcome == "APPROVE" or v.human_approved
+    return v.policy_outcome != "REJECT" and (v.policy_outcome == "APPROVE" or v.human_approved)
 
 
 def _risk_satisfied(v: VerificationResult) -> bool:
@@ -246,7 +246,7 @@ def is_verified_fix(v: VerificationResult) -> bool:
         v.regression_suite.satisfied,
         not v.new_test_failures,
         v.test_count_decreased is False,
-        v.skipped_tests_increased is not True,
+        v.skipped_tests_increased is False,
         v.coverage.satisfied,
         v.lint.satisfied,
         v.typecheck.satisfied,
@@ -254,6 +254,7 @@ def is_verified_fix(v: VerificationResult) -> bool:
         v.build.satisfied,
         v.behavioral_invariants.satisfied,
         not v.forbidden_diff_detected,
+        not v.forbidden_diff_codes,
         _policy_satisfied(v),
         _risk_satisfied(v),
         v.real_ci_passed is True,
@@ -272,6 +273,8 @@ def missing_evidence(v: VerificationResult) -> tuple[str, ...]:
         missing.append("targeted_test_passed")
     if v.test_count_decreased is None:
         missing.append("test_count_comparison")
+    if v.skipped_tests_increased is None:
+        missing.append("skipped_test_comparison")
     for gate in _GATES:
         status: GateStatus = getattr(v, gate)
         if status in (GateStatus.NOT_RUN, GateStatus.FAILED_PREEXISTING):

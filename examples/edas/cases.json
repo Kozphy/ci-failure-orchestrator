@@ -1,0 +1,19 @@
+[
+  {"id":"positive_control","groups":["g1","g2"],"expected":"PROCEED_REVERSIBLY"},
+  {"id":"missing","groups":[],"expected":"INVESTIGATE"},
+  {"id":"single_source","groups":["g1"],"expected":"INVESTIGATE"},
+  {"id":"correlated_copies","groups":["g1","g1","g1"],"expected":"INVESTIGATE"},
+  {"id":"unattested","groups":["g1","g2"],"attested":false,"expected":"INVESTIGATE"},
+  {"id":"contradictory","groups":["g1","g2"],"stance":"contradicts","expected":"REVIEW"},
+  {"id":"neutral_only","groups":["g1","g2"],"stance":"neutral","expected":"INVESTIGATE"},
+  {"id":"high_severity","groups":["g1","g2"],"risk":{"severe":true},"expected":"REVIEW"},
+  {"id":"irreversible","groups":["g1","g2"],"risk":{"reversible":false},"expected":"REVIEW"},
+  {"id":"immediate_hazard","groups":[],"risk":{"immediate_hazard":true},"expected":"PROTECT"},
+  {"id":"deadline","groups":["g1","g2"],"now":100,"expected":"DEFER"},
+  {"id":"cost_limit","groups":["g1","g2"],"cost":6,"expected":"DEFER"},
+  {"id":"freshness_boundary","groups":["g1","g2"],"now":21,"expected":"PROCEED_REVERSIBLY"},
+  {"id":"stale","groups":["g1","g2"],"now":22,"expected":"INVESTIGATE"},
+  {"id":"future_dated","groups":["g1","g2"],"captured_at":20,"expected":"INVESTIGATE"},
+  {"id":"retry_exhaustion","groups":[],"prior_evaluations":3,"expected":"DEFER"},
+  {"id":"safety_after_deadline","groups":[],"now":100,"risk":{"immediate_hazard":true},"expected":"PROTECT"}
+]

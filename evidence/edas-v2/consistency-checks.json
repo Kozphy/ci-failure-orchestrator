@@ -1,0 +1,19 @@
+{
+  "checks": [
+    "baseline output hashes match",
+    "final output hashes match",
+    "reviewed output hashes match",
+    "reviewed production/example/test Python source hashes match current files",
+    "AST parse: 6 new Python files",
+    "workflow YAML parses; runtime not verified",
+    "all EDAS report relative Markdown links resolve",
+    "git diff --check passes"
+  ],
+  "note": "Supplementary consistency checks, not full-suite testing or independent verification.",
+  "staged_source_doc_diff_check_exit": 0,
+  "staged_full_diff_check": {
+    "exit_code": 2,
+    "output": "evidence/edas-v2/baseline/canonical-adversarial.txt:4: trailing whitespace.\n+test_evaluator_fails_on_each_explicit_failed_check (test_assurance_regressions.AssuranceRegressions.test_evaluator_fails_on_each_explicit_failed_check) ... \n",
+    "note": "One trailing space in raw baseline unittest output is preserved rather than editing captured evidence."
+  }
+}

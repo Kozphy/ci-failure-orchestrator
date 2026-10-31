@@ -1,0 +1,18 @@
+
+STDERR:
+test_any_missing_gate_blocks_verified_outcome (test_assurance_regressions.AssuranceRegressions.test_any_missing_gate_blocks_verified_outcome) ... ok
+test_evaluator_fails_on_each_explicit_failed_check (test_assurance_regressions.AssuranceRegressions.test_evaluator_fails_on_each_explicit_failed_check) ... ok
+test_forbidden_codes_and_flag_cannot_disagree_into_success (test_assurance_regressions.AssuranceRegressions.test_forbidden_codes_and_flag_cannot_disagree_into_success) ... ok
+test_forbidden_patch_paths_and_symlinks (test_assurance_regressions.AssuranceRegressions.test_forbidden_patch_paths_and_symlinks) ... ok
+test_green_ci_does_not_replace_missing_baseline (test_assurance_regressions.AssuranceRegressions.test_green_ci_does_not_replace_missing_baseline) ... ok
+test_human_approval_cannot_override_policy_rejection (test_assurance_regressions.AssuranceRegressions.test_human_approval_cannot_override_policy_rejection) ... ok
+test_positive_control_is_verified (test_assurance_regressions.AssuranceRegressions.test_positive_control_is_verified) ... ok
+test_retry_budget_exhaustion_stops (test_assurance_regressions.AssuranceRegressions.test_retry_budget_exhaustion_stops) ... ok
+test_terminal_state_cannot_resume_automation (test_assurance_regressions.AssuranceRegressions.test_terminal_state_cannot_resume_automation) ... ok
+test_timeout_and_missing_target_fail_closed (test_assurance_regressions.AssuranceRegressions.test_timeout_and_missing_target_fail_closed) ... ok
+test_unknown_skip_comparison_never_verifies (test_assurance_regressions.AssuranceRegressions.test_unknown_skip_comparison_never_verifies) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.001s
+
+OK

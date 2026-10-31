@@ -139,6 +139,7 @@ class LocalEvaluator:
             and not sandbox.timeout
             and (target is None or target.success)
             and sandbox.error is None
+            and not any(check.status is CheckStatus.FAILED for check in checks)
         )
         # If target was NOT_RUN but patch applied and no forbidden — still fail closed on missing target when plan required it
         if target is None:

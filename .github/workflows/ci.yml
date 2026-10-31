@@ -44,6 +44,18 @@ jobs:
         run: python -m pytest tests/test_trust_gateway.py tests/test_trust_policy.py tests/test_network_discovery.py
       - name: Tests with coverage
         run: python -m pytest --cov=ci_failure_orchestrator --cov-report=term-missing --cov-report=xml
+      - name: Assurance adversarial tests and synthetic EDAS evidence
+        run: |
+          python -m unittest discover -s tests -p test_assurance_regressions.py -v
+          python -m unittest discover -s tests -p test_edas_reference.py -v
+          mkdir -p artifacts/edas
+          python -m examples.edas.evaluate > artifacts/edas/evaluation.json
+      - name: Upload synthetic EDAS evaluation
+        uses: actions/upload-artifact@v7
+        with:
+          name: edas-synthetic-evaluation
+          path: artifacts/edas/evaluation.json
+          if-no-files-found: error
       - name: Emit test evidence fragment
         run: |
           mkdir -p artifacts/dod

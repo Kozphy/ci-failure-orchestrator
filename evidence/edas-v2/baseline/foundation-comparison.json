@@ -1,0 +1,230 @@
+[
+  {
+    "case_id": "BENCH-AUDIT-001",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-001",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-002",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-003",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-004",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-005",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-006",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-007",
+    "label": "NEW_CASE",
+    "baseline_passed": null,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-008",
+    "label": "NEW_CASE",
+    "baseline_passed": null,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-009",
+    "label": "NEW_CASE",
+    "baseline_passed": null,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-010",
+    "label": "NEW_CASE",
+    "baseline_passed": null,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-011",
+    "label": "NEW_CASE",
+    "baseline_passed": null,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-012",
+    "label": "NEW_CASE",
+    "baseline_passed": null,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-013",
+    "label": "NEW_CASE",
+    "baseline_passed": null,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-014",
+    "label": "NEW_CASE",
+    "baseline_passed": null,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-015",
+    "label": "NEW_CASE",
+    "baseline_passed": null,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-CLASS-016",
+    "label": "NEW_CASE",
+    "baseline_passed": null,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-ESC-001",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-POLICY-001",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-POLICY-002",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-POLICY-003",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-POLICY-004",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-POLICY-005",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-POLICY-006",
+    "label": "NEW_CASE",
+    "baseline_passed": null,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-POLICY-007",
+    "label": "NEW_CASE",
+    "baseline_passed": null,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-RECOVERY-001",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-RECOVERY-002",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-RECOVERY-003",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-REPAIR-001",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-RETRY-001",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-RETRY-002",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-RETRY-003",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-RETRY-004",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-RETRY-005",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-SEC-001",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-SEC-002",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-SEC-003",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  },
+  {
+    "case_id": "BENCH-SEC-004",
+    "label": "UNCHANGED_PASS",
+    "baseline_passed": true,
+    "current_passed": true
+  }
+]

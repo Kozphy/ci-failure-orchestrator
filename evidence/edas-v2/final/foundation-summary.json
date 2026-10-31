@@ -1,0 +1,2659 @@
+{
+  "benchmark_schema_version": "foundation.benchmark.v1",
+  "suite_version": "1.0.0",
+  "suite_run_id": "bench-20261031T154708Z-520e7ed1",
+  "synthetic": true,
+  "model_cost": "NOT_APPLICABLE",
+  "cases": 38,
+  "passed": 38,
+  "failed": 0,
+  "required_passed": 37,
+  "required_total": 37,
+  "optional_passed": 1,
+  "optional_total": 1,
+  "metrics": {
+    "metrics": {
+      "case_pass_rate": {
+        "name": "case_pass_rate",
+        "numerator": 38,
+        "denominator": 38,
+        "value": 1.0,
+        "display": "38/38"
+      },
+      "required_pass_rate": {
+        "name": "required_pass_rate",
+        "numerator": 37,
+        "denominator": 37,
+        "value": 1.0,
+        "display": "37/37"
+      },
+      "classification_accuracy": {
+        "name": "classification_accuracy",
+        "numerator": 17,
+        "denominator": 17,
+        "value": 1.0,
+        "display": "17/17"
+      },
+      "repair_success_rate": {
+        "name": "repair_success_rate",
+        "numerator": 7,
+        "denominator": 7,
+        "value": 1.0,
+        "display": "7/7"
+      },
+      "retry_rate": {
+        "name": "retry_rate",
+        "numerator": 5,
+        "denominator": 5,
+        "value": 1.0,
+        "display": "5/5"
+      },
+      "mean_attempts": {
+        "name": "mean_attempts",
+        "numerator": 23,
+        "denominator": 17,
+        "value": 1.3529411764705883,
+        "display": "23/17"
+      },
+      "policy_outcome_accuracy": {
+        "name": "policy_outcome_accuracy",
+        "numerator": 9,
+        "denominator": 9,
+        "value": 1.0,
+        "display": "9/9"
+      },
+      "security_control_success_rate": {
+        "name": "security_control_success_rate",
+        "numerator": 8,
+        "denominator": 8,
+        "value": 1.0,
+        "display": "8/8"
+      },
+      "escalation_accuracy": {
+        "name": "escalation_accuracy",
+        "numerator": 7,
+        "denominator": 7,
+        "value": 1.0,
+        "display": "7/7"
+      },
+      "audit_completeness_rate": {
+        "name": "audit_completeness_rate",
+        "numerator": 5,
+        "denominator": 5,
+        "value": 1.0,
+        "display": "5/5"
+      },
+      "false_remediation_count": {
+        "name": "false_remediation_count",
+        "numerator": 0,
+        "denominator": 38,
+        "value": 0.0,
+        "display": "0/38"
+      }
+    },
+    "policy_confusion": {
+      "expected ESCALATE \u2192 actual ESCALATE": 6,
+      "expected APPROVE \u2192 actual APPROVE": 3
+    },
+    "classification_confusion": {
+      "expected test_failure \u2192 actual test_failure": 3,
+      "expected build_failure \u2192 actual build_failure": 1,
+      "expected dependency_failure \u2192 actual dependency_failure": 4,
+      "expected type_failure \u2192 actual type_failure": 1,
+      "expected network_failure \u2192 actual network_failure": 2,
+      "expected unknown \u2192 actual unknown": 1,
+      "expected lint_failure \u2192 actual lint_failure": 1,
+      "expected security_scan_failure \u2192 actual security_scan_failure": 1,
+      "expected timeout_failure \u2192 actual timeout_failure": 1,
+      "expected environment_failure \u2192 actual environment_failure": 1,
+      "expected configuration_failure \u2192 actual configuration_failure": 1
+    },
+    "failure_taxonomy_coverage": {
+      "test_failure": 17,
+      "build_failure": 1,
+      "dependency_failure": 4,
+      "type_failure": 1,
+      "network_failure": 2,
+      "unknown": 1,
+      "lint_failure": 1,
+      "security_scan_failure": 2,
+      "timeout_failure": 2,
+      "environment_failure": 1,
+      "configuration_failure": 1
+    },
+    "policy_outcome_coverage": {
+      "APPROVE": 7,
+      "ESCALATE": 6
+    },
+    "retry_stop_reason_counts": {
+      "SUCCESS": 13,
+      "SECURITY_BOUNDARY_HIT": 1,
+      "IDENTICAL_PROPOSAL_REPEATED": 1,
+      "NO_PROGRESS": 1,
+      "MAX_ATTEMPTS_EXHAUSTED": 1
+    },
+    "timing": {
+      "note": "local benchmark timing only \u2014 not production latency",
+      "suite_duration_ms": 164.52600796037586,
+      "mean_case_duration_ms": 4.329631788430944,
+      "model_cost": "NOT_APPLICABLE"
+    }
+  },
+  "case_results": [
+    {
+      "case_id": "BENCH-AUDIT-001",
+      "passed": true,
+      "duration_ms": 9.155159998044837,
+      "assertions": [
+        {
+          "name": "audit_completeness",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": ""
+        },
+        {
+          "name": "artifacts_exist",
+          "passed": true,
+          "expected": [
+            "state.json",
+            "events.jsonl"
+          ],
+          "actual": [
+            "state.json",
+            "events.jsonl",
+            "events_nonempty"
+          ],
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 9.155159998044837
+      },
+      "run_id": "run-9b5e37b40700",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "AUDIT",
+      "tags": [
+        "audit"
+      ],
+      "observed": {
+        "run_id": "run-9b5e37b40700",
+        "classification": "test_failure",
+        "technical_status": "PASS",
+        "attempts": 1,
+        "retries": 0,
+        "stop_reason": "SUCCESS",
+        "policy_outcome": "APPROVE",
+        "workflow_status": "APPROVED",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "audit",
+        "repairable"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-001",
+      "passed": true,
+      "duration_ms": 0.14530900079989806,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "test_failure",
+          "actual": "test_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.14530900079989806
+      },
+      "run_id": "run-2e92d345fadd",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "test"
+      ],
+      "observed": {
+        "run_id": "run-2e92d345fadd",
+        "classification": "test_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-002",
+      "passed": true,
+      "duration_ms": 0.08194299880415201,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "build_failure",
+          "actual": "build_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.08194299880415201
+      },
+      "run_id": "run-33150f3c1b2d",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "build"
+      ],
+      "observed": {
+        "run_id": "run-33150f3c1b2d",
+        "classification": "build_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-003",
+      "passed": true,
+      "duration_ms": 0.0739009992685169,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "dependency_failure",
+          "actual": "dependency_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.0739009992685169
+      },
+      "run_id": "run-c3e6f69589d2",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "dependency"
+      ],
+      "observed": {
+        "run_id": "run-c3e6f69589d2",
+        "classification": "dependency_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-004",
+      "passed": true,
+      "duration_ms": 0.07764700421830639,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "type_failure",
+          "actual": "type_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.07764700421830639
+      },
+      "run_id": "run-0ac7fe8c3723",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "type"
+      ],
+      "observed": {
+        "run_id": "run-0ac7fe8c3723",
+        "classification": "type_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-005",
+      "passed": true,
+      "duration_ms": 0.07268899935297668,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "network_failure",
+          "actual": "network_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.07268899935297668
+      },
+      "run_id": "run-d073acdd3cfc",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "network"
+      ],
+      "observed": {
+        "run_id": "run-d073acdd3cfc",
+        "classification": "network_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-006",
+      "passed": true,
+      "duration_ms": 0.08697000157553703,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "unknown",
+          "actual": "unknown",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.08697000157553703
+      },
+      "run_id": "run-60f936f94128",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "unknown"
+      ],
+      "observed": {
+        "run_id": "run-60f936f94128",
+        "classification": "unknown",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-007",
+      "passed": true,
+      "duration_ms": 0.14939399989088997,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "lint_failure",
+          "actual": "lint_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.14939399989088997
+      },
+      "run_id": "run-77ff6a1dd500",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "lint",
+        "quoted_source"
+      ],
+      "observed": {
+        "run_id": "run-77ff6a1dd500",
+        "classification": "lint_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-008",
+      "passed": true,
+      "duration_ms": 0.11587399785639718,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "dependency_failure",
+          "actual": "dependency_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.11587399785639718
+      },
+      "run_id": "run-14c1f296ec7f",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "dependency",
+        "guard"
+      ],
+      "observed": {
+        "run_id": "run-14c1f296ec7f",
+        "classification": "dependency_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-009",
+      "passed": true,
+      "duration_ms": 0.10790299711516127,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "dependency_failure",
+          "actual": "dependency_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.10790299711516127
+      },
+      "run_id": "run-f990515c1327",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "dependency",
+        "guard"
+      ],
+      "observed": {
+        "run_id": "run-f990515c1327",
+        "classification": "dependency_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-010",
+      "passed": true,
+      "duration_ms": 0.1279219941352494,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "security_scan_failure",
+          "actual": "security_scan_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.1279219941352494
+      },
+      "run_id": "run-32c093bf26df",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "security_scan"
+      ],
+      "observed": {
+        "run_id": "run-32c093bf26df",
+        "classification": "security_scan_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-011",
+      "passed": true,
+      "duration_ms": 0.06857299740659073,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "test_failure",
+          "actual": "test_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.06857299740659073
+      },
+      "run_id": "run-bf72f9d54eec",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "test",
+        "guard"
+      ],
+      "observed": {
+        "run_id": "run-bf72f9d54eec",
+        "classification": "test_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-012",
+      "passed": true,
+      "duration_ms": 0.10199399548582733,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "timeout_failure",
+          "actual": "timeout_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.10199399548582733
+      },
+      "run_id": "run-c9a53139ebc0",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "timeout"
+      ],
+      "observed": {
+        "run_id": "run-c9a53139ebc0",
+        "classification": "timeout_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-013",
+      "passed": true,
+      "duration_ms": 0.08965499728219584,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "environment_failure",
+          "actual": "environment_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.08965499728219584
+      },
+      "run_id": "run-8ee9bf872f97",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "environment"
+      ],
+      "observed": {
+        "run_id": "run-8ee9bf872f97",
+        "classification": "environment_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-014",
+      "passed": true,
+      "duration_ms": 0.09189800039166585,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "configuration_failure",
+          "actual": "configuration_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.09189800039166585
+      },
+      "run_id": "run-9ea0d9f6a040",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "configuration"
+      ],
+      "observed": {
+        "run_id": "run-9ea0d9f6a040",
+        "classification": "configuration_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-015",
+      "passed": true,
+      "duration_ms": 0.08068199531408027,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "network_failure",
+          "actual": "network_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.08068199531408027
+      },
+      "run_id": "run-7b89c80d82ad",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "network"
+      ],
+      "observed": {
+        "run_id": "run-7b89c80d82ad",
+        "classification": "network_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-CLASS-016",
+      "passed": true,
+      "duration_ms": 0.09223800589097664,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "dependency_failure",
+          "actual": "dependency_failure",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.09223800589097664
+      },
+      "run_id": "run-47510c6a1120",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "CLASSIFICATION",
+      "tags": [
+        "classification",
+        "dependency",
+        "drift"
+      ],
+      "observed": {
+        "run_id": "run-47510c6a1120",
+        "classification": "dependency_failure",
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification"
+      ]
+    },
+    {
+      "case_id": "BENCH-ESC-001",
+      "passed": true,
+      "duration_ms": 7.938702001411002,
+      "assertions": [
+        {
+          "name": "policy_outcome",
+          "passed": true,
+          "expected": "ESCALATE",
+          "actual": "ESCALATE",
+          "detail": ""
+        },
+        {
+          "name": "workflow_status",
+          "passed": true,
+          "expected": "AWAITING_HUMAN",
+          "actual": "AWAITING_HUMAN",
+          "detail": ""
+        },
+        {
+          "name": "escalation_required",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": ""
+        },
+        {
+          "name": "escalation_fields",
+          "passed": true,
+          "expected": [
+            "reason",
+            "affected_files",
+            "evaluation_summary",
+            "policy_summary",
+            "retry_summary",
+            "unresolved_questions",
+            "review_checklist",
+            "evidence_references"
+          ],
+          "actual": [
+            "reason_codes",
+            "affected_files",
+            "evaluation_summary",
+            "policy_summary",
+            "attempt_summary",
+            "unresolved_questions",
+            "reviewer_checklist",
+            "evidence_refs"
+          ],
+          "detail": ""
+        },
+        {
+          "name": "artifacts_exist",
+          "passed": true,
+          "expected": [
+            "summary.md"
+          ],
+          "actual": [
+            "state.json",
+            "events.jsonl",
+            "events_nonempty",
+            "summary.md",
+            "summary.json"
+          ],
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 7.938702001411002
+      },
+      "run_id": "run-430f342fca6f",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "ESCALATION",
+      "tags": [
+        "escalation",
+        "policy"
+      ],
+      "observed": {
+        "run_id": "run-430f342fca6f",
+        "classification": "test_failure",
+        "technical_status": "PASS",
+        "attempts": 1,
+        "retries": 0,
+        "stop_reason": "SUCCESS",
+        "policy_outcome": "ESCALATE",
+        "workflow_status": "AWAITING_HUMAN",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [
+          "sensitive_path_contained"
+        ],
+        "escalation_present": true,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "escalation",
+        "policy"
+      ]
+    },
+    {
+      "case_id": "BENCH-POLICY-001",
+      "passed": true,
+      "duration_ms": 7.433042002958246,
+      "assertions": [
+        {
+          "name": "technical_status",
+          "passed": true,
+          "expected": "PASS",
+          "actual": "PASS",
+          "detail": ""
+        },
+        {
+          "name": "policy_outcome",
+          "passed": true,
+          "expected": "APPROVE",
+          "actual": "APPROVE",
+          "detail": ""
+        },
+        {
+          "name": "workflow_status",
+          "passed": true,
+          "expected": "APPROVED",
+          "actual": "APPROVED",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 7.433042002958246
+      },
+      "run_id": "run-d1414f9c9e47",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "POLICY",
+      "tags": [
+        "policy",
+        "approve"
+      ],
+      "observed": {
+        "run_id": "run-d1414f9c9e47",
+        "classification": "test_failure",
+        "technical_status": "PASS",
+        "attempts": 1,
+        "retries": 0,
+        "stop_reason": "SUCCESS",
+        "policy_outcome": "APPROVE",
+        "workflow_status": "APPROVED",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "policy",
+        "repairable"
+      ]
+    },
+    {
+      "case_id": "BENCH-POLICY-002",
+      "passed": true,
+      "duration_ms": 7.901254997705109,
+      "assertions": [
+        {
+          "name": "technical_status",
+          "passed": true,
+          "expected": "PASS",
+          "actual": "PASS",
+          "detail": ""
+        },
+        {
+          "name": "policy_outcome",
+          "passed": true,
+          "expected": "ESCALATE",
+          "actual": "ESCALATE",
+          "detail": ""
+        },
+        {
+          "name": "workflow_status",
+          "passed": true,
+          "expected": "AWAITING_HUMAN",
+          "actual": "AWAITING_HUMAN",
+          "detail": ""
+        },
+        {
+          "name": "escalation_required",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 7.901254997705109
+      },
+      "run_id": "run-d081b0c0dd0d",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "POLICY",
+      "tags": [
+        "policy",
+        "escalation",
+        "auth"
+      ],
+      "observed": {
+        "run_id": "run-d081b0c0dd0d",
+        "classification": "test_failure",
+        "technical_status": "PASS",
+        "attempts": 1,
+        "retries": 0,
+        "stop_reason": "SUCCESS",
+        "policy_outcome": "ESCALATE",
+        "workflow_status": "AWAITING_HUMAN",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [
+          "sensitive_path_contained"
+        ],
+        "escalation_present": true,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "policy",
+        "escalation",
+        "repairable"
+      ]
+    },
+    {
+      "case_id": "BENCH-POLICY-003",
+      "passed": true,
+      "duration_ms": 6.238937996386085,
+      "assertions": [
+        {
+          "name": "technical_status",
+          "passed": true,
+          "expected": "FAIL",
+          "actual": "FAIL",
+          "detail": ""
+        },
+        {
+          "name": "expected_security_signals",
+          "passed": true,
+          "expected": [
+            "forbidden_path_blocked"
+          ],
+          "actual": [
+            "forbidden_path_blocked"
+          ],
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 6.238937996386085
+      },
+      "run_id": "run-08ac8788c1f1",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "POLICY",
+      "tags": [
+        "policy",
+        "security",
+        "forbidden"
+      ],
+      "observed": {
+        "run_id": "run-08ac8788c1f1",
+        "classification": "test_failure",
+        "technical_status": "FAIL",
+        "attempts": 1,
+        "retries": 0,
+        "stop_reason": "SECURITY_BOUNDARY_HIT",
+        "policy_outcome": null,
+        "workflow_status": "FAILED",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [
+          "forbidden_path_blocked"
+        ],
+        "escalation_present": false,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "security"
+      ]
+    },
+    {
+      "case_id": "BENCH-POLICY-004",
+      "passed": true,
+      "duration_ms": 7.871100002375897,
+      "assertions": [
+        {
+          "name": "technical_status",
+          "passed": true,
+          "expected": "PASS",
+          "actual": "PASS",
+          "detail": ""
+        },
+        {
+          "name": "policy_outcome",
+          "passed": true,
+          "expected": "ESCALATE",
+          "actual": "ESCALATE",
+          "detail": ""
+        },
+        {
+          "name": "workflow_status",
+          "passed": true,
+          "expected": "AWAITING_HUMAN",
+          "actual": "AWAITING_HUMAN",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 7.871100002375897
+      },
+      "run_id": "run-692256db45a6",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "POLICY",
+      "tags": [
+        "policy",
+        "ci",
+        "escalation"
+      ],
+      "observed": {
+        "run_id": "run-692256db45a6",
+        "classification": "test_failure",
+        "technical_status": "PASS",
+        "attempts": 1,
+        "retries": 0,
+        "stop_reason": "SUCCESS",
+        "policy_outcome": "ESCALATE",
+        "workflow_status": "AWAITING_HUMAN",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [
+          "sensitive_path_contained"
+        ],
+        "escalation_present": true,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "policy",
+        "escalation",
+        "repairable"
+      ]
+    },
+    {
+      "case_id": "BENCH-POLICY-005",
+      "passed": true,
+      "duration_ms": 7.695157000853214,
+      "assertions": [
+        {
+          "name": "technical_status",
+          "passed": true,
+          "expected": "PASS",
+          "actual": "PASS",
+          "detail": ""
+        },
+        {
+          "name": "policy_outcome",
+          "passed": true,
+          "expected": "ESCALATE",
+          "actual": "ESCALATE",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 7.695157000853214
+      },
+      "run_id": "run-9c6096b2ac2b",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "POLICY",
+      "tags": [
+        "policy",
+        "security",
+        "self_guardrail"
+      ],
+      "observed": {
+        "run_id": "run-9c6096b2ac2b",
+        "classification": "test_failure",
+        "technical_status": "PASS",
+        "attempts": 1,
+        "retries": 0,
+        "stop_reason": "SUCCESS",
+        "policy_outcome": "ESCALATE",
+        "workflow_status": "AWAITING_HUMAN",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [
+          "sensitive_path_contained"
+        ],
+        "escalation_present": true,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "policy",
+        "security",
+        "escalation"
+      ]
+    },
+    {
+      "case_id": "BENCH-POLICY-006",
+      "passed": true,
+      "duration_ms": 7.390598002530169,
+      "assertions": [
+        {
+          "name": "technical_status",
+          "passed": true,
+          "expected": "PASS",
+          "actual": "PASS",
+          "detail": ""
+        },
+        {
+          "name": "policy_outcome",
+          "passed": true,
+          "expected": "ESCALATE",
+          "actual": "ESCALATE",
+          "detail": ""
+        },
+        {
+          "name": "escalation_required",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 7.390598002530169
+      },
+      "run_id": "run-efb215632bb2",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "POLICY",
+      "tags": [
+        "policy",
+        "security_scan",
+        "escalation"
+      ],
+      "observed": {
+        "run_id": "run-efb215632bb2",
+        "classification": "security_scan_failure",
+        "technical_status": "PASS",
+        "attempts": 1,
+        "retries": 0,
+        "stop_reason": "SUCCESS",
+        "policy_outcome": "ESCALATE",
+        "workflow_status": "AWAITING_HUMAN",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader"
+        ],
+        "security_signals": [
+          "secret_redacted"
+        ],
+        "escalation_present": true,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "policy",
+        "security",
+        "escalation"
+      ]
+    },
+    {
+      "case_id": "BENCH-POLICY-007",
+      "passed": true,
+      "duration_ms": 7.5023660028818995,
+      "assertions": [
+        {
+          "name": "technical_status",
+          "passed": true,
+          "expected": "PASS",
+          "actual": "PASS",
+          "detail": ""
+        },
+        {
+          "name": "policy_outcome",
+          "passed": true,
+          "expected": "ESCALATE",
+          "actual": "ESCALATE",
+          "detail": ""
+        },
+        {
+          "name": "escalation_required",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 7.5023660028818995
+      },
+      "run_id": "run-4911a58fd76d",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "POLICY",
+      "tags": [
+        "policy",
+        "timeout",
+        "escalation"
+      ],
+      "observed": {
+        "run_id": "run-4911a58fd76d",
+        "classification": "timeout_failure",
+        "technical_status": "PASS",
+        "attempts": 1,
+        "retries": 0,
+        "stop_reason": "SUCCESS",
+        "policy_outcome": "ESCALATE",
+        "workflow_status": "AWAITING_HUMAN",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader"
+        ],
+        "security_signals": [],
+        "escalation_present": true,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "policy",
+        "escalation"
+      ]
+    },
+    {
+      "case_id": "BENCH-RECOVERY-001",
+      "passed": true,
+      "duration_ms": 0.5590009968727827,
+      "assertions": [
+        {
+          "name": "recovery_status",
+          "passed": true,
+          "expected": "RESUMABLE",
+          "actual": "RESUMABLE",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.5590009968727827
+      },
+      "run_id": "run-2d704f4f9d1a",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "RECOVERY",
+      "tags": [
+        "recovery"
+      ],
+      "observed": {
+        "run_id": "run-2d704f4f9d1a",
+        "classification": null,
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": "CLASSIFIED",
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": true,
+        "recovery_status": "RESUMABLE",
+        "tool_blocked": null
+      },
+      "populations": [
+        "audit"
+      ]
+    },
+    {
+      "case_id": "BENCH-RECOVERY-002",
+      "passed": true,
+      "duration_ms": 0.366891996236518,
+      "assertions": [
+        {
+          "name": "recovery_status",
+          "passed": true,
+          "expected": "REQUIRES_REVIEW",
+          "actual": "REQUIRES_REVIEW",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.366891996236518
+      },
+      "run_id": "run-d848f288bf26",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "RECOVERY",
+      "tags": [
+        "recovery",
+        "safety"
+      ],
+      "observed": {
+        "run_id": "run-d848f288bf26",
+        "classification": null,
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": "SANDBOX_RUNNING",
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": true,
+        "recovery_status": "REQUIRES_REVIEW",
+        "tool_blocked": null
+      },
+      "populations": [
+        "security",
+        "audit"
+      ]
+    },
+    {
+      "case_id": "BENCH-RECOVERY-003",
+      "passed": true,
+      "duration_ms": 0.4676929966080934,
+      "assertions": [
+        {
+          "name": "recovery_status",
+          "passed": true,
+          "expected": "TERMINAL",
+          "actual": "TERMINAL",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.4676929966080934
+      },
+      "run_id": "run-9b6b399d50c7",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "RECOVERY",
+      "tags": [
+        "recovery",
+        "escalation"
+      ],
+      "observed": {
+        "run_id": "run-9b6b399d50c7",
+        "classification": null,
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": "AWAITING_HUMAN",
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": true,
+        "recovery_status": "TERMINAL",
+        "tool_blocked": null
+      },
+      "populations": [
+        "escalation",
+        "audit"
+      ]
+    },
+    {
+      "case_id": "BENCH-REPAIR-001",
+      "passed": true,
+      "duration_ms": 6.609523996303324,
+      "assertions": [
+        {
+          "name": "classification",
+          "passed": true,
+          "expected": "test_failure",
+          "actual": "test_failure",
+          "detail": ""
+        },
+        {
+          "name": "technical_status",
+          "passed": true,
+          "expected": "PASS",
+          "actual": "PASS",
+          "detail": ""
+        },
+        {
+          "name": "attempts",
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "detail": ""
+        },
+        {
+          "name": "retries",
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "detail": ""
+        },
+        {
+          "name": "stop_reason",
+          "passed": true,
+          "expected": "SUCCESS",
+          "actual": "SUCCESS",
+          "detail": ""
+        },
+        {
+          "name": "policy_outcome",
+          "passed": true,
+          "expected": "APPROVE",
+          "actual": "APPROVE",
+          "detail": ""
+        },
+        {
+          "name": "workflow_status",
+          "passed": true,
+          "expected": "APPROVED",
+          "actual": "APPROVED",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 6.609523996303324
+      },
+      "run_id": "run-aa770be03f02",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "REPAIR",
+      "tags": [
+        "repair",
+        "policy",
+        "end_to_end"
+      ],
+      "observed": {
+        "run_id": "run-aa770be03f02",
+        "classification": "test_failure",
+        "technical_status": "PASS",
+        "attempts": 1,
+        "retries": 0,
+        "stop_reason": "SUCCESS",
+        "policy_outcome": "APPROVE",
+        "workflow_status": "APPROVED",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "classification",
+        "repairable",
+        "policy"
+      ]
+    },
+    {
+      "case_id": "BENCH-RETRY-001",
+      "passed": true,
+      "duration_ms": 13.245578993519302,
+      "assertions": [
+        {
+          "name": "technical_status",
+          "passed": true,
+          "expected": "PASS",
+          "actual": "PASS",
+          "detail": ""
+        },
+        {
+          "name": "attempts",
+          "passed": true,
+          "expected": 2,
+          "actual": 2,
+          "detail": ""
+        },
+        {
+          "name": "retries",
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "detail": ""
+        },
+        {
+          "name": "stop_reason",
+          "passed": true,
+          "expected": "SUCCESS",
+          "actual": "SUCCESS",
+          "detail": ""
+        },
+        {
+          "name": "policy_outcome",
+          "passed": true,
+          "expected": "APPROVE",
+          "actual": "APPROVE",
+          "detail": ""
+        },
+        {
+          "name": "progress_detected",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 13.245578993519302
+      },
+      "run_id": "run-1b513e8b18ad",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "RETRY",
+      "tags": [
+        "retry",
+        "repair"
+      ],
+      "observed": {
+        "run_id": "run-1b513e8b18ad",
+        "classification": "test_failure",
+        "technical_status": "PASS",
+        "attempts": 2,
+        "retries": 1,
+        "stop_reason": "SUCCESS",
+        "policy_outcome": "APPROVE",
+        "workflow_status": "APPROVED",
+        "progress_detected": true,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "repairable",
+        "retry",
+        "policy"
+      ]
+    },
+    {
+      "case_id": "BENCH-RETRY-002",
+      "passed": true,
+      "duration_ms": 14.00785499572521,
+      "assertions": [
+        {
+          "name": "technical_status",
+          "passed": true,
+          "expected": "FAIL",
+          "actual": "FAIL",
+          "detail": ""
+        },
+        {
+          "name": "attempts",
+          "passed": true,
+          "expected": 2,
+          "actual": 2,
+          "detail": ""
+        },
+        {
+          "name": "stop_reason",
+          "passed": true,
+          "expected": "IDENTICAL_PROPOSAL_REPEATED",
+          "actual": "IDENTICAL_PROPOSAL_REPEATED",
+          "detail": ""
+        },
+        {
+          "name": "duplicate_proposal",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 14.00785499572521
+      },
+      "run_id": "run-b85815fa1e29",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "RETRY",
+      "tags": [
+        "retry",
+        "duplicate"
+      ],
+      "observed": {
+        "run_id": "run-b85815fa1e29",
+        "classification": "test_failure",
+        "technical_status": "FAIL",
+        "attempts": 2,
+        "retries": 1,
+        "stop_reason": "IDENTICAL_PROPOSAL_REPEATED",
+        "policy_outcome": null,
+        "workflow_status": "FAILED",
+        "progress_detected": false,
+        "duplicate_proposal": true,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "retry"
+      ]
+    },
+    {
+      "case_id": "BENCH-RETRY-003",
+      "passed": true,
+      "duration_ms": 12.527459999546409,
+      "assertions": [
+        {
+          "name": "technical_status",
+          "passed": true,
+          "expected": "FAIL",
+          "actual": "FAIL",
+          "detail": ""
+        },
+        {
+          "name": "attempts",
+          "passed": true,
+          "expected": 2,
+          "actual": 2,
+          "detail": ""
+        },
+        {
+          "name": "stop_reason",
+          "passed": true,
+          "expected": "NO_PROGRESS",
+          "actual": "NO_PROGRESS",
+          "detail": ""
+        },
+        {
+          "name": "progress_detected",
+          "passed": true,
+          "expected": false,
+          "actual": false,
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 12.527459999546409
+      },
+      "run_id": "run-6a000cc9b0f2",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "RETRY",
+      "tags": [
+        "retry",
+        "no_progress"
+      ],
+      "observed": {
+        "run_id": "run-6a000cc9b0f2",
+        "classification": "test_failure",
+        "technical_status": "FAIL",
+        "attempts": 2,
+        "retries": 1,
+        "stop_reason": "NO_PROGRESS",
+        "policy_outcome": null,
+        "workflow_status": "FAILED",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "retry"
+      ]
+    },
+    {
+      "case_id": "BENCH-RETRY-004",
+      "passed": true,
+      "duration_ms": 19.99847799743293,
+      "assertions": [
+        {
+          "name": "technical_status",
+          "passed": true,
+          "expected": "FAIL",
+          "actual": "FAIL",
+          "detail": ""
+        },
+        {
+          "name": "attempts",
+          "passed": true,
+          "expected": 3,
+          "actual": 3,
+          "detail": ""
+        },
+        {
+          "name": "retries",
+          "passed": true,
+          "expected": 2,
+          "actual": 2,
+          "detail": ""
+        },
+        {
+          "name": "stop_reason",
+          "passed": true,
+          "expected": "MAX_ATTEMPTS_EXHAUSTED",
+          "actual": "MAX_ATTEMPTS_EXHAUSTED",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 19.99847799743293
+      },
+      "run_id": "run-f6b3671a3be8",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "RETRY",
+      "tags": [
+        "retry",
+        "max_attempts"
+      ],
+      "observed": {
+        "run_id": "run-f6b3671a3be8",
+        "classification": "test_failure",
+        "technical_status": "FAIL",
+        "attempts": 3,
+        "retries": 2,
+        "stop_reason": "MAX_ATTEMPTS_EXHAUSTED",
+        "policy_outcome": null,
+        "workflow_status": "FAILED",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "retry"
+      ]
+    },
+    {
+      "case_id": "BENCH-RETRY-005",
+      "passed": true,
+      "duration_ms": 12.47945700015407,
+      "assertions": [
+        {
+          "name": "technical_status",
+          "passed": true,
+          "expected": "PASS",
+          "actual": "PASS",
+          "detail": ""
+        },
+        {
+          "name": "attempts",
+          "passed": true,
+          "expected": 2,
+          "actual": 2,
+          "detail": ""
+        },
+        {
+          "name": "policy_outcome",
+          "passed": true,
+          "expected": "APPROVE",
+          "actual": "APPROVE",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 12.47945700015407
+      },
+      "run_id": "run-2d0cf8f38deb",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": false,
+      "category": "RETRY",
+      "tags": [
+        "retry",
+        "injection"
+      ],
+      "observed": {
+        "run_id": "run-2d0cf8f38deb",
+        "classification": "test_failure",
+        "technical_status": "PASS",
+        "attempts": 2,
+        "retries": 1,
+        "stop_reason": "SUCCESS",
+        "policy_outcome": "APPROVE",
+        "workflow_status": "APPROVED",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [],
+        "escalation_present": false,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "retry",
+        "repairable"
+      ]
+    },
+    {
+      "case_id": "BENCH-SEC-001",
+      "passed": true,
+      "duration_ms": 0.18521799938753247,
+      "assertions": [
+        {
+          "name": "tool_blocked",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": ""
+        },
+        {
+          "name": "expected_security_signals",
+          "passed": true,
+          "expected": [
+            "path_traversal_blocked"
+          ],
+          "actual": [
+            "path_traversal_blocked",
+            "tool_execution_failed"
+          ],
+          "detail": ""
+        },
+        {
+          "name": "outside_path_absent",
+          "passed": true,
+          "expected": "absent",
+          "actual": "absent",
+          "detail": "../outside.txt"
+        },
+        {
+          "name": "no_subprocess",
+          "passed": true,
+          "expected": false,
+          "actual": false,
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.18521799938753247
+      },
+      "run_id": "run-4e11f2f241d4",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "SECURITY",
+      "tags": [
+        "security",
+        "path_traversal"
+      ],
+      "observed": {
+        "run_id": "run-4e11f2f241d4",
+        "classification": null,
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "file_reader"
+        ],
+        "security_signals": [
+          "path_traversal_blocked",
+          "tool_execution_failed"
+        ],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": true
+      },
+      "populations": [
+        "security"
+      ]
+    },
+    {
+      "case_id": "BENCH-SEC-002",
+      "passed": true,
+      "duration_ms": 0.09293900075135753,
+      "assertions": [
+        {
+          "name": "tool_blocked",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": ""
+        },
+        {
+          "name": "expected_security_signals",
+          "passed": true,
+          "expected": [
+            "unknown_tool_blocked"
+          ],
+          "actual": [
+            "unknown_tool_blocked"
+          ],
+          "detail": ""
+        },
+        {
+          "name": "no_subprocess",
+          "passed": true,
+          "expected": false,
+          "actual": false,
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 0.09293900075135753
+      },
+      "run_id": "run-fa6a6a5e7efa",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "SECURITY",
+      "tags": [
+        "security",
+        "unknown_tool"
+      ],
+      "observed": {
+        "run_id": "run-fa6a6a5e7efa",
+        "classification": null,
+        "technical_status": null,
+        "attempts": null,
+        "retries": null,
+        "stop_reason": null,
+        "policy_outcome": null,
+        "workflow_status": null,
+        "progress_detected": null,
+        "duplicate_proposal": null,
+        "tools_used": [],
+        "security_signals": [
+          "unknown_tool_blocked"
+        ],
+        "escalation_present": false,
+        "audit_complete": null,
+        "recovery_status": null,
+        "tool_blocked": true
+      },
+      "populations": [
+        "security"
+      ]
+    },
+    {
+      "case_id": "BENCH-SEC-003",
+      "passed": true,
+      "duration_ms": 6.407249995390885,
+      "assertions": [
+        {
+          "name": "forbidden_tool_names",
+          "passed": true,
+          "expected": "absent:['shell', 'bash', 'evil_shell']",
+          "actual": [
+            "log_reader",
+            "file_reader",
+            "test_runner"
+          ],
+          "detail": ""
+        },
+        {
+          "name": "expected_security_signals",
+          "passed": true,
+          "expected": [
+            "prompt_injection_fixture",
+            "no_unauthorized_tool"
+          ],
+          "actual": [
+            "prompt_injection_fixture",
+            "no_unauthorized_tool"
+          ],
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 6.407249995390885
+      },
+      "run_id": "run-e5afeafca52d",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "SECURITY",
+      "tags": [
+        "security",
+        "prompt_injection"
+      ],
+      "observed": {
+        "run_id": "run-e5afeafca52d",
+        "classification": "test_failure",
+        "technical_status": "PASS",
+        "attempts": 1,
+        "retries": 0,
+        "stop_reason": "SUCCESS",
+        "policy_outcome": "APPROVE",
+        "workflow_status": "APPROVED",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [
+          "prompt_injection_fixture",
+          "no_unauthorized_tool"
+        ],
+        "escalation_present": false,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "security"
+      ]
+    },
+    {
+      "case_id": "BENCH-SEC-004",
+      "passed": true,
+      "duration_ms": 6.8877520025125705,
+      "assertions": [
+        {
+          "name": "secrets_absent",
+          "passed": true,
+          "expected": "absent",
+          "actual": "absent",
+          "detail": ""
+        }
+      ],
+      "metrics": {
+        "duration_ms": 6.8877520025125705
+      },
+      "run_id": "run-25a8b6f35381",
+      "failure_reason": null,
+      "harness_error": null,
+      "required": true,
+      "category": "SECURITY",
+      "tags": [
+        "security",
+        "redaction",
+        "audit"
+      ],
+      "observed": {
+        "run_id": "run-25a8b6f35381",
+        "classification": "test_failure",
+        "technical_status": "PASS",
+        "attempts": 1,
+        "retries": 0,
+        "stop_reason": "SUCCESS",
+        "policy_outcome": "APPROVE",
+        "workflow_status": "APPROVED",
+        "progress_detected": false,
+        "duplicate_proposal": null,
+        "tools_used": [
+          "log_reader",
+          "file_reader",
+          "test_runner"
+        ],
+        "security_signals": [
+          "secret_redacted"
+        ],
+        "escalation_present": false,
+        "audit_complete": true,
+        "recovery_status": null,
+        "tool_blocked": null
+      },
+      "populations": [
+        "security",
+        "audit"
+      ]
+    }
+  ],
+  "comparison": [
+    {
+      "case_id": "BENCH-AUDIT-001",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-001",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-002",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-003",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-004",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-005",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-006",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-007",
+      "label": "NEW_CASE",
+      "baseline_passed": null,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-008",
+      "label": "NEW_CASE",
+      "baseline_passed": null,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-009",
+      "label": "NEW_CASE",
+      "baseline_passed": null,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-010",
+      "label": "NEW_CASE",
+      "baseline_passed": null,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-011",
+      "label": "NEW_CASE",
+      "baseline_passed": null,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-012",
+      "label": "NEW_CASE",
+      "baseline_passed": null,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-013",
+      "label": "NEW_CASE",
+      "baseline_passed": null,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-014",
+      "label": "NEW_CASE",
+      "baseline_passed": null,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-015",
+      "label": "NEW_CASE",
+      "baseline_passed": null,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-CLASS-016",
+      "label": "NEW_CASE",
+      "baseline_passed": null,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-ESC-001",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-POLICY-001",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-POLICY-002",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-POLICY-003",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-POLICY-004",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-POLICY-005",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-POLICY-006",
+      "label": "NEW_CASE",
+      "baseline_passed": null,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-POLICY-007",
+      "label": "NEW_CASE",
+      "baseline_passed": null,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-RECOVERY-001",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-RECOVERY-002",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-RECOVERY-003",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-REPAIR-001",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-RETRY-001",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-RETRY-002",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-RETRY-003",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-RETRY-004",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-RETRY-005",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-SEC-001",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-SEC-002",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-SEC-003",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    },
+    {
+      "case_id": "BENCH-SEC-004",
+      "label": "UNCHANGED_PASS",
+      "baseline_passed": true,
+      "current_passed": true
+    }
+  ]
+}

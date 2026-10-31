@@ -1,0 +1,173 @@
+{
+  "agreement": {
+    "denominator": 17,
+    "numerator": 17
+  },
+  "baseline_unsafe_proceed": {
+    "denominator": 15,
+    "numerator": 15
+  },
+  "case_count": 17,
+  "fixture_sha256": "3b117a890a43dd544e42ea2a3e1ab877f5a459843b04e505d675a397a8cb35d0",
+  "green_only_baseline_agreement": {
+    "denominator": 17,
+    "numerator": 2
+  },
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "provenance": "authored synthetic cases; not an independent or representative sample",
+  "provider_cost": "not applicable: no model or network calls",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "results": [
+    {
+      "agrees": true,
+      "attempts": 1,
+      "case_id": "positive_control",
+      "expected": "PROCEED_REVERSIBLY",
+      "observed": "PROCEED_REVERSIBLY",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 1,
+      "case_id": "missing",
+      "expected": "INVESTIGATE",
+      "observed": "INVESTIGATE",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 1,
+      "case_id": "single_source",
+      "expected": "INVESTIGATE",
+      "observed": "INVESTIGATE",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 1,
+      "case_id": "correlated_copies",
+      "expected": "INVESTIGATE",
+      "observed": "INVESTIGATE",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 1,
+      "case_id": "unattested",
+      "expected": "INVESTIGATE",
+      "observed": "INVESTIGATE",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 1,
+      "case_id": "contradictory",
+      "expected": "REVIEW",
+      "observed": "REVIEW",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 1,
+      "case_id": "neutral_only",
+      "expected": "INVESTIGATE",
+      "observed": "INVESTIGATE",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 1,
+      "case_id": "high_severity",
+      "expected": "REVIEW",
+      "observed": "REVIEW",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 1,
+      "case_id": "irreversible",
+      "expected": "REVIEW",
+      "observed": "REVIEW",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 0,
+      "case_id": "immediate_hazard",
+      "expected": "PROTECT",
+      "observed": "PROTECT",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 0,
+      "case_id": "deadline",
+      "expected": "DEFER",
+      "observed": "DEFER",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 0,
+      "case_id": "cost_limit",
+      "expected": "DEFER",
+      "observed": "DEFER",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 1,
+      "case_id": "freshness_boundary",
+      "expected": "PROCEED_REVERSIBLY",
+      "observed": "PROCEED_REVERSIBLY",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 1,
+      "case_id": "stale",
+      "expected": "INVESTIGATE",
+      "observed": "INVESTIGATE",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 1,
+      "case_id": "future_dated",
+      "expected": "INVESTIGATE",
+      "observed": "INVESTIGATE",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 3,
+      "case_id": "retry_exhaustion",
+      "expected": "DEFER",
+      "observed": "DEFER",
+      "spent_synthetic_units": 0.0
+    },
+    {
+      "agrees": true,
+      "attempts": 0,
+      "case_id": "safety_after_deadline",
+      "expected": "PROTECT",
+      "observed": "PROTECT",
+      "spent_synthetic_units": 0.0
+    }
+  ],
+  "schema_version": "edas-evaluation.v1",
+  "timings": {
+    "includes": "in-memory fixture creation and evaluation; no I/O",
+    "median": 0.10898350000000001,
+    "p95_nearest_rank": 0.148433,
+    "repeats_per_case": 100,
+    "total_measurements": 1700,
+    "unit": "ms"
+  },
+  "unsafe_proceed": {
+    "denominator": 15,
+    "numerator": 0
+  }
+}
+
+STDERR:
