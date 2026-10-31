@@ -37,7 +37,7 @@ class GateResult:
     def decision(self) -> str:
         return "PASS" if self.passed else "BLOCK"
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, object]:
         return {"passed": self.passed, "decision": self.decision, "checks": self.checks}
 
 
@@ -102,9 +102,11 @@ def build_production_proof(
     canary_decision: str,
     slo_met: bool,
     artifacts: Iterable[ProofArtifact] = (),
+    created_at: str | None = None,
 ) -> ProductionProofBundle:
     artifact_tuple = tuple(artifacts)
-    created_at = datetime.now(timezone.utc).isoformat()
+    if created_at is None:
+        created_at = datetime.now(timezone.utc).isoformat()
     payload = {
         "repository": repository,
         "run_id": run_id,

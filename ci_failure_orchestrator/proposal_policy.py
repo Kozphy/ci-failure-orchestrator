@@ -71,7 +71,7 @@ class ProposalPolicyGate:
         if ctx.human_review_required or proposal.human_review_required:
             return ProposalDisposition.AWAIT_CONFIRMATION
 
-        if proposal.risk_class in {"high", "critical"}:
+        if proposal.risk_class.value in {"high", "critical"}:
             return ProposalDisposition.AWAIT_CONFIRMATION
 
         return ProposalDisposition.PREVIEW_READY
