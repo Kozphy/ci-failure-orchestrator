@@ -1,0 +1,62 @@
+name: benchmark-offline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "benchmark/**"
+      - "scripts/run_baseline_matrix.py"
+      - "scripts/run_research_rq1.py"
+      - "scripts/run_corpus_benchmark.py"
+      - "scripts/run_repair_fixture_benchmark.py"
+      - "scripts/run_offline_benchmark.py"
+      - "tests/test_offline_benchmark_evidence.py"
+      - "ci_failure_orchestrator/baselines.py"
+      - "ci_failure_orchestrator/corpus_benchmark.py"
+      - "ci_failure_orchestrator/research_evaluation.py"
+      - "ci_failure_orchestrator/repair_loop.py"
+      - ".github/workflows/benchmark-offline.yml"
+  pull_request:
+    paths:
+      - "benchmark/**"
+      - "scripts/run_baseline_matrix.py"
+      - "scripts/run_research_rq1.py"
+      - "scripts/run_corpus_benchmark.py"
+      - "scripts/run_repair_fixture_benchmark.py"
+      - "scripts/run_offline_benchmark.py"
+      - "tests/test_offline_benchmark_evidence.py"
+      - "ci_failure_orchestrator/baselines.py"
+      - "ci_failure_orchestrator/corpus_benchmark.py"
+      - "ci_failure_orchestrator/research_evaluation.py"
+      - "ci_failure_orchestrator/repair_loop.py"
+      - ".github/workflows/benchmark-offline.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Offline benchmark envelope
+        run: python scripts/run_offline_benchmark.py --output-dir artifacts/benchmarks/offline
+      - name: Evidence tests
+        run: python -m pytest -q tests/test_offline_benchmark_evidence.py
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: benchmark-offline-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 30
+          path: artifacts/benchmarks/offline
