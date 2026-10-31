@@ -42,6 +42,10 @@ Raw evidence:
   [reviewed case comparison](../evidence/edas-v2/reviewed/foundation-comparison.json).
 - [Prototype safety-boundary failure found during review](../evidence/edas-v2/safety-review-before-fix.txt).
   Intermediate `final/` records are retained; `reviewed/` is the latest executed source version.
+- [Remote implementation CI evidence](../evidence/edas-v2/remote-ci.json) and
+  [log excerpt](../evidence/edas-v2/remote-ci-excerpt.txt): the published implementation commit
+  `8596a3f7f5dc17a53d48d5907eca6a8d95010d1c` passed GitHub CI after local collection completed.
+  Later evidence-document changes preserve the tested production, example, test and workflow bytes.
 
 ## Justified changes
 
@@ -93,6 +97,7 @@ documented intent, proposed mechanisms and blocked checks. Paths are repository-
 | Entire local repository suite passed | `pyproject.toml`, existing tests | Captured `python -m pytest --cov=...` | Exit 1: no pytest module | No local full-suite result or coverage result | Blocked |
 | Local Ruff and static typing validated | CI/workflow and collector | Captured Ruff command and mypy version probe | Exit 1: modules absent | A mypy version probe would not establish type correctness even if available | Blocked |
 | Base GitHub CI jobs succeeded | `.github/workflows/ci.yml`; GitHub run 41179836420 | Retrieved workflow/job/step metadata | `test`, `server-postgres`, `server-image` reported success | Historic base SHA; no local rerun or delivered-branch CI proof; logs/test counts not independently audited | Remotely observed, scoped |
+| Published implementation passes full GitHub CI | Commit `8596a3f`, run 41227967976 | Job metadata and fetched test-job log; `remote-ci.json` | 855 tests passed, 1 warning, 72 subtests passed; total coverage 86%; server-postgres and server-image passed | One GitHub runner environment; CI lint/type scopes remain limited; not independent scientific validation | Demonstrated remotely for implementation SHA |
 | Production users or general decision-quality improvement | README limitations; EDAS research protocol | No executed representative/independent study | None | No customer outcomes, independent replication, calibration or causal validation | Not demonstrated |
 | Research-grade / enterprise-ready / formally assured labels justified | `docs/EDAS_V2_VALIDATION.md` acceptance requirements | No independent study, operational qualification or proof artifacts | None | These are explicit future acceptance criteria | Proposed but untested |
 
@@ -123,8 +128,9 @@ method are in [the reviewed evaluation](../evidence/edas-v2/reviewed/edas-evalua
 The evidence collector returns exit **1** because the full suite, Ruff and mypy cannot run
 locally. That is not a successful all-checks gate. Dependency requirements are version ranges;
 there is no new locked full-suite environment. Existing base CI success is relevant historical
-evidence but does not establish new-code compatibility with all existing pytest tests.
-The added workflow step is implemented; execution on the delivered branch is separately unverified.
+evidence; new-code compatibility is separately supported by the successful implementation CI run
+linked above. That run also executed the new unittest/evaluation step and uploaded the generated
+EDAS artifact. Local tooling failures remain valid records; remote execution does not change them.
 Source/document whitespace checks pass. The full staged whitespace check flags one trailing
 space in raw baseline unittest output, which is deliberately preserved with its recorded hash.
 
@@ -159,7 +165,7 @@ is replaced. Public data stays synthetic.
 | Causal Inference | Explicit confounding DAG and proposed randomized design | No identified causal effect or executed causal study | Proposed but untested | Medium |
 | Decision Theory | Deadline/cost/reversibility/high-severity/safety-advice transitions tested | Utility/VOI/loss functions not empirically elicited or implemented generally | Partially demonstrated | High |
 | Formal Assurance | Explicit invariants and 32-combination enumeration | No machine-checked proof, model or refinement argument | Not demonstrated as formal assurance | Medium |
-| Software Reliability | Four canonical defect regressions fixed; 11/11 targeted methods; 38/38 fixtures | Local full pytest/lint/type blocked; durable operational checks pending | Partially demonstrated; full local gates blocked | High |
+| Software Reliability | Four canonical defect regressions fixed; 11/11 targeted methods; 38/38 fixtures; implementation CI 855 tests + 72 subtests passed | Local full tooling blocked; limited lint/type scope; durable operational checks pending | Partially demonstrated operationally; implementation CI demonstrated | High |
 | Governance | Version/reviewer-ID tests and current-source conceptual crosswalk | Real IAM, conflicts, retention, operating effectiveness and independent review absent | Partially demonstrated | High |
 | Research Reproducibility | Captured commands/source/output hashes, fixture denominators and raw failures | Exact dependency lock, held-out study and external replication absent | Partially demonstrated | High |
 | Adversarial Robustness | 25 EDAS methods, 17 decision fixtures and canonical adversarial tests | Same-author cases, no unseen attacks, forged attestations/identities not prevented | Partially demonstrated | High |

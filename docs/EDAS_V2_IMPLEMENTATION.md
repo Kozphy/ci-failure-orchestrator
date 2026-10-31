@@ -125,8 +125,11 @@ replication path. Do not confuse reconstruction with a new synthetic base commit
 Existing pytest, coverage, lint/docstring/type gates remain present. The added CI step runs the
 two unittest files and evaluation CLI, then uploads the **generated** JSON artifact and refuses
 missing output. The CLI exits nonzero on fixture disagreement. It makes no manually asserted
-pass artifact. Workflow execution on the delivered branch must be checked separately; local
-results do not imply GitHub Actions passed.
+pass artifact. GitHub run [41227967976](https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41227967976)
+passed for implementation commit `8596a3f7f5dc17a53d48d5907eca6a8d95010d1c`: 855 tests,
+72 subtests, the new unittest/evaluation step, PostgreSQL and Compose smoke jobs. Its scoped
+lint, public-docstring and six-file type checks passed. This was observed separately from
+local results; details are in `evidence/edas-v2/remote-ci.json`.
 
 Next gates should enforce a reviewed dependency lock, full tests on supported Python versions,
 source/fixture/policy hashes, no weakening of existing expectations, case-level baseline

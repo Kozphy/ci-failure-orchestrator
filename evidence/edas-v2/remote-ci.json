@@ -1,0 +1,197 @@
+{
+  "observed_commit": "8596a3f7f5dc17a53d48d5907eca6a8d95010d1c",
+  "run_id": 41227967976,
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41227967976",
+  "job_log_url": "https://github.com/Kozphy/ci-failure-orchestrator/actions/runs/41227967976/job/124616008576",
+  "log_api": "https://api.github.com/repos/Kozphy/ci-failure-orchestrator/actions/jobs/124616008576/logs",
+  "jobs": [
+    {
+      "id": 124616007187,
+      "name": "server-image",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Compose smoke test",
+          "conclusion": "success"
+        },
+        {
+          "name": "Compose logs",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 124616007201,
+      "name": "server-postgres",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Initialize containers",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python -m pip install -e '.[dev,server]'",
+          "conclusion": "success"
+        },
+        {
+          "name": "Store contract, API and worker tests (SQLite + PostgreSQL)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Stop containers",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 124616008576,
+      "name": "test",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python -m pip install -e '.[dev,server]'",
+          "conclusion": "success"
+        },
+        {
+          "name": "Trust control-plane lint",
+          "conclusion": "success"
+        },
+        {
+          "name": "Canonical public docstrings",
+          "conclusion": "success"
+        },
+        {
+          "name": "Trust control-plane type check",
+          "conclusion": "success"
+        },
+        {
+          "name": "Trust control-plane integration tests",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests with coverage",
+          "conclusion": "success"
+        },
+        {
+          "name": "Assurance adversarial tests and synthetic EDAS evidence",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload synthetic EDAS evaluation",
+          "conclusion": "success"
+        },
+        {
+          "name": "Emit test evidence fragment",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload CI DoD evidence",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload coverage to Codecov",
+          "conclusion": "success"
+        },
+        {
+          "name": "Orchestrator smoke test",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload audit evidence",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 13053275251,
+      "name": "dod-fragment-ci",
+      "digest": "sha256:1a76eaa2f10947d8dbffda85bea3e371722613bd1dca0be704ba1f41d2e3e352",
+      "expires_at": "2027-01-29T18:09:04Z",
+      "head_sha": "8596a3f7f5dc17a53d48d5907eca6a8d95010d1c"
+    },
+    {
+      "id": 13053235558,
+      "name": "edas-synthetic-evaluation",
+      "digest": "sha256:63d130223ebcb2aa47b53e801dac6de43fb3ca299d25e37fc5d9559398448d54",
+      "expires_at": "2027-01-29T18:09:04Z",
+      "head_sha": "8596a3f7f5dc17a53d48d5907eca6a8d95010d1c"
+    },
+    {
+      "id": 13052412225,
+      "name": "ci-orchestrator-audit",
+      "digest": "sha256:d8ce8486d60eb91795412328b6b5d8a05f6d85b25347fed8ba7ca08309134b43",
+      "expires_at": "2027-01-29T18:09:04Z",
+      "head_sha": "8596a3f7f5dc17a53d48d5907eca6a8d95010d1c"
+    }
+  ],
+  "interpretation": "Remote CI on the implementation commit, not independent scientific replication or a production outcome. Later evidence-document updates preserve the tested source and workflow.",
+  "summary": "2026-10-31T18:09:22.4750167Z All checks passed!\n2026-10-31T18:09:22.5167411Z All checks passed!\n2026-10-31T18:09:23.1401110Z Success: no issues found in 6 source files\n2026-10-31T18:09:23.7779417Z 23 passed in 0.22s\n2026-10-31T18:10:08.1965663Z TOTAL                                                                  14493   1585   3412    599    86%\n2026-10-31T18:10:08.4586280Z 855 passed, 1 warning, 72 subtests passed in 44.05s\n2026-10-31T18:10:09.0313058Z Ran 11 tests in 0.001s\n2026-10-31T18:10:09.1569363Z Ran 25 tests in 0.013s\n"
+}

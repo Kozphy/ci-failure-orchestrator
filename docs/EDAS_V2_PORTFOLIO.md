@@ -31,8 +31,8 @@ Use only after reviewing the linked artifacts and being able to explain the limi
   stale-approval rejection and revision invalidation; validated 25 test methods and all 32
   combinations of five eligibility controls on synthetic inputs.
 - Created reproducible command/output evidence and a claim-to-test audit report; retained
-  38/38 existing synthetic benchmark passes and documented unavailable local pytest, lint
-  and type-check tooling instead of claiming full-suite validation.
+  38/38 existing synthetic benchmark passes; verified a GitHub CI run with 855 passing tests,
+  72 passing subtests and 86% total coverage while preserving local tooling failure records.
 
 Optional governance-oriented wording: “Mapped proposed controls to verified public NIST AI
 RMF, ISO 31000 and COSO framework descriptions, explicitly separating design alignment from
@@ -77,8 +77,10 @@ reliability, probability calibration, causal benefit or business outcome was mea
 clock/cost inputs are supplied by the caller. No authenticated reviewer, durable EDAS storage,
 real financial/medical/legal records, isolated untrusted-code executor, external replication
 or formal proof is present. The full local pytest/lint/type suite could not run because tools
-were absent and shell network access failed; observed historic GitHub CI belongs to the base
-commit. These limits must accompany any interview or resume discussion.
+were absent and shell network access failed. The published implementation later passed the
+full GitHub CI workflow; this validates the recorded implementation SHA in one CI environment,
+not independent scientific replication or operational readiness. These limits must accompany
+any interview or resume discussion.
 
 ## Next three highest-value engineering improvements
 
