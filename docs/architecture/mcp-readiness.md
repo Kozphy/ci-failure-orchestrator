@@ -12,13 +12,16 @@ The governed `ToolRegistry` (`ci_failure_orchestrator/governed/tools.py`) alread
 
 That is the minimum boundary needed to expose tools through the Model Context Protocol later.
 
-## What is not implemented
+## What the v0.1 adapter implements
 
-- No MCP server process
-- No MCP client session
-- No JSON-RPC transport
-- No resource/prompt MCP surfaces
+`ci_failure_orchestrator/agent_mcp/` is a stdio JSON-RPC process with one tool, `diagnose_saved_log`. It calls `diagnose_log` and does not call the governed `ToolRegistry`. The Cursor plugin package is `plugins/kozphy-ci-diagnosis/`. Details: [docs/toolkit/INSTALL.md](../toolkit/INSTALL.md).
+
+## What is still not implemented
+
+- No MCP SDK client session and no resources or prompts
 - No OAuth or remote tool hosting
+- No adapter over the governed `ToolRegistry`
+- No live GitHub fetch from this server
 
 ## Mapping to MCP
 
