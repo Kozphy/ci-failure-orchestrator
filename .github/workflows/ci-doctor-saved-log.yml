@@ -1,0 +1,22 @@
+name: CI Doctor saved log
+
+# Manual example only. It does not run on push or pull_request.
+# A run of this file on GitHub has not been recorded for this change.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose-fixture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./
+        with:
+          log-path: examples/ci-doctor/pytest-failure.txt
+          output-format: both
+          fail-on-policy-violation: "false"
+          redact-secrets: "true"
