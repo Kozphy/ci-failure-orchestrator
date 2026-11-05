@@ -1,0 +1,85 @@
+business/landing-page.md
+  s_be7467d8494cb0::t_b7abca390e5e84 1-27
+business/scope-of-work.md
+  s_be7467d8494cb0::t_7f63cc920a5a1e 1-27
+business/experiments.md
+  s_be7467d8494cb0::t_8e966a48fe4fb5 1-54
+business/delivery-checklist.md
+  s_be7467d8494cb0::t_0b97be2fbb1b5b 1-15
+docs/productization/mvp.md
+  s_be7467d8494cb0::t_ec7b8d6c2f79e3 1-22
+business/customer-intake.md
+  s_be7467d8494cb0::t_e0198991f53cdc 1-26
+.github/workflows/ci-doctor-saved-log.yml
+  s_be7467d8494cb0::t_8dd773cec8a64c 19
+  s_be7467d8494cb0::t_104e6194da245d 1-18,20-22
+docs/productization/architecture.md
+  s_be7467d8494cb0::t_0e8b3279cf9d21 1-18
+docs/productization/release-readiness.md
+  s_be7467d8494cb0::t_ffb0169e5900a7 9
+  s_be7467d8494cb0::t_192cefd113ca15 1-8,10-27
+business/sample-audit-report.md
+  s_be7467d8494cb0::t_d3f8e19e72e877 1-2,4-77
+  s_be7467d8494cb0::t_268dacbc021b41 3
+business/faq.md
+  s_be7467d8494cb0::t_02c6d1e24bfe9a 1-25
+business/service-offer.md
+  s_be7467d8494cb0::t_417add79f1166c 1-35
+docs/productization/install-github-action.md
+  s_be7467d8494cb0::t_d0b2b7e8429a4c 1-38,40-50
+  s_be7467d8494cb0::t_3414ae35bdb63c 39
+business/outreach.md
+  s_be7467d8494cb0::t_aefe09b1621bae 1-23
+examples/ci-doctor/pytest-failure.txt
+  s_be7467d8494cb0::t_086fde91f9e2cb 1-6
+tests/test_doctor_action.py
+  s_be7467d8494cb0::t_26286efd712240 170-230,232-241
+  s_be7467d8494cb0::t_b3ece68f911fac 9
+  s_be7467d8494cb0::t_7eba0e44f3bbc5 231
+docs/productization/versioning.md
+  s_be7467d8494cb0::t_1b23f0bae2cae4 1-17
+README.md
+  s_be7467d8494cb0::t_59348e5f091299 218-221
+  s_be7467d8494cb0::t_86e71276ff539d 230-232
+  s_be7467d8494cb0::t_d2bc48ebe89359 207-214
+ci_failure_orchestrator/doctor/reliability_report.py
+  s_be7467d8494cb0::t_0c226336b0022a 1-68,70-164
+  s_be7467d8494cb0::t_f19928232d90fe 69
+business/objections.md
+  s_be7467d8494cb0::t_4c49808c0caede 1-11
+docs/ci-reliability-audit.md
+  s_be7467d8494cb0::t_87d935ea60aa6f 3-4
+business/validation-scorecard.md
+  s_be7467d8494cb0::t_98a2873fc24805 39
+  s_be7467d8494cb0::t_83777023029a19 10
+  s_be7467d8494cb0::t_8dee4cebca5d18 1-9,12-38,40
+  s_be7467d8494cb0::t_ac6f852a2492d0 11
+docs/productization/repository-audit.md
+  s_be7467d8494cb0::t_4b373d85e610c3 1-37
+business/customer-handoff.md
+  s_be7467d8494cb0::t_422a74d87e8886 1-11
+ci_failure_orchestrator/doctor/action.py
+  s_be7467d8494cb0::t_08a6a3d93f4f24 53-129,131,133-135,141-142,144-145,147-148,150-156,158-183,186-188,190-191
+  s_be7467d8494cb0::t_26875ffd4bc23e 19-20,24-26,149,157
+action.yml
+  s_be7467d8494cb0::t_3951f42afad8f1 25-44,53-64
+  s_be7467d8494cb0::t_f1f681e180d012 87,92-96
+docs/productization/action-security.md
+  s_be7467d8494cb0::t_3c5be73e1cad19 1-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "510e0d1ef31c0055ad71309e8e4e5505c39f8622",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
