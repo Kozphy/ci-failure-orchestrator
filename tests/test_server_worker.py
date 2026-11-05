@@ -11,13 +11,15 @@ import pytest
 
 pytest.importorskip("sqlalchemy")
 
+import sqlalchemy as sa  # noqa: E402
+
 from ci_failure_orchestrator.foundation.persistence import (  # noqa: E402
     AuditEventType,
     PersistenceError,
     RunPersistence,
 )
 from ci_failure_orchestrator.foundation.runner import AgentExecutionFoundation  # noqa: E402
-from ci_failure_orchestrator.server.db import create_engine_from_url, init_db, utcnow  # noqa: E402
+from ci_failure_orchestrator.server.db import create_engine_from_url, init_db, jobs, utcnow  # noqa: E402
 from ci_failure_orchestrator.server.jobs import JobQueue, JobStatus  # noqa: E402
 from ci_failure_orchestrator.server.settings import ServerSettings  # noqa: E402
 from ci_failure_orchestrator.server.sql_store import SqlAuditStore, SqlStateStore  # noqa: E402
@@ -204,6 +206,40 @@ def test_tick_reports_storage_unavailable_instead_of_crashing(tmp_path: Path, se
         assert Worker(broken, settings).tick() is TickOutcome.STORAGE_UNAVAILABLE
     finally:
         broken.dispose()
+
+
+def test_lost_lease_does_not_overwrite_durable_state(settings: ServerSettings, engine):
+    """A worker that loses its lease must not append audit events or checkpoint state."""
+    short = ServerSettings(**{**settings.__dict__, "lease_seconds": 1})
+    queue = JobQueue(engine)
+    job = _enqueue(engine)
+
+    def factory(persistence: RunPersistence, _cfg: ServerSettings):
+        class _Probe:
+            def run(self, event):
+                persistence.start_run(event.run_id)
+                past = utcnow() - timedelta(seconds=30)
+                with engine.begin() as conn:
+                    conn.execute(sa.update(jobs).where(jobs.c.job_id == job.job_id).values(lease_expires_at=past))
+                assert queue.recover_stale(), "expired lease should be recovered before the stale write"
+                # Heartbeat interval is max(lease/3, 0.5s); wait until renewal observes the loss.
+                time.sleep(2.0)
+                persistence.emit("STALE_WORKER_WRITE", state_after="APPROVED")
+
+        return _Probe()
+
+    assert Worker(engine, short, foundation_factory=factory).tick() is TickOutcome.PROCESSED
+
+    record = queue.get(job.job_id)
+    state = SqlStateStore(engine).load_run(job.run_id)
+    events = SqlAuditStore(engine).read_events(job.run_id)
+    assert record is not None
+    assert record.status is JobStatus.REQUIRES_REVIEW
+    assert "lease expired" in (record.error or "")
+    assert record.claim_count == 1
+    assert state.stop_reason is None
+    assert state.workflow_status == "RECEIVED"
+    assert [event.event_type for event in events] == ["RUN_CREATED"]
 
 
 def test_run_forever_stops_on_signal_event(settings: ServerSettings, engine):
