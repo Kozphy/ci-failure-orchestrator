@@ -1,0 +1,34 @@
+docs/audit/business-case.md
+  s_be7467d8494cb0::t_5abe2b1c18d31e 1-23
+docs/audit/baseline.md
+  s_be7467d8494cb0::t_8f2e839ae666ab 1-47
+  s_be7467d8494cb0::t_06d93bda73a62a 48
+docs/audit/release-gate.md
+  s_be7467d8494cb0::t_ee51c1fde12ead 1-20
+docs/audit/readiness-report.md
+  s_be7467d8494cb0::t_227b457fb9d011 1-31
+docs/audit/pilot-acceptance.md
+  s_be7467d8494cb0::t_caea92e0c9322e 1-13
+docs/audit/threat-model.md
+  s_be7467d8494cb0::t_6274cab53799d4 1-17
+docs/audit/risk-register.md
+  s_be7467d8494cb0::t_bf6fbe886af529 1-25
+docs/audit/backlog.md
+  s_be7467d8494cb0::t_4bd310c132ec39 1-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f9431bf94e9f2efa7e0dd035d3856c92553729e7",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
