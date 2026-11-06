@@ -1,0 +1,50 @@
+name: CI Reliability Audit pilot inquiry
+description: Public, non-sensitive request to check eligibility for the US$149 pilot. Do not upload logs or secrets.
+title: "[CI Audit Pilot] Eligibility inquiry"
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **PUBLIC ISSUE:** Please do not include private repository URLs, names, logs, credentials, source code, personal email addresses or billing information. This is an eligibility inquiry, not an order or payment form.
+  - type: dropdown
+    id: github-actions
+    attributes:
+      label: Are you using GitHub Actions?
+      options:
+        - "Yes"
+        - "Planning to"
+        - "No"
+    validations:
+      required: true
+  - type: dropdown
+    id: team-size
+    attributes:
+      label: Approximate engineering team size
+      options:
+        - "1-2"
+        - "3-10"
+        - "11-30"
+        - "31+"
+        - "Prefer not to say"
+    validations:
+      required: true
+  - type: dropdown
+    id: problem
+    attributes:
+      label: Primary CI problem
+      options:
+        - "Repeated build failures"
+        - "Duplicate or slow workflows"
+        - "Hard-to-understand errors"
+        - "Potential flaky tests"
+        - "Other / not sure"
+    validations:
+      required: true
+  - type: checkboxes
+    id: public-data
+    attributes:
+      label: Public data safety
+      options:
+        - label: I understand that this issue is public and will not share confidential or sensitive information.
+          required: true
