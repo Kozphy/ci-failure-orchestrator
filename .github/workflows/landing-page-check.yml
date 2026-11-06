@@ -1,0 +1,29 @@
+name: commercial landing page checks
+on:
+  pull_request:
+    paths:
+      - 'site/landing-page/**'
+      - 'business/**'
+      - '.github/ISSUE_TEMPLATE/ci-audit-inquiry.yml'
+      - 'scripts/check_commercial_site.py'
+      - '.github/workflows/landing-page-check.yml'
+  push:
+    paths:
+      - 'site/landing-page/**'
+      - 'business/**'
+      - '.github/ISSUE_TEMPLATE/ci-audit-inquiry.yml'
+      - 'scripts/check_commercial_site.py'
+      - '.github/workflows/landing-page-check.yml'
+permissions:
+  contents: read
+jobs:
+  verify-static-commercial-site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate offer, HTML, security and documents
+        run: python scripts/check_commercial_site.py
