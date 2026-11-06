@@ -2,7 +2,9 @@
 
 Each job runs with SQL-backed state and audit stores and mirrored evidence. A heartbeat thread
 renews the job lease while the run executes; if the worker dies, the lease expires and the next
-worker tick moves the job to REQUIRES_REVIEW instead of silently re-running it. Start with::
+worker tick moves the job to REQUIRES_REVIEW instead of silently re-running it. Once this worker
+observes that its lease is gone, it stops writing run state, audit events and evidence and does
+not record a new terminal status. Start with::
 
     python -m ci_failure_orchestrator.server.worker
 """
@@ -15,6 +17,7 @@ import threading
 import time
 from collections.abc import Callable
 from enum import Enum
+from typing import Any
 
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import SQLAlchemyError
@@ -59,8 +62,39 @@ def _safe_error(exc: BaseException) -> str:
     return sanitize_text(f"{type(exc).__name__}: {exc}")[0][:2000]
 
 
+class _LeaseLostError(RuntimeError):
+    """Durable write refused because this worker no longer owns the job lease."""
+
+
+_FENCED_WRITES = frozenset({"create_run", "save_run", "append", "write_json", "write_text"})
+
+
+class _LeaseFence:
+    """Proxy that rejects store mutations after ``lost`` is set."""
+
+    def __init__(self, inner: Any, lost: threading.Event) -> None:
+        self._inner = inner
+        self._lost = lost
+
+    def __getattr__(self, name: str) -> Any:
+        attr = getattr(self._inner, name)
+        if name not in _FENCED_WRITES or not callable(attr):
+            return attr
+
+        def guarded(*args: Any, **kwargs: Any) -> Any:
+            if self._lost.is_set():
+                raise _LeaseLostError(f"refusing {name} after the job lease was lost")
+            return attr(*args, **kwargs)
+
+        return guarded
+
+
 class _LeaseHeartbeat:
-    """Renews a job lease every ``lease_seconds / 3`` until stopped."""
+    """Renews a job lease every ``lease_seconds / 3`` until stopped.
+
+    When renewal reports that this worker no longer owns the job, ``lost`` is set and
+    ``lost_event`` is signaled so in-flight durable writes stop.
+    """
 
     def __init__(self, queue: JobQueue, job_id: str, worker_id: str, lease_seconds: int) -> None:
         self._queue = queue
@@ -70,6 +104,7 @@ class _LeaseHeartbeat:
         self._stop = threading.Event()
         self._thread = threading.Thread(target=self._run, name=f"lease-{job_id}", daemon=True)
         self.lost = False
+        self.lost_event = threading.Event()
 
     def __enter__(self) -> None:
         self._thread.start()
@@ -84,6 +119,7 @@ class _LeaseHeartbeat:
             try:
                 if not self._queue.renew_lease(self._job_id, self._worker_id, self._lease_seconds):
                     self.lost = True
+                    self.lost_event.set()
                     log_event(logger, "lease_lost", level=logging.WARNING, job_id=self._job_id)
                     return
             except SQLAlchemyError as exc:
@@ -131,21 +167,27 @@ class Worker:
 
         Returns:
             True if the outcome was recorded; False if the lease was lost first (fenced out).
+            A lost lease also refuses further durable writes, so recovered run state is left as-is.
         """
         log_event(logger, "job_started", job_id=job.job_id, run_id=job.run_id, claim=job.claim_count)
         started = time.perf_counter()
+        heartbeat = _LeaseHeartbeat(self.queue, job.job_id, self.settings.worker_id, self.settings.lease_seconds)
         persistence = RunPersistence(
             self.settings.artifacts_root,
             actor=self.settings.worker_id,
-            state_store=self.state_store,
-            audit_store=self.audit_store,
-            evidence_store=MirroredEvidenceStore(FileEvidenceStore(self.settings.artifacts_root), self.engine),
+            state_store=_LeaseFence(self.state_store, heartbeat.lost_event),
+            audit_store=_LeaseFence(self.audit_store, heartbeat.lost_event),
+            evidence_store=_LeaseFence(
+                MirroredEvidenceStore(FileEvidenceStore(self.settings.artifacts_root), self.engine),
+                heartbeat.lost_event,
+            ),
         )
         status = JobStatus.COMPLETED
         workflow_status: str | None = None
         failure_class: str | None = None
         error: str | None = None
-        with _LeaseHeartbeat(self.queue, job.job_id, self.settings.worker_id, self.settings.lease_seconds):
+        lost_during_run = False
+        with heartbeat:
             try:
                 foundation = self.foundation_factory(persistence, self.settings)
                 event = FailureEvent.from_dict(dict(job.payload), run_id=job.run_id)
@@ -158,9 +200,23 @@ class Worker:
                     status = JobStatus.REQUIRES_REVIEW
                     workflow_status = "PERSISTENCE_ERROR"
                     error = sanitize_text(result.run.stop_reason or "persistence error")[0][:2000]
+            except _LeaseLostError:
+                lost_during_run = True
             except Exception as exc:  # noqa: BLE001 - any run failure becomes a recorded FAILED job
                 status = JobStatus.FAILED
                 error = _safe_error(exc)
+        if lost_during_run or heartbeat.lost:
+            log_event(
+                logger,
+                "job_fenced",
+                level=logging.WARNING,
+                job_id=job.job_id,
+                run_id=job.run_id,
+                job_status=status.value,
+                workflow_status=workflow_status,
+                duration_ms=round((time.perf_counter() - started) * 1000, 2),
+            )
+            return False
         recorded = self.queue.complete(
             job.job_id,
             self.settings.worker_id,

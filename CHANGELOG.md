@@ -6,6 +6,10 @@ Versioning (plan §5.4) uses two tracks: the Python package keeps semantic versi
 
 ## [Unreleased]
 
+### Worker: refuse durable writes after the job lease is lost
+
+- The lease heartbeat set `lost` when renewal failed and then ignored it. The job row was fenced, but the same worker could still append audit events and checkpoint run state after another worker had moved the job to `REQUIRES_REVIEW`. Store mutations now raise once the lease is lost, and the worker does not record a new terminal status. Regression: `test_lost_lease_does_not_overwrite_durable_state`.
+
 ### Reliability Phase 1: HTTP API, SQL durable state, lease-based worker
 
 - New canonical `server/` package (needs the `server` extra): FastAPI app with `/health`, `/ready` and `/v1/runs` (submit, list, get, events, evidence), OpenAPI, structured error envelope, request IDs, body-size limit, `Idempotency-Key`, and an optional shared bearer token (`CFO_API_TOKEN`, not RBAC).
