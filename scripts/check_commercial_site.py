@@ -57,7 +57,7 @@ def validate():
     assert "5 workflows" in html and "30 runs" in html
     assert "3 business days" in html and "read-only" in html
     assert "no paid pilot" in html.lower() and "no live payment" in docs["business/intake.md"].lower()
-    assert not re.search(r'href=["\'](?:javascript:|data:)', html, flags=re.I)
+    assert not re.search(r"href=[\x22\x27](?:javascript:|data:)", html, flags=re.I)
     for url in parser.links:
         assert url and (url.startswith("https://github.com/Kozphy/ci-failure-orchestrator") or url.startswith("#")), f"Unexpected link: {url}"
         if url.startswith("#"):
