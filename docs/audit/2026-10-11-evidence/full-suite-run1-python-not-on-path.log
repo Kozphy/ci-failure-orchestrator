@@ -1,0 +1,289 @@
+........................................................................ [  8%]
+........................................................................ [ 17%]
+........................................................................ [ 26%]
+........................................................................ [ 35%]
+........................................................................ [ 43%]
+....................................F.F.....................F........... [ 52%]
+........................................................................ [ 61%]
+........................................................................ [ 70%]
+........................................................................ [ 79%]
+........................................................................ [ 87%]
+........................................................................ [ 96%]
+...........................                                              [100%]
+=================================== FAILURES ===================================
+____________ test_patch_verification_isolated_from_source_checkout _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-box/pytest-60/test_patch_verification_isolat0')
+
+    def test_patch_verification_isolated_from_source_checkout(tmp_path: Path) -> None:
+        repo = _repo(tmp_path)
+        patch = """diff --git a/value.txt b/value.txt
+    index 5626abf..f719efd 100644
+    --- a/value.txt
+    +++ b/value.txt
+    @@ -1 +1 @@
+    -one
+    +two
+    """
+        verifier = WorktreePatchVerifier(commands=(("assert", ("python", "-c", "from pathlib import Path; assert Path('value.txt').read_text() == 'two\\n'")),))
+        result = verifier.verify(repo_path=repo, patch_text=patch)
+    
+        assert result.applied is True
+>       assert result.passed is True
+E       assert False is True
+E        +  where False = PatchVerification(applied=True, clean_after_apply=True, passed=False, patch_sha256='91b9c4e4b667941747781dbc6f98fcce53...rectory: 'python'", latency_ms=0.800686000729911),), total_latency_ms=14.504876002320088, reason='verification_failed').passed
+
+tests/test_patch_sandbox.py:39: AssertionError
+___________________ test_verification_stops_on_first_failure ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-box/pytest-60/test_verification_stops_on_fir0')
+
+    def test_verification_stops_on_first_failure(tmp_path: Path) -> None:
+        repo = _repo(tmp_path)
+        patch = """diff --git a/value.txt b/value.txt
+    index 5626abf..f719efd 100644
+    --- a/value.txt
+    +++ b/value.txt
+    @@ -1 +1 @@
+    -one
+    +two
+    """
+        verifier = WorktreePatchVerifier(commands=(
+            ("fail", ("python", "-c", "raise SystemExit(2)")),
+            ("never", ("python", "-c", "raise SystemExit(0)")),
+        ))
+        result = verifier.verify(repo_path=repo, patch_text=patch)
+        assert result.passed is False
+        assert result.reason == "verification_failed"
+        assert len(result.steps) == 1
+>       assert result.steps[0].returncode == 2
+E       assert 127 == 2
+E        +  where 127 = VerificationStep(name='fail', returncode=127, stdout='', stderr="command_not_runnable: [Errno 2] No such file or directory: 'python'", latency_ms=0.5836600030306727).returncode
+
+tests/test_patch_sandbox.py:72: AssertionError
+______________ test_pipeline_verifies_patch_and_preserves_source _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-box/pytest-60/test_pipeline_verifies_patch_a0')
+
+    def test_pipeline_verifies_patch_and_preserves_source(tmp_path: Path) -> None:
+        repo = tmp_path / "repo"
+        repo.mkdir()
+        _init_repo(repo)
+    
+        # Create a proper patch by making changes in a temp branch
+        subprocess.run(["git", "checkout", "-b", "temp"], cwd=repo, check=True, capture_output=True)
+        (repo / "hello.txt").write_text("world\n", encoding="utf-8")
+        subprocess.run(["git", "add", "."], cwd=repo, check=True)
+        subprocess.run(["git", "commit", "-m", "change"], cwd=repo, check=True, capture_output=True)
+        patch_result = subprocess.run(["git", "format-patch", "--stdout", "HEAD~1"], cwd=repo, check=True, capture_output=True, text=True)
+        subprocess.run(["git", "checkout", "-"], cwd=repo, check=True, capture_output=True)
+        subprocess.run(["git", "branch", "-D", "temp"], cwd=repo, check=True, capture_output=True)
+    
+        # Extract just the diff part from the format-patch output
+        patch_lines = []
+        in_diff = False
+        for line in patch_result.stdout.splitlines():
+            if line.startswith("diff --git"):
+                in_diff = True
+            if in_diff:
+                patch_lines.append(line)
+    
+        patch = "\n".join(patch_lines)
+        verifier = WorktreePatchVerifier(commands=(("content-check", ("python", "-c", "from pathlib import Path; assert Path('hello.txt').read_text() == 'world\\n'")),))
+        evaluation, evidence = RepairExecutionPipeline(verifier).run(_provider(patch), repo_path=repo)
+>       assert evaluation.passed is True
+E       AssertionError: assert False is True
+E        +  where False = Evaluation(passed=False, regression_free=False, score=0.25, reasons=('failed:content-check',)).passed
+
+tests/test_repair_execution.py:71: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /workspace/ci-failure-orchestrator/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.15-final-0 _______________
+
+Name                                                                   Stmts   Miss Branch BrPart  Cover   Missing
+------------------------------------------------------------------------------------------------------------------
+ci_failure_orchestrator/ablation.py                                       23     23      4      0     0%   1-34
+ci_failure_orchestrator/agent_eval.py                                     83      4      6      3    92%   22, 74, 92, 109->123, 119->109, 134
+ci_failure_orchestrator/agent_loop.py                                     39      1      8      1    96%   60
+ci_failure_orchestrator/agent_router.py                                   49      1      4      1    96%   31
+ci_failure_orchestrator/api.py                                            57      5     14      5    86%   16, 25, 34->36, 36->50, 38, 53, 58->57, 71
+ci_failure_orchestrator/approval.py                                       36      3     10      3    87%   37, 39, 52
+ci_failure_orchestrator/baselines.py                                      41      2      4      0    96%   18, 81
+ci_failure_orchestrator/benchmark.py                                      28     28      4      0     0%   1-32
+ci_failure_orchestrator/benchmark_suite.py                                47      2      4      2    92%   40, 51
+ci_failure_orchestrator/canary.py                                         52     13     14      4    68%   25-27, 30-35, 71, 73, 75, 77
+ci_failure_orchestrator/causal.py                                         33      2     10      1    93%   15, 25
+ci_failure_orchestrator/ci_audit/analyze.py                              159     11     66     13    89%   21-22, 66->59, 120->128, 129->137, 137->145, 146, 155, 164, 174-175, 183, 191, 232, 238->240, 245
+ci_failure_orchestrator/ci_audit/collect.py                              138      4     38      2    97%   156, 244, 276-277
+ci_failure_orchestrator/ci_audit/report.py                                54      3     10      5    88%   18, 56->59, 150->152, 153, 155
+ci_failure_orchestrator/cli.py                                           475    169     54      7    60%   66-82, 87-89, 94-100, 105-108, 113-115, 120-179, 185-200, 205-207, 212-219, 224-228, 234-282, 288-312, 318-340, 346-383, 388-392, 397-401, 406-418, 423-449, 454-463, 474-476, 483, 485-488, 525-527, 573->575, 600-602, 625->627, 637, 965
+ci_failure_orchestrator/command_agent.py                                  38      5      4      2    83%   39, 69-70, 74-75
+ci_failure_orchestrator/config.py                                         10      4      0      0    60%   10-11, 15-16
+ci_failure_orchestrator/control_plane.py                                  90      8     12      3    87%   86, 148-152, 157-158
+ci_failure_orchestrator/control_plane_run.py                              89      2      6      2    96%   90, 106
+ci_failure_orchestrator/corpus.py                                         29      3      8      3    84%   27, 38, 51
+ci_failure_orchestrator/corpus_benchmark.py                               48      2      4      1    94%   21, 54
+ci_failure_orchestrator/dashboard.py                                      25      1      0      0    96%   27
+ci_failure_orchestrator/deployment_evidence.py                            65     10     14      4    80%   41, 61-62, 64, 68, 72, 118-121
+ci_failure_orchestrator/distributed_runtime.py                           123     11     14      4    88%   28, 35, 95, 99-103, 145, 179, 181
+ci_failure_orchestrator/doctor/__main__.py                                 2      2      0      0     0%   1-3
+ci_failure_orchestrator/doctor/action.py                                  56      2     12      4    91%   32->exit, 56->59, 69, 93
+ci_failure_orchestrator/doctor/cli.py                                    122     13     36      7    86%   55, 64, 68, 73, 85-86, 103, 112-116, 168->170, 176
+ci_failure_orchestrator/doctor/demo.py                                   105      1     12      2    97%   172, 189->191
+ci_failure_orchestrator/doctor/diagnose.py                               153      3     34      3    97%   141, 147, 309
+ci_failure_orchestrator/doctor/render.py                                  77      2     34      4    95%   34->36, 79, 96->106, 104
+ci_failure_orchestrator/dora_metrics.py                                   47      2      4      1    94%   26, 42
+ci_failure_orchestrator/evaluator.py                                      22      4      8      1    77%   19, 27-29
+ci_failure_orchestrator/evidence_signing.py                               26      2      2      1    89%   20, 30
+ci_failure_orchestrator/execution.py                                      41      2      6      3    89%   35, 47, 71->exit
+ci_failure_orchestrator/failure_memory.py                                 68      1      8      1    97%   61
+ci_failure_orchestrator/fleet.py                                          65     14     18      8    73%   53-54, 56-57, 59-60, 62-63, 65-66, 68-69, 76, 79
+ci_failure_orchestrator/foundation/benchmark/assertions.py                89     22     40     12    74%   65, 75-77, 88-90, 114-117, 128, 138-140, 191, 196, 203, 206-207, 220->222, 222->230, 226->230, 228-229
+ci_failure_orchestrator/foundation/benchmark/baseline.py                  63     11     22      3    81%   37, 49, 53-55, 65-81, 91->98, 96, 116
+ci_failure_orchestrator/foundation/benchmark/injection.py                 56     33     26      1    32%   38-42, 52-92, 109-117, 126-147, 157-159, 169-171, 176-177
+ci_failure_orchestrator/foundation/benchmark/loader.py                    34      4     18      4    85%   30, 32, 38, 58
+ci_failure_orchestrator/foundation/benchmark/metrics.py                  142     14     52      8    86%   73, 122->120, 152-156, 167->164, 179-183, 195, 217, 227
+ci_failure_orchestrator/foundation/benchmark/report.py                   115      9     32      6    87%   117->116, 133-142, 150-151, 165, 166->168, 169->168
+ci_failure_orchestrator/foundation/benchmark/runner.py                   282     91    116     38    60%   70, 94, 121, 126-127, 144-145, 149->151, 173-175, 190-191, 224->228, 226, 242-246, 249->259, 262, 264, 269-275, 315->322, 317->321, 330-337, 347-399, 422-425, 431, 433, 435, 457-468, 495->499, 502, 503->505, 506-516, 518, 520, 522, 526, 528, 530, 536, 538->540, 541-543, 545, 547-551, 556-569, 574->584, 579, 582
+ci_failure_orchestrator/foundation/benchmark/schemas.py                  178      9     12      5    93%   54, 98-99, 212, 257, 368, 371, 374, 376
+ci_failure_orchestrator/foundation/classifier.py                          76      2     30      2    96%   136, 140
+ci_failure_orchestrator/foundation/context.py                             72     13     32      9    79%   67, 77-78, 82-84, 112, 113->115, 115->118, 119, 125, 132-135
+ci_failure_orchestrator/foundation/diff_risk.py                           84      4     20      4    92%   134, 136, 138, 140
+ci_failure_orchestrator/foundation/durable.py                            362     40     64     10    86%   239->241, 242, 325-333, 348, 358-360, 371, 410-411, 413-418, 511-512, 528-529, 531, 582-585, 616, 625, 685, 691, 694-695, 735-736
+ci_failure_orchestrator/foundation/escalation.py                         334     32    110     23    87%   202, 204, 208, 220->exit, 250-253, 255-256, 258, 271-272, 293, 295, 297, 299, 301->305, 330, 354, 366, 368, 371, 373, 403, 484->486, 520, 532-540
+ci_failure_orchestrator/foundation/evaluator.py                           52      3     18      3    91%   59, 93, 122
+ci_failure_orchestrator/foundation/human_decision.py                      82     11     20      5    84%   49-50, 62, 85-86, 102->117, 105-106, 115->117, 118, 128, 187-188
+ci_failure_orchestrator/foundation/observability/__init__.py              29     25     16      0     9%   26-77
+ci_failure_orchestrator/foundation/observability/aggregator.py           128     30     50     16    69%   29, 89, 92, 105-144, 169, 176, 191, 194-197, 198->204, 210-215, 219->224, 225, 231, 238-239, 262->264, 264->266, 266->261
+ci_failure_orchestrator/foundation/observability/audit_check.py           18      2      6      1    88%   20->24, 22-23
+ci_failure_orchestrator/foundation/observability/metrics.py              123     25     20      6    76%   95, 103, 106-107, 114, 200-201, 204-213, 222-224, 233-235, 244-246, 250, 302->exit, 316->exit, 328-331
+ci_failure_orchestrator/foundation/observability/recorder.py              91      4     50      4    94%   55->59, 156->163, 207, 241, 271-273
+ci_failure_orchestrator/foundation/observability/recovery_metrics.py      13     13      6      0     0%   3-33
+ci_failure_orchestrator/foundation/observability/report.py               113      7     28      6    89%   102, 106->108, 134->136, 140->142, 165, 171-175
+ci_failure_orchestrator/foundation/observability/slo.py                   87     15     18      4    76%   39, 147-167, 179, 212-215, 228->235, 258-271
+ci_failure_orchestrator/foundation/observability/stats.py                 28      3      8      3    83%   40, 42, 53
+ci_failure_orchestrator/foundation/observability/summary.py               82      4     18      3    93%   132, 135, 142, 208
+ci_failure_orchestrator/foundation/persistence.py                         73      3     26      4    93%   115, 165, 170, 232->229
+ci_failure_orchestrator/foundation/planner.py                             44     14     14      1    67%   53, 133-135, 144-161, 171, 180
+ci_failure_orchestrator/foundation/policy.py                             336     33    140     21    88%   97-120, 214, 220, 224, 229, 232, 282, 359, 381, 389, 526-535, 624-625, 633-634, 668-669, 672-673, 679-680, 684->687, 729, 731, 733, 754
+ci_failure_orchestrator/foundation/policy_gate.py                         88     10     18      2    85%   171->173, 204->231, 241-250
+ci_failure_orchestrator/foundation/proposal_factories.py                  21      1      4      1    92%   35
+ci_failure_orchestrator/foundation/recovery.py                            97     13     38     10    83%   68->73, 96, 133-134, 140->154, 143-151, 157-163, 166->176, 168, 196, 248, 260
+ci_failure_orchestrator/foundation/remediation.py                        219      3     82      3    98%   138, 174, 319
+ci_failure_orchestrator/foundation/results.py                             32      7      4      0    69%   36-42
+ci_failure_orchestrator/foundation/retry.py                              223      6     94      9    95%   71, 73, 180->182, 182->193, 193->200, 269-270, 273, 340, 470->472
+ci_failure_orchestrator/foundation/runner.py                             271     33     76      5    87%   241, 277, 569-582, 602-629, 704, 733->735, 747-749
+ci_failure_orchestrator/foundation/sandbox.py                             76      9     24      5    86%   86->83, 100, 102, 133, 142, 156, 177-178, 192-193
+ci_failure_orchestrator/foundation/sanitization.py                        33      3     14      3    87%   68, 70, 73
+ci_failure_orchestrator/foundation/test_evidence.py                      171      2     58      3    98%   144->142, 242, 299
+ci_failure_orchestrator/foundation/tools.py                              119     13     22      4    84%   125, 226, 228, 270, 312-320
+ci_failure_orchestrator/foundation/verification_integrity.py             317      6    130      6    97%   156, 173, 196->198, 202-203, 217, 454
+ci_failure_orchestrator/git_validation.py                                 30      2      6      2    89%   33, 35
+ci_failure_orchestrator/github_client.py                                 115     32     32      4    71%   56-72, 77-78, 91, 109, 118, 129-141, 145-146, 158
+ci_failure_orchestrator/github_ingest.py                                  24      2     10      2    88%   16, 31
+ci_failure_orchestrator/github_repair_adapter.py                          62      2     20      3    94%   75, 77, 163->167
+ci_failure_orchestrator/governed/benchmark_runner.py                      43      9     12      5    75%   36->42, 38-39, 43-44, 46-47, 52, 66-67
+ci_failure_orchestrator/governed/context.py                               50      8     16      3    80%   73-77, 80, 86-87
+ci_failure_orchestrator/governed/escalation.py                            13      1      8      1    90%   34
+ci_failure_orchestrator/governed/evaluation.py                            28      8      2      0    67%   70-71, 81-98
+ci_failure_orchestrator/governed/explain.py                               22     17      8      0    17%   10-54, 58-61
+ci_failure_orchestrator/governed/models.py                               200      1      0      0    99%   79
+ci_failure_orchestrator/governed/pipeline.py                             158     10     26      5    91%   189, 197, 287-304, 320, 321->324, 384
+ci_failure_orchestrator/governed/policy.py                                45     12     22      6    70%   76, 79, 86->94, 103-110, 118, 121, 129-135
+ci_failure_orchestrator/governed/providers.py                             17      2      4      1    86%   26-28, 35->39
+ci_failure_orchestrator/governed/retry.py                                 37      7     20      6    74%   20, 44, 46, 48, 53, 57->67, 68-69
+ci_failure_orchestrator/governed/sandbox.py                               25      5      8      3    76%   27, 42, 45, 62-63
+ci_failure_orchestrator/governed/state_machine.py                         18      1      2      0    95%   63
+ci_failure_orchestrator/governed/store.py                                 34      3      0      0    91%   83-88
+ci_failure_orchestrator/governed/tools.py                                 63      4      6      2    91%   41, 45, 67-68
+ci_failure_orchestrator/graph.py                                          50      5     24      5    86%   15, 31->29, 34, 41, 54, 60
+ci_failure_orchestrator/live_semantic_merge_eval.py                       58      4      4      2    90%   41, 57, 62, 111
+ci_failure_orchestrator/merge_conflict_agent.py                           98      7     36      8    89%   62, 66, 100, 102, 150, 179, 196->146, 201
+ci_failure_orchestrator/merge_conflict_benchmark.py                       52      4      6      2    90%   19, 32, 64, 95
+ci_failure_orchestrator/models.py                                         28      3      0      0    89%   34-36
+ci_failure_orchestrator/network_discovery.py                              52      5      2      1    89%   44, 57-60
+ci_failure_orchestrator/openai_merge_resolver.py                          28     28      4      0     0%   1-84
+ci_failure_orchestrator/otel.py                                           41      2      2      1    93%   54-55
+ci_failure_orchestrator/patch_sandbox.py                                 117      6     18      6    91%   75, 115, 148, 172, 181, 193
+ci_failure_orchestrator/policy.py                                         84     10     24      5    84%   31-33, 59, 61, 63, 81-83, 122
+ci_failure_orchestrator/production.py                                     38     11      4      1    71%   28, 43-45, 48-59
+ci_failure_orchestrator/production_proof.py                               63      1      0      0    98%   91
+ci_failure_orchestrator/protocol.py                                       78      1      0      0    99%   74
+ci_failure_orchestrator/provenance.py                                     39     18      8      0    53%   39-66
+ci_failure_orchestrator/provider_adapters.py                              70     19     10      2    66%   42-45, 77, 82, 109-123, 162-172
+ci_failure_orchestrator/regression_gate.py                                27      1      6      2    91%   27, 33->47
+ci_failure_orchestrator/repair.py                                         77     16     18      6    75%   30, 52, 78, 81, 96, 103, 107-112, 116-128
+ci_failure_orchestrator/repair_agents.py                                  33      7      8      0    73%   29-32, 39-41
+ci_failure_orchestrator/repair_benchmark.py                               43      2      2      0    96%   29, 42
+ci_failure_orchestrator/repair_execution.py                               68      4     14      5    89%   53, 58, 60->63, 66, 72
+ci_failure_orchestrator/repair_loop.py                                    47      4      8      2    89%   18, 38, 59, 68
+ci_failure_orchestrator/repair_state_machine.py                          141     13     40     12    86%   147, 156, 158, 176, 203, 209-210, 217, 233, 239, 249, 258, 260
+ci_failure_orchestrator/research_evaluation.py                            89     17     14      4    78%   24, 40, 45-69, 79, 82, 87, 97
+ci_failure_orchestrator/research_stats.py                                 43      2      8      0    96%   20, 57
+ci_failure_orchestrator/server/app.py                                    185      6     14      1    96%   64-65, 96->98, 236-239, 287-288
+ci_failure_orchestrator/server/db.py                                      37      2      6      2    91%   122->124, 134-135
+ci_failure_orchestrator/server/jobs.py                                   135      7     26      3    91%   140-145, 248, 304->287, 306->287
+ci_failure_orchestrator/server/logs.py                                    32      2     12      2    91%   24, 42
+ci_failure_orchestrator/server/schemas.py                                108      1      6      1    98%   40
+ci_failure_orchestrator/server/settings.py                                53     28     12      1    40%   22-26, 30-39, 43-52, 99-101
+ci_failure_orchestrator/server/sql_store.py                              139     24     16      3    83%   67-68, 83-84, 98-100, 112-113, 117, 120-121, 139-140, 184, 188, 203-204, 209-210, 269-270, 287->exit, 289-290
+ci_failure_orchestrator/server/worker.py                                 151     35     24      3    75%   86-90, 154->156, 188-189, 219, 226-236, 241-258
+ci_failure_orchestrator/service/adapters.py                               76      1     14      1    98%   126
+ci_failure_orchestrator/service/apply.py                                 185     25     70     20    82%   93, 96->98, 134, 144, 146->153, 156, 160, 171, 174, 178, 182, 203, 206->208, 209, 221, 224, 231, 235, 305->307, 318-321, 333-338
+ci_failure_orchestrator/service/ci_verification.py                       112      6     26      3    92%   184, 193-194, 202, 205-206
+ci_failure_orchestrator/service/common.py                                 44      1      8      1    96%   83
+ci_failure_orchestrator/service/environment.py                            58      0     22      1    99%   77->74
+ci_failure_orchestrator/service/evidence_report.py                       127      5     36      3    95%   66->58, 83-84, 89-90, 92, 113->112
+ci_failure_orchestrator/service/ingest.py                                 60     14     14      2    76%   40, 49, 61-62, 92-106
+ci_failure_orchestrator/service/patches.py                               121     11     74      7    89%   47, 71, 83, 97, 101->100, 121, 133->130, 147-152
+ci_failure_orchestrator/service/prompt.py                                 77      6     38      8    88%   24, 59->62, 82->76, 98, 107, 109, 112, 119
+ci_failure_orchestrator/service/proposals.py                              49      2      8      0    96%   61-62
+ci_failure_orchestrator/service/records.py                                92      2      8      2    96%   132, 147
+ci_failure_orchestrator/service/remediation_metrics.py                    56      4      6      0    94%   36-37, 128-129
+ci_failure_orchestrator/service/run.py                                   143      6     34      7    93%   79, 85, 182, 199, 209, 231->236, 377
+ci_failure_orchestrator/service/verification.py                          314     20    108     15    91%   131, 143, 154, 241, 269-270, 355, 359, 432, 481, 483-484, 488, 502, 508-509, 546, 549-552
+ci_failure_orchestrator/slo.py                                            48      4      8      4    86%   50, 52, 54, 56
+ci_failure_orchestrator/statistical_gate.py                               55      4      6      2    90%   44, 47, 63, 65
+ci_failure_orchestrator/supervisor.py                                     99      6     36      6    91%   47, 49, 51, 130, 179, 181
+ci_failure_orchestrator/task_idempotency.py                              133     10     24      6    90%   188-189, 239-240, 243-244, 246-247, 307, 329
+ci_failure_orchestrator/telemetry.py                                     120     30     18      0    75%   155-176, 181-193, 199-206
+ci_failure_orchestrator/test_runner.py                                    30      4      0      0    87%   45-47, 71
+ci_failure_orchestrator/tournament.py                                     57      2      6      1    95%   61-74
+ci_failure_orchestrator/trust.py                                         117      7     24      6    91%   41, 53, 57, 61, 63, 66, 144
+ci_failure_orchestrator/trust_gateway.py                                 316     31     50     14    87%   122, 131-135, 227, 234, 238, 244, 249, 286-289, 306, 308, 310, 385, 406-410, 453-460, 468-469, 480->491
+ci_failure_orchestrator/trust_policy.py                                   58      3     20      3    92%   43, 72, 89
+ci_failure_orchestrator/verification.py                                   19      1      4      1    91%   17
+ci_failure_orchestrator/workspace.py                                      49      7     14      7    78%   26, 37-39, 45, 55, 59, 76->85, 85->exit
+ci_failure_orchestrator/worktree.py                                       39      3     10      5    84%   26, 40, 63, 73->81, 81->83
+------------------------------------------------------------------------------------------------------------------
+TOTAL                                                                  14491   1583   3410    602    86%
+
+37 files skipped due to complete coverage.
+Coverage XML written to file /workspace/audit-logs/coverage.xml
+============================= slowest 15 durations =============================
+5.18s call     tests/test_demo_scenarios.py::test_scenario_runs_end_to_end_with_the_expected_decision[timeout]
+3.29s call     tests/test_demo_repo.py::test_demo_repo_goes_from_red_ci_to_verified_local_repair_with_evidence
+2.10s call     tests/test_server_worker.py::test_heartbeat_keeps_long_run_from_being_recovered
+1.72s call     tests/test_repair_verification.py::test_e2e_real_fix_with_full_evidence_becomes_verified_only_after_real_ci
+1.50s call     tests/test_repair_verification.py::test_e2e_authentication_module_change_requires_human_review
+1.49s call     tests/test_verification_integrity.py::test_fixing_the_code_is_approved
+1.44s call     tests/test_repair_verification.py::test_e2e_hidden_regression_is_detected_and_apply_refuses
+1.06s call     tests/test_repair_verification.py::test_e2e_real_ci_green_without_regression_suite_is_unverified
+0.79s call     tests/test_repair_verification.py::test_e2e_disabling_the_failing_test_is_policy_rejected[skip]
+0.63s call     tests/test_repair_verification.py::test_e2e_disabling_the_failing_test_is_policy_rejected[xfail]
+0.61s call     tests/test_verification_integrity.py::test_deleting_the_failing_test_turns_ci_green_but_is_rejected
+0.60s call     tests/test_repair_verification.py::test_e2e_disabling_the_failing_test_is_policy_rejected[delete-file]
+0.46s call     tests/test_security_boundaries.py::test_canonical_code_never_calls_a_merge_api
+0.33s call     tests/test_task_run_attempt.py::test_runs_of_the_same_task_accumulate
+0.27s call     tests/test_module_boundaries.py::test_canonical_modules_do_not_import_experimental
+=========================== short test summary info ============================
+FAILED tests/test_patch_sandbox.py::test_patch_verification_isolated_from_source_checkout
+FAILED tests/test_patch_sandbox.py::test_verification_stops_on_first_failure
+FAILED tests/test_repair_execution.py::test_pipeline_verifies_patch_and_preserves_source
+3 failed, 816 passed, 1 warning in 43.92s
+exit=1
