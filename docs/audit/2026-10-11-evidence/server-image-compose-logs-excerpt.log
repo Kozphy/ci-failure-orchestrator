@@ -1,0 +1,21 @@
+# Read-only excerpts of the ci / server-image job logs, fetched 2026-10-11 with
+#   gh api repos/Kozphy/ci-failure-orchestrator/actions/jobs/<job_id>/logs
+# Only the smoke-test result line and the Compose logs step are kept. ANSI codes stripped.
+
+## run 37332637994 / job 111839326078 (head f7b6cf2, event push)
+2026-10-05T15:25:41.9469555Z {"status":"ready","checks":{"database":"ok","artifacts":"ok"}}{"status":"ok","version":"1.2.0"}job_status=COMPLETED
+2026-10-05T15:25:41.9514418Z ##[group]Run docker compose logs --no-color
+2026-10-05T15:25:42.0303668Z error while interpolating x-app-env.CFO_DATABASE_URL: required variable POSTGRES_PASSWORD is missing a value: set POSTGRES_PASSWORD in .env
+2026-10-05T15:25:42.0339925Z ##[error]Process completed with exit code 1.
+
+## run 38126825665 / job 114432817083 (head 0aa6de3, event push)
+2026-10-11T09:01:12.1422048Z {"status":"ready","checks":{"database":"ok","artifacts":"ok"}}{"status":"ok","version":"1.2.0"}job_status=COMPLETED
+2026-10-11T09:01:12.1477056Z ##[group]Run docker compose logs --no-color
+2026-10-11T09:01:12.2199486Z error while interpolating x-app-env.CFO_DATABASE_URL: required variable POSTGRES_PASSWORD is missing a value: set POSTGRES_PASSWORD in .env
+2026-10-11T09:01:12.2240582Z ##[error]Process completed with exit code 1.
+
+## run 38126842121 / job 114432864094 (head 0aa6de3, event pull_request)
+2026-10-11T09:01:33.1130395Z {"status":"ready","checks":{"database":"ok","artifacts":"ok"}}{"status":"ok","version":"1.2.0"}job_status=COMPLETED
+2026-10-11T09:01:33.1176800Z ##[group]Run docker compose logs --no-color
+2026-10-11T09:01:33.1963562Z error while interpolating services.postgres.environment.POSTGRES_PASSWORD: required variable POSTGRES_PASSWORD is missing a value: set POSTGRES_PASSWORD in .env
+2026-10-11T09:01:33.2003541Z ##[error]Process completed with exit code 1.
