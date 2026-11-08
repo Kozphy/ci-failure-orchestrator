@@ -1,37 +1,33 @@
-# EvalForge integration boundary
+# EvalForge evaluation boundary
 
-## Intent
+`ci_failure_orchestrator.governed.evaluation.EvalForgeAdapter` is an injected
+submit/fetch contract. It does not prove that a live EvalForge service is deployed.
+The default pipeline's `LocalEvaluator` remains a separate local evaluation mode.
 
-The orchestrator evaluates repair candidates through a local structured evaluator.
-EvalForge can replace or wrap that step as an external evaluation system without
-coupling the pipeline to a vendor SDK.
+When the adapter is selected, independent evaluation is required by default.
+Missing submit/fetch callbacks produce a failed result. Explicit
+`allow_local_fallback=True` enables local evaluation and labels its evidence
+`local_fallback_not_independent`; it must not be counted as an independent gate.
 
-## Interface
+The request carries run ID, proposal ID, SHA-256 of the proposed patch, changed files,
+sandbox state and target-check state. Replies must contain exactly:
 
-```text
-Evaluator (Protocol)
- ├── LocalEvaluator          # in-repo structured gates
- └── EvalForgeAdapter       # submit/fetch callables injected by operator
+- `run_id`, `proposal_id`, `proposal_sha256`: matching request identity/digest;
+- `passed`, `target_check_passed`, `regression_free`, `policy_safe`: actual booleans;
+- `evidence`: 1–64 nonempty strings, each at most 2048 characters;
+- optionally `score`: finite numeric value in [0, 1], excluding booleans.
+
+Missing fields, extra fields, string booleans, stale IDs/digests, invalid scores,
+contradictory PASS and provider exceptions produce failed evaluation. A remote PASS
+cannot override a failed/timed-out local sandbox or failed target check. Exception
+messages are not recorded because they may contain credentials.
+
+Provider callbacks must impose transport deadlines; catching `TimeoutError` does not
+interrupt an arbitrary hung callable. No retry worker or remote service is introduced
+in this P0 contract patch. All new provider-response tests use synthetic replies.
+
+```bash
+python -m pytest -q tests/test_evalforge_boundary.py tests/test_governed_pipeline.py
+python -m ruff check ci_failure_orchestrator/governed/evaluation.py tests/test_evalforge_boundary.py
+python -m mypy --follow-imports=skip ci_failure_orchestrator/governed/evaluation.py
 ```
-
-Contract expected from a remote EvalForge-like service:
-
-| Concept | Fields |
-| --- | --- |
-| Test case | `run_id`, `proposal_id`, files, sandbox flags |
-| Run handle | opaque id returned by `submit` |
-| Metrics | `passed`, `target_check_passed`, `regression_free`, `policy_safe` |
-| Baseline | optional prior run id for comparison |
-| Regression comparison | boolean / evidence list |
-| Policy gate result | may be mirrored into `policy_safe` |
-
-## Reference adapter
-
-`ci_failure_orchestrator.governed.evaluation.EvalForgeAdapter`
-
-- If `submit`/`fetch` are unset, falls back to `LocalEvaluator` (safe default).
-- Does **not** hard-require EvalForge packages.
-
-## Non-claims
-
-This repository does not claim a live EvalForge deployment or measured remote eval SLOs.
