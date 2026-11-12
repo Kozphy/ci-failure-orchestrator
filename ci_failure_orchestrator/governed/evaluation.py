@@ -95,13 +95,39 @@ class EvalForgeAdapter:
         }
         handle = self._submit(payload)
         remote = self._fetch(handle)
+        # A remote evaluator cannot override local sandbox, test or policy failures.
+        # Missing/malformed remote verdict fields are failures, never implicit approval.
+        if not isinstance(remote, dict):
+            raise ValueError("EvalForge response must be an object")
+        remote_passed = remote.get("passed") is True
+        remote_target = remote.get("target_check_passed") is True
+        remote_regression = remote.get("regression_free") is True
+        remote_policy = remote.get("policy_safe") is True
+        local = LocalEvaluator().evaluate(
+            run_id=run_id,
+            proposal=proposal,
+            sandbox=sandbox,
+            target_check_passed=target_check_passed,
+        )
+        verified_target = local.target_check_passed and remote_target
+        verified_regression = local.regression_free and remote_regression
+        verified_policy = local.policy_safe and remote_policy
+        passed = (
+            remote_passed
+            and local.passed
+            and verified_target
+            and verified_regression
+            and verified_policy
+        )
+        raw_evidence = remote.get("evidence")
+        evidence = tuple(str(item) for item in raw_evidence) if isinstance(raw_evidence, (list, tuple)) else ()
         return EvaluationResult(
             run_id=run_id,
-            passed=bool(remote.get("passed")),
-            target_check_passed=bool(remote.get("target_check_passed", target_check_passed)),
-            regression_free=bool(remote.get("regression_free", True)),
-            policy_safe=bool(remote.get("policy_safe", True)),
-            evidence=tuple(remote.get("evidence") or ("evalforge",)),
+            passed=passed,
+            target_check_passed=verified_target,
+            regression_free=verified_regression,
+            policy_safe=verified_policy,
+            evidence=local.evidence + evidence + ("evalforge_remote_verdict_checked=True",),
             score=remote.get("score"),
             timestamp=utc_now(),
         )
