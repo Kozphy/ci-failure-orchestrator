@@ -174,6 +174,9 @@ A Python package with two CLIs over one deterministic core:
 - `ci_failure_orchestrator/doctor/`: `actions-doctor` diagnosis, the offline demo and the
   GitHub Action.
 - `ci_failure_orchestrator/ci_audit/`: the read-only reliability audit.
+- `ci_failure_orchestrator/agent_mcp/`: optional stdio MCP adapter with three read-only tools
+  (`diagnose_saved_log`, `summarize_reliability_export`, `get_repair_evidence`). It does not
+  merge, apply patches, or run shell commands. See [docs/agent-mcp.md](docs/agent-mcp.md).
 
 Everything runs locally or in your CI runner; there is no hosted service. Details:
 [docs/COMMERCIAL_ARCHITECTURE.md](docs/COMMERCIAL_ARCHITECTURE.md) and
