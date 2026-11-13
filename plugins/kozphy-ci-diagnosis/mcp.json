@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "kozphy-ci-diagnosis": {
+      "command": "ci-orchestrator-mcp",
+      "args": ["--timeout", "5"]
+    }
+  }
+}

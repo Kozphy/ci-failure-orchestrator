@@ -1,0 +1,13 @@
+{
+  "name": "kozphy-ci-diagnosis",
+  "displayName": "Kozphy CI Diagnosis",
+  "version": "0.1.0",
+  "description": "Read-only CI Doctor skill and MCP tool for one saved job log. Does not merge, apply patches, or run shell commands.",
+  "author": {
+    "name": "Kozphy"
+  },
+  "license": "MIT",
+  "keywords": ["ci", "diagnosis", "mcp"],
+  "category": "developer-tools",
+  "skills": "./skills/"
+}

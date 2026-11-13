@@ -174,6 +174,9 @@ A Python package with two CLIs over one deterministic core:
 - `ci_failure_orchestrator/doctor/`: `actions-doctor` diagnosis, the offline demo and the
   GitHub Action.
 - `ci_failure_orchestrator/ci_audit/`: the read-only reliability audit.
+- `plugins/kozphy-ci-diagnosis/`: v0.1 toolkit slice. One read-only MCP tool,
+  `diagnose_saved_log`, over the existing CI Doctor. Install and limits:
+  [docs/toolkit/INSTALL.md](docs/toolkit/INSTALL.md).
 
 Everything runs locally or in your CI runner; there is no hosted service. Details:
 [docs/COMMERCIAL_ARCHITECTURE.md](docs/COMMERCIAL_ARCHITECTURE.md) and
