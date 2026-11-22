@@ -1,0 +1,56 @@
+ci_failure_orchestrator/cli.py
+  s_f461b909396366::t_a6914225f48c04 508,600,605-615,630-636,812,854,860-863
+  s_f461b909396366::t_c7ac99f1901708 170-180,359,493-495
+ci_failure_orchestrator/service/run.py
+  s_f461b909396366::t_a6914225f48c04 58,206,223,227-235,239-241,313,341,385-387
+ci_failure_orchestrator/patch_sandbox.py
+  s_f461b909396366::t_69ea232a112d43 144-145,147
+  s_f461b909396366::t_4d8d5dd96f16db 78
+  s_f461b909396366::t_a6914225f48c04 7,118,123-124,127-139,149-183
+  s_f461b909396366::t_287da4ceb9e5ef 66,74-77,79-81,91-100,103-117,119-122,125-126,140-143,146,148,184,190-193,206-210,212,238-244,246-253,255,307-314,316,324-331,333,337-344,346,352
+  s_f461b909396366::t_74f4f2380a0fc8 8
+  s_f461b909396366::t_6c2bb8a33bfc9f 211
+  s_f461b909396366::t_2bb8cf32c9e838 245
+  s_f461b909396366::t_39a39379f84ca8 254
+  s_f461b909396366::t_f15f2baf8a0f57 315
+  s_f461b909396366::t_2c84181c0e5e1d 332
+  s_f461b909396366::t_0db9fdd1da7b99 345
+  s_f461b909396366::t_a86eeaa83fb3fe 4
+ci_failure_orchestrator/repair_execution.py
+  s_f461b909396366::t_287da4ceb9e5ef 39,115
+  s_f461b909396366::t_6ed70badd12993 5,13
+ci_failure_orchestrator/service/verification.py
+  s_f461b909396366::t_a6914225f48c04 392,397-401,424,476-482
+  s_f461b909396366::t_2a9b28ec9b4763 351-353,643
+README.md
+  s_f461b909396366::t_10d80ae4d1d359 108-111
+  s_f461b909396366::t_5ba84e4bb93ed0 103-107,112
+ci_failure_orchestrator/module_status.py
+  s_f461b909396366::t_83a3f1c2d881d9 98-100
+tests/test_patch_sandbox.py
+  s_f461b909396366::t_1400e50d89ba84 37,39,69-70,80-87,89-105
+  s_f461b909396366::t_5ba84e4bb93ed0 6,88,106-132
+  s_f461b909396366::t_6bc754b0d08846 36
+  s_f461b909396366::t_f8e8d0b27932ac 38
+  s_f461b909396366::t_40799c86a3f4b4 40
+  s_f461b909396366::t_02452bc05e17ef 71-73
+  s_f461b909396366::t_7e140d75f67385 74
+docs/module-status.md
+  s_f461b909396366::t_83a3f1c2d881d9 41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cf7c9ee044909498b4338076d68a02d60e84088b",
+  "prompts": {},
+  "sessions": {
+    "s_f461b909396366": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "8aa21711-380d-4d8c-9d50-3c811e71275e",
+        "model": "unknown"
+      },
+      "human_author": "Zixsa <dbdf0147@gmail.com>"
+    }
+  }
+}
