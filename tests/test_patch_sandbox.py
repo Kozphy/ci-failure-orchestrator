@@ -3,6 +3,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+from ci_failure_orchestrator import patch_sandbox
 from ci_failure_orchestrator.patch_sandbox import WorktreePatchVerifier
 
 
@@ -32,7 +33,11 @@ index 5626abf..f719efd 100644
 -one
 +two
 """
-    verifier = WorktreePatchVerifier(commands=(("assert", ("python", "-c", "from pathlib import Path; assert Path('value.txt').read_text() == 'two\\n'")),))
+    verifier = WorktreePatchVerifier(
+        commands=(
+            ("assert", ("python", "-c", "from pathlib import Path; assert Path('value.txt').read_text() == 'two\\n'")),
+        )
+    )
     result = verifier.verify(repo_path=repo, patch_text=patch)
 
     assert result.applied is True
@@ -61,12 +66,67 @@ index 5626abf..f719efd 100644
 -one
 +two
 """
-    verifier = WorktreePatchVerifier(commands=(
-        ("fail", ("python", "-c", "raise SystemExit(2)")),
-        ("never", ("python", "-c", "raise SystemExit(0)")),
-    ))
+    verifier = WorktreePatchVerifier(
+        commands=(
+            ("fail", ("python", "-c", "raise SystemExit(2)")),
+            ("never", ("python", "-c", "raise SystemExit(0)")),
+        )
+    )
     result = verifier.verify(repo_path=repo, patch_text=patch)
     assert result.passed is False
     assert result.reason == "verification_failed"
     assert len(result.steps) == 1
     assert result.steps[0].returncode == 2
+
+
+def test_container_isolation_fails_closed_when_docker_is_unavailable(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    repo = _repo(tmp_path)
+    patch = """diff --git a/value.txt b/value.txt
+index 5626abf..f719efd 100644
+--- a/value.txt
++++ b/value.txt
+@@ -1 +1 @@
+-one
++two
+"""
+    monkeypatch.setattr("ci_failure_orchestrator.patch_sandbox.shutil.which", lambda name: None)
+    verifier = WorktreePatchVerifier(
+        commands=(("assert", ("python", "-c", "print('ok')")),),
+        container_image="python:3.12-slim",
+    )
+    result = verifier.verify(repo_path=repo, patch_text=patch)
+
+    assert result.applied is True
+    assert result.passed is False
+    assert result.steps[0].returncode == 127
+    assert "container_isolation_unavailable" in result.steps[0].stderr
+
+
+def test_container_invocation_disables_network_and_limits_capabilities(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    calls: list[list[str]] = []
+    monkeypatch.setattr(patch_sandbox.shutil, "which", lambda name: "docker")
+
+    def fake_run(argv, **kwargs):
+        calls.append(list(argv))
+        return subprocess.CompletedProcess(argv, 0, "ok", "")
+
+    monkeypatch.setattr(patch_sandbox.subprocess, "run", fake_run)
+    verifier = WorktreePatchVerifier(
+        commands=(("noop", ("python", "-c", "pass")),),
+        container_image="python:3.12-slim",
+    )
+    result = verifier._run_in_container(("python", "-c", "pass"), worktree=tmp_path, env={})
+
+    assert result.returncode == 0
+    run_args = calls[0]
+    assert "--network" in run_args and run_args[run_args.index("--network") + 1] == "none"
+    assert "--read-only" in run_args
+    assert "--cap-drop" in run_args and run_args[run_args.index("--cap-drop") + 1] == "ALL"
+    assert "--memory" in run_args and "--cpus" in run_args
+    assert calls[1][1:3] == ["rm", "--force"]

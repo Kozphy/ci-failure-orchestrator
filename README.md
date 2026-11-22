@@ -100,6 +100,16 @@ ci-orchestrator fix-repo --repo-path ../my-service \
   --verify "python -m pytest tests/test_calc.py -q" \
   --patch-file fix.patch --verification-config verify.yml
 
+# Optional stronger isolation: provide an image with the project dependencies installed.
+# Verification runs with no network, a read-only container root, and bounded resources;
+# Docker/image failures do not fall back to host execution.
+ci-orchestrator fix-repo --repo-path ../my-service \
+  --verify "python -m pytest tests/test_calc.py -q" \
+  --patch-file fix.patch --container-image my-python-ci:stable
+
+For reproducible verification, use a digest-pinned image containing the target project's
+dependencies and every executable referenced by `--verify`/`--regression`.
+
 # 3. See what apply would do, then create a branch and a draft PR
 ci-orchestrator fix-repo-apply <run_id> --dry-run
 ci-orchestrator fix-repo-apply <run_id> --push --open-pr

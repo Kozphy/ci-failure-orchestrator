@@ -95,7 +95,9 @@ EXPERIMENTAL: dict[str, frozenset[str]] = {
         {"execution", "git_validation", "repair_execution", "test_runner", "workspace", "worktree"}
     ),
     "runtime": frozenset({"autonomous_runtime", "distributed_runtime", "runtime_contracts"}),
-    "platform": frozenset({"canary", "dashboard", "dora_metrics", "fleet", "platform", "slo"}),
+    "platform": frozenset(
+        {"canary", "dashboard", "dora_metrics", "fleet", "platform", "reliability_dashboard", "slo"}
+    ),
     "evidence": frozenset(
         {
             "benchmark",
