@@ -1,0 +1,19 @@
+tests/test_security_boundaries.py
+  s_f461b909396366::t_286cce0998bf06 42-44,46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6a360a2ce728569a256bf8cdd030e16ab620b2f6",
+  "prompts": {},
+  "sessions": {
+    "s_f461b909396366": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "8aa21711-380d-4d8c-9d50-3c811e71275e",
+        "model": "unknown"
+      },
+      "human_author": "Zixsa <dbdf0147@gmail.com>"
+    }
+  }
+}
