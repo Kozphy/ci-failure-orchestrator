@@ -204,15 +204,21 @@ Everything runs locally or in your CI runner; there is no hosted service. Detail
 
 ## Pricing and booking
 
-The code is [MIT licensed](LICENSE): you can run it yourself for free. If you would rather have
-someone run it, read the results and fix what it finds, these are fixed-price services:
+The code is [MIT licensed](LICENSE): you can run it yourself for free. The installable diagnosis
+path is the composite Action in `action.yml`. See
+[docs/productization/install-github-action.md](docs/productization/install-github-action.md).
+
+The pilot service is a US$149 written audit of one repository. Scope, exclusions, and intake are
+in [business/service-offer.md](business/service-offer.md). No paid order is recorded. Booking
+links below are placeholders. Higher-priced remediation is not offered until that pilot has
+demand. The table is a price hypothesis, not a customer list.
 
 | Service | What you get | Time | Price |
 | --- | --- | --- | --- |
-| **CI Reliability Audit** | Read-only review of one repository's last 30 days of GitHub Actions: failure causes, flaky tests, wasted minutes, ranked fixes, 30-day plan, 20-minute call. [Details](docs/ci-reliability-audit.md) | 3 business days | **US$149** for the first 3 clients, then US$199 |
-| **CI Fix Sprint** | The audit, plus the top 3 fixes as pull requests for your review, CI Doctor on every failed run, and a re-measurement after 2 weeks | 2 weeks | US$900 |
-| **Verified Repair Setup** | `fix-repo` wired into your repository: fixes from people or AI assistants are verified against the original failure and your tests before a person merges them | 3–4 weeks | from US$3,500 |
-| **Monthly CI Care** | Monthly re-audit, triage of new failure types, policy tuning, one-page report | monthly | from US$400/month |
+| **CI Reliability Audit** | One repository, up to five workflows, up to 30 runs, a written report. Recommendations are not executed. [Scope](business/service-offer.md) | one written pass | US$149 pilot hypothesis |
+| **CI Fix Sprint** | Not offered. Needs paid-pilot demand first. | | |
+| **Verified Repair Setup** | Not offered. Needs paid-pilot demand first. | | |
+| **Monthly CI Care** | Not offered. Needs paid-pilot demand first. | | |
 
 **Public repository?** Ask for a free CI snapshot: the top 3 findings from your last 30 days,
 no access needed.
@@ -221,8 +227,9 @@ no access needed.
 
 1. **[Book a free 15-minute call](https://cal.com/YOUR-HANDLE/ci-audit)** to check that the audit
    fits your repository, or **[pay for the audit directly](https://buy.stripe.com/YOUR-PAYMENT-LINK)**.
-2. Share read-only access: a fine-grained token scoped to the one repository with **Actions:
-   Read-only** and **Metadata: Read-only**, expiring in 7 days. Public repositories need nothing.
+2. Prefer sanitized logs. If a token is required, you create a fine-grained token scoped to
+   the one repository with **Actions: Read-only** and **Metadata: Read-only**, expiring in 7
+   days. Do not paste a personal token into email or chat. Public repositories need nothing.
 3. Receive the report within 3 business days, then a walkthrough call if you want one.
 
 Card payment through Stripe; invoices on request. If the audit contains no finding you can act
