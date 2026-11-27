@@ -53,7 +53,7 @@ EXPERIMENTAL: dict[str, frozenset[str]] = {
             "verification",
         }
     ),
-    "governed": frozenset({"governed"}),
+    "governed": frozenset({"governed", "governed_agent"}),
     "trust": frozenset({"audit", "network_discovery", "trust", "trust_gateway", "trust_policy"}),
     "supervisor": frozenset(
         {
