@@ -39,8 +39,11 @@ FIX_PATCH = (
 
 
 def _git(cwd: Path, *args: str) -> str:
+    command = ["git"]
+    if (cwd / "config").is_file() and (cwd / "HEAD").is_file() and (cwd / "objects").is_dir():
+        command.extend(["--git-dir", str(cwd)])
     return subprocess.run(
-        ["git", *args], cwd=cwd, check=True, capture_output=True, text=True, encoding="utf-8"
+        [*command, *args], cwd=cwd, check=True, capture_output=True, text=True, encoding="utf-8"
     ).stdout
 
 

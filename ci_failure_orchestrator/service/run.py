@@ -39,7 +39,6 @@ from .verification import (
     static_verification,
 )
 
-
 # Every attempt may call a model provider and run the full verification suite.
 MAX_ATTEMPTS_CEILING = 10
 
@@ -56,6 +55,7 @@ class FixRepoConfig:
     provider_timeout: int = 600
     verify_env: Sequence[str] = ()
     verify_timeout: int = 600
+    container_image: str | None = None
     base_ref: str = "HEAD"
     max_attempts: int = 3
     artifacts_root: Path = Path("artifacts")
@@ -203,6 +203,7 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
         commands=[(c.name, c.argv) for c in commands],
         timeout_seconds=config.verify_timeout,
         env_allowlist=DEFAULT_ENV_ALLOWLIST + tuple(config.verify_env),
+        container_image=config.container_image,
     )
     baseline = verifier.reproduce(repo_path=repo, base_ref=base_commit)
     if baseline is None:
@@ -219,18 +220,25 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
         )
 
     failure = clean_failure(config.failure) if config.failure else failure_from_reproduction(baseline, commands)
-    tracked = tuple(
-        line for line in git(repo, "ls-tree", "-r", "--name-only", base_commit).stdout.splitlines() if line
-    )
+    tracked = tuple(line for line in git(repo, "ls-tree", "-r", "--name-only", base_commit).stdout.splitlines() if line)
     finding = detect_environment_failure(baseline, commands, tracked)
     if finding is not None:
         return _escalate_environment(
-            config, finding, failure=failure, repo=repo, base_commit=base_commit,
-            artifacts_root=artifacts_root, tasks=tasks, task=task, source=source,
+            config,
+            finding,
+            failure=failure,
+            repo=repo,
+            base_commit=base_commit,
+            artifacts_root=artifacts_root,
+            tasks=tasks,
+            task=task,
+            source=source,
         )
     if not failure.get("changed_paths"):
         failure["changed_paths"] = list(
-            related_tracked_paths(str(failure.get("log_excerpt") or "") + "\n" + str(failure.get("message") or ""), tracked)
+            related_tracked_paths(
+                str(failure.get("log_excerpt") or "") + "\n" + str(failure.get("message") or ""), tracked
+            )
         )
 
     run_id = new_id("run")
@@ -302,6 +310,7 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
                 "patch_sha256": sha256(proposal.patch.encode("utf-8")).hexdigest(),
                 "files_changed": list(files_changed),
                 "verify_commands": [c.display for c in commands],
+                "verification_isolation": verifier.isolation_mode,
                 "proposal_id": proposal.proposal_id,
                 "proposal_source": source.name,
                 "agent": source.agent,
@@ -329,6 +338,7 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
             config=config.verification or VerificationConfig(),
             timeout=config.verify_timeout,
             env_allowlist=DEFAULT_ENV_ALLOWLIST + tuple(config.verify_env),
+            container_image=config.container_image,
             **common,
         )
     else:
@@ -372,7 +382,9 @@ def run_fix_repo(config: FixRepoConfig) -> dict[str, Any]:
             f"python -m ci_failure_orchestrator.cli foundation-decide {run_id} --action APPROVE "
             f"--reviewer <you> --artifacts {config.artifacts_root}"
         )
-        next_steps.append(f"python -m ci_failure_orchestrator.cli fix-repo-apply {run_id} --artifacts {config.artifacts_root}")
+        next_steps.append(
+            f"python -m ci_failure_orchestrator.cli fix-repo-apply {run_id} --artifacts {config.artifacts_root}"
+        )
     else:
         next_steps.append(f"Inspect artifacts under {artifacts_root / 'runs' / run_id}")
 

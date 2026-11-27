@@ -348,7 +348,9 @@ def static_verification(
     return VerificationReport(result, decide_remediation(result), evidence)
 
 
-def _command_gate(names: Sequence[str], before: Mapping[str, VerificationStep], after: Mapping[str, VerificationStep]) -> GateStatus:
+def _command_gate(
+    names: Sequence[str], before: Mapping[str, VerificationStep], after: Mapping[str, VerificationStep]
+) -> GateStatus:
     if not names:
         return GateStatus.NOT_RUN
     if any(name not in after for name in names):
@@ -387,11 +389,16 @@ def _run_worktree(
     patch: str | None,
     timeout: int,
     env_allowlist: Sequence[str],
+    container_image: str | None = None,
 ) -> dict[str, VerificationStep] | None:
     if not commands:
         return {}
     verifier = WorktreePatchVerifier(
-        commands=commands, timeout_seconds=timeout, env_allowlist=env_allowlist, stop_on_failure=False
+        commands=commands,
+        timeout_seconds=timeout,
+        env_allowlist=env_allowlist,
+        stop_on_failure=False,
+        container_image=container_image,
     )
     if patch is None:
         steps = verifier.reproduce(repo_path=repo, base_ref=base_commit)
@@ -414,6 +421,7 @@ def collect_verification(
     policy_outcome: str | None,
     policy_risk: str | None,
     human_approved: bool = False,
+    container_image: str | None = None,
 ) -> VerificationReport:
     """Run before/after verification for a patch whose verify commands already passed."""
 
@@ -465,7 +473,13 @@ def collect_verification(
         after_cmds.append(("affected", (*prefix, *affected_after, *pytest_tail)))
         displays["affected"] = " ".join((*prefix, *affected_after, *pytest_tail))
 
-    run_args = {"repo": repo, "base_commit": base_commit, "timeout": timeout, "env_allowlist": env_allowlist}
+    run_args = {
+        "repo": repo,
+        "base_commit": base_commit,
+        "timeout": timeout,
+        "env_allowlist": env_allowlist,
+        "container_image": container_image,
+    }
     before = _run_worktree(before_cmds, patch=None, **run_args)
     after = _run_worktree(after_cmds, patch=patch, **run_args)
     worktrees_ok = before is not None and after is not None
@@ -626,9 +640,7 @@ def collect_verification(
             },
             "gates": {g: quality[g].value for g in QUALITY_GATES} | {"coverage": coverage.value},
             "waivers": dict(config.waivers),
-            "steps_after": {
-                g: [_step_record(after.get(n), displays[n]) for n in gate_names[g]] for g in QUALITY_GATES
-            },
+            "steps_after": {g: [_step_record(after.get(n), displays[n]) for n in gate_names[g]] for g in QUALITY_GATES},
         },
         "behavioral_invariants": [
             {
