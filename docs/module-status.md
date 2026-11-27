@@ -34,7 +34,7 @@ Not deleted or moved in v0.1.0. No new service features depend on them.
 | governed | `governed/` |
 | trust | `audit`, `network_discovery`, `trust`, `trust_gateway`, `trust_policy` |
 | supervisor | `approval`, `github_repair_adapter`, `repair_state_machine`, `state_machine`, `supervisor`, `task_idempotency` |
-| control-plane | `agent_router`, `api`, `control_plane`, `control_plane_run`, `policy`, `production`, `protocol`, `tournament` |
+| control-plane | `agent_mcp/`, `agent_router`, `api`, `control_plane`, `control_plane_run`, `policy`, `production`, `protocol`, `tournament` |
 | scripted-repair | `ablation`, `agent_eval`, `agent_executor`, `agent_loop`, `command_agent`, `evaluator`, `repair`, `repair_agents`, `repair_loop`, `repair_planner` |
 | execution-stack | `execution`, `git_validation`, `repair_execution`, `test_runner`, `workspace`, `worktree` |
 | runtime | `autonomous_runtime`, `distributed_runtime`, `runtime_contracts` |
