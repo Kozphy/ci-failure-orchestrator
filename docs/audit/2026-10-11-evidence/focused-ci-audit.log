@@ -1,0 +1,56 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.6.0
+rootdir: /workspace/ci-failure-orchestrator
+configfile: pyproject.toml
+plugins: anyio-4.15.1, cov-7.1.0
+collected 18 items
+
+tests/test_ci_audit.py ..................                                [100%]
+
+==================================== PASSES ====================================
+__________________________ test_cli_report_round_trip __________________________
+----------------------------- Captured stdout call -----------------------------
+{
+  "outcome": "REPORTED",
+  "output": "/tmp/pytest-of-box/pytest-59/test_cli_report_round_trip0/report.md",
+  "findings": [
+    "F-OS High: Windows/macOS jobs use 46% of billed minutes",
+    "F-FLAKY High: 17% of runs were rerun; 2 commits failed then passed unchanged",
+    "F-DUP Medium: push and pull_request both run on the same commits (9% of minutes)"
+  ]
+}
+{
+  "outcome": "ERROR",
+  "message": "unsupported export schema: 'nope'"
+}
+________________________ test_cli_collect_writes_export ________________________
+----------------------------- Captured stdout call -----------------------------
+{
+  "outcome": "COLLECTED",
+  "output": "/tmp/pytest-of-box/pytest-59/test_cli_collect_writes_export0/export.json",
+  "runs": 7,
+  "jobs": 8,
+  "failed_jobs": 3,
+  "warnings": 0,
+  "authenticated": true
+}
+=========================== short test summary info ============================
+PASSED tests/test_ci_audit.py::test_collect_skips_in_progress_runs_and_scrubs_secrets
+PASSED tests/test_ci_audit.py::test_collect_fetches_only_most_recent_logs
+PASSED tests/test_ci_audit.py::test_collect_rejects_bad_limits
+PASSED tests/test_ci_audit.py::test_analysis_metrics
+PASSED tests/test_ci_audit.py::test_findings_are_ranked_by_severity
+PASSED tests/test_ci_audit.py::test_report_has_every_section_and_no_secrets
+PASSED tests/test_ci_audit.py::test_analyze_rejects_unknown_schema
+PASSED tests/test_ci_audit.py::test_minutes_and_runner_os
+PASSED tests/test_ci_audit.py::test_collect_reports_log_download_failures
+PASSED tests/test_ci_audit.py::test_failing_section_keeps_only_the_failing_step_output
+PASSED tests/test_ci_audit.py::test_failure_message_prefers_specific_error_then_warning
+PASSED tests/test_ci_audit.py::test_failure_message_prefers_the_tool_error_over_help_urls_and_tallies
+PASSED tests/test_ci_audit.py::test_audit_refinement_does_not_hide_real_dependency_failures
+PASSED tests/test_ci_audit.py::test_dependabot_dynamic_runs_share_one_workflow_label
+PASSED tests/test_ci_audit.py::test_log_redirect_to_another_host_drops_the_token
+PASSED tests/test_ci_audit.py::test_client_paginates_and_caps_runs
+PASSED tests/test_ci_audit.py::test_cli_report_round_trip
+PASSED tests/test_ci_audit.py::test_cli_collect_writes_export
+============================== 18 passed in 0.37s ==============================
