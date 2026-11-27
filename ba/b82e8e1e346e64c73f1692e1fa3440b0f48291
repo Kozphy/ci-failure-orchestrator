@@ -1,0 +1,29 @@
+ci_failure_orchestrator/module_status.py
+  s_be7467d8494cb0::t_d59ea4b6dba6fc 70
+docs/module-status.md
+  s_f35294f540b0b7::t_49001814b3e121 37
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bab82e8e1e346e64c73f1692e1fa3440b0f48291",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <dbdf0147@gmail.com>"
+    },
+    "s_f35294f540b0b7": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "1397e7b4-865b-4e9e-80ff-034675a60aa7",
+        "model": "composer-2.5-fast"
+      },
+      "human_author": "Zixsa <dbdf0147@gmail.com>"
+    }
+  }
+}
