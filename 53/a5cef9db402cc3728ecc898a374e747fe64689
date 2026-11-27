@@ -1,0 +1,39 @@
+.github/workflows/provider-contract.yml
+  s_be7467d8494cb0::t_863691d67844e3 15
+.github/workflows/promotion.yml
+  s_be7467d8494cb0::t_863691d67844e3 34,59,90
+.github/workflows/foundation-benchmark.yml
+  s_be7467d8494cb0::t_863691d67844e3 21
+.github/workflows/self-heal.yml
+  s_be7467d8494cb0::t_863691d67844e3 44
+.github/workflows/agent-issue-delivery.yml
+  s_be7467d8494cb0::t_863691d67844e3 31
+.github/workflows/repair-execution.yml
+  s_be7467d8494cb0::t_863691d67844e3 17
+.github/workflows/repair-benchmark.yml
+  s_be7467d8494cb0::t_863691d67844e3 16
+.github/workflows/research-evidence.yml
+  s_be7467d8494cb0::t_863691d67844e3 39
+.github/workflows/patch-sandbox.yml
+  s_be7467d8494cb0::t_863691d67844e3 18
+.github/workflows/live-semantic-merge-eval.yml
+  s_be7467d8494cb0::t_863691d67844e3 25
+.github/workflows/ct.yml
+  s_be7467d8494cb0::t_863691d67844e3 18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "53a5cef9db402cc3728ecc898a374e747fe64689",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <dbdf0147@gmail.com>"
+    }
+  }
+}
