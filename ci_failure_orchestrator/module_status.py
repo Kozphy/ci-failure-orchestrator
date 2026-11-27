@@ -67,6 +67,7 @@ EXPERIMENTAL: dict[str, frozenset[str]] = {
     ),
     "control-plane": frozenset(
         {
+            "agent_mcp",
             "agent_router",
             "api",
             "control_plane",
