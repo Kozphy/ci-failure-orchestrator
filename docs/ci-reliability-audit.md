@@ -1,5 +1,7 @@
 # GitHub CI Reliability Audit
 
+The narrower pilot scope, with no claim of existing clients, is [business/service-offer.md](../business/service-offer.md). This page's "first 3 clients" line is a price schedule, not a count of buyers. The Action does not generate a PDF.
+
 **Stop rerunning CI. Know why it failed, what it costs, and what to fix first.**
 
 A fixed-price, read-only review of one repository's GitHub Actions history. You get a written report in 3 business days.
