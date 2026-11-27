@@ -22,6 +22,26 @@ inputs:
     description: Python used to run CI Doctor (3.10 or newer).
     required: false
     default: "3.12"
+  log-path:
+    description: Saved job log to diagnose locally. When set, no GitHub API call is made.
+    required: false
+    default: ""
+  output-format:
+    description: json, markdown, or both. diagnosis.json is always written.
+    required: false
+    default: both
+  report-path:
+    description: Optional Markdown report path. The parent directory must already exist.
+    required: false
+    default: ""
+  fail-on-policy-violation:
+    description: When true, exit 4 if the policy preview is ESCALATE. Does not merge or push.
+    required: false
+    default: "false"
+  redact-secrets:
+    description: Must stay true. false is rejected.
+    required: false
+    default: "true"
 
 outputs:
   failure-class:
@@ -30,6 +50,18 @@ outputs:
   diagnosis-file:
     description: Path to diagnosis.json on the runner.
     value: ${{ steps.diagnose.outputs.diagnosis-file }}
+  diagnosis-status:
+    description: diagnosed or none.
+    value: ${{ steps.diagnose.outputs.diagnosis-status }}
+  failure-category:
+    description: Same value as failure-class.
+    value: ${{ steps.diagnose.outputs.failure-category }}
+  report-path:
+    description: Markdown report path, or empty when output-format is json.
+    value: ${{ steps.diagnose.outputs.report-path }}
+  policy-status:
+    description: ELIGIBLE, ESCALATE, or none.
+    value: ${{ steps.diagnose.outputs.policy-status }}
 
 runs:
   using: composite
@@ -52,9 +84,15 @@ runs:
         echo "python=$python" >> "$GITHUB_OUTPUT"
     - id: diagnose
       shell: bash
+      timeout-minutes: 5
       env:
         CI_DOCTOR_PYTHON: ${{ steps.install.outputs.python }}
         CI_DOCTOR_REPOSITORY: ${{ inputs.repository }}
         CI_DOCTOR_RUN_ID: ${{ inputs.run-id }}
+        CI_DOCTOR_LOG_PATH: ${{ inputs.log-path }}
+        CI_DOCTOR_OUTPUT_FORMAT: ${{ inputs.output-format }}
+        CI_DOCTOR_REPORT_PATH: ${{ inputs.report-path }}
+        CI_DOCTOR_FAIL_ON_POLICY: ${{ inputs.fail-on-policy-violation }}
+        CI_DOCTOR_REDACT_SECRETS: ${{ inputs.redact-secrets }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
       run: '"$CI_DOCTOR_PYTHON" -m ci_failure_orchestrator.doctor.action'
