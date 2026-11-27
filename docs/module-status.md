@@ -31,7 +31,7 @@ Not deleted or moved in v0.1.0. No new service features depend on them.
 | Group | Modules |
 | --- | --- |
 | diagnosis | `affected_tests`, `baselines`, `causal`, `config`, `corpus`, `corpus_benchmark`, `github_actions_collector`, `github_ingest`, `graph`, `models`, `provenance`, `ranker`, `test_selection`, `verification` |
-| governed | `governed/` |
+| governed | `governed/`, `governed_agent/` |
 | trust | `audit`, `network_discovery`, `trust`, `trust_gateway`, `trust_policy` |
 | supervisor | `approval`, `github_repair_adapter`, `repair_state_machine`, `state_machine`, `supervisor`, `task_idempotency` |
 | control-plane | `agent_mcp/`, `agent_router`, `api`, `control_plane`, `control_plane_run`, `policy`, `production`, `protocol`, `tournament` |
