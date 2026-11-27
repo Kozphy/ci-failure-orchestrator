@@ -167,15 +167,17 @@ def cmd_trust_run(args):
     else:
         print(result.status)
     print()
-    _dump({
-        "status": result.status,
-        "correlation_id": result.correlation_id,
-        "policy": result.policy_decision,
-        "attempts": [asdict(item) for item in result.attempts],
-        "state_history": result.state_history,
-        "escalation": result.escalation,
-        "metrics": gateway.metrics_snapshot(),
-    })
+    _dump(
+        {
+            "status": result.status,
+            "correlation_id": result.correlation_id,
+            "policy": result.policy_decision,
+            "attempts": [asdict(item) for item in result.attempts],
+            "state_history": result.state_history,
+            "escalation": result.escalation,
+            "metrics": gateway.metrics_snapshot(),
+        }
+    )
     return 0 if result.status == "verified_success" else 2
 
 
@@ -354,9 +356,7 @@ def cmd_foundation_run(args):
             "run_id": result.run.run_id,
             "status": result.status.value,
             "technical_status": result.technical_status,
-            "policy_outcome": None
-            if result.policy_outcome is None
-            else result.policy_outcome.value,
+            "policy_outcome": None if result.policy_outcome is None else result.policy_outcome.value,
             "workflow_status": result.workflow_status,
             "classification": None
             if result.run.classification is None
@@ -490,7 +490,9 @@ def cmd_fix_repo(args):
         raw = read_verification_config_file(Path(args.verification_config)) if args.verification_config else {}
         verification = load_verification_config(raw, regression=args.regression or ())
     except (OSError, ValueError, yaml.YAMLError) as exc:
-        _dump({"outcome": "ERROR", "message": f"invalid verification config: {exc}", "primary_workspace_mutated": False})
+        _dump(
+            {"outcome": "ERROR", "message": f"invalid verification config: {exc}", "primary_workspace_mutated": False}
+        )
         return 2
 
     outcome = run_fix_repo(
@@ -503,6 +505,7 @@ def cmd_fix_repo(args):
             provider_timeout=args.provider_timeout,
             verify_env=args.verify_env or (),
             verify_timeout=args.verify_timeout,
+            container_image=args.container_image,
             base_ref=args.base_ref,
             max_attempts=args.max_attempts,
             artifacts_root=Path(args.artifacts),
@@ -594,22 +597,22 @@ def cmd_ci_audit_collect(args):
     token = args.token or os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN")
     client = GitHubActionsClient(token=token, api_url=args.api_url, timeout=args.timeout)
     try:
-        export = collect_export(
-            client, args.repo, days=args.days, max_runs=args.max_runs, max_logs=args.max_logs
-        )
+        export = collect_export(client, args.repo, days=args.days, max_runs=args.max_runs, max_logs=args.max_logs)
     except (GitHubAPIError, ValueError) as exc:
         _dump({"outcome": "ERROR", "message": str(exc)})
         return 2
     Path(args.output).write_text(json.dumps(export, indent=2), encoding="utf-8")
-    _dump({
-        "outcome": "COLLECTED",
-        "output": args.output,
-        "runs": len(export["runs"]),
-        "jobs": len(export["jobs"]),
-        "failed_jobs": len(export["failures"]),
-        "warnings": len(export["warnings"]),
-        "authenticated": bool(token),
-    })
+    _dump(
+        {
+            "outcome": "COLLECTED",
+            "output": args.output,
+            "runs": len(export["runs"]),
+            "jobs": len(export["jobs"]),
+            "failed_jobs": len(export["failures"]),
+            "warnings": len(export["warnings"]),
+            "authenticated": bool(token),
+        }
+    )
     return 0
 
 
@@ -624,11 +627,13 @@ def cmd_ci_audit_report(args):
     Path(args.output).write_text(render_report(analysis), encoding="utf-8")
     if args.json:
         Path(args.json).write_text(json.dumps(analysis, indent=2), encoding="utf-8")
-    _dump({
-        "outcome": "REPORTED",
-        "output": args.output,
-        "findings": [f"{f['id']} {f['severity']}: {f['title']}" for f in analysis["findings"]],
-    })
+    _dump(
+        {
+            "outcome": "REPORTED",
+            "output": args.output,
+            "findings": [f"{f['id']} {f['severity']}: {f['title']}" for f in analysis["findings"]],
+        }
+    )
     return 0
 
 
@@ -804,10 +809,7 @@ def build_parser():
 
     fd = sub.add_parser(
         "foundation-decide",
-        help=(
-            "Record human reviewer decision for AWAITING_HUMAN "
-            "(APPROVE does not mutate primary workspace)"
-        ),
+        help=("Record human reviewer decision for AWAITING_HUMAN (APPROVE does not mutate primary workspace)"),
     )
     fd.add_argument("run_id")
     fd.add_argument(
@@ -849,12 +851,16 @@ def build_parser():
     proposal.add_argument("--patch-file", help="Unified diff to verify (e.g. from git diff or a teammate)")
     proposal.add_argument(
         "--provider-cmd",
-        help="CLI that reads the prompt on stdin and prints a ```diff block (e.g. \"claude -p\")",
+        help='CLI that reads the prompt on stdin and prints a ```diff block (e.g. "claude -p")',
     )
     fix.add_argument("--provider-env", action="append", metavar="NAME", help="Env var passed to the provider")
     fix.add_argument("--provider-timeout", type=int, default=600)
     fix.add_argument("--verify-env", action="append", metavar="NAME", help="Env var passed to verify commands")
     fix.add_argument("--verify-timeout", type=int, default=600)
+    fix.add_argument(
+        "--container-image",
+        help="Run verify and regression commands in this Docker image with network disabled; no host fallback",
+    )
     source = fix.add_mutually_exclusive_group()
     source.add_argument("--github-repo", help="owner/name of the failing GitHub Actions run")
     source.add_argument("--log-file", help="CI log file describing the failure")

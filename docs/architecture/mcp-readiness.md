@@ -12,13 +12,16 @@ The governed `ToolRegistry` (`ci_failure_orchestrator/governed/tools.py`) alread
 
 That is the minimum boundary needed to expose tools through the Model Context Protocol later.
 
-## What is not implemented
+## What the optional adapter implements
 
-- No MCP server process
-- No MCP client session
-- No JSON-RPC transport
-- No resource/prompt MCP surfaces
+`ci_failure_orchestrator/agent_mcp/` is a stdio JSON-RPC process (Content-Length framing, no MCP SDK dependency). It exposes three read-only tools over existing functions: saved-log diagnosis, a local reliability-export summary, and stored repair evidence. It does not call the governed `ToolRegistry`, so `test_runner` and other write/restricted tools stay unreachable. Installation and limits: [docs/agent-mcp.md](../agent-mcp.md).
+
+## What is still not implemented
+
+- No MCP SDK client session and no resources or prompts
 - No OAuth or remote tool hosting
+- No adapter over the governed `ToolRegistry` (that would include a restricted test runner)
+- The stdio server does not collect live GitHub logs or execute verify commands
 
 ## Mapping to MCP
 

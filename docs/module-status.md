@@ -34,11 +34,11 @@ Not deleted or moved in v0.1.0. No new service features depend on them.
 | governed | `governed/`, `governed_agent/` |
 | trust | `audit`, `network_discovery`, `trust`, `trust_gateway`, `trust_policy` |
 | supervisor | `approval`, `github_repair_adapter`, `repair_state_machine`, `state_machine`, `supervisor`, `task_idempotency` |
-| control-plane | `agent_router`, `api`, `control_plane`, `control_plane_run`, `policy`, `production`, `protocol`, `tournament` |
+| control-plane | `agent_mcp/`, `agent_router`, `api`, `control_plane`, `control_plane_run`, `policy`, `production`, `protocol`, `tournament` |
 | scripted-repair | `ablation`, `agent_eval`, `agent_executor`, `agent_loop`, `command_agent`, `evaluator`, `repair`, `repair_agents`, `repair_loop`, `repair_planner` |
 | execution-stack | `execution`, `git_validation`, `repair_execution`, `test_runner`, `workspace`, `worktree` |
 | runtime | `autonomous_runtime`, `distributed_runtime`, `runtime_contracts` |
-| platform | `canary`, `dashboard`, `dora_metrics`, `fleet`, `platform`, `slo` |
+| platform | `canary`, `dashboard`, `dora_metrics`, `fleet`, `platform`, `reliability_dashboard`, `slo` |
 | evidence | `benchmark`, `benchmark_suite`, `deployment_evidence`, `evidence_signing`, `live_semantic_merge_eval`, `production_evidence`, `production_proof`, `regression_gate`, `release_gates`, `repair_benchmark`, `research_evaluation`, `research_stats`, `statistical_gate` |
 | merge-conflict | `merge_conflict_agent`, `merge_conflict_benchmark`, `openai_merge_resolver` |
 | memory | `failure_memory`, `memory_aware_planner`, `memory_context`, `sqlite_memory` |

@@ -25,6 +25,7 @@ server = [
 [project.scripts]
 ci-orchestrator = "ci_failure_orchestrator.cli:main"
 actions-doctor = "ci_failure_orchestrator.doctor.cli:main"
+ci-orchestrator-mcp = "ci_failure_orchestrator.agent_mcp.server:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

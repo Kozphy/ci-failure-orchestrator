@@ -1,0 +1,9 @@
+{
+  "outcome": "COLLECTED",
+  "output": "public-audit-export.json",
+  "runs": 30,
+  "jobs": 40,
+  "failed_jobs": 2,
+  "warnings": 1,
+  "authenticated": false
+}
