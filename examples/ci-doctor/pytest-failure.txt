@@ -1,0 +1,6 @@
+##[group]Run pytest -q
+pytest -q
+##[endgroup]
+FAILED tests/test_calc.py::test_add - AssertionError: assert 3 == 4
+1 failed, 4 passed in 0.12s
+##[error]Process completed with exit code 1.
