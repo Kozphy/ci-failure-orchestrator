@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Kozphy/ci-failure-orchestrator/benchmark/evidence.schema.json",
+  "title": "Offline benchmark evidence envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "benchmark",
+    "status",
+    "failed_steps",
+    "git_commit",
+    "python",
+    "platform",
+    "credentials",
+    "corpora",
+    "steps",
+    "measurements",
+    "scope"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "benchmark": {"const": "offline-envelope"},
+    "status": {"enum": ["PASSED", "FAILED"]},
+    "failed_steps": {"type": "array", "items": {"type": "string"}},
+    "git_commit": {"type": "string", "minLength": 1},
+    "python": {"type": "string"},
+    "platform": {"type": "string"},
+    "credentials": {"const": "none"},
+    "corpora": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "argv", "exit_code", "output", "output_present", "output_sha256"],
+        "properties": {
+          "name": {"type": "string"},
+          "argv": {"type": "array", "items": {"type": "string"}},
+          "exit_code": {"type": "integer"},
+          "output": {"type": "string"},
+          "output_present": {"type": "boolean"},
+          "output_sha256": {"type": ["string", "null"]},
+          "stderr_tail": {"type": "string"}
+        }
+      }
+    },
+    "measurements": {
+      "type": "object",
+      "required": ["evidence_class", "independently_labelled_cases"],
+      "properties": {
+        "evidence_class": {"const": "synthetic_fixture"},
+        "independently_labelled_cases": {"const": 0},
+        "baseline_matrix": {},
+        "rq1_metrics": {},
+        "corpus_metrics": {},
+        "repair_fixture_metrics": {}
+      }
+    },
+    "scope": {"type": "string"}
+  }
+}
