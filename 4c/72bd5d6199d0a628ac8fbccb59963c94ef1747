@@ -1,0 +1,33 @@
+business/crm/prospects.csv
+  s_43ae8fb073b728::t_11035b7d7f27b2 1-31
+business/crm/README.md
+  s_43ae8fb073b728::t_30ef57b5a86c22 1-90
+business/templates/RECOMMENDATIONS_TEMPLATE.md
+  s_43ae8fb073b728::t_7c734ecb5fbba5 1-67
+business/templates/CASE_STUDY_TEMPLATE.md
+  s_43ae8fb073b728::t_079bc4aa3679fa 1-90
+business/crm/metrics.py
+  s_43ae8fb073b728::t_92504747f9dc3c 1-64
+business/crm/DAILY_METRICS.md
+  s_43ae8fb073b728::t_cd204fe7546afe 1-30
+business/templates/AUDIT_REPORT_TEMPLATE.md
+  s_43ae8fb073b728::t_a36bc2adc5b1ff 1-135
+business/templates/FINDINGS_TEMPLATE.md
+  s_43ae8fb073b728::t_4b67871e5fd89a 1-104
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4c72bd5d6199d0a628ac8fbccb59963c94ef1747",
+  "prompts": {},
+  "sessions": {
+    "s_43ae8fb073b728": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f86bf1ab-e3cb-43ae-9ee3-0baedf607350",
+        "model": "default"
+      },
+      "human_author": "Zixsa <dbdf0147@gmail.com>"
+    }
+  }
+}
