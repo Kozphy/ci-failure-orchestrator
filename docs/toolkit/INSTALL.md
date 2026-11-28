@@ -25,10 +25,10 @@ Copy or symlink `plugins/kozphy-ci-diagnosis` to your local Cursor plugins direc
 python scripts/demo_ci_diagnosis.py
 ```
 
-Exit 0 means the fixture log was diagnosed, the printed JSON has no `ghp_` token, a `merge` call was refused, and the temporary audit file has one `tool_completed` line that does not contain the log text.
+Exit 0 means the fixture log was diagnosed (`diagnosis.source` is `log`), the printed JSON has no `ghp_` token, a `merge` call was refused with `approval_required`, and the temporary directory stayed empty.
 
 The demo log is a fixture. It is not a GitHub Actions download.
 
 ## Sample report
 
-[sample-diagnosis.json](sample-diagnosis.json) is the success payload for that same fixture. `evidence_class` is `saved_log`.
+[sample-diagnosis.json](sample-diagnosis.json) shows the doctor's diagnosis for that same fixture. The demo succeeds on the live `diagnose_saved_log` result: `ok` is true, the excerpt is redacted, and `diagnosis.source` is `log`.
