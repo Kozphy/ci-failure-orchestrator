@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 from ..classifier import classify_error
-from ..github_repair_adapter import FailedCheck, classify_failed_check
+from ..foundation.classifier import classify_ci_step
 from .models import FailureClassification, FailureEvent, utc_now
-
 
 # Map legacy taxonomies into a stable governed vocabulary where possible.
 _LEGACY_TO_GOVERNED = {
@@ -33,15 +32,14 @@ class FailureClassifier:
     """Heuristic classifier. Confidence is **not** calibrated."""
 
     def classify(self, event: FailureEvent) -> FailureClassification:
+        """Map a failure event to a governed class using message and CI-step heuristics."""
         message_class, message_conf = classify_error(event.message or event.log_excerpt)
-        check = FailedCheck(
-            workflow=event.workflow,
-            job=event.job,
-            failed_step=event.failed_step,
-            log_excerpt=event.log_excerpt or event.message,
-            changed_paths=event.changed_paths,
+        adapter_class = classify_ci_step(
+            event.workflow,
+            event.job,
+            event.failed_step,
+            event.log_excerpt or event.message,
         )
-        adapter_class = classify_failed_check(check)
 
         governed = _LEGACY_TO_GOVERNED.get(adapter_class) or _LEGACY_TO_GOVERNED.get(message_class, "unknown")
         # Prefer Actions-oriented class when not unknown; else message taxonomy.

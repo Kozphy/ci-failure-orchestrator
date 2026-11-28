@@ -1,4 +1,4 @@
-"""Static checks: no workflow can auto-merge, and risky write paths are manual-only."""
+"""Static checks: no workflow can auto-merge, and no pull_request_target."""
 
 from __future__ import annotations
 
@@ -8,12 +8,7 @@ from pathlib import Path
 import yaml
 
 WORKFLOWS = Path(__file__).resolve().parents[1] / ".github" / "workflows"
-MANUAL_ONLY = ("auto-merge-after-checks.yml", "self-heal.yml", "agent-issue-delivery.yml")
 MERGE_PATTERN = re.compile(r"gh\s+pr\s+merge|enablePullRequestAutoMerge|merge_method")
-
-
-def _load(name: str) -> dict:
-    return yaml.safe_load((WORKFLOWS / name).read_text(encoding="utf-8"))
 
 
 def _triggers(doc: dict) -> set[str]:
@@ -29,17 +24,6 @@ def _triggers(doc: dict) -> set[str]:
 def _job_disabled(job: dict) -> bool:
     condition = str(job.get("if", "")).replace(" ", "")
     return condition in {"false", "${{false}}", "False"}
-
-
-def test_risky_workflows_are_manual_only():
-    for name in MANUAL_ONLY:
-        assert _triggers(_load(name)) == {"workflow_dispatch"}, name
-
-
-def test_auto_merge_job_cannot_run_even_when_dispatched():
-    jobs = _load("auto-merge-after-checks.yml")["jobs"]
-    assert jobs
-    assert all(_job_disabled(job) for job in jobs.values())
 
 
 def test_no_enabled_workflow_merges_pull_requests():
@@ -67,3 +51,12 @@ def test_no_workflow_triggers_on_pull_request_target():
 def test_merge_detector_is_not_vacuous():
     job = {"steps": [{"run": 'gh pr merge "$PR" --squash'}]}
     assert MERGE_PATTERN.search(yaml.safe_dump(job))
+
+
+def test_risky_auto_merge_and_self_heal_workflows_are_gone():
+    for name in (
+        "auto-merge-after-checks.yml",
+        "self-heal.yml",
+        "agent-issue-delivery.yml",
+    ):
+        assert not (WORKFLOWS / name).exists(), name

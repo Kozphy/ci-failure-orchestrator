@@ -1,59 +1,43 @@
 # Module status
 
-Source of truth: [`ci_failure_orchestrator/module_status.py`](../ci_failure_orchestrator/module_status.py). Enforced by `tests/test_module_boundaries.py` (every module classified; canonical modules may not import experimental ones) and `tests/test_cli_groups.py` (experimental commands labeled in `--help`). Plan: [service-v0.1-plan.md](service-v0.1-plan.md).
+Source of truth: [`ci_failure_orchestrator/module_status.py`](../ci_failure_orchestrator/module_status.py).
+Enforced by `tests/test_module_boundaries.py` and `tests/test_cli_groups.py`.
+Architecture: [CONTROL_PLANE.md](CONTROL_PLANE.md).
 
-## Canonical — the v0.1 service path
+## Canonical — control plane + GTM wedge
 
 | Module | Role |
 | --- | --- |
-| `foundation/` | Control plane: state machine, retry budget, fail-closed policy, evaluator, escalation, persistence, audit, human decisions, benchmark and operations reports |
-| `service/` | Service path: failure ingest, prompt building, proposal sources, worktree sandbox adapter, run and apply (Stage 1 split of `repo_fix.py`), Task / Attempt records (`records.py`) |
+| `foundation/` | Control plane: state machine, retry budget, fail-closed policy, evaluator, escalation, persistence, audit, human decisions |
+| `service/` | Verify untrusted candidates, apply draft branches, evidence reports, real-CI check |
 | `repo_fix.py` | Compatibility shim re-exporting `service` |
 | `patch_sandbox.py` | Disposable git worktree: reproduce, apply, verify |
-| `provider_adapters.py` | Subprocess provider runner with env allowlist, timeout, output cap |
-| `ci_audit/` | Read-only CI reliability audit: collect a sanitized 30-day export, compute metrics and ranked findings, render the Markdown report |
-| `doctor/` | CI Doctor product CLI (`actions-doctor`). `analyze` diagnoses one failed run or saved log: evidence line, failing command, ranked failed jobs, policy preview from the engine's `PolicyConfig`. Read-only; no model calls |
-| `server/` | FastAPI `/v1` API (health, readiness, run submission and reads) and a lease-based worker that runs the foundation with SQL state and audit stores (PostgreSQL, or SQLite locally). Needs the `server` extra. See `docs/adr/0008-sql-durable-state-and-job-queue.md` |
-| `github_client.py` | GitHub Actions REST client (runs, jobs, logs; read-only, token dropped on cross-host redirects) |
-| `classifier.py` | Pure regex error classifier used by `foundation/classifier.py` |
+| `provider_adapters.py` | Subprocess runner for external agent CLIs (env allowlist, timeout) |
+| `ci_audit/` | Read-only CI reliability audit (GTM) |
+| `doctor/` | CI Doctor CLI (`actions-doctor`); read-only diagnosis (GTM) |
+| `server/` | FastAPI `/v1` + worker with SQL durable state |
+| `github_client.py` | GitHub Actions REST client (read-oriented) |
+| `classifier.py` | Pure regex error classifier |
+| `audit.py` | Hash-chained JSONL audit log |
+| `governed/` | Governed pipeline package (policy, sandbox, store) |
+| `governed_agent/` | Deterministic task-contract scope gate for agent diffs |
+| `agent_mcp/` | Read-only MCP adapter |
+| `agent_router` | Route/select external workers; never grants merge |
+| `approval` | Human approval gate |
 | `module_status.py` | This manifest |
 
-Entrypoint: `cli.py` wires both canonical and experimental commands. Canonical commands: `fix-repo`, `fix-repo-apply`, `fix-repo-task` (read-only), `ci-audit-collect` and `ci-audit-report` (read-only), `foundation-*`. All others are labeled `[experimental]` in `ci-orchestrator --help`.
+Entrypoint: `cli.py`. Canonical commands: `ci-audit-*`, `fix-repo*`, `foundation-*`, `governed-*`.
 
-## Known boundary violations (may only shrink)
+## Experimental
 
-None. The last one (`foundation.classifier` → `github_repair_adapter`) was removed in Stage 3: the CI-step heuristic now lives in `foundation/classifier.py::classify_ci_step`.
+Empty after the control-plane cut. Do not reintroduce autonomous repair loops here.
 
-## Experimental — kept, not on the service path
+## Known boundary violations
 
-Not deleted or moved in v0.1.0. No new service features depend on them.
+None.
 
-| Group | Modules |
-| --- | --- |
-| diagnosis | `affected_tests`, `baselines`, `causal`, `config`, `corpus`, `corpus_benchmark`, `github_actions_collector`, `github_ingest`, `graph`, `models`, `provenance`, `ranker`, `test_selection`, `verification` |
-| governed | `governed/`, `governed_agent/` |
-| trust | `audit`, `network_discovery`, `trust`, `trust_gateway`, `trust_policy` |
-| supervisor | `approval`, `github_repair_adapter`, `repair_state_machine`, `state_machine`, `supervisor`, `task_idempotency` |
-| control-plane | `agent_mcp/`, `agent_router`, `api`, `control_plane`, `control_plane_run`, `policy`, `production`, `protocol`, `tournament` |
-| scripted-repair | `ablation`, `agent_eval`, `agent_executor`, `agent_loop`, `command_agent`, `evaluator`, `repair`, `repair_agents`, `repair_loop`, `repair_planner` |
-| execution-stack | `execution`, `git_validation`, `repair_execution`, `test_runner`, `workspace`, `worktree` |
-| runtime | `autonomous_runtime`, `distributed_runtime`, `runtime_contracts` |
-| platform | `canary`, `dashboard`, `dora_metrics`, `fleet`, `platform`, `reliability_dashboard`, `slo` |
-| evidence | `benchmark`, `benchmark_suite`, `deployment_evidence`, `evidence_signing`, `live_semantic_merge_eval`, `production_evidence`, `production_proof`, `regression_gate`, `release_gates`, `repair_benchmark`, `research_evaluation`, `research_stats`, `statistical_gate` |
-| merge-conflict | `merge_conflict_agent`, `merge_conflict_benchmark`, `openai_merge_resolver` |
-| memory | `failure_memory`, `memory_aware_planner`, `memory_context`, `sqlite_memory` |
-| telemetry | `otel`, `repair_telemetry`, `telemetry` |
+## Removed workflows
 
-Scripts outside the package on non-canonical paths: `scripts/sandbox_repair.py`, `scripts/self_heal_github.py` (used by the manual-only `self-heal.yml`).
-
-## Workflows with write or merge capability
-
-| Workflow | Status (Stage 0) | Plan |
-| --- | --- | --- |
-| `auto-merge-after-checks.yml` | Manual trigger only and job hard-disabled (`if: false`) | Delete in Stage 9 |
-| `self-heal.yml` | Manual trigger only; inert without a `workflow_run` payload | Replace with canonical Action caller in Stage 6 |
-| `agent-issue-delivery.yml` | Manual trigger only; inert without an `issues` payload | Evaluate, then remove or replace in Stage 6/9 |
-
-## Planned
-
-`service/dag.py` (Stage 4), `schemas/run.v1.json` and `service-metrics` (Stage 5), reusable Action (Stage 6), GitHub App (after v0.1.0).
+`self-heal.yml`, `agent-issue-delivery.yml`, `auto-merge-after-checks.yml`, and
+repair/research/production-proof workflows were deleted; they encoded agent-repair
+and auto-merge theater.

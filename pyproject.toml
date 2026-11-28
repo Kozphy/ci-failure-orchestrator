@@ -47,7 +47,7 @@ extend-select = ["D101", "D102", "D103", "D106", "D417", "D419"]
 convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
-"!ci_failure_orchestrator/{foundation/**,service/**,ci_audit/**,doctor/**,server/**,__init__,module_status,repo_fix,patch_sandbox,provider_adapters,github_client,classifier,cli}.py" = ["D"]
+"!ci_failure_orchestrator/{foundation/**,service/**,ci_audit/**,doctor/**,server/**,governed/**,governed_agent/**,agent_mcp/**,__init__,module_status,repo_fix,patch_sandbox,provider_adapters,github_client,classifier,audit,agent_router,approval,cli}.py" = ["D"]
 
 [tool.mypy]
 python_version = "3.10"

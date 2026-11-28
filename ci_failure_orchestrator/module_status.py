@@ -1,4 +1,4 @@
-"""Machine-readable module and CLI status for the v0.1 CI failure service.
+"""Machine-readable module and CLI status for the control-plane cut.
 
 Source of truth for which code is on the canonical service path. Enforced by
 ``tests/test_module_boundaries.py`` and ``tests/test_cli_groups.py``; the human
@@ -23,105 +23,28 @@ CANONICAL: frozenset[str] = frozenset(
         "github_client",
         # Pure regex classifier used by foundation.classifier.
         "classifier",
-        # Read-only GitHub Actions reliability audit (collect / analyze / report).
+        # Tamper-evident JSONL audit used by governed pipelines.
+        "audit",
+        # Read-only GitHub Actions reliability audit (GTM wedge).
         "ci_audit",
-        # CI Doctor product CLI (actions-doctor); read-only wrappers over the canonical path.
+        # CI Doctor product CLI (actions-doctor); read-only GTM wedge.
         "doctor",
-        # HTTP API + worker over the foundation with SQL durable state (requires the server extra).
+        # HTTP API + worker over the foundation with SQL durable state.
         "server",
+        # Promoted control-plane surfaces (agents are untrusted proposers).
+        "governed",
+        "governed_agent",
+        "agent_mcp",
+        "agent_router",
+        "approval",
     }
 )
 
 ENTRYPOINTS: frozenset[str] = frozenset({"cli"})
 
-EXPERIMENTAL: dict[str, frozenset[str]] = {
-    "diagnosis": frozenset(
-        {
-            "affected_tests",
-            "baselines",
-            "causal",
-            "config",
-            "corpus",
-            "corpus_benchmark",
-            "github_actions_collector",
-            "github_ingest",
-            "graph",
-            "models",
-            "provenance",
-            "ranker",
-            "test_selection",
-            "verification",
-        }
-    ),
-    "governed": frozenset({"governed", "governed_agent"}),
-    "trust": frozenset({"audit", "network_discovery", "trust", "trust_gateway", "trust_policy"}),
-    "supervisor": frozenset(
-        {
-            "approval",
-            "github_repair_adapter",
-            "repair_state_machine",
-            "state_machine",
-            "supervisor",
-            "task_idempotency",
-        }
-    ),
-    "control-plane": frozenset(
-        {
-            "agent_mcp",
-            "agent_router",
-            "api",
-            "control_plane",
-            "control_plane_run",
-            "policy",
-            "production",
-            "protocol",
-            "tournament",
-        }
-    ),
-    "scripted-repair": frozenset(
-        {
-            "ablation",
-            "agent_eval",
-            "agent_executor",
-            "agent_loop",
-            "command_agent",
-            "evaluator",
-            "repair",
-            "repair_agents",
-            "repair_loop",
-            "repair_planner",
-        }
-    ),
-    "execution-stack": frozenset(
-        {"execution", "git_validation", "repair_execution", "test_runner", "workspace", "worktree"}
-    ),
-    "runtime": frozenset({"autonomous_runtime", "distributed_runtime", "runtime_contracts"}),
-    "platform": frozenset(
-        {"canary", "dashboard", "dora_metrics", "fleet", "platform", "reliability_dashboard", "slo"}
-    ),
-    "evidence": frozenset(
-        {
-            "benchmark",
-            "benchmark_suite",
-            "deployment_evidence",
-            "evidence_signing",
-            "live_semantic_merge_eval",
-            "production_evidence",
-            "production_proof",
-            "regression_gate",
-            "release_gates",
-            "repair_benchmark",
-            "research_evaluation",
-            "research_stats",
-            "statistical_gate",
-        }
-    ),
-    "merge-conflict": frozenset(
-        {"merge_conflict_agent", "merge_conflict_benchmark", "openai_merge_resolver"}
-    ),
-    "memory": frozenset({"failure_memory", "memory_aware_planner", "memory_context", "sqlite_memory"}),
-    "telemetry": frozenset({"otel", "repair_telemetry", "telemetry"}),
-}
+# Experimental surface removed in the control-plane cut. Kept empty so boundary
+# helpers and docs remain stable; do not reintroduce agent/repair theater here.
+EXPERIMENTAL: dict[str, frozenset[str]] = {}
 
 # Canonical -> experimental imports that already exist. The boundary test fails
 # on any new edge and on any listed edge that no longer exists, so this set can
@@ -147,22 +70,14 @@ CANONICAL_COMMANDS: frozenset[str] = frozenset(
         "foundation-benchmark",
         "foundation-operations-report",
         "foundation-slo-check",
+        "governed-run",
+        "governed-explain",
+        "governed-replay",
+        "governed-benchmark",
     }
 )
 
-EXPERIMENTAL_COMMANDS: frozenset[str] = frozenset(
-    {
-        "classify",
-        "rank",
-        "analyze",
-        "analyze-run",
-        "trust-run",
-        "run",
-        "explain",
-        "replay",
-        "benchmark",
-    }
-)
+EXPERIMENTAL_COMMANDS: frozenset[str] = frozenset()
 
 EXPERIMENTAL_LABEL = "[experimental] "
 

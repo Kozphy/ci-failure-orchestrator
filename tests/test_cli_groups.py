@@ -1,4 +1,4 @@
-"""Every CLI command is classified; experimental commands are labeled in --help."""
+"""Every CLI command is classified; experimental surface is empty after the cut."""
 
 from __future__ import annotations
 
@@ -20,13 +20,14 @@ def test_every_command_is_classified_exactly_once():
     assert commands == ms.CANONICAL_COMMANDS | ms.EXPERIMENTAL_COMMANDS
 
 
-def test_experimental_commands_are_labeled_and_canonical_are_not():
+def test_no_experimental_commands_remain():
+    assert ms.EXPERIMENTAL_COMMANDS == frozenset()
     for name, text in _subcommand_help().items():
-        labeled = text.startswith(ms.EXPERIMENTAL_LABEL)
-        assert labeled == (name in ms.EXPERIMENTAL_COMMANDS), name
+        assert not text.startswith(ms.EXPERIMENTAL_LABEL), name
 
 
-def test_top_level_help_names_the_canonical_path():
+def test_top_level_help_names_the_control_plane_path():
     text = build_parser().format_help()
     assert "fix-repo" in text
-    assert "[experimental]" in text
+    assert "CONTROL_PLANE" in text or "never merges" in text
+    assert "[experimental]" not in text

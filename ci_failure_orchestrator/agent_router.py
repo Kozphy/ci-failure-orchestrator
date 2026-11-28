@@ -1,16 +1,36 @@
-"""Provider-neutral routing and tournament selection for CI repair workers.
+"""Provider-neutral routing for untrusted external coding agents.
 
-The router chooses eligible workers from declared capabilities and budget constraints.
-Workers still cannot approve, merge, or release their own changes.
+The router chooses eligible workers from declared capabilities and budget
+constraints. Workers propose diffs only; they cannot approve, merge, or release.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 from typing import Iterable
 
-from .github_repair_adapter import AgentTask
-from .supervisor import RepairAuthority
+
+class WorkerAuthority(str, Enum):
+    """Host-issued authority for what an external agent may attempt."""
+
+    PROPOSE_ONLY = "propose_only"
+    AUTONOMOUS_PATCH = "autonomous_patch"
+    HUMAN_GATED = "human_gated"
+
+
+@dataclass(frozen=True)
+class AgentTask:
+    """Bounded task contract passed to an external coding agent."""
+
+    objective: str
+    failure_class: str
+    authority: WorkerAuthority
+    allowed_paths: tuple[str, ...]
+    required_gates: tuple[str, ...]
+    forbidden_actions: tuple[str, ...]
+    evidence: tuple[str, ...]
+    idempotency_key: str
 
 
 @dataclass(frozen=True)
@@ -19,7 +39,7 @@ class WorkerProfile:
 
     name: str
     provider: str
-    authorities: tuple[RepairAuthority, ...]
+    authorities: tuple[WorkerAuthority, ...]
     supported_failure_classes: tuple[str, ...] = ()
     max_cost_usd: float = 1.0
     max_latency_ms: int = 120_000
@@ -34,7 +54,7 @@ class WorkerProfile:
 
 @dataclass(frozen=True)
 class CandidateResult:
-    """One independently measurable worker candidate."""
+    """One independently measurable worker candidate after verification."""
 
     worker: str
     provider: str

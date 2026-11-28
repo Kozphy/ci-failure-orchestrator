@@ -1,20 +1,25 @@
 # CI Failure Orchestrator
 
-**Know why CI failed, get a fix that is proven before it lands, and keep a person in charge of every merge.**
+**Govern untrusted agent CI patches: verify, policy-gate, evidence, draft PR only — never merge.**
+
+This is a **control plane**, not a coding agent. OpenHands, Claude Code, Cursor, Copilot, and
+teammates may propose diffs; this repository decides whether those diffs survive reproduce,
+regression, fake-fix rejection, and policy. See [docs/CONTROL_PLANE.md](docs/CONTROL_PLANE.md).
 
 > **GitHub CI Reliability Audit**: fixed price, read-only, one repository, report in 3 business days.
 > Pilot price **US$299**. **[See pricing and book →](#pricing-and-booking)**
 
-## Stop fixing CI failures manually
+## Stop trusting green CI from AI patches
 
 A red build costs the same hour every time: open the log, scroll past 10,000 lines, guess
 whether it is the code, a flaky test or the runner, rerun it, and hope. AI coding tools can
 write a patch, but a patch that turns CI green is not the same as a correct one. Deleting the
 failing test, skipping it or lowering a coverage threshold also turns CI green.
 
-CI Failure Orchestrator diagnoses the failure, checks a candidate fix against the original
-failure and your own regression and quality gates, and hands the result to a policy engine
-that decides what may happen next. It opens a draft pull request at most. It never merges.
+CI Failure Orchestrator diagnoses the failure, checks a **candidate from any external agent**
+against the original failure and your own regression and quality gates, and hands the result
+to a policy engine that decides what may happen next. It opens a draft pull request at most.
+It never merges.
 
 **Who it is for:** small engineering teams (3–30 developers) on GitHub Actions with a pytest
 suite, red builds that get rerun instead of read, and AI assistants starting to propose CI
@@ -44,7 +49,7 @@ fixes that someone has to trust.
 CI failure (GitHub Actions run or log file)
   → diagnose            classify the failure, keep the evidence line
   → reproduce           run your verify commands at the base commit; they must fail
-  → propose             patch file, or an LLM CLI behind an interface
+  → propose             untrusted patch file, or external agent CLI (--provider-cmd)
   → verify              targeted tests, regression suite, quality gates, before vs after
   → policy gate         APPROVE | REJECT | ESCALATE (default: ESCALATE)
   → apply (optional)    new branch + draft PR; your working tree and main are untouched
@@ -175,23 +180,20 @@ no cost budget, and the audit log is append-only but not tamper-evident. Full li
 
 ## Architecture
 
-A Python package with two CLIs over one deterministic core:
+A Python package with two CLIs over one deterministic **control plane** (not an agent loop):
 
-- `ci_failure_orchestrator/foundation/`: classifier, planner, sandbox, evaluator, retry
-  budget, policy engine, escalation, durable state and audit events.
-- `ci_failure_orchestrator/service/`: the `fix-repo` pipeline (ingest, reproduce, propose,
-  verify, apply, real CI check, evidence report, metrics).
-- `ci_failure_orchestrator/doctor/`: `actions-doctor` diagnosis, the offline demo and the
-  GitHub Action.
-- `ci_failure_orchestrator/ci_audit/`: the read-only reliability audit.
-- `ci_failure_orchestrator/agent_mcp/`: optional stdio MCP adapter with three read-only tools
-  (`diagnose_saved_log`, `summarize_reliability_export`, `get_repair_evidence`). It does not
-  merge, apply patches, or run shell commands. See [docs/agent-mcp.md](docs/agent-mcp.md).
-- `plugins/kozphy-ci-diagnosis/`: v0.1 Cursor toolkit package over the same read-only MCP
-  adapter. Install and limits: [docs/toolkit/INSTALL.md](docs/toolkit/INSTALL.md).
+- `foundation/`, `governed/`, `approval`, `agent_router`, `governed_agent/`: decide — policy,
+  evaluation, escalation, routing of external workers, human gate.
+- `service/`, `patch_sandbox.py`, `provider_adapters.py`: verify untrusted candidates;
+  draft-PR apply; real CI check; evidence.
+- `doctor/`, `ci_audit/`: read-only diagnosis and reliability audit (commercial wedge).
+- `agent_mcp/`: read-only MCP tools (no merge, no shell). See [docs/agent-mcp.md](docs/agent-mcp.md).
+- `audit.py`: hash-chained JSONL audit used by governed pipelines.
+- `server/`: optional SQL durable API (not required for local use).
 
-Everything runs locally or in your CI runner; there is no hosted service. Details:
-[docs/COMMERCIAL_ARCHITECTURE.md](docs/COMMERCIAL_ARCHITECTURE.md) and
+Full cut rationale: [docs/CONTROL_PLANE.md](docs/CONTROL_PLANE.md). Module map:
+[docs/module-status.md](docs/module-status.md). Engineering:
+[docs/COMMERCIAL_ARCHITECTURE.md](docs/COMMERCIAL_ARCHITECTURE.md),
 [docs/ENGINEERING.md](docs/ENGINEERING.md).
 
 ## Supported CI providers
