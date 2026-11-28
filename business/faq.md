@@ -15,8 +15,8 @@ No. The step fails.
 **Will it run on pull requests from forks?**
 The saved-log example is `workflow_dispatch` only. The run-id workflow uses `workflow_run` and checks out the default branch, not the fork head. It does not use `pull_request_target`.
 
-**Is US$149 the final price?**
-It is the pilot hypothesis. No paid order is recorded.
+**Is US$299 the final price?**
+It is the published pilot price to test demand. No paid order is recorded yet.
 
 **Do you have customers?**
 Not recorded in this repository.

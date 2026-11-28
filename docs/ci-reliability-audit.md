@@ -8,7 +8,7 @@ A fixed-price, read-only review of one repository's GitHub Actions history. You 
 
 | | |
 |---|---|
-| Price | **US$149** pilot (first 3 clients), then US$199 |
+| Price | **US$299** one-time pilot |
 | Scope | One repository, the last 30 days of GitHub Actions runs |
 | Access | Read-only (see below). No code changes, no pushes, no merges |
 | Delivery | Markdown + PDF report, plus a 20-minute walkthrough call on request |
@@ -48,8 +48,8 @@ Public repositories need no access at all.
 
 ## Book
 
-1. **[Book a free 15-minute call](https://cal.com/YOUR-HANDLE/ci-audit)** to confirm the fit, or **[pay for the audit directly](https://buy.stripe.com/YOUR-PAYMENT-LINK)**.
+1. **[Book a free 15-minute call](https://cal.com/ixsa-z-ce9m2f/ci-reliability-audit-fit-check)** to confirm the fit, or **[pay for the audit directly](https://buy.stripe.com/5kQfZh3Zg9RAbh495Y9Zm00)**.
 2. Share read-only access as described above. Never post tokens in a GitHub issue or email body; access is arranged privately after you book.
 3. Receive the report within 3 business days.
 
-If the audit contains no finding you can act on, you get a full refund. Questions: [YOUR-EMAIL](mailto:YOUR-EMAIL). Other packages (fix sprint, verified repair setup, monthly care) are listed in the [README](../README.md#pricing-and-booking).
+If the audit contains no finding you can act on, you get a full refund. Questions: [dbdf0147@gmail.com](mailto:dbdf0147@gmail.com). Other packages (fix sprint, verified repair setup, monthly care) are listed in the [README](../README.md#pricing-and-booking).

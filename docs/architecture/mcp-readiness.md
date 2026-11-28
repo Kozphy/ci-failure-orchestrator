@@ -14,7 +14,7 @@ That is the minimum boundary needed to expose tools through the Model Context Pr
 
 ## What the optional adapter implements
 
-`ci_failure_orchestrator/agent_mcp/` is a stdio JSON-RPC process (Content-Length framing, no MCP SDK dependency). It exposes three read-only tools over existing functions: saved-log diagnosis, a local reliability-export summary, and stored repair evidence. It does not call the governed `ToolRegistry`, so `test_runner` and other write/restricted tools stay unreachable. Installation and limits: [docs/agent-mcp.md](../agent-mcp.md).
+`ci_failure_orchestrator/agent_mcp/` is a stdio JSON-RPC process (Content-Length framing, no MCP SDK dependency). It exposes three read-only tools over existing functions: saved-log diagnosis, a local reliability-export summary, and stored repair evidence. It does not call the governed `ToolRegistry`, so `test_runner` and other write/restricted tools stay unreachable. Installation and limits: [docs/agent-mcp.md](../agent-mcp.md). The Cursor plugin package is `plugins/kozphy-ci-diagnosis/` ([docs/toolkit/INSTALL.md](../toolkit/INSTALL.md)).
 
 ## What is still not implemented
 

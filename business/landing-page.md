@@ -8,7 +8,7 @@ Evidence-backed GitHub Actions failure diagnosis.
 
 ## Subhead
 
-A free read-only Action for one saved log or one failed run. A US$149 written audit when you want a person to review up to five workflows.
+A free read-only Action for one saved log or one failed run. A US$299 written audit when you want a person to review up to five workflows.
 
 ## What you get from the Action
 
@@ -20,7 +20,9 @@ A guarantee of fewer failures, a dashboard, automatic merges, or a certification
 
 ## Price
 
-US$149 is a pilot price for the written scope in the repository file `business/service-offer.md`. It is not a price that has been validated by sales. Higher remediation work is not offered until that pilot has real demand.
+US$299 is a pilot price for the written scope in the repository file `business/service-offer.md`. It is not a price that has been validated by sales. Higher remediation work is not offered until that pilot has real demand.
+
+Book: https://cal.com/ixsa-z-ce9m2f/ci-reliability-audit-fit-check · Pay: https://buy.stripe.com/5kQfZh3Zg9RAbh495Y9Zm00 · Email: dbdf0147@gmail.com
 
 ## Call to action
 
