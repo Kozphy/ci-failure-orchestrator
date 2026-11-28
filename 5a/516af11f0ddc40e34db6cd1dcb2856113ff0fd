@@ -1,0 +1,21 @@
+scripts/check_commercial_site.py
+  s_43ae8fb073b728::t_3e2cc6b65f49a6 56,59-60,62-67,69,72
+business/intake.md
+  s_43ae8fb073b728::t_1350a2b3197238 3-7,12,14,17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5a516af11f0ddc40e34db6cd1dcb2856113ff0fd",
+  "prompts": {},
+  "sessions": {
+    "s_43ae8fb073b728": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f86bf1ab-e3cb-43ae-9ee3-0baedf607350",
+        "model": "default"
+      },
+      "human_author": "Zixsa <dbdf0147@gmail.com>"
+    }
+  }
+}
