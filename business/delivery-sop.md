@@ -1,6 +1,6 @@
 # CI Reliability Audit — Delivery SOP (pilot v1.0)
 
-**Owner:** Kozphy operator. **Scope:** US$149, one authorized GitHub repository, up to 5 named workflows and 30 recent runs. **Target:** 3 Taiwan business days after confirmed payment, approved scope and usable data. No emergency SLA.
+**Owner:** Kozphy operator. **Scope:** US$299, one authorized GitHub repository, up to 5 named workflows and 30 recent runs. **Target:** 3 Taiwan business days after confirmed payment, approved scope and usable data. No emergency SLA.
 
 ## Gate 0 — qualify before payment
 - Identify a permitted point of contact and confirm repository ownership or written audit authorization.

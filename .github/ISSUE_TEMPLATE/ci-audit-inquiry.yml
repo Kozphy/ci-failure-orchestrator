@@ -1,5 +1,5 @@
 name: CI Reliability Audit pilot inquiry
-description: Public, non-sensitive request to check eligibility for the US$149 pilot. Do not upload logs or secrets.
+description: Public, non-sensitive request to check eligibility for the US$299 pilot. Do not upload logs or secrets.
 title: "[CI Audit Pilot] Eligibility inquiry"
 labels: []
 body:

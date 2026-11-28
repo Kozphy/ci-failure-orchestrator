@@ -1,4 +1,4 @@
-# US$149 CI Reliability Audit — pilot intake
+# US$299 CI Reliability Audit — pilot intake
 
 This service is in a **manual eligibility-check phase**. There is **no live payment or booking link**. See [service offer](service-offer.md), [draft terms](terms.md), and [delivery SOP](delivery-sop.md).
 

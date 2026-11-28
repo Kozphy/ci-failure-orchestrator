@@ -3,7 +3,7 @@
 > **Draft for legal and merchant review, not an activated checkout agreement.** Before accepting payments, fill in the legal provider identity, contact details, applicable tax/invoice treatment, jurisdiction, mandatory consumer notices, secure payment provider and actual data-transfer channel. These placeholders are not public booking links.
 
 ## 1. Scope and price
-US$149 one-time for a written, read-only assessment of **one** eligible GitHub repository, up to **five** named workflows and **thirty** recent runs where data is accessible. Deliverables: Markdown + JSON reports, up to five evidence-backed recommendations, one written clarification round. No auto-renewal. Disclose applicable fees/taxes before collection.
+US$299 one-time for a written, read-only assessment of **one** eligible GitHub repository, up to **five** named workflows and **thirty** recent runs where data is accessible. Deliverables: Markdown + JSON reports, up to five evidence-backed recommendations, one written clarification round. No auto-renewal. Disclose applicable fees/taxes before collection.
 
 ## 2. Order and schedule
 An order is accepted only after both parties approve scope, secure information-sharing, delivery channel, these terms and payment. The delivery target is three business days after payment confirmation **and** receipt of usable authorized data. Business days are Monday–Friday excluding Taiwan public holidays. If intake is insufficient, contact client for a remedy, amended schedule or appropriate refund.

@@ -1,6 +1,6 @@
 # Kozphy GitHub Actions Reliability Audit
 
-Experimental offer. US$149 is a hypothesis, not a validated price. No paid orders are recorded in this repository.
+Pilot offer. **US$299** is the published price to test demand. No paid orders are recorded in this repository.
 
 ## What it is
 
@@ -8,7 +8,15 @@ A person reviews one GitHub repository's Actions failures and delivers one writt
 
 ## Price
 
-US$149 per repository for the pilot scope below.
+US$299 per repository for the pilot scope below.
+
+## Book
+
+- Fit check (15 min): https://cal.com/ixsa-z-ce9m2f/ci-reliability-audit-fit-check
+- Pay directly: https://buy.stripe.com/5kQfZh3Zg9RAbh495Y9Zm00
+- Questions: dbdf0147@gmail.com
+
+Full refund if the audit contains no finding you can act on.
 
 ## Included
 

@@ -1,4 +1,4 @@
-# Acceptance criteria — US$149 CI Reliability Audit
+# Acceptance criteria — US$299 CI Reliability Audit
 
 A report is **delivered**, not automatically guaranteed to reduce CI failures. For each accepted order the following must be true:
 

@@ -3,7 +3,7 @@
 **Know why CI failed, get a fix that is proven before it lands, and keep a person in charge of every merge.**
 
 > **GitHub CI Reliability Audit**: fixed price, read-only, one repository, report in 3 business days.
-> Pilot price **US$149** (first 3 clients). **[See pricing and book →](#pricing-and-booking)**
+> Pilot price **US$299**. **[See pricing and book →](#pricing-and-booking)**
 
 ## Stop fixing CI failures manually
 
@@ -223,14 +223,14 @@ The code is [MIT licensed](LICENSE): you can run it yourself for free. The insta
 path is the composite Action in `action.yml`. See
 [docs/productization/install-github-action.md](docs/productization/install-github-action.md).
 
-The pilot service is a US$149 written audit of one repository. Scope, exclusions, and intake are
-in [business/service-offer.md](business/service-offer.md). No paid order is recorded. Booking
-links below are placeholders. Higher-priced remediation is not offered until that pilot has
-demand. The table is a price hypothesis, not a customer list.
+The pilot service is a US$299 written audit of one repository. Scope, exclusions, and intake are
+in [business/service-offer.md](business/service-offer.md). No paid order is recorded yet.
+Higher-priced remediation is not offered until that pilot has demand. The price is a hypothesis
+to test with buyers, not proof of demand.
 
 | Service | What you get | Time | Price |
 | --- | --- | --- | --- |
-| **CI Reliability Audit** | One repository, up to five workflows, up to 30 runs, a written report. Recommendations are not executed. [Scope](business/service-offer.md) | one written pass | US$149 pilot hypothesis |
+| **CI Reliability Audit** | One repository, up to five workflows, up to 30 runs, a written report. Recommendations are not executed. [Scope](business/service-offer.md) | one written pass | US$299 |
 | **CI Fix Sprint** | Not offered. Needs paid-pilot demand first. | | |
 | **Verified Repair Setup** | Not offered. Needs paid-pilot demand first. | | |
 | **Monthly CI Care** | Not offered. Needs paid-pilot demand first. | | |
@@ -240,15 +240,15 @@ no access needed.
 
 ### How to book
 
-1. **[Book a free 15-minute call](https://cal.com/YOUR-HANDLE/ci-audit)** to check that the audit
-   fits your repository, or **[pay for the audit directly](https://buy.stripe.com/YOUR-PAYMENT-LINK)**.
+1. **[Book a free 15-minute call](https://cal.com/ixsa-z-ce9m2f/ci-reliability-audit-fit-check)** to check that the audit
+   fits your repository, or **[pay for the audit directly](https://buy.stripe.com/5kQfZh3Zg9RAbh495Y9Zm00)**.
 2. Prefer sanitized logs. If a token is required, you create a fine-grained token scoped to
    the one repository with **Actions: Read-only** and **Metadata: Read-only**, expiring in 7
    days. Do not paste a personal token into email or chat. Public repositories need nothing.
 3. Receive the report within 3 business days, then a walkthrough call if you want one.
 
 Card payment through Stripe; invoices on request. If the audit contains no finding you can act
-on, you get a full refund. Questions: [YOUR-EMAIL](mailto:YOUR-EMAIL).
+on, you get a full refund. Questions: [dbdf0147@gmail.com](mailto:dbdf0147@gmail.com).
 
 Planned software tiers (Starter, Pro, Team/Enterprise) are described in
 [docs/COMMERCIALIZATION_PLAN.md](docs/COMMERCIALIZATION_PLAN.md); there is no billing system for

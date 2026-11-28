@@ -40,7 +40,7 @@ Measure, with denominators:
 
 ## Experiment C — willingness to pay
 
-Offer the US$149 scope in `service-offer.md`. A free report is not a paid customer.
+Offer the US$299 scope in `service-offer.md`. A free report is not a paid customer.
 
 | Metric | Definition | Recorded |
 | --- | --- | --- |
