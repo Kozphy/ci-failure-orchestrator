@@ -1,0 +1,53 @@
+business/objections.md
+  s_0edffc29dd8c5e::t_054d26f5a04f05 10
+business/outreach.md
+  s_0edffc29dd8c5e::t_e825a9f355a464 5-10,15,19,25
+.github/ISSUE_TEMPLATE/ci-audit-inquiry.yml
+  s_0edffc29dd8c5e::t_535a3646c7dd05 2
+business/acceptance-criteria.md
+  s_0edffc29dd8c5e::t_7f35df958e45a8 1
+business/delivery-sop.md
+  s_0edffc29dd8c5e::t_063adc9a3d219f 3
+README.md
+  s_0edffc29dd8c5e::t_4aaa41e0007597 6
+  s_0edffc29dd8c5e::t_8121b1a0834a73 226-229,233,243-244,251
+business/landing-page.md
+  s_0edffc29dd8c5e::t_980f077438470c 23-25
+  s_0edffc29dd8c5e::t_9a3d23e85063f4 11
+business/terms.md
+  s_0edffc29dd8c5e::t_57d998ffb37638 6
+site/landing-page/index.html
+  s_0edffc29dd8c5e::t_0950bedbbf0783 3,9-12
+business/faq.md
+  s_0edffc29dd8c5e::t_0679a04a25b8be 18-19
+business/experiments.md
+  s_0edffc29dd8c5e::t_893e5331c77f4d 43
+business/intake.md
+  s_0edffc29dd8c5e::t_f16975952e3863 1
+business/service-offer.md
+  s_0edffc29dd8c5e::t_2232b889050c70 3,11-19
+docs/ci-reliability-audit.md
+  s_0edffc29dd8c5e::t_1a2595101d2c1e 51,55
+  s_0edffc29dd8c5e::t_03fdaac62cd2e3 11
+NEXT_STEPS.md
+  s_0edffc29dd8c5e::t_cf4ca4122bee9d 25-26
+  s_0edffc29dd8c5e::t_e029233fe8c0a9 10,13-15,18
+  s_0edffc29dd8c5e::t_7181119608d790 1-9,11-12,16-17,19-24,27-44,48-50,54-56,58-59,61,65,67-201
+  s_0edffc29dd8c5e::t_9c29ee69d88f7c 45-47,51-53,57,60,62-64,66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "68b2b3991b6402f3b1cd506fa41d93c678c1ec66",
+  "prompts": {},
+  "sessions": {
+    "s_0edffc29dd8c5e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f36ff605-4283-443a-b60a-05b784a029ac",
+        "model": "default"
+      },
+      "human_author": "Zixsa <dbdf0147@gmail.com>"
+    }
+  }
+}
