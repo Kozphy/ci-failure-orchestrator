@@ -16,32 +16,29 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: python -m pip install -e '.[dev,server]'
-      - name: Trust control-plane lint
+      - name: Canonical control-plane lint
         run: >-
           python -m ruff check
-          ci_failure_orchestrator/audit.py
           ci_failure_orchestrator/cli.py
-          ci_failure_orchestrator/network_discovery.py
-          ci_failure_orchestrator/provenance.py
-          ci_failure_orchestrator/trust.py
-          ci_failure_orchestrator/trust_gateway.py
-          ci_failure_orchestrator/trust_policy.py
-          tests/test_network_discovery.py
-          tests/test_trust_gateway.py
-          tests/test_trust_policy.py
+          ci_failure_orchestrator/github_client.py
+          ci_failure_orchestrator/module_status.py
+          ci_failure_orchestrator/patch_sandbox.py
+          ci_failure_orchestrator/repo_fix.py
+          ci_failure_orchestrator/ci_audit
+          ci_failure_orchestrator/doctor
+          ci_failure_orchestrator/server
+          ci_failure_orchestrator/service
       - name: Canonical public docstrings
         run: python -m ruff check --select D101,D102,D103,D106,D417,D419 ci_failure_orchestrator
-      - name: Trust control-plane type check
+      - name: Canonical control-plane type check
         run: >-
           python -m mypy --follow-imports=skip
           ci_failure_orchestrator/audit.py
-          ci_failure_orchestrator/network_discovery.py
-          ci_failure_orchestrator/provenance.py
-          ci_failure_orchestrator/trust.py
-          ci_failure_orchestrator/trust_gateway.py
-          ci_failure_orchestrator/trust_policy.py
-      - name: Trust control-plane integration tests
-        run: python -m pytest tests/test_trust_gateway.py tests/test_trust_policy.py tests/test_network_discovery.py
+          ci_failure_orchestrator/cli.py
+          ci_failure_orchestrator/github_client.py
+          ci_failure_orchestrator/module_status.py
+          ci_failure_orchestrator/patch_sandbox.py
+          ci_failure_orchestrator/repo_fix.py
       - name: Tests with coverage
         run: python -m pytest --cov=ci_failure_orchestrator --cov-report=term-missing --cov-report=xml
       - name: Emit test evidence fragment
@@ -72,7 +69,11 @@ jobs:
           files: ./coverage.xml
           fail_ci_if_error: false
       - name: Orchestrator smoke test
-        run: ci-orchestrator rank --pipeline examples/pipeline.json --failures examples/failures.json --audit audit.jsonl
+        run: >-
+          ci-orchestrator governed-run
+          --fixture evidence/sample-runs/01-approve/runs/sample-approve/input/failure-event.json
+          --store artifacts/smoke-governed.db
+          --audit audit.jsonl
       - name: Upload audit evidence
         if: always()
         uses: actions/upload-artifact@v7
