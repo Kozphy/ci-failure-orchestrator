@@ -1,0 +1,203 @@
+tests/test_governed_eval_fail_closed.py
+  s_be7467d8494cb0::t_74978716014659 2-6,11,13-21,25,27-33,37-52,55-58,63-64,70-74,81-82,87-88,94-95,101-102,107-108,113-116
+.github/workflows/ct.yml
+  s_be7467d8494cb0::t_a2e9a71d145f90 18
+.github/workflows/patch-sandbox.yml
+  s_be7467d8494cb0::t_a2e9a71d145f90 18
+ci_failure_orchestrator/governed/evaluation.py
+  s_be7467d8494cb0::t_1ad018900c1ef3 6-7
+  s_be7467d8494cb0::t_51c2eecb89bfcd 5,21,65,67-68,71,74-86,96-97,99-101,107-108,112,117-159,185
+  s_be7467d8494cb0::t_cb29a76eaa4c82 160-161,168-170,172,184
+.github/workflows/repair-execution.yml
+  s_be7467d8494cb0::t_a2e9a71d145f90 17
+.github/workflows/self-heal.yml
+  s_be7467d8494cb0::t_a2e9a71d145f90 44
+ci_failure_orchestrator/service/verification.py
+  s_be7467d8494cb0::t_a2e9a71d145f90 351-353,392,397-401,424,476-482,643
+.github/workflows/agent-issue-delivery.yml
+  s_be7467d8494cb0::t_a2e9a71d145f90 31
+.gitignore
+  s_be7467d8494cb0::t_a2e9a71d145f90 4-5,22-25,31-34,39,44,55-58,70,72-75,77-80,86-109,116,120-121,123,125
+ci_failure_orchestrator/module_status.py
+  s_be7467d8494cb0::t_a2e9a71d145f90 56,70,99-101
+.github/workflows/live-semantic-merge-eval.yml
+  s_be7467d8494cb0::t_a2e9a71d145f90 25
+.github/workflows/provider-contract.yml
+  s_be7467d8494cb0::t_a2e9a71d145f90 15
+.github/workflows/repair-benchmark.yml
+  s_be7467d8494cb0::t_a2e9a71d145f90 16
+docs/architecture/mcp-readiness.md
+  s_be7467d8494cb0::t_a2e9a71d145f90 15,17-21,23-24
+.github/workflows/promotion.yml
+  s_be7467d8494cb0::t_a2e9a71d145f90 34,59,90
+ci_failure_orchestrator/repair_execution.py
+  s_be7467d8494cb0::t_a2e9a71d145f90 5,13,39,115
+docs/integrations/evalforge.md
+  s_be7467d8494cb0::t_a2e9a71d145f90 1-32
+tests/test_patch_sandbox.py
+  s_be7467d8494cb0::t_a2e9a71d145f90 6,36-40,69-74,80-132
+ci_failure_orchestrator/patch_sandbox.py
+  s_be7467d8494cb0::t_a2e9a71d145f90 4,7-8,66,74-81,91-100,103-184,190-193,206-212,238-255,307-316,324-333,337-346,352
+README.md
+  s_be7467d8494cb0::t_a2e9a71d145f90 103-112,187-189
+ci_failure_orchestrator/cli.py
+  s_be7467d8494cb0::t_a2e9a71d145f90 170-180,359,493-495,508,600,605-615,630-636,812,854,860-863
+pyproject.toml
+  s_be7467d8494cb0::t_a2e9a71d145f90 28
+docs/module-status.md
+  s_be7467d8494cb0::t_a2e9a71d145f90 34,37,41
+.github/workflows/foundation-benchmark.yml
+  s_be7467d8494cb0::t_a2e9a71d145f90 20-21
+tests/test_security_boundaries.py
+  s_be7467d8494cb0::t_a2e9a71d145f90 42-44,46
+.github/workflows/research-evidence.yml
+  s_be7467d8494cb0::t_a2e9a71d145f90 39
+ci_failure_orchestrator/service/run.py
+  s_be7467d8494cb0::t_a2e9a71d145f90 58,206,223,227-235,239-241,313,341,385-386
+  s_be7467d8494cb0::t_9ca1eaf7434ea6 387
+.github/ISSUE_TEMPLATE/ci-audit-inquiry.yml
+  s_be7467d8494cb0::t_bb52e5180f87d9 1-50
+.github/workflows/benchmark-offline.yml
+  s_be7467d8494cb0::t_2e62c4951bd673 1-62
+.github/workflows/landing-page-check.yml
+  s_be7467d8494cb0::t_d8be7ff5ed3706 1-29
+agent-skills/ci-reliability/SKILL.md
+  s_be7467d8494cb0::t_105a814537d871 1-29
+benchmark/evidence.schema.json
+  s_be7467d8494cb0::t_12b457ce7a3e7c 1-71
+benchmark/external_cases.v0.json
+  s_be7467d8494cb0::t_2061f8f985e1cf 1-160
+business/acceptance-criteria.md
+  s_be7467d8494cb0::t_2e124f59126c2a 1-22
+business/delivery-sop.md
+  s_be7467d8494cb0::t_3b231b02b263bd 1-41
+business/intake.md
+  s_be7467d8494cb0::t_7f37c772a5ca93 1-13
+business/pilot-tracker.md
+  s_be7467d8494cb0::t_f5fceec7336329 1-25
+business/terms.md
+  s_be7467d8494cb0::t_bc875d2101b0ce 1-29
+ci_failure_orchestrator/agent_mcp/__init__.py
+  s_be7467d8494cb0::t_6e1a2a9e191ffb 1-5
+ci_failure_orchestrator/agent_mcp/__main__.py
+  s_be7467d8494cb0::t_5c747bbd4dd405 1-5
+ci_failure_orchestrator/agent_mcp/server.py
+  s_be7467d8494cb0::t_bcc509b5acb875 1-241
+ci_failure_orchestrator/agent_mcp/tools.py
+  s_be7467d8494cb0::t_f887afde6508dd 1-161
+ci_failure_orchestrator/governed_agent/__init__.py
+  s_be7467d8494cb0::t_b6f0463a2c7c8b 1-5
+ci_failure_orchestrator/governed_agent/contract.py
+  s_be7467d8494cb0::t_9cf519247924b4 1-119
+ci_failure_orchestrator/reliability_dashboard/__init__.py
+  s_be7467d8494cb0::t_aa1410bd50b432 1-20
+ci_failure_orchestrator/reliability_dashboard/catalog.py
+  s_be7467d8494cb0::t_be7ce3fb2f4ca7 1-96
+ci_failure_orchestrator/reliability_dashboard/integrity.py
+  s_be7467d8494cb0::t_edaf767c78b21b 1-158
+ci_failure_orchestrator/reliability_dashboard/metrics.py
+  s_be7467d8494cb0::t_a8a2ec4e210cd4 1-163
+docs/agent-mcp.md
+  s_be7467d8494cb0::t_2af931a6f517c8 1-97
+docs/audit/2026-10-11-audit-report.md
+  s_be7467d8494cb0::t_057478bdb6e209 1-229
+docs/audit/2026-10-11-evidence/ci-static-checks.log
+  s_be7467d8494cb0::t_727ced128941b4 1-30
+docs/audit/2026-10-11-evidence/focused-ci-audit.log
+  s_be7467d8494cb0::t_89a7fb7cadf187 1-56
+docs/audit/2026-10-11-evidence/full-suite-run1-python-not-on-path.log
+  s_be7467d8494cb0::t_81398e98e5d9d7 1-289
+docs/audit/2026-10-11-evidence/full-suite-run2-venv-on-path.log
+  s_be7467d8494cb0::t_6b486f0ccf394b 1-199
+docs/audit/2026-10-11-evidence/pip-freeze.txt
+  s_be7467d8494cb0::t_4b41a9e9a1dafe 1-40
+docs/audit/2026-10-11-evidence/public-audit-analysis.json
+  s_be7467d8494cb0::t_4ede8626531026 1-303
+docs/audit/2026-10-11-evidence/public-audit-collect.log
+  s_be7467d8494cb0::t_37f69848e97269 1-9
+docs/audit/2026-10-11-evidence/public-audit-report.log
+  s_be7467d8494cb0::t_de2f3ef864d87e 1-7
+docs/audit/2026-10-11-evidence/public-audit-report.md
+  s_be7467d8494cb0::t_510be5f7d76490 1-132
+docs/audit/2026-10-11-evidence/repeat-run-2.log
+  s_be7467d8494cb0::t_068c86b062875b 1-19
+docs/audit/2026-10-11-evidence/server-image-compose-logs-excerpt.log
+  s_be7467d8494cb0::t_f185230ce6901b 1-21
+docs/audit/backlog.md
+  s_be7467d8494cb0::t_ae1b0158975509 1-20
+docs/audit/baseline.md
+  s_be7467d8494cb0::t_3ef39ab2c4180d 1-48
+docs/audit/business-case.md
+  s_be7467d8494cb0::t_a01739f07460f6 1-23
+docs/audit/pilot-acceptance.md
+  s_be7467d8494cb0::t_a77ce47d029d04 1-13
+docs/audit/readiness-report.md
+  s_be7467d8494cb0::t_f52dba9526a268 1-31
+docs/audit/release-gate.md
+  s_be7467d8494cb0::t_4be25a9a001571 1-20
+docs/audit/reproduce-audit.sh
+  s_be7467d8494cb0::t_85bb80219778e8 1-30
+docs/audit/risk-register.md
+  s_be7467d8494cb0::t_63c5bc6585926f 1-25
+docs/audit/threat-model.md
+  s_be7467d8494cb0::t_12e4ecf0f6a477 1-17
+docs/benchmark/GAP_ANALYSIS.md
+  s_be7467d8494cb0::t_09622b6c7f65f8 1-95
+docs/benchmark/LIMITATIONS.md
+  s_be7467d8494cb0::t_08103ade8faf53 1-17
+docs/benchmark/METHODOLOGY.md
+  s_be7467d8494cb0::t_85cc17b44211c8 1-62
+docs/benchmark/README.md
+  s_be7467d8494cb0::t_ac13a9ea3f4617 1-14
+docs/benchmark/REPRODUCE.md
+  s_be7467d8494cb0::t_9a04d0d976674d 1-59
+docs/dashboard/README.md
+  s_be7467d8494cb0::t_ae612f660aa6cc 1-25
+docs/dashboard/audit-matrix.md
+  s_be7467d8494cb0::t_87e1c70384d47a 1-18
+docs/dashboard/evidence-to-metrics.md
+  s_be7467d8494cb0::t_a27a8bfdca67c8 1-20
+docs/governed-autonomous-engineer-p0.md
+  s_be7467d8494cb0::t_cf7fc132af2a63 1-53
+scripts/check_commercial_site.py
+  s_be7467d8494cb0::t_ce9837eefcb3b7 1-70
+scripts/demo_agent_mcp.py
+  s_be7467d8494cb0::t_dbabc42d4f7da9 1-81
+scripts/run_offline_benchmark.py
+  s_be7467d8494cb0::t_2bc9239952e74f 1-195
+site/landing-page/index.html
+  s_be7467d8494cb0::t_949a6d83e82c83 1-20
+site/landing-page/styles.css
+  s_be7467d8494cb0::t_e558bff396c382 1
+tests/test_agent_mcp.py
+  s_be7467d8494cb0::t_1896fe397abd62 1-193
+tests/test_evalforge_boundary.py
+  s_be7467d8494cb0::t_2510c4e774728a 1-132
+tests/test_governed_agent_contract.py
+  s_be7467d8494cb0::t_0a0d83bb200707 1-79
+tests/test_offline_benchmark_evidence.py
+  s_be7467d8494cb0::t_c04a5d0e5bbfbf 1-87
+tests/test_reliability_dashboard_metrics.py
+  s_be7467d8494cb0::t_8ff674a5648a94 1-188
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "629b73e5bc8857762e983ddd27bf39a5dc689bf8",
+  "prompts": {},
+  "humans": {
+    "h_194a459ba8b8ba": {
+      "author": "Zixsa <dbdf0147@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <dbdf0147@gmail.com>"
+    }
+  }
+}
