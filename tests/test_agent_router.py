@@ -1,18 +1,18 @@
 from ci_failure_orchestrator.agent_router import (
+    AgentTask,
     CandidateResult,
+    WorkerAuthority,
     WorkerProfile,
     route_workers,
     select_candidate,
 )
-from ci_failure_orchestrator.github_repair_adapter import AgentTask
-from ci_failure_orchestrator.supervisor import RepairAuthority
 
 
 def _task() -> AgentTask:
     return AgentTask(
         objective="fix",
         failure_class="lint",
-        authority=RepairAuthority.AUTONOMOUS_PATCH,
+        authority=WorkerAuthority.AUTONOMOUS_PATCH,
         allowed_paths=("src/a.py",),
         required_gates=("targeted_tests",),
         forbidden_actions=("disable_required_checks",),
@@ -26,21 +26,21 @@ def test_router_filters_by_authority_class_and_budget() -> None:
         WorkerProfile(
             "cheap",
             "provider-a",
-            (RepairAuthority.AUTONOMOUS_PATCH,),
+            (WorkerAuthority.AUTONOMOUS_PATCH,),
             ("lint",),
             max_cost_usd=0.2,
         ),
         WorkerProfile(
             "wrong-class",
             "provider-b",
-            (RepairAuthority.AUTONOMOUS_PATCH,),
+            (WorkerAuthority.AUTONOMOUS_PATCH,),
             ("typing",),
             max_cost_usd=0.1,
         ),
         WorkerProfile(
             "too-expensive",
             "provider-c",
-            (RepairAuthority.AUTONOMOUS_PATCH,),
+            (WorkerAuthority.AUTONOMOUS_PATCH,),
             ("lint",),
             max_cost_usd=3.0,
         ),

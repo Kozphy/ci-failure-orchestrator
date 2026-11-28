@@ -1,11 +1,11 @@
-"""Run the existing offline benchmarks and write one evidence envelope.
+"""Run surviving offline control-plane checks and write one evidence envelope.
 
-This does not score cases itself. It calls the current corpus, baseline, RQ1 and repair-fixture
-scripts. A step that exits non-zero, or that does not leave a non-empty output file, makes the
-envelope status ``FAILED``. Missing evidence is never reported as success.
+After the control-plane cut, agent-repair and research scripts are gone. This
+runner executes the foundation golden benchmark only. A non-zero exit or missing
+output makes the envelope ``FAILED``. Missing evidence is never reported as success.
 
-No live model credential is read or required. ``GITHUB_TOKEN`` and ``GH_TOKEN`` are removed from
-the child environment.
+No live model credential is read or required. ``GITHUB_TOKEN`` and ``GH_TOKEN``
+are removed from the child environment.
 """
 
 from __future__ import annotations
@@ -33,11 +33,7 @@ def file_sha256(path: Path) -> str:
 
 
 def canonical_text_sha256(path: Path) -> str:
-    """SHA-256 of the file with CRLF normalized to LF.
-
-    Git stores the corpora as LF. A Windows checkout with ``core.autocrlf=true`` rewrites the
-    working tree to CRLF, so a raw byte hash is not the same value CI records.
-    """
+    """SHA-256 of the file with CRLF normalized to LF."""
     return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
@@ -63,7 +59,7 @@ def child_env(root: Path) -> dict[str, str]:
 
 
 def run_step(root: Path, name: str, args: list[str], output: Path) -> dict[str, Any]:
-    """Run one existing script. The output path is recorded even when the script fails."""
+    """Run one command. The output path is recorded even when the command fails."""
     proc = subprocess.run(
         args, cwd=root, env=child_env(root), capture_output=True, text=True, check=False
     )
@@ -89,31 +85,23 @@ def judge(steps: list[dict[str, Any]]) -> dict[str, Any]:
     return {"status": "FAILED" if failed else "PASSED", "failed_steps": failed}
 
 
-def _read_json(path: Path) -> dict[str, Any] | None:
-    if not path.is_file() or path.stat().st_size == 0:
-        return None
-    loaded = json.loads(path.read_text(encoding="utf-8"))
-    return loaded if isinstance(loaded, dict) else None
-
-
 def measurements(output_dir: Path) -> dict[str, Any]:
-    """Copy headline fields from child outputs. Absent files stay null."""
-    matrix = _read_json(output_dir / "baseline-matrix.json")
-    rq1 = _read_json(output_dir / "rq1.json")
-    corpus = _read_json(output_dir / "corpus-benchmark.json")
-    repair = _read_json(output_dir / "repair-fixture-benchmark.json")
+    """Headline fields from the foundation benchmark report when present."""
+    report = output_dir / "foundation-benchmark.json"
+    payload = None
+    if report.is_file() and report.stat().st_size > 0:
+        loaded = json.loads(report.read_text(encoding="utf-8"))
+        payload = loaded if isinstance(loaded, dict) else None
     return {
         "evidence_class": "synthetic_fixture",
         "independently_labelled_cases": 0,
-        "baseline_matrix": None
-        if matrix is None
-        else [
-            {"baseline_id": row.get("baseline_id"), "cases": row.get("cases"), "top1_accuracy": row.get("top1_accuracy")}
-            for row in matrix.get("systems", [])
-        ],
-        "rq1_metrics": None if rq1 is None else rq1.get("metrics"),
-        "corpus_metrics": None if corpus is None else corpus.get("metrics"),
-        "repair_fixture_metrics": None if repair is None else repair.get("metrics"),
+        "foundation_benchmark": None
+        if payload is None
+        else {
+            "passed": payload.get("passed"),
+            "failed": payload.get("failed"),
+            "exit_code": payload.get("exit_code"),
+        },
     }
 
 
@@ -138,28 +126,61 @@ def render_markdown(evidence: dict[str, Any]) -> str:
         lines.append(f"| {step['name']} | {step['exit_code']} | {step['output_present']} |")
     if evidence["failed_steps"]:
         lines.extend(["", "Failed steps: " + ", ".join(evidence["failed_steps"])])
-    lines.extend(["", "Headline measurements (null when that step did not produce a file):", "", "```json",
-                  json.dumps(evidence["measurements"], indent=2, sort_keys=True), "```", ""])
+    lines.extend(
+        [
+            "",
+            "Headline measurements (null when that step did not produce a file):",
+            "",
+            "```json",
+            json.dumps(evidence["measurements"], indent=2, sort_keys=True),
+            "```",
+            "",
+        ]
+    )
     return "\n".join(lines)
 
 
 def build_evidence(root: Path, output_dir: Path) -> dict[str, Any]:
-    """Run the four existing benchmarks and return the envelope."""
+    """Run the foundation golden benchmark and return the envelope."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    commands = [
-        ("baseline_matrix", [sys.executable, "scripts/run_baseline_matrix.py", "--output",
-                             str(output_dir / "baseline-matrix.json")], output_dir / "baseline-matrix.json"),
-        ("rq1", [sys.executable, "scripts/run_research_rq1.py", "--output", str(output_dir / "rq1.json")],
-         output_dir / "rq1.json"),
-        ("corpus", [sys.executable, "scripts/run_corpus_benchmark.py", "benchmark/ci_failure_corpus.v1.json",
-                    "--output", str(output_dir / "corpus-benchmark.json")], output_dir / "corpus-benchmark.json"),
-        ("repair_fixture", [sys.executable, "scripts/run_repair_fixture_benchmark.py",
-                            "benchmark/repair_fixture_corpus.v1.json", "--output",
-                            str(output_dir / "repair-fixture-benchmark.json")],
-         output_dir / "repair-fixture-benchmark.json"),
-    ]
-    steps = [run_step(root, name, args, output) for name, args, output in commands]
-    verdict = judge(steps)
+    report_path = output_dir / "foundation-benchmark.json"
+    # Capture CLI JSON by redirecting stdout into the report file via a wrapper.
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ci_failure_orchestrator.cli",
+            "foundation-benchmark",
+            "--cases",
+            "benchmarks/foundation/cases",
+            "--baseline",
+            "benchmarks/foundation/baselines/current.json",
+            "--artifacts",
+            str(output_dir / "foundation-artifacts"),
+        ],
+        cwd=root,
+        env=child_env(root),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.stdout.strip():
+        report_path.write_text(proc.stdout, encoding="utf-8")
+    try:
+        reported = report_path.relative_to(root).as_posix()
+    except ValueError:
+        reported = report_path.as_posix()
+    present = report_path.is_file() and report_path.stat().st_size > 0
+    step = {
+        "name": "foundation_benchmark",
+        "argv": ["-m", "ci_failure_orchestrator.cli", "foundation-benchmark"],
+        "exit_code": proc.returncode,
+        "output": reported,
+        "output_present": present,
+        "output_sha256": file_sha256(report_path) if present else None,
+        "stderr_tail": proc.stderr[-400:],
+    }
+    verdict = judge([step])
     return {
         "schema_version": "1.0",
         "benchmark": "offline-envelope",
@@ -169,10 +190,8 @@ def build_evidence(root: Path, output_dir: Path) -> dict[str, Any]:
         "python": platform.python_version(),
         "platform": platform.platform(),
         "credentials": "none",
-        "corpora": [
-            {"path": rel, "sha256": canonical_text_sha256(root / rel)} for rel in CORPORA
-        ],
-        "steps": steps,
+        "corpora": [{"path": rel, "sha256": canonical_text_sha256(root / rel)} for rel in CORPORA],
+        "steps": [step],
         "measurements": measurements(output_dir),
         "scope": "synthetic fixtures only; external cases in benchmark/external_cases.v0.json are unlabelled",
     }

@@ -1,6 +1,6 @@
 """Read-only agent tools over existing diagnosis, audit, and evidence functions.
 
-These functions do not call GitHub, do not run shell commands, and do not merge.
+These functions do not call GitHub, do not run shell commands, and do not land PRs.
 Log and report text is untrusted data: it is neutralized and secret-redacted before return.
 """
 

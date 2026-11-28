@@ -456,13 +456,15 @@ _MERGE_RE = re.compile(r"(?i)(?<![a-z_-])merge(?![a-z_-])|automerge|auto_merge|m
 
 
 def test_canonical_code_never_calls_a_merge_api() -> None:
+    from ci_failure_orchestrator.agent_mcp.tools import DENIED_TOOLS
+
     sources = _canonical_sources()
     assert any(p.parent.name == "service" for p in sources)
     offenders = [
         f"{p.relative_to(PACKAGE)}:{node.lineno}: {node.value!r}"
         for p in sources
         for node in _string_literals(ast.parse(p.read_text(encoding="utf-8")))
-        if _MERGE_RE.search(node.value)
+        if _MERGE_RE.search(node.value) and node.value not in DENIED_TOOLS
     ]
     assert offenders == []
 

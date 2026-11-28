@@ -3,28 +3,18 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from dataclasses import asdict
 from pathlib import Path
 
 import yaml
 
 from .audit import HashChainedAuditLog
-from .causal import infer_causal_edges
 from .ci_audit import analyze_export, collect_export, render_report
-from .classifier import classify_error
-from .config import load_failures, load_pipeline
 from .foundation import AgentExecutionFoundation
 from .foundation import FailureEvent as FoundationFailureEvent
 from .github_client import GitHubActionsClient, GitHubAPIError
-from .github_ingest import failures_from_jobs, stages_from_jobs
 from .governed import GovernedAgentPipeline, failure_event_from_dict
 from .governed.explain import explain_result, explain_stored_run
 from .governed.store import SQLiteGovernedStore
-from .graph import PipelineGraph
-from .module_status import EXPERIMENTAL_COMMANDS, EXPERIMENTAL_LABEL
-from .network_discovery import NetworkCapabilityDiscovery
-from .provenance import DependencyProvenanceEvaluator
-from .ranker import RootCauseRanker
 from .service import (
     FixRepoConfig,
     GitHubActionsCIProvider,
@@ -44,145 +34,14 @@ from .service import (
     verify_real_ci,
     write_repair_evidence,
 )
-from .trust import ProviderRegistry, TrustContextBuilder
-from .trust_gateway import (
-    AllowlistedFileExecutor,
-    ExecutionEvaluator,
-    MockLLMClient,
-    ProposalVerifier,
-    RepairProposal,
-    RetryBudget,
-    TrustToolGateway,
-)
-from .trust_policy import TrustPolicyEngine
-from .verification import plan_verification
 
 
 def _dump(value):
     print(json.dumps(value, indent=2))
 
 
-def _analyze_jobs(jobs, logs, audit=None, event="github_actions_analyzed"):
-    stages = stages_from_jobs(jobs)
-    failures = failures_from_jobs(jobs, logs)
-    graph = PipelineGraph(stages)
-    ranked = RootCauseRanker(graph).rank(failures)
-    edges = infer_causal_edges(graph, failures)
-    root = ranked[0].failure.stage if ranked else None
-    plan = plan_verification(graph, root, {f.stage for f in failures}) if root else []
-    result = {
-        "root_cause": root,
-        "ranking": [r.to_dict() for r in ranked],
-        "causal_edges": [e.to_dict() for e in edges],
-        "verification_plan": [s.to_dict() for s in plan],
-    }
-    _dump(result)
-    if audit:
-        HashChainedAuditLog(audit).append(event, result)
-    return 0
-
-
-def cmd_classify(args):
-    """Run the classify command: print the regex error type and confidence for a message."""
-    error_type, confidence = classify_error(args.message)
-    _dump({"error_type": error_type, "confidence": confidence})
-    return 0
-
-
-def cmd_rank(args):
-    """Run the rank command: print failures ranked by probable root cause, optionally auditing the ranking."""
-    graph = PipelineGraph(load_pipeline(args.pipeline))
-    ranked = RootCauseRanker(graph).rank(load_failures(args.failures))
-    output = [item.to_dict() for item in ranked]
-    _dump(output)
-    if args.audit:
-        HashChainedAuditLog(args.audit).append("root_cause_ranked", {"ranking": output})
-    return 0
-
-
-def cmd_analyze(args):
-    """Run the analyze command: rank root causes from saved GitHub Actions jobs and logs JSON files."""
-    raw = json.loads(Path(args.jobs).read_text(encoding="utf-8"))
-    jobs = raw.get("jobs", raw) if isinstance(raw, dict) else raw
-    logs = json.loads(Path(args.logs).read_text(encoding="utf-8")) if args.logs else {}
-    return _analyze_jobs(jobs, logs, args.audit)
-
-
-def cmd_analyze_run(args):
-    """Run the analyze-run command: fetch one workflow run's jobs and logs from GitHub and analyze them."""
-    client = GitHubActionsClient(token=args.token, api_url=args.api_url, timeout=args.timeout)
-    evidence = client.collect_run(args.repo, args.run_id, include_logs=not args.no_logs)
-    return _analyze_jobs(evidence.jobs, evidence.logs, args.audit, event="github_workflow_run_analyzed")
-
-
-def cmd_trust_run(args):
-    """Run the trust-run command: replay a policy-gated proposal scenario; exit 2 unless verified_success."""
-    scenario_path = Path(args.scenario).resolve()
-    scenario = yaml.safe_load(scenario_path.read_text(encoding="utf-8"))
-    proposals = []
-    for payload in scenario["proposals"]:
-        payload = dict(payload)
-        payload["verification"] = tuple(payload.get("verification", ()))
-        proposals.append(RepairProposal(**payload))
-    root = Path(__file__).resolve().parent.parent
-    gateway = TrustToolGateway(
-        llm=MockLLMClient(proposals),
-        context_builder=TrustContextBuilder(
-            ProviderRegistry.from_file(args.providers or root / "config" / "providers.yaml"),
-            NetworkCapabilityDiscovery(timeout=args.network_timeout),
-            DependencyProvenanceEvaluator(scenario_path.parent),
-        ),
-        policy=TrustPolicyEngine.from_file(args.policies or root / "config" / "policies.yaml"),
-        executor=AllowlistedFileExecutor(),
-        evaluator=ExecutionEvaluator(),
-        verifier=ProposalVerifier(),
-        audit=HashChainedAuditLog(args.audit),
-        source_workspace=scenario.get("workspace", scenario_path.parent),
-        retry_budget=RetryBudget(
-            max_attempts=int(scenario.get("max_attempts", 3)),
-            max_total_cost=float(scenario.get("max_total_cost", 1.0)),
-            max_wall_time=float(scenario.get("max_wall_time", 60.0)),
-        ),
-    )
-    result = gateway.run(scenario.get("prompt", "propose a repair"), human_approved=args.approved)
-    policy = result.policy_decision or {}
-    evidence = policy.get("evidence") or {}
-    print(f"[context] provider={proposals[0].provider if proposals else 'unknown'}")
-    print(f"[data] classification={proposals[0].data_classification if proposals else 'unknown'}")
-    print()
-    print("[policy]")
-    print(f"decision={policy.get('decision', 'n/a')}")
-    print(f"rule={policy.get('rule_id', 'n/a')}")
-    if evidence:
-        print(f"external_provider={evidence.get('external_provider')}")
-        print(f"data_leaves_host={evidence.get('data_leaves_host')}")
-    print()
-    print("[action]")
-    if result.status == "approval_required":
-        print("execution blocked pending approval")
-    elif result.status == "denied":
-        print("execution denied by policy")
-    elif result.status == "verified_success":
-        print("sandbox execution verified")
-    else:
-        print(result.status)
-    print()
-    _dump(
-        {
-            "status": result.status,
-            "correlation_id": result.correlation_id,
-            "policy": result.policy_decision,
-            "attempts": [asdict(item) for item in result.attempts],
-            "state_history": result.state_history,
-            "escalation": result.escalation,
-            "metrics": gateway.metrics_snapshot(),
-        }
-    )
-    return 0 if result.status == "verified_success" else 2
-
-
-def cmd_run(args):
-    """Run the governed agent pipeline against a JSON failure fixture."""
+def cmd_governed_run(args):
+    """Run the governed pipeline against a JSON failure fixture."""
 
     raw = json.loads(Path(args.fixture).read_text(encoding="utf-8"))
     event = failure_event_from_dict(raw if isinstance(raw, dict) else raw[0])
@@ -202,15 +61,15 @@ def cmd_run(args):
     return 0 if result.state.value == "SUCCEEDED" else 2
 
 
-def cmd_explain(args):
-    """Run the explain command: print an explanation of a stored governed run."""
+def cmd_governed_explain(args):
+    """Print an explanation of a stored governed run."""
     store = SQLiteGovernedStore(args.store) if args.store else SQLiteGovernedStore()
     print(explain_stored_run(store, args.run_id))
     return 0
 
 
-def cmd_replay(args):
-    """Run the replay command: print a stored governed run and its events; exit 2 if the run is not found."""
+def cmd_governed_replay(args):
+    """Print a stored governed run and its events; exit 2 if not found."""
     store = SQLiteGovernedStore(args.store) if args.store else SQLiteGovernedStore()
     state = store.load_run(args.run_id)
     if state is None:
@@ -221,8 +80,8 @@ def cmd_replay(args):
     return 0
 
 
-def cmd_benchmark(args):
-    """Run the benchmark command: run the governed synthetic benchmark suite; exit 2 if any case fails."""
+def cmd_governed_benchmark(args):
+    """Run the governed synthetic benchmark suite; exit 2 if any case fails."""
     from .governed.benchmark_runner import run_benchmark_suite
 
     summary = run_benchmark_suite(Path(args.cases))
@@ -637,159 +496,82 @@ def cmd_ci_audit_report(args):
     return 0
 
 
-def _add_experimental(sub, name, help_text):
-    if name not in EXPERIMENTAL_COMMANDS:
-        raise ValueError(f"{name} is not registered in module_status.EXPERIMENTAL_COMMANDS")
-    return sub.add_parser(name, help=EXPERIMENTAL_LABEL + help_text)
-
 
 def build_parser():
     """Build the ``ci-orchestrator`` argument parser with every subcommand."""
     parser = argparse.ArgumentParser(
         prog="ci-orchestrator",
         description=(
-            "Canonical service commands: ci-audit-collect, ci-audit-report, fix-repo, fix-repo-apply, "
-            "fix-repo-task, foundation-*. "
-            "Commands marked [experimental] are outside the v0.1 service path "
-            "(see docs/module-status.md)."
+            "Control plane for untrusted agent CI patches: diagnose (actions-doctor), "
+            "ci-audit-*, fix-repo verify/policy/evidence, foundation-*, governed-*. "
+            "Agents propose diffs; this tool verifies and never merges. "
+            "See docs/CONTROL_PLANE.md."
         ),
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    classify = _add_experimental(sub, "classify", "Classify a CI error message")
-    classify.add_argument("message")
-    classify.set_defaults(func=cmd_classify)
-
-    rank = _add_experimental(sub, "rank", "Rank failures by probable root cause")
-    rank.add_argument("--pipeline", required=True)
-    rank.add_argument("--failures", required=True)
-    rank.add_argument("--audit")
-    rank.set_defaults(func=cmd_rank)
-
-    analyze = _add_experimental(sub, "analyze", "Analyze normalized GitHub Actions jobs and logs")
-    analyze.add_argument("--jobs", required=True)
-    analyze.add_argument("--logs")
-    analyze.add_argument("--audit")
-    analyze.set_defaults(func=cmd_analyze)
-
-    analyze_run = _add_experimental(sub, "analyze-run", "Fetch and analyze a GitHub Actions workflow run")
-    analyze_run.add_argument("--repo", required=True, help="Repository in owner/name format")
-    analyze_run.add_argument("--run-id", required=True, type=int, help="GitHub Actions workflow run ID")
-    analyze_run.add_argument("--token", help="GitHub token; defaults to GITHUB_TOKEN")
-    analyze_run.add_argument("--api-url", default="https://api.github.com", help="GitHub API base URL")
-    analyze_run.add_argument("--timeout", type=float, default=30.0, help="HTTP timeout in seconds")
-    analyze_run.add_argument("--no-logs", action="store_true", help="Skip failed-job log downloads")
-    analyze_run.add_argument("--audit")
-    analyze_run.set_defaults(func=cmd_analyze_run)
-
-    trust_run = _add_experimental(sub, "trust-run", "Run a policy-gated tool proposal scenario")
-    trust_run.add_argument("--scenario", required=True)
-    trust_run.add_argument("--providers")
-    trust_run.add_argument("--policies")
-    trust_run.add_argument("--audit", default="evidence/audit.jsonl")
-    trust_run.add_argument("--network-timeout", type=float, default=3.0)
-    trust_run.add_argument("--approved", action="store_true")
-    trust_run.set_defaults(func=cmd_trust_run)
-
-    run_cmd = _add_experimental(sub, "run", "Run governed agent pipeline on a failure fixture")
+    run_cmd = sub.add_parser("governed-run", help="Run governed pipeline on a failure fixture")
     run_cmd.add_argument("--fixture", required=True, help="JSON FailureEvent fixture")
     run_cmd.add_argument("--store", help="SQLite governed run store path")
     run_cmd.add_argument("--audit", help="Optional hash-chained audit JSONL path")
-    run_cmd.set_defaults(func=cmd_run)
+    run_cmd.set_defaults(func=cmd_governed_run)
 
-    explain = _add_experimental(sub, "explain", "Explain a stored governed run")
+    explain = sub.add_parser("governed-explain", help="Explain a stored governed run")
     explain.add_argument("run_id")
     explain.add_argument("--store", help="SQLite governed run store path")
-    explain.set_defaults(func=cmd_explain)
+    explain.set_defaults(func=cmd_governed_explain)
 
-    replay = _add_experimental(sub, "replay", "Replay stored governed run events")
+    replay = sub.add_parser("governed-replay", help="Replay stored governed run events")
     replay.add_argument("run_id")
     replay.add_argument("--store", help="SQLite governed run store path")
-    replay.set_defaults(func=cmd_replay)
+    replay.set_defaults(func=cmd_governed_replay)
 
-    bench = _add_experimental(sub, "benchmark", "Run governed synthetic benchmark suite")
+    bench = sub.add_parser("governed-benchmark", help="Run governed synthetic benchmark suite")
     bench.add_argument(
         "--cases",
         default="benchmarks/cases",
         help="Directory of synthetic benchmark case JSON files",
     )
-    bench.set_defaults(func=cmd_benchmark)
+    bench.set_defaults(func=cmd_governed_benchmark)
 
     fb = sub.add_parser(
         "foundation-benchmark",
-        help="Phase 12 foundation golden benchmark (deterministic, synthetic)",
+        help="Foundation golden benchmark (deterministic, synthetic)",
     )
-    fb.add_argument(
-        "--cases",
-        default="benchmarks/foundation/cases",
-        help="Directory of foundation golden case JSON files",
-    )
-    fb.add_argument(
-        "--baseline",
-        default="benchmarks/foundation/baselines/current.json",
-        help="Baseline JSON path for regression comparison",
-    )
-    fb.add_argument(
-        "--artifacts",
-        default="artifacts/benchmarks",
-        help="Output root for benchmark reports",
-    )
+    fb.add_argument("--cases", default="benchmarks/foundation/cases")
+    fb.add_argument("--baseline", default="benchmarks/foundation/baselines/current.json")
+    fb.add_argument("--artifacts", default="artifacts/benchmarks")
     fb.add_argument("--case", help="Filter by case_id")
     fb.add_argument("--category", help="Filter by category")
     fb.add_argument("--tag", help="Filter by tag")
     fb.add_argument("--required-only", action="store_true")
     fb.add_argument("--optional-only", action="store_true")
-    fb.add_argument(
-        "--compare-baseline",
-        action="store_true",
-        help="Compare results to stored baseline",
-    )
-    fb.add_argument(
-        "--update-baseline",
-        action="store_true",
-        help="Intentionally rewrite baseline after run (never automatic)",
-    )
+    fb.add_argument("--compare-baseline", action="store_true")
+    fb.add_argument("--update-baseline", action="store_true")
     fb.set_defaults(func=cmd_foundation_benchmark)
 
     fops = sub.add_parser(
         "foundation-operations-report",
-        help="Phase 13 operational metrics/SLI/SLO report from retained runs",
+        help="Operational metrics/SLI/SLO report from retained runs",
     )
-    fops.add_argument("--artifacts", default="artifacts", help="Foundation artifacts root")
-    fops.add_argument(
-        "--output",
-        default="artifacts/observability",
-        help="Output directory for metrics/sli/slo/operations reports",
-    )
+    fops.add_argument("--artifacts", default="artifacts")
+    fops.add_argument("--output", default="artifacts/observability")
     fops.add_argument("--source", default="runtime", choices=["runtime", "benchmark"])
-    fops.add_argument("--limit", type=int, default=None, help="Last N retained runs")
+    fops.add_argument("--limit", type=int, default=None)
     fops.add_argument("--slo-config", default="config/slo.json")
     fops.set_defaults(func=cmd_foundation_operations_report)
 
-    fslo = sub.add_parser(
-        "foundation-slo-check",
-        help="Phase 13 SLO check (EXAMPLE targets; exit 1 if MISSED)",
-    )
+    fslo = sub.add_parser("foundation-slo-check", help="SLO check (exit 1 if MISSED)")
     fslo.add_argument("--artifacts", default="artifacts")
     fslo.add_argument("--source", default="runtime", choices=["runtime", "benchmark"])
     fslo.add_argument("--limit", type=int, default=None)
     fslo.add_argument("--slo-config", default="config/slo.json")
-    fslo.add_argument(
-        "--fail-insufficient",
-        action="store_true",
-        help="Exit 3 when required SLOs have INSUFFICIENT_DATA",
-    )
+    fslo.add_argument("--fail-insufficient", action="store_true")
     fslo.set_defaults(func=cmd_foundation_slo_check)
 
-    foundation = sub.add_parser(
-        "foundation-run",
-        help="Foundation pipeline (Phases 2–10); optional durable artifacts",
-    )
-    foundation.add_argument("--fixture", required=True, help="JSON failure fixture")
-    foundation.add_argument(
-        "--artifacts",
-        help="Artifacts root for durable state/audit/evidence (enables Phase 10 persistence)",
-    )
+    foundation = sub.add_parser("foundation-run", help="Foundation pipeline; optional durable artifacts")
+    foundation.add_argument("--fixture", required=True)
+    foundation.add_argument("--artifacts")
     foundation.set_defaults(func=cmd_foundation_run)
 
     fi = sub.add_parser("foundation-inspect", help="Inspect durable foundation run state")
@@ -809,21 +591,13 @@ def build_parser():
 
     fd = sub.add_parser(
         "foundation-decide",
-        help=("Record human reviewer decision for AWAITING_HUMAN (APPROVE does not mutate primary workspace)"),
+        help="Record human reviewer decision for AWAITING_HUMAN (APPROVE does not mutate primary workspace)",
     )
     fd.add_argument("run_id")
-    fd.add_argument(
-        "--action",
-        required=True,
-        choices=["APPROVE", "REJECT", "REQUEST_CHANGES", "DEFER"],
-    )
-    fd.add_argument("--reviewer", default="", help="Reviewer identifier")
-    fd.add_argument("--comment", default="", help="Optional reviewer comment")
-    fd.add_argument(
-        "--escalation-id",
-        default=None,
-        help="Must match escalation package when provided",
-    )
+    fd.add_argument("--action", required=True, choices=["APPROVE", "REJECT", "REQUEST_CHANGES", "DEFER"])
+    fd.add_argument("--reviewer", default="")
+    fd.add_argument("--comment", default="")
+    fd.add_argument("--escalation-id", default=None)
     fd.add_argument("--artifacts", default="artifacts")
     fd.set_defaults(func=cmd_foundation_decide)
 
@@ -835,67 +609,49 @@ def build_parser():
     fix = sub.add_parser(
         "fix-repo",
         help=(
-            "Verify a real patch for another git repo in a disposable worktree, then run "
-            "evaluation/retry/policy/escalation (never modifies the target repo)"
+            "Verify an untrusted candidate patch for another git repo in a disposable worktree; "
+            "run evaluation/retry/policy/escalation (never modifies the target repo; never merges)"
         ),
     )
-    fix.add_argument("--repo-path", required=True, help="Local checkout of the repository to fix")
-    fix.add_argument(
-        "--verify",
-        action="append",
-        required=True,
-        metavar="CMD",
-        help="Verification command run in the worktree (repeatable; must fail before and pass after)",
-    )
+    fix.add_argument("--repo-path", required=True)
+    fix.add_argument("--verify", action="append", required=True, metavar="CMD")
     proposal = fix.add_mutually_exclusive_group(required=True)
-    proposal.add_argument("--patch-file", help="Unified diff to verify (e.g. from git diff or a teammate)")
+    proposal.add_argument("--patch-file", help="Unified diff from a teammate or external agent")
     proposal.add_argument(
         "--provider-cmd",
-        help='CLI that reads the prompt on stdin and prints a ```diff block (e.g. "claude -p")',
+        help='External agent CLI that reads stdin and prints a ```diff block (e.g. "claude -p")',
     )
-    fix.add_argument("--provider-env", action="append", metavar="NAME", help="Env var passed to the provider")
+    fix.add_argument("--provider-env", action="append", metavar="NAME")
     fix.add_argument("--provider-timeout", type=int, default=600)
-    fix.add_argument("--verify-env", action="append", metavar="NAME", help="Env var passed to verify commands")
+    fix.add_argument("--verify-env", action="append", metavar="NAME")
     fix.add_argument("--verify-timeout", type=int, default=600)
-    fix.add_argument(
-        "--container-image",
-        help="Run verify and regression commands in this Docker image with network disabled; no host fallback",
-    )
+    fix.add_argument("--container-image")
     source = fix.add_mutually_exclusive_group()
-    source.add_argument("--github-repo", help="owner/name of the failing GitHub Actions run")
-    source.add_argument("--log-file", help="CI log file describing the failure")
-    source.add_argument("--fixture", help="JSON failure fixture")
-    fix.add_argument("--github-run-id", type=int, help="GitHub Actions workflow run ID")
-    fix.add_argument("--github-token", help="GitHub token; defaults to GITHUB_TOKEN")
+    source.add_argument("--github-repo")
+    source.add_argument("--log-file")
+    source.add_argument("--fixture")
+    fix.add_argument("--github-run-id", type=int)
+    fix.add_argument("--github-token")
     fix.add_argument("--github-api-url", default="https://api.github.com")
-    fix.add_argument("--base-ref", default="HEAD", help="Commit the patch must apply to")
+    fix.add_argument("--base-ref", default="HEAD")
     fix.add_argument("--max-attempts", type=int, default=3)
-    fix.add_argument("--task-id", help="Record this run under an existing task (default: create a new task)")
-    fix.add_argument(
-        "--regression",
-        action="append",
-        metavar="CMD",
-        help="Regression suite command run before and after the patch (repeatable; required for VERIFIED_FIXED)",
-    )
-    fix.add_argument(
-        "--verification-config",
-        metavar="FILE",
-        help="YAML with regression, lint, typecheck, security, build, invariants, waive, affected_tests",
-    )
+    fix.add_argument("--task-id")
+    fix.add_argument("--regression", action="append", metavar="CMD")
+    fix.add_argument("--verification-config", metavar="FILE")
     fix.add_argument("--artifacts", default="artifacts")
     fix.set_defaults(func=cmd_fix_repo)
 
     fixv = sub.add_parser(
         "fix-repo-verify-ci",
-        help="Record the real CI result for an applied fix-repo candidate and decide whether it is VERIFIED_FIXED",
+        help="Record real CI for an applied candidate and decide VERIFIED_FIXED",
     )
     fixv.add_argument("run_id")
-    fixv.add_argument("--repository", required=True, help="owner/name on GitHub")
-    fixv.add_argument("--ci-run-id", action="append", help="Workflow run ID(s); default: runs for the applied commit")
-    fixv.add_argument("--rerun", action="store_true", help="Request a rerun of the given --ci-run-id runs first")
-    fixv.add_argument("--wait", type=int, default=0, help="Seconds to wait for runs to finish")
+    fixv.add_argument("--repository", required=True)
+    fixv.add_argument("--ci-run-id", action="append")
+    fixv.add_argument("--rerun", action="store_true")
+    fixv.add_argument("--wait", type=int, default=0)
     fixv.add_argument("--poll-interval", type=int, default=15)
-    fixv.add_argument("--github-token", help="GitHub token; defaults to GITHUB_TOKEN or GH_TOKEN")
+    fixv.add_argument("--github-token")
     fixv.add_argument("--github-api-url", default="https://api.github.com")
     fixv.add_argument("--timeout", type=float, default=30.0)
     fixv.add_argument("--artifacts", default="artifacts")
@@ -903,60 +659,58 @@ def build_parser():
 
     fixm = sub.add_parser(
         "fix-repo-metrics",
-        help="Repair outcome metrics; Verified Repair Rate is primary, CI Green Rate is shown for comparison",
+        help="Verified repair rate is primary; CI green rate is shown for comparison",
     )
     fixm.add_argument("--artifacts", default="artifacts")
     fixm.set_defaults(func=cmd_fix_repo_metrics)
 
     fixr = sub.add_parser(
         "fix-repo-report",
-        help="Print a run's evidence report: what broke, what changed, which tests ran, what is safe, what risk remains",
+        help="Evidence report: what broke, what changed, tests, safety, residual risk",
     )
     fixr.add_argument("run_id")
     fixr.add_argument("--format", choices=("md", "json"), default="md")
     fixr.add_argument("--artifacts", default="artifacts")
     fixr.set_defaults(func=cmd_fix_repo_report)
 
-    fixt = sub.add_parser("fix-repo-task", help="Show a task with its runs and per-attempt records (read-only)")
+    fixt = sub.add_parser("fix-repo-task", help="Show a task with its runs and attempts (read-only)")
     fixt.add_argument("task_id")
     fixt.add_argument("--artifacts", default="artifacts")
     fixt.set_defaults(func=cmd_fix_repo_task)
 
     fixa = sub.add_parser(
         "fix-repo-apply",
-        help="Commit an APPROVED fix-repo patch to a new branch of the target repo (explicit operator step)",
+        help="Commit an APPROVED patch to a new branch (draft PR at most; never merges)",
     )
     fixa.add_argument("run_id")
     fixa.add_argument("--artifacts", default="artifacts")
-    fixa.add_argument("--repo-path", help="Override the repository path recorded by fix-repo")
-    fixa.add_argument("--branch", help="Branch name (default ci-orchestrator/fix-<run_id>)")
+    fixa.add_argument("--repo-path")
+    fixa.add_argument("--branch")
     fixa.add_argument("--remote", default="origin")
-    fixa.add_argument("--push", action="store_true", help="Push the new branch to --remote")
-    fixa.add_argument("--open-pr", action="store_true", help="Push and open a PR with the GitHub CLI")
-    fixa.add_argument("--actor", default="operator", help="Operator identity recorded in the audit log")
-    fixa.add_argument(
-        "--dry-run", action="store_true", help="Run every gate and check the patch applies; write nothing"
-    )
+    fixa.add_argument("--push", action="store_true")
+    fixa.add_argument("--open-pr", action="store_true")
+    fixa.add_argument("--actor", default="operator")
+    fixa.add_argument("--dry-run", action="store_true")
     fixa.set_defaults(func=cmd_fix_repo_apply)
 
     cac = sub.add_parser(
         "ci-audit-collect",
-        help="Read-only: export GitHub Actions runs, jobs and classified failures for one repository",
+        help="Read-only: export GitHub Actions runs for one repository",
     )
-    cac.add_argument("--repo", required=True, help="owner/name")
-    cac.add_argument("--days", type=int, default=30, help="Window size in days")
+    cac.add_argument("--repo", required=True)
+    cac.add_argument("--days", type=int, default=30)
     cac.add_argument("--max-runs", type=int, default=500)
-    cac.add_argument("--max-logs", type=int, default=50, help="Failed-job logs to fetch for classification")
+    cac.add_argument("--max-logs", type=int, default=50)
     cac.add_argument("--output", default="ci-audit-export.json")
-    cac.add_argument("--token", help="GitHub token; defaults to GITHUB_TOKEN or GH_TOKEN")
+    cac.add_argument("--token")
     cac.add_argument("--api-url", default="https://api.github.com")
     cac.add_argument("--timeout", type=float, default=30.0)
     cac.set_defaults(func=cmd_ci_audit_collect)
 
     car = sub.add_parser("ci-audit-report", help="Render a Markdown reliability report from a ci-audit export")
-    car.add_argument("export", help="JSON file written by ci-audit-collect")
+    car.add_argument("export")
     car.add_argument("--output", default="ci-audit-report.md")
-    car.add_argument("--json", help="Also write the computed analysis as JSON")
+    car.add_argument("--json")
     car.set_defaults(func=cmd_ci_audit_report)
     return parser
 
