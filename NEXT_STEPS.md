@@ -24,8 +24,8 @@ Cal event page loads publicly (verified). Confirm Stripe shows **US$299** in an 
 ```text
 [x] Phase A: Cal + Stripe + email URLs recorded (confirm Stripe $299 in incognito)
 [x] README / audit docs: booking placeholders replaced
-[ ] 30 public prospects listed
-[ ] 10 free “top 3 findings” snapshots drafted
+[x] 30 public prospects listed → business/phase-b-prospects.md
+[x] 10 free “top 3 findings” starters drafted (workflow-level; logs = NEEDS_MANUAL_CHECK)
 [ ] 10 outreach messages sent (not just drafted)
 [ ] Tracker updated after each send
 [ ] First US$299 received (or refund clock started after delivery)
@@ -63,7 +63,7 @@ Scope: 1 repo, ≤5 workflows, ≤30 recent runs, report in 3 business days.
 - [ ] Search repo for `YOUR-` → **0 hits** (after commit, on the branch you publish)
 - [ ] Commit + push when ready (do not claim paid customers)
 
-**Next:** Phase B — 30 prospects.
+**Next:** Send top 10 outreach (Phase D). Full tables: [business/phase-b-prospects.md](business/phase-b-prospects.md).
 
 ---
 
@@ -71,61 +71,31 @@ Scope: 1 repo, ≤5 workflows, ≤30 recent runs, report in 3 business days.
 
 ICP: eng leads at small SaaS (3–30 engineers), GitHub Actions, ideally Python/pytest; also AI-coding teams with red/flaky CI.
 
-Rules: public info only; no fake metrics; mark **unsure** when needed.
+**Status: list complete** in [business/phase-b-prospects.md](business/phase-b-prospects.md) (public Actions API, 2026-11-28).
 
-| # | repo | why it fits | likely buyer role | public Actions URL | channel | hook | contacted? |
-| ---: | --- | --- | --- | --- | --- | --- | --- |
-| 1 | | | | | | | [ ] |
-| 2 | | | | | | | [ ] |
-| 3 | | | | | | | [ ] |
-| 4 | | | | | | | [ ] |
-| 5 | | | | | | | [ ] |
-| 6 | | | | | | | [ ] |
-| 7 | | | | | | | [ ] |
-| 8 | | | | | | | [ ] |
-| 9 | | | | | | | [ ] |
-| 10 | | | | | | | [ ] |
-| 11 | | | | | | | [ ] |
-| 12 | | | | | | | [ ] |
-| 13 | | | | | | | [ ] |
-| 14 | | | | | | | [ ] |
-| 15 | | | | | | | [ ] |
-| 16 | | | | | | | [ ] |
-| 17 | | | | | | | [ ] |
-| 18 | | | | | | | [ ] |
-| 19 | | | | | | | [ ] |
-| 20 | | | | | | | [ ] |
-| 21 | | | | | | | [ ] |
-| 22 | | | | | | | [ ] |
-| 23 | | | | | | | [ ] |
-| 24 | | | | | | | [ ] |
-| 25 | | | | | | | [ ] |
-| 26 | | | | | | | [ ] |
-| 27 | | | | | | | [ ] |
-| 28 | | | | | | | [ ] |
-| 29 | | | | | | | [ ] |
-| 30 | | | | | | | [ ] |
+Top send-first (strongest pay-fit judgment):
 
-Spot-check: open 5 Actions URLs. If 2+ are dead → fix the list before sending.
+| # | repo | hook | contacted? |
+| ---: | --- | --- | --- |
+| 1 | apitally/apitally-py | Recurring **Tests** failures | [ ] |
+| 2 | Subscribie/subscribie | Multi-workflow fail same timestamp | [ ] |
+| 3 | pneumaticapp/pneumaticworkflow | Playwright trigger failures | [ ] |
+| 4 | level09/readykit | Double **Checks** failure | [ ] |
+| 5 | letsrevel/revel-backend | Docs + Test red | [ ] |
+| 6 | dnotitia/akb | **backend-pytest** failures | [ ] |
+| 7 | zmievsa/cadwyn | Package-update CI failing | [ ] |
+| 8 | sandbox-quantum/switch | E2E scheduled + PR CI | [ ] |
+| 9 | Cygnux-Labs/Tracekit | CI red 3× same day | [ ] |
+| 10 | TracecatHQ/tracecat | Python tests failing today | [ ] |
+
+Remaining 11–30 (and pay-fit notes): see prospects file. Spot-check 5 Actions URLs before sending.
 
 ---
 
 ## Phase C — Top 10 free snapshots
 
-For each: ≤3 findings from **public** data only, or `NEEDS_MANUAL_CHECK` + exact URL to open.
-
-| # | repo | finding 1 | finding 2 | finding 3 | status |
-| ---: | --- | --- | --- | --- | --- |
-| 1 | | | | | draft / sent / NEEDS_MANUAL_CHECK |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
-| 6 | | | | | |
-| 7 | | | | | |
-| 8 | | | | | |
-| 9 | | | | | |
-| 10 | | | | | |
+**Status: workflow-level starters done** in [business/phase-b-prospects.md](business/phase-b-prospects.md#phase-c--top-10-snapshot-starters-public-workflow-names-only).  
+Deeper log lines still `NEEDS_MANUAL_CHECK` (open linked run URLs).
 
 ---
 
