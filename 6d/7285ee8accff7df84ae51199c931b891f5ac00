@@ -1,0 +1,22 @@
+business/phase-b-prospects.md
+  s_0edffc29dd8c5e::t_8635d31b544ed3 1-71
+NEXT_STEPS.md
+  s_0edffc29dd8c5e::t_9da79dc4f00abb 66,74,76-91,97-98
+  s_0edffc29dd8c5e::t_3515b281437480 27-28,75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6d7285ee8accff7df84ae51199c931b891f5ac00",
+  "prompts": {},
+  "sessions": {
+    "s_0edffc29dd8c5e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f36ff605-4283-443a-b60a-05b784a029ac",
+        "model": "default"
+      },
+      "human_author": "Zixsa <dbdf0147@gmail.com>"
+    }
+  }
+}
