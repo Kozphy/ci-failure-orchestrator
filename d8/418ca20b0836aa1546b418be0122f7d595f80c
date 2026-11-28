@@ -1,0 +1,203 @@
+docs/agent-mcp.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-97
+docs/audit/backlog.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-20
+ci_failure_orchestrator/reliability_dashboard/catalog.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-96
+.github/workflows/foundation-benchmark.yml
+  s_be7467d8494cb0::t_bbe76b247dbc47 20-21
+docs/architecture/mcp-readiness.md
+  s_be7467d8494cb0::t_c5a2a8ec83577f 17
+  s_be7467d8494cb0::t_bbe76b247dbc47 15,23-24
+.github/workflows/benchmark-offline.yml
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-62
+ci_failure_orchestrator/agent_mcp/tools.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-5,10,14,17,20-21,23-39,41-47,58,62,70-102,106,109-161
+docs/integrations/evalforge.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-32
+docs/module-status.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 34,41
+benchmark/external_cases.v0.json
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-160
+ci_failure_orchestrator/repair_execution.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 5,13,39,115
+ci_failure_orchestrator/governed_agent/contract.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-119
+ci_failure_orchestrator/reliability_dashboard/metrics.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-163
+docs/dashboard/audit-matrix.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-18
+benchmark/evidence.schema.json
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-71
+docs/audit/risk-register.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-25
+ci_failure_orchestrator/reliability_dashboard/__init__.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-20
+.github/ISSUE_TEMPLATE/ci-audit-inquiry.yml
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-50
+.github/workflows/research-evidence.yml
+  s_be7467d8494cb0::t_bbe76b247dbc47 39
+docs/audit/reproduce-audit.sh
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-30
+business/intake.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-13
+.github/workflows/self-heal.yml
+  s_be7467d8494cb0::t_bbe76b247dbc47 44
+docs/audit/business-case.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-23
+business/acceptance-criteria.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-22
+docs/governed-autonomous-engineer-p0.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-53
+tests/test_governed_agent_contract.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-79
+ci_failure_orchestrator/module_status.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 56,99-101
+ci_failure_orchestrator/service/run.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 58,206,223,227-235,239-241,313,341,385-387
+business/terms.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-29
+docs/audit/baseline.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-48
+ci_failure_orchestrator/governed/evaluation.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 5-7,21,65,67-68,71,74-86,96-97,99-101,107-108,112,117-177,180-185
+ci_failure_orchestrator/agent_mcp/__main__.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1
+ci_failure_orchestrator/governed_agent/__init__.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-5
+docs/audit/2026-10-11-evidence/public-audit-analysis.json
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-303
+site/landing-page/styles.css
+  s_be7467d8494cb0::t_bbe76b247dbc47 1
+.github/workflows/promotion.yml
+  s_be7467d8494cb0::t_bbe76b247dbc47 34,59,90
+ci_failure_orchestrator/patch_sandbox.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 4,7-8,66,74-81,91-100,103-184,190-193,206-212,238-255,307-316,324-333,337-346,352
+docs/audit/release-gate.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-20
+tests/test_governed_eval_fail_closed.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-118
+docs/audit/2026-10-11-evidence/public-audit-report.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-132
+plugins/kozphy-ci-diagnosis/mcp.json
+  s_be7467d8494cb0::t_fb5fb87e6bf263 5
+docs/audit/readiness-report.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-31
+tests/test_ci_diagnosis_plugin.py
+  s_be7467d8494cb0::t_c9a50d4b7076bb 33,36
+  s_be7467d8494cb0::t_6dc377e00f4527 108-109
+  s_be7467d8494cb0::t_dea3d499730260 1,29,44-45,52-55,60,66,70,72,95,97-98,124-128,130-131
+.github/workflows/agent-issue-delivery.yml
+  s_be7467d8494cb0::t_bbe76b247dbc47 31
+.github/workflows/provider-contract.yml
+  s_be7467d8494cb0::t_bbe76b247dbc47 15
+tests/test_patch_sandbox.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 6,36-40,69-74,80-132
+site/landing-page/index.html
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-20
+docs/dashboard/evidence-to-metrics.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-20
+scripts/demo_agent_mcp.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-81
+ci_failure_orchestrator/service/verification.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 351-353,392,397-401,424,476-482,643
+docs/benchmark/METHODOLOGY.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-62
+docs/benchmark/README.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-14
+.github/workflows/landing-page-check.yml
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-29
+docs/audit/2026-10-11-audit-report.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-229
+.github/workflows/repair-benchmark.yml
+  s_be7467d8494cb0::t_bbe76b247dbc47 16
+docs/audit/pilot-acceptance.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-13
+scripts/run_offline_benchmark.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-195
+ci_failure_orchestrator/agent_mcp/server.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1,3-5,19-26,30,35,38-68,70-75,91,93,96,98-102,105-117,122-123,125-128,131,135-136,150-151,158-160,164,185-186,194-195,201-202,208-209,213,219-224,228-230,232-237
+tests/test_evalforge_boundary.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-132
+docs/audit/2026-10-11-evidence/pip-freeze.txt
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-40
+business/delivery-sop.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-41
+.github/workflows/patch-sandbox.yml
+  s_be7467d8494cb0::t_bbe76b247dbc47 18
+scripts/check_commercial_site.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-70
+tests/test_offline_benchmark_evidence.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-87
+.github/workflows/ct.yml
+  s_be7467d8494cb0::t_bbe76b247dbc47 18
+.gitignore
+  s_be7467d8494cb0::t_bbe76b247dbc47 4-5,22-25,31-34,39,44,55-58,70,72-75,77-80,86-109,116,120-121,123,125
+.github/workflows/live-semantic-merge-eval.yml
+  s_be7467d8494cb0::t_bbe76b247dbc47 25
+business/pilot-tracker.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-25
+ci_failure_orchestrator/reliability_dashboard/integrity.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-158
+agent-skills/ci-reliability/SKILL.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-29
+docs/benchmark/LIMITATIONS.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-17
+ci_failure_orchestrator/agent_mcp/__init__.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1
+docs/benchmark/REPRODUCE.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-59
+docs/dashboard/README.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-25
+README.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 103-112,187-189
+  s_be7467d8494cb0::t_0b9b552a3f23ee 190-191
+tests/test_agent_mcp.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-193
+tests/test_security_boundaries.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 42-44,46
+ci_failure_orchestrator/cli.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 170-180,359,493-495,508,600,605-615,630-636,812,854,860-863
+plugins/kozphy-ci-diagnosis/skills/ci-diagnosis/SKILL.md
+  s_be7467d8494cb0::t_4e2a4f5531d66f 3,8
+.github/workflows/repair-execution.yml
+  s_be7467d8494cb0::t_bbe76b247dbc47 17
+tests/test_reliability_dashboard_metrics.py
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-188
+docs/benchmark/GAP_ANALYSIS.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-95
+docs/audit/threat-model.md
+  s_be7467d8494cb0::t_bbe76b247dbc47 1-17
+docs/audit/2026-10-11-evidence/ci-static-checks.log
+  s_be7467d8494cb0::t_fdab1ab73eaa7a 1-30
+docs/audit/2026-10-11-evidence/focused-ci-audit.log
+  s_be7467d8494cb0::t_18f9b56f61ceef 1-56
+docs/audit/2026-10-11-evidence/full-suite-run1-python-not-on-path.log
+  s_be7467d8494cb0::t_8503686a75b6d3 1-289
+docs/audit/2026-10-11-evidence/full-suite-run2-venv-on-path.log
+  s_be7467d8494cb0::t_16fd120dcba2ba 1-199
+docs/audit/2026-10-11-evidence/public-audit-collect.log
+  s_be7467d8494cb0::t_2aef68d4ad286d 1-9
+docs/audit/2026-10-11-evidence/public-audit-report.log
+  s_be7467d8494cb0::t_7096b3b9e920cd 1-7
+docs/audit/2026-10-11-evidence/repeat-run-2.log
+  s_be7467d8494cb0::t_7ba0b3a59a4820 1-19
+docs/audit/2026-10-11-evidence/server-image-compose-logs-excerpt.log
+  s_be7467d8494cb0::t_20236560eee688 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d8418ca20b0836aa1546b418be0122f7d595f80c",
+  "prompts": {},
+  "sessions": {
+    "s_be7467d8494cb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4f977ab2-5650-41aa-87bb-53e4627eff55",
+        "model": "default"
+      },
+      "human_author": "Zixsa <dbdf0147@gmail.com>"
+    }
+  }
+}
