@@ -53,15 +53,23 @@ def validate():
     assert "scope" in parser.ids and "main" in parser.ids
     assert 'name="viewport"' in html and 'name="description"' in html
     assert 'rel="stylesheet" href="styles.css"' in html
-    assert "US$149" in html and "US$149" in docs["business/service-offer.md"]
+    assert "US$299" in html and "US$299" in docs["business/service-offer.md"]
     assert "5 workflows" in html and "30 runs" in html
     assert "3 business days" in html and "read-only" in html
-    assert "no paid pilot" in html.lower() and "no live payment" in docs["business/intake.md"].lower()
+    assert "no paid pilot" in html.lower()
+    assert "no paid orders" in docs["business/intake.md"].lower()
     assert not re.search(r"href=[\x22\x27](?:javascript:|data:)", html, flags=re.I)
+    allowed_prefixes = (
+        "https://github.com/Kozphy/ci-failure-orchestrator",
+        "https://cal.com/ixsa-z-ce9m2f/",
+        "https://buy.stripe.com/",
+        "#",
+    )
     for url in parser.links:
-        assert url and (url.startswith("https://github.com/Kozphy/ci-failure-orchestrator") or url.startswith("#")), f"Unexpected link: {url}"
+        assert url and url.startswith(allowed_prefixes), f"Unexpected link: {url}"
         if url.startswith("#"):
             assert url[1:] in parser.ids, f"Missing anchor: {url}"
+
     assert not re.search(r"<script\b|<form\b|<iframe\b", html, re.I)
     assert "prefers-reduced-motion" in css and ":focus-visible" in css
     print(f"PASS: landing page, {len(REQUIRED)} supporting files, accessibility and checkout guardrails")
