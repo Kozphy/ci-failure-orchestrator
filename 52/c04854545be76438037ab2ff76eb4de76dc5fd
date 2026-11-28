@@ -1,0 +1,55 @@
+ci_failure_orchestrator/agent_mcp/server.py
+  s_0d2715ba8b6777::t_62203870b0d83b 68
+  s_0d2715ba8b6777::t_d8e8e147e6c8be 150
+scripts/run_offline_benchmark.py
+  s_0d2715ba8b6777::t_67766b1d438106 1,3-5,7-8,36,62,89-94,98-104,129-139,144,146-168,174-177,181-183,193-194
+  s_0d2715ba8b6777::t_864c4727bc018b 169-173,178-180
+pyproject.toml
+  s_0d2715ba8b6777::t_d3735156276094 50
+tests/test_cli_groups.py
+  s_0d2715ba8b6777::t_3182d690e20c99 1,23-24,26,29,32-33
+ci_failure_orchestrator/agent_router.py
+  s_0d2715ba8b6777::t_327db9fac56343 1,3-4,10,13-33,42,57
+ci_failure_orchestrator/module_status.py
+  s_0d2715ba8b6777::t_d091831a382c0e 1,26-28,30,32,34-39,45-47,73-76,80
+tests/test_approval.py
+  s_0d2715ba8b6777::t_a7d9005959d14c 1-25
+ci_failure_orchestrator/governed/classifier.py
+  s_0d2715ba8b6777::t_d9ba17670359d2 35
+  s_0d2715ba8b6777::t_304633d0e96ba3 6
+  s_0d2715ba8b6777::t_22d430b4eff93f 37-41
+tests/test_workflow_safety.py
+  s_0d2715ba8b6777::t_c58f3b028445b4 1,54-62
+README.md
+  s_0d2715ba8b6777::t_c2035227b8208e 183,185-192,194-196
+  s_0d2715ba8b6777::t_837bc1821e27fe 3-7,12,19-22,184,193
+  s_0d2715ba8b6777::t_f26761acab1fdf 52
+docs/module-status.md
+  s_0d2715ba8b6777::t_d1ed0fbd66c7c6 3-5,7,11-12,15-26,29,31,33,35,37,39-43
+tests/test_agent_router.py
+  s_0d2715ba8b6777::t_55e6b645ae62e5 2,4,15,29,36,43
+tests/test_security_boundaries.py
+  s_0d2715ba8b6777::t_027790971c3541 459-460,467
+docs/CONTROL_PLANE.md
+  s_0d2715ba8b6777::t_acd04f97c92088 1-54
+ci_failure_orchestrator/agent_mcp/tools.py
+  s_0d2715ba8b6777::t_75904d194ae391 3
+ci_failure_orchestrator/cli.py
+  s_0d2715ba8b6777::t_15c71abcda6cbb 43-44,64-65,71-72,83-84,505-508,513,517,519,522,524,527,529,535,539,541-543,549-550,555,557-558,560,564,569,572-574,594,597-600,612-613,616-617,619,622,624,626,628,630-634,636,638-640,646,649-652,654,662,669,676,683,687-688,690-693,698,700-701,703,705,711,713
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "52c04854545be76438037ab2ff76eb4de76dc5fd",
+  "prompts": {},
+  "sessions": {
+    "s_0d2715ba8b6777": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "d33a06a6-f52e-4140-807a-664841deec84",
+        "model": "default"
+      },
+      "human_author": "Zixsa <dbdf0147@gmail.com>"
+    }
+  }
+}
