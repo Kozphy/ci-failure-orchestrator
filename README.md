@@ -187,6 +187,8 @@ A Python package with two CLIs over one deterministic core:
 - `ci_failure_orchestrator/agent_mcp/`: optional stdio MCP adapter with three read-only tools
   (`diagnose_saved_log`, `summarize_reliability_export`, `get_repair_evidence`). It does not
   merge, apply patches, or run shell commands. See [docs/agent-mcp.md](docs/agent-mcp.md).
+- `plugins/kozphy-ci-diagnosis/`: v0.1 Cursor toolkit package over the same read-only MCP
+  adapter. Install and limits: [docs/toolkit/INSTALL.md](docs/toolkit/INSTALL.md).
 
 Everything runs locally or in your CI runner; there is no hosted service. Details:
 [docs/COMMERCIAL_ARCHITECTURE.md](docs/COMMERCIAL_ARCHITECTURE.md) and
