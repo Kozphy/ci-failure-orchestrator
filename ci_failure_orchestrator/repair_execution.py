@@ -2,18 +2,15 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Sequence
 
 from .control_plane import Evaluation
 from .patch_sandbox import PatchVerification, WorktreePatchVerifier
 from .provider_adapters import ProviderRun
 
-
-_DIFF_RE = re.compile(
-    r"(?ms)^diff --git a/.+? b/.+?(?=^diff --git a/|^```|\Z)"
-)
+_DIFF_RE = re.compile(r"(?ms)^diff --git a/.+? b/.+?(?=^diff --git a/|^```|\Z)")
 
 
 def extract_unified_diff(text: str) -> str:
@@ -39,6 +36,7 @@ class RepairExecutionEvidence:
     verification_latency_ms: float
     score: float
     reasons: tuple[str, ...]
+    isolation_mode: str = "worktree-host"
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -114,6 +112,7 @@ class RepairExecutionPipeline:
             verification_latency_ms=verification.total_latency_ms if verification else 0.0,
             score=evaluation.score,
             reasons=evaluation.reasons,
+            isolation_mode=self.verifier.isolation_mode,
         )
         return evaluation, evidence
 

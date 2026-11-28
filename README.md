@@ -100,6 +100,16 @@ ci-orchestrator fix-repo --repo-path ../my-service \
   --verify "python -m pytest tests/test_calc.py -q" \
   --patch-file fix.patch --verification-config verify.yml
 
+# Optional stronger isolation: provide an image with the project dependencies installed.
+# Verification runs with no network, a read-only container root, and bounded resources;
+# Docker/image failures do not fall back to host execution.
+ci-orchestrator fix-repo --repo-path ../my-service \
+  --verify "python -m pytest tests/test_calc.py -q" \
+  --patch-file fix.patch --container-image my-python-ci:stable
+
+For reproducible verification, use a digest-pinned image containing the target project's
+dependencies and every executable referenced by `--verify`/`--regression`.
+
 # 3. See what apply would do, then create a branch and a draft PR
 ci-orchestrator fix-repo-apply <run_id> --dry-run
 ci-orchestrator fix-repo-apply <run_id> --push --open-pr
@@ -174,6 +184,9 @@ A Python package with two CLIs over one deterministic core:
 - `ci_failure_orchestrator/doctor/`: `actions-doctor` diagnosis, the offline demo and the
   GitHub Action.
 - `ci_failure_orchestrator/ci_audit/`: the read-only reliability audit.
+- `ci_failure_orchestrator/agent_mcp/`: optional stdio MCP adapter with three read-only tools
+  (`diagnose_saved_log`, `summarize_reliability_export`, `get_repair_evidence`). It does not
+  merge, apply patches, or run shell commands. See [docs/agent-mcp.md](docs/agent-mcp.md).
 
 Everything runs locally or in your CI runner; there is no hosted service. Details:
 [docs/COMMERCIAL_ARCHITECTURE.md](docs/COMMERCIAL_ARCHITECTURE.md) and
