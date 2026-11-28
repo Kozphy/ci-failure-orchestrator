@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import hashlib
+import math
+from dataclasses import replace
 from typing import Protocol
 
 from .models import EvaluationResult, RepairProposal, SandboxResult, utc_now
@@ -102,8 +104,6 @@ class EvalForgeAdapter:
                 sandbox=sandbox,
                 target_check_passed=target_check_passed,
             )
-            from dataclasses import replace
-
             return replace(local, evidence=("local_fallback_not_independent", *local.evidence))
         proposal_sha256 = hashlib.sha256(proposal.proposed_patch.encode("utf-8")).hexdigest()
         payload = {
@@ -148,7 +148,6 @@ class EvalForgeAdapter:
             or any(not isinstance(e, str) or not e.strip() or len(e) > 2048 for e in evidence)
         ):
             return self._blocked(run_id, "invalid_evidence")
-        import math
 
         score = remote.get("score")
         if score is not None and (type(score) not in (int, float) or not math.isfinite(score) or not 0 <= score <= 1):
@@ -158,13 +157,31 @@ class EvalForgeAdapter:
         )
         if remote["passed"] and (not all(remote[k] for k in flags) or not local_ok):
             return self._blocked(run_id, "contradictory_pass")
+
+        # Remote approval cannot override local sandbox, test, or policy failures.
+        local = LocalEvaluator().evaluate(
+            run_id=run_id,
+            proposal=proposal,
+            sandbox=sandbox,
+            target_check_passed=target_check_passed,
+        )
+        verified_target = local.target_check_passed and remote["target_check_passed"] is True
+        verified_regression = local.regression_free and remote["regression_free"] is True
+        verified_policy = local.policy_safe and remote["policy_safe"] is True
+        passed = (
+            remote["passed"] is True
+            and local.passed
+            and verified_target
+            and verified_regression
+            and verified_policy
+        )
         return EvaluationResult(
             run_id=run_id,
-            passed=remote["passed"],
-            target_check_passed=remote["target_check_passed"],
-            regression_free=remote["regression_free"],
-            policy_safe=remote["policy_safe"],
-            evidence=("independent_evalforge_response", *evidence),
+            passed=passed,
+            target_check_passed=verified_target,
+            regression_free=verified_regression,
+            policy_safe=verified_policy,
+            evidence=local.evidence + ("independent_evalforge_response", *evidence),
             score=score,
             timestamp=utc_now(),
         )
