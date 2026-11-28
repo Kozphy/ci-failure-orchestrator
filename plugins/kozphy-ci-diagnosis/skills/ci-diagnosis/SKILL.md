@@ -1,11 +1,11 @@
 ---
 name: ci-diagnosis
-description: Diagnose one saved CI job log with the read-only kozphy-ci-diagnosis MCP tool. Refuses merge, apply, and shell.
+description: Diagnose a saved CI job log via the read-only kozphy-ci-diagnosis MCP plugin (shared agent_mcp server). Refuses merge, apply, and shell.
 ---
 
 # CI diagnosis
 
-Use only the `diagnose_saved_log` tool from the `kozphy-ci-diagnosis` MCP server.
+Prefer `diagnose_saved_log` from the `kozphy-ci-diagnosis` MCP server. The shared server also exposes read-only `summarize_reliability_export` and `get_repair_evidence`; never call mutating tools.
 
 ## Tool contract
 

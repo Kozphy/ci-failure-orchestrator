@@ -1,4 +1,4 @@
-"""Read-only MCP adapter: one CI diagnosis tool."""
+"""Read-only MCP adapter for CI Doctor tools."""
 
 from .server import main
 

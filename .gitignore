@@ -1,6 +1,8 @@
 # Virtual environments
 .venv/
 venv/
+.env/
+.Python
 
 # Local env files (keep example templates)
 .env
@@ -17,19 +19,29 @@ dist/
 build/
 .eggs/
 *.whl
+pip-wheel-metadata/
+MANIFEST
+*.manifest
+*.spec
 
 # Test / type / lint caches
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+.pyre/
 .coverage
 .coverage.*
 htmlcov/
 coverage.xml
+*.cover
 .tox/
 .nox/
 .hypothesis/
 .cache/
+.pytest/
 
 # Local secrets and credentials (never commit)
 *.pem
@@ -40,6 +52,10 @@ id_rsa.*
 .env.secrets
 credentials.json
 secrets.json
+*.secrets.json
+service-account*.json
+token.json
+client_secret*.json
 
 # Local audit / evidence streams
 # (committed sample runs under evidence/sample-runs/ are intentional)
@@ -51,13 +67,45 @@ evidence/*.jsonl
 artifacts/
 tmp/
 temp/
+out/
 *.log
+*.tmp
+*.bak
+*.orig
+*.rej
 
-# Ephemeral SQLite DBs from governed benchmark runs
+# Ephemeral SQLite / local DB files from server and governed benchmark runs
+*.db
+*.sqlite
+*.sqlite3
 benchmarks/cases/*.db
 *.db-journal
 *.db-wal
 *.db-shm
+
+# Local research run outputs (keep methodology docs under research/ commit-able)
+research/results/
+
+# Notebooks / analysis scratch
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+profile_default/
+ipython_config.py
+
+# Optional local Node tooling (dashboard / docs front-ends)
+node_modules/
+.npm/
+.pnpm-store/
+.next/
+.turbo/
+.parcel-cache/
+
+# Tooling / package managers
+.uv/
+.pdm-python
+.pdm-build/
+poetry.toml
+__pypackages__/
 
 # IDE / editor
 .idea/
@@ -65,8 +113,13 @@ benchmarks/cases/*.db
 *.swp
 *.swo
 *~
+*.code-workspace
 
 # OS
 .DS_Store
+.AppleDouble
+.LSOverride
 Thumbs.db
+ehthumbs.db
 Desktop.ini
+$RECYCLE.BIN/

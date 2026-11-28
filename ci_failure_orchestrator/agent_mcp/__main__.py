@@ -1,4 +1,4 @@
-"""Run the read-only diagnosis server: ``python -m ci_failure_orchestrator.agent_mcp``."""
+"""Run the read-only MCP server: ``python -m ci_failure_orchestrator.agent_mcp``."""
 
 from .server import main
 

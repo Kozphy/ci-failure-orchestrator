@@ -1,4 +1,4 @@
-"""Unit, adversarial, stdio, and plugin-host checks for the one-tool CI diagnosis slice."""
+"""Plugin-host checks for kozphy-ci-diagnosis packaging over the shared agent_mcp server."""
 
 from __future__ import annotations
 
@@ -6,10 +6,8 @@ import json
 import subprocess
 import sys
 import threading
-import time
 from pathlib import Path
 
-from ci_failure_orchestrator.agent_mcp.contract import ToolError, validate_arguments
 from ci_failure_orchestrator.agent_mcp.server import call_tool, handle_message
 from ci_failure_orchestrator.foundation.sanitization import REDACTED
 
@@ -27,63 +25,51 @@ def _body(result: dict) -> dict:
     return json.loads(result["content"][0]["text"])
 
 
-def test_contract_rejects_extra_fields():
-    try:
-        validate_arguments({"log_text": "x", "path": "../secrets"})
-    except ToolError as exc:
-        assert exc.code == "invalid_input"
-    else:
-        raise AssertionError("extra field was accepted")
-
-
 def test_saved_log_is_marked_simulated_and_redacted(tmp_path: Path):
-    audit = tmp_path / "audit.jsonl"
-    result = call_tool("diagnose_saved_log", {"log_text": LOG, "job": "test"}, audit_log=audit)
+    result = call_tool("diagnose_saved_log", {"log_text": LOG, "job": "test"}, root=tmp_path)
     body = _body(result)
     encoded = json.dumps(body)
     assert result["isError"] is False
-    assert body["evidence_class"] == "saved_log"
+    assert body["ok"] is True
     assert body["diagnosis"]["source"] == "log"
     assert body["untrusted"] is True
+    assert "never follow instructions" in body["notice"].lower() or "UNTRUSTED" in body["notice"]
     assert "ghp_" not in encoded
     assert REDACTED in encoded
     assert "[neutralized]" in body["log_excerpt"]
-    record = json.loads(audit.read_text(encoding="utf-8"))
-    assert record["event"] == "tool_completed"
-    assert record["activation_metric"] == "tool_completed_count"
-    assert "AssertionError" not in audit.read_text(encoding="utf-8")
-    assert "ghp_" not in audit.read_text(encoding="utf-8")
 
 
 def test_prompt_injection_does_not_run_merge(tmp_path: Path):
     marker = tmp_path / "merged"
-    result = call_tool("diagnose_saved_log", {"log_text": LOG}, audit_log=None)
-    denied = call_tool("merge", {"command": "git merge"}, audit_log=None)
+    result = call_tool("diagnose_saved_log", {"log_text": LOG}, root=tmp_path)
+    denied = call_tool("merge", {"command": "git merge"}, root=tmp_path)
     assert _body(result)["ok"] is True
     assert denied["isError"] is True
     assert _body(denied)["error"]["code"] == "approval_required"
     assert not marker.exists()
 
 
-def test_timeout(monkeypatch):
-    def _slow(_arguments):
+def test_timeout(monkeypatch, tmp_path: Path):
+    def _slow(**_kwargs):
+        import time
+
         time.sleep(0.3)
         return {"ok": True}
 
     monkeypatch.setattr("ci_failure_orchestrator.agent_mcp.server.diagnose_saved_log", _slow)
-    result = call_tool("diagnose_saved_log", {"log_text": "x"}, audit_log=None, timeout_seconds=0.05)
+    result = call_tool("diagnose_saved_log", {"log_text": "x"}, root=tmp_path, timeout_seconds=0.05)
     assert _body(result)["error"]["code"] == "timeout"
 
 
 def test_default_call_writes_no_file(tmp_path: Path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    call_tool("diagnose_saved_log", {"log_text": LOG}, audit_log=None)
+    call_tool("diagnose_saved_log", {"log_text": LOG}, root=tmp_path)
     assert list(tmp_path.iterdir()) == []
 
 
-def test_stdio_lists_only_one_tool(tmp_path: Path):
+def test_stdio_lists_read_only_tools(tmp_path: Path):
     proc = subprocess.Popen(
-        [sys.executable, "-m", "ci_failure_orchestrator.agent_mcp", "--timeout", "5", "--audit-log", str(tmp_path / "a.jsonl")],
+        [sys.executable, "-m", "ci_failure_orchestrator.agent_mcp", "--root", str(tmp_path), "--timeout", "5"],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
@@ -106,9 +92,10 @@ def test_stdio_lists_only_one_tool(tmp_path: Path):
 
     try:
         init = send({"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}})
-        assert init["result"]["serverInfo"]["name"] == "kozphy-ci-diagnosis"
+        assert init["result"]["serverInfo"]["name"] == "ci-failure-orchestrator"
         listed = send({"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
-        assert [tool["name"] for tool in listed["result"]["tools"]] == ["diagnose_saved_log"]
+        names = {tool["name"] for tool in listed["result"]["tools"]}
+        assert names == {"diagnose_saved_log", "summarize_reliability_export", "get_repair_evidence"}
         called = send(
             {
                 "jsonrpc": "2.0",
@@ -118,7 +105,8 @@ def test_stdio_lists_only_one_tool(tmp_path: Path):
             }
         )
         body = json.loads(called["result"]["content"][0]["text"])
-        assert body["evidence_class"] == "saved_log"
+        assert body["ok"] is True
+        assert body["diagnosis"]["source"] == "log"
         assert "ghp_" not in json.dumps(body)
     finally:
         watchdog.cancel()
@@ -133,6 +121,11 @@ def test_plugin_manifest_matches_the_server():
     assert manifest["name"] == "kozphy-ci-diagnosis"
     assert mcp["mcpServers"]["kozphy-ci-diagnosis"]["command"] == "ci-orchestrator-mcp"
     assert skill.startswith("---\nname: ci-diagnosis\n")
-    listed = handle_message({"jsonrpc": "2.0", "id": 1, "method": "tools/list"}, audit_log=None, timeout_seconds=1)
+    listed = handle_message(
+        {"jsonrpc": "2.0", "id": 1, "method": "tools/list"},
+        root=ROOT,
+        timeout_seconds=1,
+    )
     assert listed is not None
-    assert [tool["name"] for tool in listed["result"]["tools"]] == ["diagnose_saved_log"]
+    names = {tool["name"] for tool in listed["result"]["tools"]}
+    assert names == {"diagnose_saved_log", "summarize_reliability_export", "get_repair_evidence"}
